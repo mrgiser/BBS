@@ -1,0 +1,17 @@
+server:
+    port: 8777
+
+spring:
+    application:
+        name: bbs
+    freemarker:
+        template-loader-path: classpath:/templates/
+        suffix: .ftl
+
+Symphonys:
+    StaticServePath: classpath:/templates/
+
+#    messages:
+#        basename: lang
+#        cache-seconds: 3600
+#        encoding: UTF-8
