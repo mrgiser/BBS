@@ -192,7 +192,7 @@ public class CommentMgmtService {
             notificationMgmtService.addCommentAcceptNotification(notification);
 
             livenessMgmtService.incLiveness(articleAuthorId, Liveness.LIVENESS_ACCEPT_ANSWER);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             throw e;
         } catch (final Exception e) {
             LOGGER.error( "Accepts a comment [id=" + commentId + "] failed", e);

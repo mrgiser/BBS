@@ -1914,7 +1914,8 @@ public class AdminProcessor {
             notification.put(Notification.NOTIFICATION_DATA_ID, transferId);
 
             notificationMgmtService.addPointChargeNotification(notification);
-        } catch (final NumberFormatException | Exception e) {
+//        } catch (final NumberFormatException | Exception e) {
+        } catch (Exception e) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
 //            context.setRenderer(renderer);
 //            renderer.setTemplateName("admin/error.ftl");
@@ -2015,7 +2016,7 @@ public class AdminProcessor {
             if (null == user
                     || UserExt.USER_STATUS_C_VALID != user.optInt(UserExt.USER_STATUS)
                     || UserExt.NULL_USER_NAME.equals(user.optString(User.USER_NAME))) {
-                return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
+                return "redirect:" + (SpringUtil.getServerPath() + "/admin/user/" + userId);
 
 //                return;
             }
@@ -2026,7 +2027,8 @@ public class AdminProcessor {
                 pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId, Pointtransfer.TRANSFER_TYPE_C_INIT,
                         Pointtransfer.TRANSFER_SUM_C_INIT, userId, Long.valueOf(userId));
             }
-        } catch (final IOException | NumberFormatException | Exception e) {
+//        } catch (final IOException | NumberFormatException | Exception e) {
+        }catch (Exception e) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
 //            context.setRenderer(renderer);
 //            renderer.setTemplateName("admin/error.ftl");

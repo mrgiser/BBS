@@ -359,7 +359,7 @@ public class DataModelService {
 
             try {
                 curUser = userQueryService.getCurrentUser(request);
-            } catch (final ServiceException e) {
+            } catch ( final Exception e) {
                 LOGGER.error( "Gets the current user failed", e);
             }
 

@@ -164,11 +164,11 @@ public final class SkinRenderer extends AbstractFreeMarkerRenderer {
     }
 
     @Override
-    protected void beforeRender(final HTTPRequestContext context) {
+    protected void beforeRender(Map<String, Object> dataModel) {
     }
 
     @Override
-    protected void afterRender(final HTTPRequestContext context) {
+    protected void afterRender(Map<String, Object> dataModel) {
     }
 
     /**

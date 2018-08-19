@@ -99,7 +99,7 @@ public class CaptchaProcessor {
      * @param context the specified context
      */
     @RequestMapping(value = "/captcha", method = RequestMethod.GET)
-    public void get(final HTTPRequestContext context) {
+    public void get(Map<String, Object> dataModel) {
         final PNGRenderer renderer = new PNGRenderer();
         context.setRenderer(renderer);
 
@@ -139,7 +139,7 @@ public class CaptchaProcessor {
      * @param context the specified context
      */
     @RequestMapping(value = "/captcha/login", method = RequestMethod.GET)
-    public void getLoginCaptcha(final HTTPRequestContext context) {
+    public void getLoginCaptcha(Map<String, Object> dataModel) {
         try {
             final HttpServletRequest request = context.getRequest();
             final HttpServletResponse response = context.getResponse();

@@ -213,7 +213,7 @@ public class SettingsProcessor {
             verifycodeMgmtService.addVerifycode(verifycode);
 
             context.renderTrueResult().renderMsg(langPropsService.get("verifycodeSentLabel"));
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -259,7 +259,7 @@ public class SettingsProcessor {
             verifycodeMgmtService.removeByCode(captcha);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -307,7 +307,7 @@ public class SettingsProcessor {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -464,7 +464,7 @@ public class SettingsProcessor {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -548,7 +548,7 @@ public class SettingsProcessor {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -622,7 +622,7 @@ public class SettingsProcessor {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -664,7 +664,7 @@ public class SettingsProcessor {
             userMgmtService.updateProfiles(user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -713,7 +713,7 @@ public class SettingsProcessor {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -753,7 +753,7 @@ public class SettingsProcessor {
             userMgmtService.updateSyncB3(user);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
 
@@ -795,7 +795,7 @@ public class SettingsProcessor {
         try {
             userMgmtService.updatePassword(user);
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
 
@@ -828,7 +828,7 @@ public class SettingsProcessor {
             emotionMgmtService.setEmotionList(user.optString(Keys.OBJECT_ID), emotionList);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
 

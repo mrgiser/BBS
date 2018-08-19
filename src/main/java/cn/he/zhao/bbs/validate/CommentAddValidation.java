@@ -111,7 +111,7 @@ public class CommentAddValidation {
                     throw new RequestProcessAdviceException(exception.put(Keys.MSG, langPropsService.get("commentArticleErrorLabel")));
                 }
             }
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             throw new RequestProcessAdviceException(exception.put(Keys.MSG, "Unknown Error"));
         }
     }

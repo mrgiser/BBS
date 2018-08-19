@@ -235,7 +235,7 @@ public class ArticleProcessor {
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
             context.renderJSONValue(Article.ARTICLE_T_ID, id);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = e.getMessage();
 
             dataModel.put("msg",msg);
@@ -993,7 +993,7 @@ public class ArticleProcessor {
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
             context.renderJSONValue(Article.ARTICLE_T_ID, articleId);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
 
@@ -1204,7 +1204,7 @@ public class ArticleProcessor {
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
             context.renderJSONValue(Article.ARTICLE_T_ID, id);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
 
@@ -1226,14 +1226,14 @@ public class ArticleProcessor {
      *
      * @param request  the specified http servlet request
      * @param response the specified http servlet response
-     * @param context  the specified http request context
+
      */
     @RequestMapping(value = "/markdown", method = RequestMethod.POST)
 //    @Before(adviceClass = StopwatchStartAdvice.class)
 //    @After(adviceClass = StopwatchEndAdvice.class)
     @StopWatchStartAnno
     @StopWatchEndAnno
-    public void markdown2HTML(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context) {
+    public void markdown2HTML(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel) {
         context.renderJSON(true);
         String markdownText = request.getParameter("markdownText");
         if (Strings.isEmptyOrNull(markdownText)) {
@@ -1293,7 +1293,7 @@ public class ArticleProcessor {
      *
      * @param request  the specified http servlet request
      * @param response the specified http servlet response
-     * @param context  the specified http request context
+
      * @throws Exception exception
      */
     @RequestMapping(value = "/article/reward", method = RequestMethod.POST)
@@ -1301,7 +1301,7 @@ public class ArticleProcessor {
 //    @After(adviceClass = StopwatchEndAdvice.class)
     @StopWatchStartAnno
     @StopWatchEndAnno
-    public void reward(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
+    public void reward(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -1321,9 +1321,9 @@ public class ArticleProcessor {
 
         try {
             articleMgmtService.reward(articleId, currentUser.optString(Keys.OBJECT_ID));
-        } catch (final ServiceException e) {
-            context.renderMsg(langPropsService.get("transferFailLabel"));
-
+        } catch ( final Exception e) {
+//            context.renderMsg(langPropsService.get("transferFailLabel"));
+            dataModel.put(Keys.MSG,langPropsService.get("transferFailLabel"));
             return;
         }
 
@@ -1331,7 +1331,9 @@ public class ArticleProcessor {
         articleQueryService.processArticleContent(article, request);
 
         final String rewardContent = article.optString(Article.ARTICLE_REWARD_CONTENT);
-        context.renderTrueResult().renderJSONValue(Article.ARTICLE_REWARD_CONTENT, rewardContent);
+//        context.renderTrueResult().renderJSONValue(Article.ARTICLE_REWARD_CONTENT, rewardContent);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
     }
 
     /**
@@ -1339,7 +1341,7 @@ public class ArticleProcessor {
      *
      * @param request  the specified http servlet request
      * @param response the specified http servlet response
-     * @param context  the specified http request context
+
      * @throws Exception exception
      */
     @RequestMapping(value = "/article/thank", method = RequestMethod.POST)
@@ -1348,7 +1350,7 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void thank(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
+    public void thank(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -1364,17 +1366,19 @@ public class ArticleProcessor {
             return;
         }
 
-        context.renderJSON();
-
+//        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
         try {
             articleMgmtService.thank(articleId, currentUser.optString(Keys.OBJECT_ID));
-        } catch (final ServiceException e) {
-            context.renderMsg(langPropsService.get("transferFailLabel"));
+        } catch (final Exception e) {
+//            context.renderMsg(langPropsService.get("transferFailLabel"));
+            dataModel.put(Keys.MSG,langPropsService.get("transferFailLabel"));
 
             return;
         }
 
-        context.renderTrueResult();
+//        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -1382,7 +1386,7 @@ public class ArticleProcessor {
      *
      * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
-     * @param context  the specified HTTP request context
+
      * @throws Exception exception
      */
     @RequestMapping(value = "/article/stick", method = RequestMethod.POST)
@@ -1391,7 +1395,7 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void stickArticle(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
+    public void stickArticle(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -1420,17 +1424,21 @@ public class ArticleProcessor {
             return;
         }
 
-        context.renderJSON();
+//        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         try {
             articleMgmtService.stick(articleId);
-        } catch (final ServiceException e) {
-            context.renderMsg(e.getMessage());
+        } catch (final Exception e) {
+//            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG,e.getMessage());
 
             return;
         }
 
-        context.renderTrueResult().renderMsg(langPropsService.get("stickSuccLabel"));
+//        context.renderTrueResult().renderMsg(langPropsService.get("stickSuccLabel"));
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Keys.MSG,langPropsService.get("stickSuccLabel"));
     }
 
     /**
@@ -1438,7 +1446,7 @@ public class ArticleProcessor {
      *
      * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
-     * @param context  the specified HTTP request context
+
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/article/stick-expire", method = RequestMethod.GET)
@@ -1446,7 +1454,7 @@ public class ArticleProcessor {
 //    @After(adviceClass = StopwatchEndAdvice.class)
     @StopWatchStartAnno
     @StopWatchEndAnno
-    public void expireStickArticle(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
+    public void expireStickArticle(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {
@@ -1457,6 +1465,7 @@ public class ArticleProcessor {
 
         articleMgmtService.expireStick();
 
-        context.renderJSON().renderTrueResult();
+//        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }

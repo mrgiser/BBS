@@ -62,7 +62,7 @@ public class SitemapProcessor {
      * @param context the specified context
      */
     @RequestMapping(value = "/sitemap.xml", method = RequestMethod.GET)
-    public void sitemap(final HTTPRequestContext context) {
+    public void sitemap(Map<String, Object> dataModel) {
         final TextXMLRenderer renderer = new TextXMLRenderer();
 
         context.setRenderer(renderer);

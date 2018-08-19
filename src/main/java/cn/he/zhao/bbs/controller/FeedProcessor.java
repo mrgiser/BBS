@@ -94,7 +94,7 @@ public class FeedProcessor {
      * @param context the specified context
      */
     @RequestMapping(value = "/rss/recent.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
-    public void genRecentRSS(final HTTPRequestContext context) {
+    public void genRecentRSS(Map<String, Object> dataModel) {
         final RssRenderer renderer = new RssRenderer();
         context.setRenderer(renderer);
 

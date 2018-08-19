@@ -99,7 +99,7 @@ public class LinkForgeProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void forgeLink(final HTTPRequestContext context) throws Exception {
+    public void forgeLink(Map<String, Object> dataModel) throws Exception {
         context.renderJSON(true);
 
         JSONObject requestJSONObject;

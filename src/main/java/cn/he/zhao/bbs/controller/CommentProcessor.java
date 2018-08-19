@@ -173,7 +173,7 @@ public class CommentProcessor {
             commentMgmtService.acceptComment(commentId);
 
             context.renderTrueResult();
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -223,7 +223,7 @@ public class CommentProcessor {
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
             context.renderJSONValue(Comment.COMMENT_T_ID, id);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             final String msg = e.getMessage();
 
             dataModel.put("msg",msg);
@@ -285,7 +285,7 @@ public class CommentProcessor {
 
             context.renderJSONValue(Comment.COMMENT_CONTENT, comment.optString(Comment.COMMENT_CONTENT));
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -360,7 +360,7 @@ public class CommentProcessor {
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
             context.renderJSONValue(Comment.COMMENT_CONTENT, commentContent);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -539,7 +539,7 @@ public class CommentProcessor {
             }
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }
@@ -569,7 +569,7 @@ public class CommentProcessor {
             commentMgmtService.thankComment(commentId, currentUser.optString(Keys.OBJECT_ID));
 
             context.renderTrueResult().renderMsg(langPropsService.get("thankSentLabel"));
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
         }
     }

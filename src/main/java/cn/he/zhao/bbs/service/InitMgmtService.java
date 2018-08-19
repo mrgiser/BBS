@@ -218,7 +218,7 @@ public class InitMgmtService {
             if (null != admins && !admins.isEmpty()) { // Initialized already
                 return;
             }
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             LOGGER.error( "Check init error", e);
 
             System.exit(0);

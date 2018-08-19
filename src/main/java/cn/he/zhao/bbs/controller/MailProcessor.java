@@ -61,7 +61,7 @@ public class MailProcessor {
      *
      * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
-     * @param context  the specified HTTP request context
+
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/mail/weekly", method = RequestMethod.GET)
@@ -69,7 +69,7 @@ public class MailProcessor {
 //    @After(adviceClass = StopwatchEndAdvice.class)
     @StopWatchStartAnno
     @StopWatchEndAnno
-    public void sendWeeklyNewsletter(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
+    public void sendWeeklyNewsletter(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {

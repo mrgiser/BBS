@@ -99,7 +99,7 @@ public class ReportProcessor {
             reportMgmtService.addReport(report);
 
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-        } catch (final ServiceException e) {
+        } catch ( final Exception e) {
             context.renderMsg(e.getMessage());
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
         } catch (final Exception e) {
