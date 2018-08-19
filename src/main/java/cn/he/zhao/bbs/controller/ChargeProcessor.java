@@ -67,9 +67,13 @@ public class ChargeProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/charge/point", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showChargePoint(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showChargePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);

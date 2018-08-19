@@ -22,6 +22,8 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -99,9 +101,12 @@ public class NotificationProcessor {
      * @param type    the specified type: commented/reply/at/following/point/broadcast
      */
     @RequestMapping(value = "/notification/remove/{type}", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void removeNotifications(final HTTPRequestContext context, final HttpServletRequest request, final String type) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchEndAnno
+    public void removeNotifications(Map<String, Object> dataModel, final HttpServletRequest request, final String type) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
 
@@ -165,9 +170,12 @@ public class NotificationProcessor {
      * @param requestJSONObject the specified request json object
      */
     @RequestMapping(value = "/notification/remove", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void removeNotification(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    public void removeNotification(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON(true);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -195,9 +203,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/sys-announce", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showSysAnnounceNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showSysAnnounceNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                              final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
 
@@ -246,9 +258,12 @@ public class NotificationProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/notification/all-read", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void makeAllNotificationsRead(final HTTPRequestContext context, final HttpServletRequest request) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+    public void makeAllNotificationsRead(Map<String, Object> dataModel, final HttpServletRequest request) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
 
@@ -265,9 +280,12 @@ public class NotificationProcessor {
      * @param type    the specified type: "commented"/"at"/"following"
      */
     @RequestMapping(value = "/notification/read/{type}", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void makeNotificationRead(final HTTPRequestContext context, final HttpServletRequest request, final String type) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+    public void makeNotificationRead(Map<String, Object> dataModel, final HttpServletRequest request, final String type) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
 
@@ -315,9 +333,12 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notification/read", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void makeNotificationRead(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+    public void makeNotificationRead(Map<String, Object> dataModel, final HttpServletRequest request,
                                      final HttpServletResponse response) throws Exception {
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -339,9 +360,12 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void navigateNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+    public void navigateNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                       final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -355,7 +379,7 @@ public class NotificationProcessor {
         final int unreadCommentedNotificationCnt
                 = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENTED);
         if (unreadCommentedNotificationCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/commented");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/commented");
 
             return;
         }
@@ -363,7 +387,7 @@ public class NotificationProcessor {
         final int unreadReplyNotificationCnt
                 = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_REPLY);
         if (unreadReplyNotificationCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/reply");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/reply");
 
             return;
         }
@@ -377,21 +401,21 @@ public class NotificationProcessor {
                 + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP)
                 + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
         if (unreadAtNotificationCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/at");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/at");
 
             return;
         }
 
         final int unreadPointNotificationCnt = notificationQueryService.getUnreadPointNotificationCount(userId);
         if (unreadPointNotificationCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/point");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/point");
 
             return;
         }
 
         final int unreadFollowingNotificationCnt = notificationQueryService.getUnreadFollowingNotificationCount(userId);
         if (unreadFollowingNotificationCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/following");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/following");
 
             return;
         }
@@ -399,19 +423,19 @@ public class NotificationProcessor {
         final int unreadBroadcastCnt
                 = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_BROADCAST);
         if (unreadBroadcastCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/broadcast");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/broadcast");
 
             return;
         }
 
         final int unreadSysAnnounceCnt = notificationQueryService.getUnreadSysAnnounceNotificationCount(userId);
         if (unreadSysAnnounceCnt > 0) {
-            response.sendRedirect(Latkes.getServePath() + "/notifications/sys-announce");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/sys-announce");
 
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/notifications/commented");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/commented");
     }
 
     /**
@@ -423,9 +447,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/point", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showPointNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showPointNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -526,9 +554,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/commented", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showCommentedNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showCommentedNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -581,9 +613,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/reply", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showReplyNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showReplyNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -636,9 +672,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/at", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showAtNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showAtNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                     final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -699,9 +739,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/following", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showFollowingNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showFollowingNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -755,9 +799,13 @@ public class NotificationProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/notifications/broadcast", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showBroadcastNotifications(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showBroadcastNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
@@ -809,9 +857,12 @@ public class NotificationProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/notification/unread/count", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {StopwatchEndAdvice.class})
-    public void getUnreadNotificationCount(final HTTPRequestContext context, final HttpServletRequest request) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+    public void getUnreadNotificationCount(Map<String, Object> dataModel, final HttpServletRequest request) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final Map<String, Object> dataModel = new HashMap<>();

@@ -22,6 +22,11 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.util.Headers;
+import cn.he.zhao.bbs.util.Sessions;
+import cn.he.zhao.bbs.util.StatusCodes;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,9 +96,14 @@ public class BreezemoonProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/watch/breezemoons", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {CSRFToken.class, PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showWatchBreezemoon(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {CSRFToken.class, PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @CSRFTokenAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showWatchBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -108,7 +118,7 @@ public class BreezemoonProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(Latkes.getServePath() + "/guide");
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
                 return;
             }
@@ -146,9 +156,14 @@ public class BreezemoonProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/breezemoon", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void addBreezemoon(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @CSRFTokenAnno
+    @PermissionCheckAnno
+    @StopWatchEndAnno
+    public void addBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         if (isInvalid(context, requestJSONObject)) {
@@ -191,9 +206,14 @@ public class BreezemoonProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/breezemoon/{id}", method = RequestMethod.PUT)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void updateBreezemoon(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @CSRFTokenAnno
+    @PermissionCheckAnno
+    @StopWatchEndAnno
+    public void updateBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject,
                                  final String id) {
         context.renderJSON();
         if (isInvalid(context, requestJSONObject)) {
@@ -229,9 +249,14 @@ public class BreezemoonProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/breezemoon/{id}", method = RequestMethod.DELETE)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void removeBreezemoon(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @CSRFTokenAnno
+    @PermissionCheckAnno
+    @StopWatchEndAnno
+    public void removeBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject,
                                  final String id) {
         context.renderJSON();
 
@@ -245,7 +270,7 @@ public class BreezemoonProcessor {
         }
     }
 
-    private boolean isInvalid(final HTTPRequestContext context, final JSONObject requestJSONObject) {
+    private boolean isInvalid(Map<String, Object> dataModel, final JSONObject requestJSONObject) {
         String breezemoonContent = requestJSONObject.optString(Breezemoon.BREEZEMOON_CONTENT);
         breezemoonContent = StringUtils.trim(breezemoonContent);
         final int length = StringUtils.length(breezemoonContent);

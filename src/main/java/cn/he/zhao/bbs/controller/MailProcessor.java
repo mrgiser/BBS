@@ -22,6 +22,7 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -64,8 +65,10 @@ public class MailProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/mail/weekly", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = StopwatchEndAdvice.class)
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @StopWatchEndAnno
     public void sendWeeklyNewsletter(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");

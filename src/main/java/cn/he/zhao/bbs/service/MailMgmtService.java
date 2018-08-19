@@ -199,7 +199,7 @@ public class MailMgmtService {
             dataModel.put(User.USERS, (Object) users);
 
             final String fromName = langPropsService.get("symphonyEnLabel") + " "
-                    + langPropsService.get("weeklyEmailFromNameLabel", Latkes.getLocale());
+                    + langPropsService.get("weeklyEmailFromNameLabel", Locales.getLocale());
             Mails.batchSendHTML(fromName, mailSubject, new ArrayList<>(toMails), Mails.TEMPLATE_NAME_WEEKLY, dataModel);
 
             LOGGER.info("Sent weekly newsletter [" + toMails.size() + "]");

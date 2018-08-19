@@ -17,6 +17,12 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.Stopwatchs;
+import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.Markdowns;
+import cn.he.zhao.bbs.util.Sessions;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
@@ -105,9 +111,13 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"/watch", "/watch/users"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showWatch(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showWatch(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -121,7 +131,7 @@ public class IndexProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(Latkes.getServePath() + "/guide");
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
                 return;
             }
@@ -165,9 +175,12 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/guide/markdown", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showMDGuide(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showMDGuide(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -197,9 +210,12 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"", "/"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showIndex(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showIndex(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -228,9 +244,13 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"/recent", "/recent/hot", "/recent/good", "/recent/reply"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showRecent(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showRecent(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -243,7 +263,7 @@ public class IndexProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(Latkes.getServePath() + "/guide");
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
                 return;
             }
@@ -322,9 +342,13 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/hot", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showHotArticles(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showHotArticles(Map<String, Object> dataModel,
                                 final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -365,9 +389,13 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/symhub", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showSymHub(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showSymHub(Map<String, Object> dataModel,
                            final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -401,9 +429,13 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/perfect", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showPerfectArticles(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showPerfectArticles(Map<String, Object> dataModel,
                                     final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -415,7 +447,7 @@ public class IndexProcessor {
         if (null != user) {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(Latkes.getServePath() + "/guide");
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
                 return;
             }
@@ -452,8 +484,10 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/about", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = StopwatchEndAdvice.class)
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @StopWatchEndAnno
     public void showAbout(final HttpServletResponse response) throws Exception {
         response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
         response.setHeader("Location", "https://hacpai.com/article/1440573175609");
@@ -469,9 +503,12 @@ public class IndexProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/b3log", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showB3log(final HTTPRequestContext context,
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showB3log(Map<String, Object> dataModel,
                           final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -494,9 +531,11 @@ public class IndexProcessor {
      * @param response the specified HTTP servlet response
      */
     @RequestMapping(value = "/kill-browser", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void showKillBrowser(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) {
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @StopWatchEndAnno
+    public void showKillBrowser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         renderer.setTemplateName("other/kill-browser.ftl");
         context.setRenderer(renderer);

@@ -22,6 +22,8 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -135,8 +137,11 @@ public class CommentProcessor {
      *                          }
      */
     @RequestMapping(value = "/comment/accept", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
-    public void acceptComment(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    @PermissionCheckAnno
+    public void acceptComment(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -182,9 +187,13 @@ public class CommentProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/comment/{id}/remove", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, PermissionCheck.class})
-    @After(adviceClass = {StopwatchEndAdvice.class})
-    public void removeComment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, PermissionCheck.class})
+//    @After(adviceClass = {StopwatchEndAdvice.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    @PermissionCheckAnno
+    @StopWatchEndAnno
+    public void removeComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String id) throws Exception {
         if (StringUtils.isBlank(id)) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -217,7 +226,7 @@ public class CommentProcessor {
         } catch (final ServiceException e) {
             final String msg = e.getMessage();
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
@@ -229,9 +238,13 @@ public class CommentProcessor {
      * @param id      the specified comment id
      */
     @RequestMapping(value = "/comment/{id}/revisions", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, PermissionCheck.class})
-    @After(adviceClass = {StopwatchEndAdvice.class})
-    public void getCommentRevisions(final HTTPRequestContext context, final String id) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class, PermissionCheck.class})
+//    @After(adviceClass = {StopwatchEndAdvice.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    @PermissionCheckAnno
+    @StopWatchEndAnno
+    public void getCommentRevisions(Map<String, Object> dataModel, final String id) {
         final List<JSONObject> revisions = revisionQueryService.getCommentRevisions(id);
         final JSONObject ret = new JSONObject();
         ret.put(Keys.STATUS_CODE, true);
@@ -249,8 +262,9 @@ public class CommentProcessor {
      * @throws IOException io exception
      */
     @RequestMapping(value = "/comment/{id}/content", method = RequestMethod.GET)
-    @Before(adviceClass = {LoginCheck.class})
-    public void getCommentContent(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+//    @Before(adviceClass = {LoginCheck.class})
+    @LoginCheckAnno
+    public void getCommentContent(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                   final String id) throws IOException {
         context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
 
@@ -294,7 +308,10 @@ public class CommentProcessor {
      */
     @RequestMapping(value = "/comment/{id}", method = RequestMethod.PUT)
     @Before(adviceClass = {CSRFCheck.class, LoginCheck.class, CommentUpdateValidation.class, PermissionCheck.class})
-    public void updateComment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    @CSRFCheckAnno
+    @LoginCheckAnno
+    @PermissionCheckAnno
+    public void updateComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String id) throws IOException {
         context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
 
@@ -356,7 +373,7 @@ public class CommentProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/comment/original", method = RequestMethod.POST)
-    public void getOriginalComment(final HTTPRequestContext context, final HttpServletRequest request) throws Exception {
+    public void getOriginalComment(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String commentId = requestJSONObject.optString(Comment.COMMENT_T_ID);
         int commentViewMode = requestJSONObject.optInt(UserExt.USER_COMMENT_VIEW_MODE);
@@ -391,7 +408,7 @@ public class CommentProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/comment/replies", method = RequestMethod.POST)
-    public void getReplies(final HTTPRequestContext context,
+    public void getReplies(Map<String, Object> dataModel,
                            final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String commentId = requestJSONObject.optString(Comment.COMMENT_T_ID);
@@ -449,7 +466,10 @@ public class CommentProcessor {
      */
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
     @Before(adviceClass = {CSRFCheck.class, LoginCheck.class, CommentAddValidation.class, PermissionCheck.class})
-    public void addComment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @CSRFCheckAnno
+    @LoginCheckAnno
+    @PermissionCheckAnno
+    public void addComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
         context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
 
@@ -535,8 +555,11 @@ public class CommentProcessor {
      *                          }
      */
     @RequestMapping(value = "/comment/thank", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
-    public void thankComment(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, PermissionCheck.class})
+    @CSRFCheckAnno
+    @LoginCheckAnno
+    @PermissionCheckAnno
+    public void thankComment(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);

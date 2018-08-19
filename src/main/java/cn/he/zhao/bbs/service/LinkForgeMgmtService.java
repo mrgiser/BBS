@@ -101,7 +101,7 @@ public class LinkForgeMgmtService {
 
         try {
             final URL u = new URL(url);
-            if (StringUtils.containsIgnoreCase(Latkes.getServePath(), u.getHost())) {
+            if (StringUtils.containsIgnoreCase(SpringUtil.getServerPath(request), u.getHost())) {
                 return;
             }
         } catch (final Exception e) {

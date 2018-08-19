@@ -18,14 +18,18 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.GeetestLib;
 import cn.he.zhao.bbs.util.Results;
 import cn.he.zhao.bbs.util.Symphonys;
+import cn.he.zhao.bbs.validate.Activity1A0001CollectValidation;
+import cn.he.zhao.bbs.validate.Activity1A0001Validation;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Key;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +115,6 @@ public class ActivityProcessor {
     /**
      * Shows 1A0001.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -121,11 +125,12 @@ public class ActivityProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showCharacter(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/activity/character.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+    public String showCharacter(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/activity/character.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String result = "/activity/character.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -145,7 +150,7 @@ public class ActivityProcessor {
         if (StringUtils.isBlank(character)) {
             dataModel.put("noCharacter", true);
 
-            return;
+            return result;
         }
 
         final int totalCharacterCount = characterQueryService.getTotalCharacterCount();
@@ -159,29 +164,33 @@ public class ActivityProcessor {
 
         activityCharacterGuideLabel = activityCharacterGuideLabel.replace("{character}", character);
         dataModel.put("activityCharacterGuideLabel", activityCharacterGuideLabel);
+
+        return result;
     }
 
     /**
      * Submits character.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/activity/character/submit", method = RequestMethod.POST)
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void submitCharacter(final HTTPRequestContext context, final HttpServletRequest request) {
-        context.renderJSON().renderFalseResult();
+    public void submitCharacter(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
+//        context.renderJSON().renderFalseResult();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         JSONObject requestJSONObject;
         try {
-            requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+            requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
         } catch (final Exception e) {
             LOGGER.error( "Submits character failed", e);
 
-            context.renderJSON(false).renderMsg(langPropsService.get("activityCharacterRecognizeFailedLabel"));
+//            context.renderJSON(false).renderMsg(langPropsService.get("activityCharacterRecognizeFailedLabel"));
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG, langPropsService.get("activityCharacterRecognizeFailedLabel"));
 
             return;
         }
@@ -193,13 +202,14 @@ public class ActivityProcessor {
         final String character = requestJSONObject.optString("character");
 
         final JSONObject result = activityMgmtService.submitCharacter(userId, dataPart, character);
-        context.renderJSON(result);
+//        context.renderJSON(result);
+        dataModel.put(Keys.STATUS_CODE,result.get(Keys.STATUS_CODE));
+        dataModel.put(Keys.MSG,result.get(Keys.MSG));
     }
 
     /**
      * Shows activity page.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -209,11 +219,12 @@ public class ActivityProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showActivities(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/activities.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+    public String showActivities(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/activities.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String result = "/home/activities.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -229,12 +240,13 @@ public class ActivityProcessor {
         dataModel.put("pointActivityCheckinStreak", Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK);
         dataModel.put("activitYesterdayLivenessRewardMaxPoint",
                 Symphonys.getInt("activitYesterdayLivenessReward.maxPoint"));
+        return result;
     }
 
     /**
      * Shows daily checkin page.
      *
-     * @param context  the specified context
+//     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -244,19 +256,21 @@ public class ActivityProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDailyCheckin(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public String showDailyCheckin(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
         if (activityQueryService.isCheckedinToday(userId)) {
-            response.sendRedirect(Latkes.getServePath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//            response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
 
-            return;
+            return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/activity/checkin.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/activity/checkin.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String result = "/activity/checkin.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -266,6 +280,8 @@ public class ActivityProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+
+        return result;
     }
 
     /**
@@ -279,7 +295,7 @@ public class ActivityProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void dailyCheckin(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public String dailyCheckin(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
 
@@ -290,9 +306,9 @@ public class ActivityProcessor {
             final String validate = request.getParameter(GeetestLib.fn_geetest_validate);
             final String seccode = request.getParameter(GeetestLib.fn_geetest_seccode);
             if (StringUtils.isBlank(challenge) || StringUtils.isBlank(validate) || StringUtils.isBlank(seccode)) {
-                response.sendRedirect(Latkes.getServePath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//                response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
 
-                return;
+                return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
             }
 
             final GeetestLib gtSdk = new GeetestLib(Symphonys.get("geetest.id"), Symphonys.get("geetest.key"));
@@ -309,7 +325,8 @@ public class ActivityProcessor {
             }
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//        response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+        return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
     }
 
     /**
@@ -323,19 +340,19 @@ public class ActivityProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void yesterdayLivenessReward(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public String yesterdayLivenessReward(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
 
         activityMgmtService.yesterdayLivenessReward(userId);
 
-        response.sendRedirect(Latkes.getServePath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//        response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+        return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
     }
 
     /**
      * Shows 1A0001.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -346,11 +363,12 @@ public class ActivityProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void show1A0001(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/activity/1A0001.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+    public String show1A0001(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/activity/1A0001.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String result = "/activity/1A0001.ftl";
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
@@ -426,22 +444,31 @@ public class ActivityProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+
+        return result;
     }
 
     /**
      * Bets 1A0001.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/activity/1A0001/bet", method = RequestMethod.POST)
-    @Before(adviceClass = { Activity1A0001Validation.class})
+//    @Before(adviceClass = { Activity1A0001Validation.class})
     @StopWatchStartAnno
     @LoginCheckAnno
     @CSRFCheckAnno
     @StopWatchEndAnno
-    public void bet1A0001(final HTTPRequestContext context, final HttpServletRequest request) {
-        context.renderJSON().renderFalseResult();
+    public void bet1A0001(Map<String, Object> dataModel, final HttpServletRequest request) {
+//        context.renderJSON().renderFalseResult();
+        dataModel.put(Keys.STATUS_CODE,false);
+
+        try {
+            Activity1A0001Validation.doAdvice(request);
+        } catch (RequestProcessAdviceException e) {
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+            return;
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -460,34 +487,43 @@ public class ActivityProcessor {
             msg = msg.replace("{smallOrLarge}", smallOrLarge == 0 ? small : large);
             msg = msg.replace("{point}", String.valueOf(amount));
 
-            context.renderTrueResult().renderMsg(msg);
+//            context.renderTrueResult().renderMsg(msg);
+            dataModel.put(Keys.STATUS_CODE,true);
+            dataModel.put(Keys.MSG,msg);
         }
     }
 
     /**
      * Collects 1A0001.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/activity/1A0001/collect", method = RequestMethod.POST)
-    @Before(adviceClass = { Activity1A0001CollectValidation.class})
+//    @Before(adviceClass = { Activity1A0001CollectValidation.class})
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void collect1A0001(final HTTPRequestContext context, final HttpServletRequest request) {
+    public void collect1A0001(Map<String, Object> dataModel, final HttpServletRequest request) {
+
+        try {
+            Activity1A0001CollectValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e) {
+            dataModel.put(Keys.MSG, e.getJsonObject().get(Keys.MSG));
+            return;
+        }
+
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
 
         final JSONObject ret = activityMgmtService.collect1A0001(userId);
 
-        context.renderJSON(ret);
+        dataModel.put(Keys.MSG,ret.get(Keys.MSG));
+        dataModel.put(Keys.STATUS_CODE,ret.get(Keys.STATUS_CODE));
     }
 
     /**
      * Shows eating snake.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -498,12 +534,14 @@ public class ActivityProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showEatingSnake(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/activity/eating-snake.ftl");
+    public String showEatingSnake(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+////        context.setRenderer(renderer);
+////        renderer.setTemplateName("/activity/eating-snake.ftl");
+////
+////        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String result = "/activity/eating-snake.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
@@ -526,12 +564,13 @@ public class ActivityProcessor {
         String pointActivityEatingSnake = langPropsService.get("activityStartEatingSnakeTipLabel");
         pointActivityEatingSnake = pointActivityEatingSnake.replace("{point}", String.valueOf(startPoint));
         dataModel.put("activityStartEatingSnakeTipLabel", pointActivityEatingSnake);
+
+        return  result;
     }
 
     /**
      * Starts eating snake.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/activity/eating-snake/start", method = RequestMethod.POST)
@@ -539,19 +578,20 @@ public class ActivityProcessor {
     @LoginCheckAnno
     @CSRFCheckAnno
     @StopWatchEndAnno
-    public void startEatingSnake(final HTTPRequestContext context, final HttpServletRequest request) {
+    public void startEatingSnake(Map<String, Object> dataModel, final HttpServletRequest request) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String fromId = currentUser.optString(Keys.OBJECT_ID);
 
         final JSONObject ret = activityMgmtService.startEatingSnake(fromId);
 
-        context.renderJSON(ret);
+        dataModel.put(Keys.STATUS_CODE, ret.get(Keys.STATUS_CODE));
+        dataModel.put(Keys.MSG, ret.get(Keys.MSG));
+//        context.renderJSON(ret);
     }
 
     /**
      * Collects eating snake.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/activity/eating-snake/collect", method = RequestMethod.POST)
@@ -559,32 +599,37 @@ public class ActivityProcessor {
     @LoginCheckAnno
     @CSRFTokenAnno
     @StopWatchEndAnno
-    public void collectEatingSnake(final HTTPRequestContext context, final HttpServletRequest request) {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/activity/eating-snake.ftl");
+    public String collectEatingSnake(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/activity/eating-snake.ftl");
+        String result = "/activity/eating-snake.ftl";
 
         JSONObject requestJSONObject;
         try {
-            requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+            requestJSONObject = Requests.parseRequestJSONObject(request, response);
             final int score = requestJSONObject.optInt("score");
 
             final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
             final JSONObject ret = activityMgmtService.collectEatingSnake(user.optString(Keys.OBJECT_ID), score);
 
-            context.renderJSON(ret);
+//            context.renderJSON(ret);
+            dataModel.put(Keys.STATUS_CODE,ret.get(Keys.STATUS_CODE));
+            dataModel.put(Keys.MSG,ret.get(Keys.MSG));
         } catch (final Exception e) {
             LOGGER.error( "Collects eating snake game failed", e);
 
-            context.renderJSON(false).renderMsg("err....");
+//            context.renderJSON(false).renderMsg("err....");
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG, e.getMessage());
         }
+        return result;
     }
 
     /**
      * Shows gobang.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -595,12 +640,15 @@ public class ActivityProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showGobang(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/activity/gobang.ftl");
+    public String showGobang(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/activity/gobang.ftl");
+//
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String result = "/activity/gobang.ftl";
+
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
@@ -611,19 +659,20 @@ public class ActivityProcessor {
         String pointActivityGobang = langPropsService.get("activityStartGobangTipLabel");
         pointActivityGobang = pointActivityGobang.replace("{point}", String.valueOf(Pointtransfer.TRANSFER_SUM_C_ACTIVITY_GOBANG_START));
         dataModel.put("activityStartGobangTipLabel", pointActivityGobang);
+
+        return result;
     }
 
     /**
      * Starts gobang.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/activity/gobang/start", method = RequestMethod.POST)
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void startGobang(final HTTPRequestContext context, final HttpServletRequest request) {
+    public void startGobang(Map<String, Object> dataModel, final HttpServletRequest request) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String fromId = currentUser.optString(Keys.OBJECT_ID);
 
@@ -635,6 +684,8 @@ public class ActivityProcessor {
         final String msg = succ ? "started" : langPropsService.get("activityStartGobangFailLabel");
         ret.put(Keys.MSG, msg);
 
-        context.renderJSON(ret);
+//        context.renderJSON(ret);
+        dataModel.put(Keys.MSG, ret.get(Keys.MSG));
+        dataModel.put(Keys.STATUS_CODE, ret.get(Keys.STATUS_CODE));
     }
 }

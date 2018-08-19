@@ -22,6 +22,10 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.Networks;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -90,8 +94,11 @@ public class LinkForgeProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/forge/link", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
     public void forgeLink(final HTTPRequestContext context) throws Exception {
         context.renderJSON(true);
 
@@ -119,9 +126,12 @@ public class LinkForgeProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/forge/link", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showLinkForge(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showLinkForge(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -153,9 +163,11 @@ public class LinkForgeProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/forge/link/purge", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class})
-    @After(adviceClass = {StopwatchEndAdvice.class})
-    public void purgeLinkForge(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class})
+//    @After(adviceClass = {StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @StopWatchEndAnno
+    public void purgeLinkForge(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {
@@ -164,8 +176,8 @@ public class LinkForgeProcessor {
             return;
         }
 
-        if (Latkes.getServePath().contains("localhost") || Networks.isIPv4(Latkes.getServerHost())
-                || Latkes.RuntimeMode.DEVELOPMENT == Latkes.getRuntimeMode()) {
+        if (SpringUtil.getServerPath().contains("localhost") || Networks.isIPv4(SpringUtil.getServerHost())
+                || SpringUtil.RuntimeMode.DEV ==(SpringUtil.getRuntimeMode())) {
             response.sendError(HttpServletResponse.SC_OK);
 
             return;

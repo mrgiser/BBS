@@ -182,7 +182,7 @@ public class AudioMgmtService {
                     IOUtils.write(bytes, output);
                 }
 
-                ret = Latkes.getServePath() + "/upload/" + fileName;
+                ret = SpringUtil.getServerPath(request) + "/upload/" + fileName;
             }
 
             return ret;

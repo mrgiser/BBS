@@ -56,7 +56,7 @@ public class VerifycodeProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/verifycode/email", method = RequestMethod.GET)
-    public void sendEmailRegisterVerifycode(final HTTPRequestContext context,
+    public void sendEmailRegisterVerifycode(Map<String, Object> dataModel,
                                             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {
@@ -79,7 +79,7 @@ public class VerifycodeProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/verifycode/remove-expired", method = RequestMethod.GET)
-    public void removeExpriedVerifycodes(final HTTPRequestContext context,
+    public void removeExpriedVerifycodes(Map<String, Object> dataModel,
                                          final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {

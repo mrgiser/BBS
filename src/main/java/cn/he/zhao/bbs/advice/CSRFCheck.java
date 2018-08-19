@@ -4,6 +4,7 @@ import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.model.Common;
 import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -33,10 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 public class CSRFCheck {
     final static Logger log = LoggerFactory.getLogger(CSRFCheck.class);
 
-
-    @Autowired
-    private HttpServletRequest request;
-
     @Autowired
     private LangPropsService langPropsService;
 
@@ -52,8 +49,9 @@ public class CSRFCheck {
         exception.put(Keys.STATUS_CODE, false);
 
         // 1. Check Referer
+        HttpServletRequest request = SpringUtil.getCurrentRequest();
         final String referer = request.getHeader("Referer");
-        if (!StringUtils.startsWith(referer, Latkes.getServePath())) {
+        if (!StringUtils.startsWith(referer, SpringUtil.getServerPath())) {
             throw new RequestProcessAdviceException(exception);
         }
 

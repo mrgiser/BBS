@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.util.Escapes;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.model.*;
@@ -97,9 +99,13 @@ public class SearchProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void search(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void search(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);

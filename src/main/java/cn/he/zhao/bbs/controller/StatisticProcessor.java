@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.util.Symphonys;
+import cn.he.zhao.bbs.util.Times;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import cn.he.zhao.bbs.advice.*;
@@ -134,8 +136,10 @@ public class StatisticProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/stat", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = StopwatchEndAdvice.class)
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @StopWatchEndAnno
     public void loadStatData(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
@@ -209,9 +213,13 @@ public class StatisticProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/statistic", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showStatistic(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showStatistic(Map<String, Object> dataModel,
                               final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);

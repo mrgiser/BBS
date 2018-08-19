@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.event.handler;
 
+import cn.he.zhao.bbs.channel.ArticleChannel;
+import cn.he.zhao.bbs.channel.ArticleListChannel;
 import cn.he.zhao.bbs.event.AddCommentEvent;
 import cn.he.zhao.bbs.mapper.CommentMapper;
 import cn.he.zhao.bbs.mapper.UserMapper;
@@ -27,6 +29,7 @@ import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.*;
+import cn.he.zhao.bbs.validate.UserRegisterValidation;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.json.JSONObject;

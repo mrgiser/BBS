@@ -1,6 +1,7 @@
 package cn.he.zhao.bbs.advice;
 
 import cn.he.zhao.bbs.model.Common;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -31,12 +32,6 @@ public class CSRFToken {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     @Pointcut("@annotation(csrfCheckAnno)")
     public void CSRFToken(CSRFCheckAnno csrfCheckAnno) {
     }
@@ -48,6 +43,7 @@ public class CSRFToken {
             System.out.println("---->now-->argItem:" + argItem);
             if (argItem instanceof Map) {
                 Map dataModel = (Map) argItem;
+                HttpServletRequest request = SpringUtil.getCurrentRequest();
                 dataModel.put(Common.CSRF_TOKEN, Sessions.getCSRFToken(request));
             }
             System.out.println("---->after-->argItem:" + argItem);

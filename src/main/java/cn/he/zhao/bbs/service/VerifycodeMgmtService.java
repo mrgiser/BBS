@@ -151,18 +151,18 @@ public class VerifycodeMgmtService {
                 final int bizType = verifycode.optInt(Verifycode.BIZ_TYPE);
                 switch (bizType) {
                     case Verifycode.BIZ_TYPE_C_REGISTER:
-                        dataModel.put(Common.URL, Latkes.getServePath() + "/register?code=" + code);
-                        subject = langPropsService.get("registerEmailSubjectLabel", Latkes.getLocale());
+                        dataModel.put(Common.URL, SpringUtil.getServerPath(request) + "/register?code=" + code);
+                        subject = langPropsService.get("registerEmailSubjectLabel", Locales.getLocale());
 
                         break;
                     case Verifycode.BIZ_TYPE_C_RESET_PWD:
-                        dataModel.put(Common.URL, Latkes.getServePath() + "/reset-pwd?code=" + code);
-                        subject = langPropsService.get("forgetEmailSubjectLabel", Latkes.getLocale());
+                        dataModel.put(Common.URL, SpringUtil.getServerPath(request) + "/reset-pwd?code=" + code);
+                        subject = langPropsService.get("forgetEmailSubjectLabel", Locales.getLocale());
 
                         break;
                     case Verifycode.BIZ_TYPE_C_BIND_EMAIL:
                         dataModel.put(Common.CODE, code);
-                        subject = langPropsService.get("bindEmailSubjectLabel", Latkes.getLocale());
+                        subject = langPropsService.get("bindEmailSubjectLabel", Locales.getLocale());
 
                         break;
                     default:
@@ -175,7 +175,7 @@ public class VerifycodeMgmtService {
                 verifycodeMapper.update(verifycode.optString(Keys.OBJECT_ID), verifycode);
 
                 final String fromName = langPropsService.get("symphonyEnLabel")
-                        + " " + langPropsService.get("verifycodeEmailFromNameLabel", Latkes.getLocale());
+                        + " " + langPropsService.get("verifycodeEmailFromNameLabel", Locales.getLocale());
                 Mails.sendHTML(fromName, subject, toMail, Mails.TEMPLATE_NAME_VERIFYCODE, dataModel);
             }
         } catch (final MapperException e) {

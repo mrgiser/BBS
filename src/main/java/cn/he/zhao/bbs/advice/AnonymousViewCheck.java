@@ -29,12 +29,6 @@ public class AnonymousViewCheck {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     @Pointcut("@annotation(anonymousViewCheckAnno)")
     public void anonymousViewCheck(AnonymousViewCheckAnno anonymousViewCheckAnno) {
     }

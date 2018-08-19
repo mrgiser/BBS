@@ -148,7 +148,7 @@ public class ReportQueryService {
                         final JSONObject article = articleMapper.get(dataId);
                         if (null != article) {
                             final String title = Encode.forHtml(article.optString(Article.ARTICLE_TITLE));
-                            reportData = "<a href=\"" + Latkes.getServePath() + "/article/" + article.optString(Keys.OBJECT_ID) +
+                            reportData = "<a href=\"" + SpringUtil.getServerPath(request) + "/article/" + article.optString(Keys.OBJECT_ID) +
                                     "\" target=\"_blank\">" + Emotions.convert(title) + "</a>";
                         }
 

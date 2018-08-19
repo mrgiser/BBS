@@ -22,6 +22,7 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Locales;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -72,10 +73,13 @@ public class ErrorProcessor {
      * @param statusCode the specified status code
      * @throws Exception exception
      */
-    @RequestMapping(value = "/error/{statusCode}", method = {HTTPRequestMethod.GET, HTTPRequestMethod.POST})
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void handleErrorPage(final HTTPRequestContext context, final HttpServletRequest request,
+    @RequestMapping(value = "/error/{statusCode}", method = {RequestMethod.GET, RequestMethod.HEAD})
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void handleErrorPage(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response, final String statusCode) throws Exception {
         if (StringUtils.equals("GET", request.getMethod())) {
             final String requestURI = request.getRequestURI();

@@ -114,7 +114,7 @@ public class VoteProcessor {
 //    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
     @LoginCheckAnno
     @PermissionCheckAnno
-    public void voteUpComment(final HTTPRequestContext context, final HttpServletRequest request) throws Exception {
+    public void voteUpComment(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
         context.renderJSON();
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
@@ -173,7 +173,7 @@ public class VoteProcessor {
 //    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
     @LoginCheckAnno
     @PermissionCheckAnno
-    public void voteDownComment(final HTTPRequestContext context, final HttpServletRequest request,
+    public void voteDownComment(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -234,7 +234,7 @@ public class VoteProcessor {
 //    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
     @LoginCheckAnno
     @PermissionCheckAnno
-    public void voteUpArticle(final HTTPRequestContext context, final HttpServletRequest request,
+    public void voteUpArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                               final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -294,7 +294,7 @@ public class VoteProcessor {
 //    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
     @LoginCheckAnno
     @PermissionCheckAnno
-    public void voteDownArticle(final HTTPRequestContext context, final HttpServletRequest request,
+    public void voteDownArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response) throws Exception {
         context.renderJSON();
 

@@ -22,6 +22,7 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Requests;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -98,8 +99,9 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/user", method = RequestMethod.POST)
-    @Before(adviceClass = LoginCheck.class)
-    public void followUser(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = LoginCheck.class)
+    @LoginCheckAnno
+    public void followUser(Map<String, Object> dataModel, final HttpServletRequest request,
                            final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -141,8 +143,9 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/user", method = RequestMethod.DELETE)
-    @Before(adviceClass = LoginCheck.class)
-    public void unfollowUser(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = LoginCheck.class)
+    @LoginCheckAnno
+    public void unfollowUser(Map<String, Object> dataModel, final HttpServletRequest request,
                              final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -174,8 +177,9 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/tag", method = RequestMethod.POST)
-    @Before(adviceClass = LoginCheck.class)
-    public void followTag(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = LoginCheck.class)
+    @LoginCheckAnno
+    public void followTag(Map<String, Object> dataModel, final HttpServletRequest request,
                           final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -207,8 +211,9 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/tag", method = RequestMethod.DELETE)
-    @Before(adviceClass = LoginCheck.class)
-    public void unfollowTag(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = LoginCheck.class)
+    @LoginCheckAnno
+    public void unfollowTag(Map<String, Object> dataModel, final HttpServletRequest request,
                             final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -240,8 +245,10 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/article", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
-    public void followArticle(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    public void followArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                               final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -287,8 +294,9 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/article", method = RequestMethod.DELETE)
-    @Before(adviceClass = LoginCheck.class)
-    public void unfollowArticle(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = LoginCheck.class)
+    @LoginCheckAnno
+    public void unfollowArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -320,8 +328,10 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/article-watch", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
-    public void watchArticle(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    public void watchArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                              final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -367,8 +377,9 @@ public class FollowProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/follow/article-watch", method = RequestMethod.DELETE)
-    @Before(adviceClass = LoginCheck.class)
-    public void unwatchArticle(final HTTPRequestContext context, final HttpServletRequest request,
+//    @Before(adviceClass = LoginCheck.class)
+    @LoginCheckAnno
+    public void unwatchArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                                final HttpServletResponse response) throws Exception {
         context.renderJSON();
 

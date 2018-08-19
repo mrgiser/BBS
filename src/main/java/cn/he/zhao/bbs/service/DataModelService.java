@@ -18,6 +18,8 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.Keys;
@@ -35,9 +37,6 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
-
-import static cn.he.zhao.bbs.util.MyUtil.RuntimeMode.DEVELOPMENT;
-import static cn.he.zhao.bbs.util.MyUtil.RuntimeMode.PRODUCTION;
 
 /**
  * Data model service.
@@ -256,7 +255,7 @@ public class DataModelService {
     private void fillHeader(final HttpServletRequest request, final HttpServletResponse response,
                             final Map<String, Object> dataModel) throws Exception {
         fillMinified(dataModel);
-        dataModel.put(Common.STATIC_RESOURCE_VERSION, Latkes.getStaticResourceVersion());
+        dataModel.put(Common.STATIC_RESOURCE_VERSION, SpringUtil.getStaticResourceVersion());
         dataModel.put("esEnabled", Symphonys.getBoolean("es.enabled"));
         dataModel.put("algoliaEnabled", Symphonys.getBoolean("algolia.enabled"));
         dataModel.put("algoliaAppId", Symphonys.get("algolia.appId"));
@@ -424,11 +423,11 @@ public class DataModelService {
      * @param dataModel the specified data model
      */
     public void fillMinified(final Map<String, Object> dataModel) {
-        switch (Latkes.getRuntimeMode()) {
-            case DEVELOPMENT:
+        switch (SpringUtil.getRuntimeMode()) {
+            case DEV:
                 dataModel.put(Common.MINI_POSTFIX, "");
                 break;
-            case PRODUCTION:
+            case PRO:
                 dataModel.put(Common.MINI_POSTFIX, Common.MINI_POSTFIX_VALUE);
                 break;
             default:
@@ -484,9 +483,9 @@ public class DataModelService {
         }
 
         // Builtin for Sym promotion
-        tipsLabels.add("<img align=\"absmiddle\" alt=\"tada\" class=\"emoji\" src=\"" + Latkes.getStaticServePath() +
+        tipsLabels.add("<img align=\"absmiddle\" alt=\"tada\" class=\"emoji\" src=\"" + SpringUtil.getStaticServePath() +
                 "/emoji/graphics/tada.png\" title=\"tada\"> 本站使用 <a href=\"https://sym.b3log.org\" target=\"_blank\">Sym</a> 搭建，请为它点赞！");
-        tipsLabels.add("<img align=\"absmiddle\" alt=\"sparkles\" class=\"emoji\" src=\"" + Latkes.getStaticServePath() +
+        tipsLabels.add("<img align=\"absmiddle\" alt=\"sparkles\" class=\"emoji\" src=\"" + SpringUtil.getStaticServePath() +
                 "/emoji/graphics/sparkles.png\" title=\"sparkles\"> 欢迎使用 <a href=\"https://sym.b3log.org\" target=\"_blank\">Sym</a> 来搭建自己的社区！");
 
         dataModel.put("tipsLabel", tipsLabels.get(RandomUtils.nextInt(tipsLabels.size())));

@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.util.StatusCodes;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.model.*;
@@ -72,9 +73,12 @@ public class ReportProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/report", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public void report(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchEndAnno
+    public void report(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);

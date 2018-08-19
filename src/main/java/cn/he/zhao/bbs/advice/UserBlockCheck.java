@@ -5,6 +5,7 @@ import cn.he.zhao.bbs.model.UserExt;
 import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.UserQueryService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -33,12 +34,6 @@ public class UserBlockCheck {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     /**
      * User query service.
      */
@@ -51,6 +46,8 @@ public class UserBlockCheck {
 
     @Before("UserBlockCheck(anno)")
     public void doBefore(JoinPoint joinPoint, UserBlockCheckAnno anno) throws RequestProcessAdviceException{
+
+        HttpServletRequest request = SpringUtil.getCurrentRequest();
 
         final JSONObject exception = new JSONObject();
         exception.put(Keys.MSG, HttpServletResponse.SC_NOT_FOUND);

@@ -17,8 +17,10 @@
  */
 package cn.he.zhao.bbs.validate;
 
+import cn.he.zhao.bbs.controller.CaptchaProcessor;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.Keys;
@@ -75,30 +77,28 @@ public class UserRegisterValidation {
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
+    private static LangPropsService langPropsService;
     /**
      * Option query service.
      */
     @Autowired
-    private OptionQueryService optionQueryService;
+    private static  OptionQueryService optionQueryService;
     /**
      * Invitecode query service.
      */
     @Autowired
-    private InvitecodeQueryService invitecodeQueryService;
+    private static InvitecodeQueryService invitecodeQueryService;
     /**
      * User query service.
      */
     @Autowired
-    private UserQueryService userQueryService;
+    private static UserQueryService userQueryService;
     /**
      * Role query servicce.
      */
     @Autowired
-    private RoleQueryService roleQueryService;
+    private static RoleQueryService roleQueryService;
 
-    @Autowired
-    private HttpServletResponse response;
 
     /**
      * Checks whether the specified name is invalid.
@@ -151,9 +151,10 @@ public class UserRegisterValidation {
         return password.length() < MIN_PWD_LENGTH || password.length() > MAX_PWD_LENGTH;
     }
 
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request ) throws RequestProcessAdviceException {
 
         JSONObject requestJSONObject;
+        HttpServletResponse response = SpringUtil.getCurrentResponse();
         try {
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
@@ -236,7 +237,7 @@ public class UserRegisterValidation {
      * @param fieldLabel the specified field label
      * @throws RequestProcessAdviceException request process advice exception
      */
-    private void checkField(final boolean invalid, final String failLabel, final String fieldLabel)
+    private static void checkField(final boolean invalid, final String failLabel, final String fieldLabel)
             throws RequestProcessAdviceException {
         if (invalid) {
             throw new RequestProcessAdviceException(new JSONObject().put(Keys.MSG, langPropsService.get(failLabel)

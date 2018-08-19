@@ -236,7 +236,7 @@ public final class Markdowns {
             a.attr("rel", "nofollow");
 
             final String href = a.attr("href");
-            if (href.startsWith(Latkes.getServePath())) {
+            if (href.startsWith(SpringUtil.getServerPath(request))) {
                 continue;
             }
 
@@ -376,9 +376,9 @@ public final class Markdowns {
             doc.select("pre>code").addClass("hljs");
             doc.select("a").forEach(a -> {
                 String src = a.attr("href");
-                if (!StringUtils.startsWithAny(src, new String[]{Latkes.getServePath(), Symphonys.get("qiniu.domain")})) {
+                if (!StringUtils.startsWithAny(src, new String[]{SpringUtil.getServerPath(request), Symphonys.get("qiniu.domain")})) {
                     src = URLs.encode(src);
-                    a.attr("href", Latkes.getServePath() + "/forward?goto=" + src);
+                    a.attr("href", SpringUtil.getServerPath(request) + "/forward?goto=" + src);
                     a.attr("target", "_blank");
                 }
             });

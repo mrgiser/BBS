@@ -1,6 +1,7 @@
 package cn.he.zhao.bbs.advice;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.model.Permission;
 import cn.he.zhao.bbs.model.Role;
@@ -46,12 +47,6 @@ public class PermissionCheck {
      */
     private static final Map<String, Set<String>> URL_PERMISSION_RULES = new HashMap<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     /**
      * Language service.
      */
@@ -93,6 +88,7 @@ public class PermissionCheck {
             exception.put(Keys.STATUS_CODE, HttpServletResponse.SC_FORBIDDEN);
 
             final String prefix = "permission.rule.url.";
+            HttpServletRequest request = SpringUtil.getCurrentRequest();
             final String requestURI = request.getRequestURI();
             final String method = request.getMethod();
             String rule = prefix;

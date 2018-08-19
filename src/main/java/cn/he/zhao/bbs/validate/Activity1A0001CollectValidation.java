@@ -24,6 +24,7 @@ import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.ActivityQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +42,15 @@ public class Activity1A0001CollectValidation {
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
-
-    @Autowired
-    private HttpServletResponse response;
+    private static LangPropsService langPropsService;
 
     /**
      * Activity query service.
      */
     @Autowired
-    private ActivityQueryService activityQueryService;
+    private static ActivityQueryService activityQueryService;
 
-    public void doAdvice(HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(HttpServletRequest request) throws RequestProcessAdviceException {
         if (Symphonys.getBoolean("activity1A0001Closed")) {
             throw new RequestProcessAdviceException(new JSONObject().put(Keys.MSG, langPropsService.get("activityClosedLabel")));
         }
@@ -72,6 +70,7 @@ public class Activity1A0001CollectValidation {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
         } catch (final Exception e) {

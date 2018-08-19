@@ -22,6 +22,7 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -91,9 +92,13 @@ public class DomainProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/domain/{domainURI}", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showDomainArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showDomainArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                    final String domainURI)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -108,7 +113,7 @@ public class DomainProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(Latkes.getServePath() + "/guide");
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
                 return;
             }
@@ -164,9 +169,13 @@ public class DomainProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/domains", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showDomains(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showDomains(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);

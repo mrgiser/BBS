@@ -1,10 +1,12 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.model.*;
 
+import cn.he.zhao.bbs.util.URLs;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -699,10 +701,10 @@ public class UserQueryService {
      * @return logout URL, returns {@code null} if the user is not logged in
      */
     public String getLogoutURL(final String redirectURL) {
-        String to = Latkes.getServePath();
+        String to = SpringUtil.getServerPath();
         to = URLs.encode(to + redirectURL);
 
-        return Latkes.getContextPath() + "/logout?goto=" + to;
+        return SpringUtil.getContextPath() + "/logout?goto=" + to;
     }
 
     /**
@@ -712,9 +714,9 @@ public class UserQueryService {
      * @return login URL
      */
     public String getLoginURL(final String redirectURL) {
-        String to = Latkes.getServePath();
+        String to = SpringUtil.getServerPath();
         to = URLs.encode(to + redirectURL);
 
-        return Latkes.getContextPath() + "/login?goto=" + to;
+        return SpringUtil.getContextPath() + "/login?goto=" + to;
     }
 }

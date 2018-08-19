@@ -22,6 +22,9 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.MD5;
+import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -175,7 +178,7 @@ public class FileUploadProcessor {
                 final JSONObject data = new JSONObject();
                 data.put("code", 1);
                 data.put("msg", "Invalid suffix [" + suffix + "], please compress this file and try again");
-                data.put("key", Latkes.getServePath() + "/upload/" + fileName);
+                data.put("key", SpringUtil.getServerPath(request) + "/upload/" + fileName);
                 data.put("name", fileName);
                 resp.setContentType("application/json");
                 try (final PrintWriter writer = resp.getWriter()) {
@@ -198,7 +201,7 @@ public class FileUploadProcessor {
 
         final JSONObject data = new JSONObject();
         data.put("code", 0);
-        data.put("key", Latkes.getServePath() + "/upload/" + fileName);
+        data.put("key", SpringUtil.getServerPath(request) + "/upload/" + fileName);
         data.put("name", fileName);
         resp.setContentType("application/json");
         try (final PrintWriter writer = resp.getWriter()) {

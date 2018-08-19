@@ -27,6 +27,7 @@ import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.MD5;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.util.Escapes;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -295,10 +296,14 @@ public class AdminProcessor {
 //    @RequestMapping(value = "/admin/report/ignore/{reportId}", method = RequestMethod.GET)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void makeReportIgnored(final HttpServletResponse response, final String reportId) throws Exception {
+    @StopWatchStartAnno
+    @PermissionCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void makeReportIgnored(final HttpServletRequest request, final HttpServletResponse response, final String reportId) throws Exception {
         reportMgmtService.makeReportIgnored(reportId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/reports");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reports");
     }
 
     /**
@@ -311,10 +316,14 @@ public class AdminProcessor {
 //    @RequestMapping(value = "/admin/report/{reportId}", method = RequestMethod.GET)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void makeReportHandled(final HttpServletResponse response, final String reportId) throws Exception {
+    @StopWatchStartAnno
+    @PermissionCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void makeReportHandled(final HttpServletRequest request, final HttpServletResponse response, final String reportId) throws Exception {
         reportMgmtService.makeReportHandled(reportId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/reports");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reports");
     }
 
     /**
@@ -328,7 +337,11 @@ public class AdminProcessor {
 //    @RequestMapping(value = "/admin/reports", method = RequestMethod.GET)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showReports(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @StopWatchStartAnno
+    @PermissionCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showReports(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -372,7 +385,7 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void removeRole(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response, final String roleId) throws Exception {
+    public void removeRole(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response, final String roleId) throws Exception {
         final int count = roleQueryService.countUser(roleId);
         if (0 < count) {
             final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -388,7 +401,7 @@ public class AdminProcessor {
 
         roleMgmtService.removeRole(roleId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/roles");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/roles");
     }
 
     /**
@@ -404,7 +417,7 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showBreezemoons(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showBreezemoons(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -456,7 +469,7 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showBreezemoon(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String breezemoonId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -484,7 +497,7 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateBreezemoon(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String breezemoonId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -528,7 +541,7 @@ public class AdminProcessor {
         final String id = request.getParameter(Common.ID);
         breezemoonMgmtService.removeBreezemoon(id);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/breezemoons");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/breezemoons");
     }
 
     /**
@@ -561,7 +574,7 @@ public class AdminProcessor {
     public void addRole(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String roleName = request.getParameter(Role.ROLE_NAME);
         if (StringUtils.isBlank(roleName)) {
-            response.sendRedirect(Latkes.getServePath() + "/admin/roles");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/roles");
 
             return;
         }
@@ -574,7 +587,7 @@ public class AdminProcessor {
 
         roleMgmtService.addRole(role);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/roles");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/roles");
     }
 
     /**
@@ -589,7 +602,7 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void updateRolePermissions(final HTTPRequestContext context,
+    public void updateRolePermissions(Map<String, Object> dataModel,
                                       final HttpServletRequest request, final HttpServletResponse response,
                                       final String roleId) throws Exception {
         final Map<String, String[]> parameterMap = request.getParameterMap();
@@ -597,7 +610,7 @@ public class AdminProcessor {
 
         roleMgmtService.updateRolePermissions(roleId, permissionIds);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/role/" + roleId + "/permissions");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/role/" + roleId + "/permissions");
     }
 
     /**
@@ -614,7 +627,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showRolePermissions(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showRolePermissions(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                     final String roleId)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -657,7 +670,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showRoles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showRoles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -685,7 +698,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateSideAd(final HTTPRequestContext context,
+    public void updateSideAd(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String sideFullAd = request.getParameter("sideFullAd");
 
@@ -703,7 +716,7 @@ public class AdminProcessor {
             optionMgmtService.updateOption(Option.ID_C_SIDE_FULL_AD, adOption);
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/ad");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/ad");
     }
 
     /**
@@ -721,7 +734,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateBanner(final HTTPRequestContext context,
+    public void updateBanner(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String headerBanner = request.getParameter("headerBanner");
 
@@ -739,7 +752,7 @@ public class AdminProcessor {
             optionMgmtService.updateOption(Option.ID_C_HEADER_BANNER, adOption);
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/ad");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/ad");
     }
 
     /**
@@ -757,7 +770,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAd(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAd(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -795,7 +808,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddTag(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAddTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -820,7 +833,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addTag(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void addTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         String title = StringUtils.trim(request.getParameter(Tag.TAG_TITLE));
         try {
@@ -870,7 +883,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/tag/" + tagId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/tag/" + tagId);
     }
 
     /**
@@ -891,7 +904,7 @@ public class AdminProcessor {
         final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         articleMgmtService.adminStick(articleId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/articles");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
     }
 
     /**
@@ -912,7 +925,7 @@ public class AdminProcessor {
         final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         articleMgmtService.adminCancelStick(articleId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/articles");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
     }
 
     /**
@@ -944,7 +957,7 @@ public class AdminProcessor {
 
         invitecodeMgmtService.adminGenInvitecodes(quantity, memo);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/invitecodes");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/invitecodes");
     }
 
     /**
@@ -962,7 +975,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showInvitecodes(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showInvitecodes(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1008,7 +1021,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showInvitecode(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String invitecodeId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1037,7 +1050,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateInvitecode(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String invitecodeId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1077,7 +1090,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1102,7 +1115,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String userName = request.getParameter(User.USER_NAME);
         final JSONObject author = userQueryService.getUserByName(userName);
@@ -1160,7 +1173,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/articles");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
     }
 
     /**
@@ -1177,7 +1190,7 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void addReservedWord(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void addReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         String word = request.getParameter(Common.WORD);
         word = StringUtils.trim(word);
@@ -1194,7 +1207,7 @@ public class AdminProcessor {
         }
 
         if (optionQueryService.isReservedWord(word)) {
-            response.sendRedirect(Latkes.getServePath() + "/admin/reserved-words");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reserved-words");
 
             return;
         }
@@ -1217,7 +1230,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/reserved-words");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reserved-words");
     }
 
     /**
@@ -1235,7 +1248,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddReservedWord(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAddReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1261,7 +1274,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateReservedWord(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                    final String id) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1299,7 +1312,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showReservedWords(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showReservedWords(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1327,7 +1340,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showReservedWord(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String id) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1354,12 +1367,12 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeReservedWord(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void removeReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String id = request.getParameter("id");
         optionMgmtService.removeOption(id);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/reserved-words");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reserved-words");
     }
 
     /**
@@ -1376,12 +1389,12 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeComment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void removeComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String commentId = request.getParameter(Comment.COMMENT_T_ID);
         commentMgmtService.removeCommentByAdmin(commentId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/comments");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/comments");
     }
 
     /**
@@ -1398,12 +1411,12 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void removeArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         articleMgmtService.removeArticleByAdmin(articleId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/articles");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
     }
 
     /**
@@ -1421,7 +1434,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showIndex(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showIndex(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1451,7 +1464,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showUsers(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showUsers(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1501,7 +1514,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showUser(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                          final String userId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1534,7 +1547,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddUser(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAddUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1559,7 +1572,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addUser(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void addUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String userName = request.getParameter(User.USER_NAME);
         final String email = request.getParameter(User.USER_EMAIL);
@@ -1614,7 +1627,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -1633,7 +1646,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateUser(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                            final String userId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -1728,14 +1741,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateUserEmail(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateUserEmail(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                 final String userId) throws Exception {
         final JSONObject user = userQueryService.getUser(userId);
         final String oldEmail = user.optString(User.USER_EMAIL);
         final String newEmail = request.getParameter(User.USER_EMAIL);
 
         if (oldEmail.equals(newEmail)) {
-            response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
 
             return;
         }
@@ -1756,7 +1769,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -1775,14 +1788,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateUserName(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateUserName(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String userId) throws Exception {
         final JSONObject user = userQueryService.getUser(userId);
         final String oldUserName = user.optString(User.USER_NAME);
         final String newUserName = request.getParameter(User.USER_NAME);
 
         if (oldUserName.equals(newUserName)) {
-            response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
 
             return;
         }
@@ -1803,7 +1816,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -1822,7 +1835,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void chargePoint(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void chargePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String userId) throws Exception {
         final String pointStr = request.getParameter(Common.POINT);
         final String memo = request.getParameter("memo");
@@ -1830,7 +1843,7 @@ public class AdminProcessor {
         if (StringUtils.isBlank(pointStr) || StringUtils.isBlank(memo) || !Strings.isNumeric(memo.split("-")[0])) {
             LOGGER.warn("Charge point memo format error");
 
-            response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
 
             return;
         }
@@ -1858,7 +1871,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -1877,7 +1890,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void abusePoint(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void abusePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                            final String userId) throws Exception {
         final String pointStr = request.getParameter(Common.POINT);
 
@@ -1921,7 +1934,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -1940,14 +1953,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void initPoint(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void initPoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                           final String userId) throws Exception {
         try {
             final JSONObject user = userQueryService.getUser(userId);
             if (null == user
                     || UserExt.USER_STATUS_C_VALID != user.optInt(UserExt.USER_STATUS)
                     || UserExt.NULL_USER_NAME.equals(user.optString(User.USER_NAME))) {
-                response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
 
                 return;
             }
@@ -1970,7 +1983,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -1989,7 +2002,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void exchangePoint(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void exchangePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String userId) throws Exception {
         final String pointStr = request.getParameter(Common.POINT);
 
@@ -2033,7 +2046,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/user/" + userId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
     }
 
     /**
@@ -2051,7 +2064,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2116,7 +2129,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String articleId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2146,7 +2159,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String articleId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2201,7 +2214,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showComments(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showComments(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2258,7 +2271,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showComment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String commentId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2288,7 +2301,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateComment(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String commentId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2334,7 +2347,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showMisc(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showMisc(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2362,7 +2375,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateMisc(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void updateMisc(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2409,7 +2422,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showTags(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showTags(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2474,7 +2487,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showTag(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                         final String tagId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2503,7 +2516,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateTag(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                           final String tagId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2559,7 +2572,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDomains(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showDomains(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2618,7 +2631,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDomain(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                            final String domainId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2648,7 +2661,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateDomain(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                              final String domainId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2699,7 +2712,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddDomain(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAddDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -2724,7 +2737,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addDomain(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void addDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String domainTitle = request.getParameter(Domain.DOMAIN_TITLE);
 
@@ -2775,7 +2788,7 @@ public class AdminProcessor {
             return;
         }
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/domain/" + domainId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domain/" + domainId);
     }
 
     /**
@@ -2792,12 +2805,12 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeDomain(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String domainId = request.getParameter(Domain.DOMAIN_T_ID);
         domainMgmtService.removeDomain(domainId);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/domains");
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domains");
     }
 
     /**
@@ -2816,7 +2829,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addDomainTag(final HTTPRequestContext context,
+    public void addDomainTag(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response, final String domainId)
             throws Exception {
         String tagTitle = request.getParameter(Tag.TAG_TITLE);
@@ -2895,7 +2908,7 @@ public class AdminProcessor {
 
         domainMgmtService.addDomainTag(domainTag);
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/domain/" + domainId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domain/" + domainId);
     }
 
     /**
@@ -2914,7 +2927,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void removeDomain(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                              final String domainId)
             throws Exception {
         final String tagTitle = request.getParameter(Tag.TAG_TITLE);
@@ -2939,7 +2952,7 @@ public class AdminProcessor {
 
         domainMgmtService.removeDomainTag(domainId, tag.optString(Keys.OBJECT_ID));
 
-        response.sendRedirect(Latkes.getServePath() + "/admin/domain/" + domainId);
+        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domain/" + domainId);
     }
 
     /**
@@ -3019,17 +3032,17 @@ public class AdminProcessor {
         if (Symphonys.getBoolean("algolia.enabled")) {
             searchMgmtService.updateAlgoliaDocument(article);
 
-            final String articlePermalink = Latkes.getServePath() + article.optString(Article.ARTICLE_PERMALINK);
+            final String articlePermalink = SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK);
             ArticleBaiduSender.sendToBaidu(articlePermalink);
         }
 
         if (Symphonys.getBoolean("es.enabled")) {
             searchMgmtService.updateESDocument(article, Article.ARTICLE);
 
-            final String articlePermalink = Latkes.getServePath() + article.optString(Article.ARTICLE_PERMALINK);
+            final String articlePermalink = SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK);
             ArticleBaiduSender.sendToBaidu(articlePermalink);
         }
 
-        context.getResponse().sendRedirect(Latkes.getServePath() + "/admin/articles");
+        context.getResponse().sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
     }
 }

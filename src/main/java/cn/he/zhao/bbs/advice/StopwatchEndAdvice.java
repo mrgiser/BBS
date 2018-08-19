@@ -1,5 +1,6 @@
 package cn.he.zhao.bbs.advice;
 
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.model.Common;
@@ -32,12 +33,6 @@ public class StopwatchEndAdvice {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     @Pointcut("@annotation(anno)")
     public void StopwatchEndAdvice(StopWatchEndAnno anno) {
     }
@@ -45,6 +40,7 @@ public class StopwatchEndAdvice {
     @After("StopwatchEndAdvice(anno)")
     public void doAfter(JoinPoint joinPoint, StopWatchEndAnno anno) {
         Stopwatchs.end();
+        HttpServletRequest request = SpringUtil.getCurrentRequest();
 
         Object[] obj = joinPoint.getArgs();
         for (Object argItem : obj) {

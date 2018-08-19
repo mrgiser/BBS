@@ -1,5 +1,6 @@
 package cn.he.zhao.bbs.advice;
 
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -29,18 +30,13 @@ public class StopwatchStartAdvice {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     @Pointcut("@annotation(anno)")
     public void StopwatchStartAdvice(StopWatchStartAnno anno) {
     }
 
     @Before("StopwatchStartAdvice(anno)")
     public void doBefore(JoinPoint joinPoint, StopWatchStartAnno anno) {
+        HttpServletRequest request = SpringUtil.getCurrentRequest();
         final String requestURI = request.getRequestURI();
         Stopwatchs.start("Request URI [" + requestURI + ']');
     }

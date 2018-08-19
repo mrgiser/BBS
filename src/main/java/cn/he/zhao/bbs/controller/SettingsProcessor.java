@@ -17,6 +17,11 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.util.Languages;
+import cn.he.zhao.bbs.util.Symphonys;
+import cn.he.zhao.bbs.util.TimeZones;
 import com.qiniu.util.Auth;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -152,14 +157,15 @@ public class SettingsProcessor {
      * @param requestJSONObject the specified request json object
      */
     @RequestMapping(value = "/settings/email/vc", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class})
-    public void sendEmailVC(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {LoginCheck.class})
+    @LoginCheckAnno
+    public void sendEmailVC(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         final String email = StringUtils.lowerCase(StringUtils.trim(requestJSONObject.optString(User.USER_EMAIL)));
         if (!Strings.isEmail(email)) {
             final String msg = langPropsService.get("sendFailedLabel") + " - " + langPropsService.get("invalidEmailLabel");
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
 
             return;
         }
@@ -167,7 +173,7 @@ public class SettingsProcessor {
         final String captcha = requestJSONObject.optString(CaptchaProcessor.CAPTCHA);
         if (CaptchaProcessor.invalidCaptcha(captcha)) {
             final String msg = langPropsService.get("sendFailedLabel") + " - " + langPropsService.get("captchaErrorLabel");
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
 
             return;
         }
@@ -175,7 +181,7 @@ public class SettingsProcessor {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         if (email.equalsIgnoreCase(user.optString(User.USER_EMAIL))) {
             final String msg = langPropsService.get("sendFailedLabel") + " - " + langPropsService.get("bindedLabel");
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
 
             return;
         }
@@ -220,8 +226,9 @@ public class SettingsProcessor {
      * @param requestJSONObject the specified request json object
      */
     @RequestMapping(value = "/settings/email", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class})
-    public void updateEmail(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+//    @Before(adviceClass = {LoginCheck.class})
+    @LoginCheckAnno
+    public void updateEmail(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         final String captcha = requestJSONObject.optString(CaptchaProcessor.CAPTCHA);
@@ -231,7 +238,7 @@ public class SettingsProcessor {
             final JSONObject verifycode = verifycodeQueryService.getVerifycodeByUserId(Verifycode.TYPE_C_EMAIL, Verifycode.BIZ_TYPE_C_BIND_EMAIL, userId);
             if (null == verifycode) {
                 final String msg = langPropsService.get("updateFailLabel") + " - " + langPropsService.get("captchaErrorLabel");
-                context.renderMsg(msg);
+                dataModel.put("msg",msg);
                 context.renderJSONValue(Common.CODE, 2);
 
                 return;
@@ -239,7 +246,7 @@ public class SettingsProcessor {
 
             if (!StringUtils.equals(verifycode.optString(Verifycode.CODE), captcha)) {
                 final String msg = langPropsService.get("updateFailLabel") + " - " + langPropsService.get("captchaErrorLabel");
-                context.renderMsg(msg);
+                dataModel.put("msg",msg);
                 context.renderJSONValue(Common.CODE, 2);
 
                 return;
@@ -265,8 +272,10 @@ public class SettingsProcessor {
      * @param response the specified response
      */
     @RequestMapping(value = "/settings/i18n", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
-    public void updateI18n(final HTTPRequestContext context,
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateI18n(Map<String, Object> dataModel,
                            final HttpServletRequest request, final HttpServletResponse response) {
         context.renderJSON();
 
@@ -312,9 +321,14 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"/settings", "/settings/*"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {CSRFToken.class, PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showSettings(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+//    @After(adviceClass = {CSRFToken.class, PermissionGrant.class, StopwatchEndAdvice.class})
+    @CSRFTokenAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showSettings(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -421,8 +435,10 @@ public class SettingsProcessor {
      * @param response the specified response
      */
     @RequestMapping(value = "/settings/geo/status", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
-    public void updateGeoStatus(final HTTPRequestContext context,
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateGeoStatus(Map<String, Object> dataModel,
                                 final HttpServletRequest request, final HttpServletResponse response) {
         context.renderJSON();
 
@@ -462,8 +478,10 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/privacy", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
-    public void updatePrivacy(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updatePrivacy(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -544,8 +562,10 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/function", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
-    public void updateFunction(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateFunction(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -617,7 +637,9 @@ public class SettingsProcessor {
      */
     @RequestMapping(value = "/settings/profiles", method = RequestMethod.POST)
     @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateProfilesValidation.class})
-    public void updateProfiles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateProfiles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -657,7 +679,9 @@ public class SettingsProcessor {
      */
     @RequestMapping(value = "/settings/avatar", method = RequestMethod.POST)
     @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateProfilesValidation.class})
-    public void updateAvatar(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateAvatar(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -704,7 +728,9 @@ public class SettingsProcessor {
      */
     @RequestMapping(value = "/settings/sync/b3", method = RequestMethod.POST)
     @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateSyncB3Validation.class})
-    public void updateSyncB3(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateSyncB3(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -731,7 +757,7 @@ public class SettingsProcessor {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
         }
     }
 
@@ -745,7 +771,9 @@ public class SettingsProcessor {
      */
     @RequestMapping(value = "/settings/password", method = RequestMethod.POST)
     @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdatePasswordValidation.class})
-    public void updatePassword(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updatePassword(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -771,7 +799,7 @@ public class SettingsProcessor {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
         }
     }
 
@@ -785,7 +813,9 @@ public class SettingsProcessor {
      */
     @RequestMapping(value = "/settings/emotionList", method = RequestMethod.POST)
     @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateEmotionListValidation.class})
-    public void updateEmoji(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    @LoginCheckAnno
+    @CSRFCheckAnno
+    public void updateEmoji(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON();
 
@@ -802,7 +832,7 @@ public class SettingsProcessor {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
         }
     }
 

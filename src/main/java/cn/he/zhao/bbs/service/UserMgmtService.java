@@ -544,7 +544,7 @@ public class UserMgmtService {
                             IOUtils.write(avatarData, output);
                         }
 
-                        user.put(UserExt.USER_AVATAR_URL, Latkes.getServePath() + "/upload/" + fileName);
+                        user.put(UserExt.USER_AVATAR_URL, SpringUtil.getServerPath(request) + "/upload/" + fileName);
                     }
                 } catch (final IOException e) {
                     LOGGER.error( "Generates avatar error, using default thumbnail instead", e);

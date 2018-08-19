@@ -205,7 +205,7 @@ public class ArticleProcessor {
     @LoginCheckAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void removeArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String id) throws Exception {
         if (StringUtils.isBlank(id)) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -238,7 +238,7 @@ public class ArticleProcessor {
         } catch (final ServiceException e) {
             final String msg = e.getMessage();
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
@@ -256,7 +256,7 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void checkArticleTitle(final HTTPRequestContext context, final HttpServletRequest request) throws Exception {
+    public void checkArticleTitle(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String currentUserId = currentUser.optString(Keys.OBJECT_ID);
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
@@ -340,7 +340,7 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void getArticleImage(final HTTPRequestContext context, final String articleId) throws Exception {
+    public void getArticleImage(Map<String, Object> dataModel, final String articleId) throws Exception {
         final JSONObject article = articleQueryService.getArticle(articleId);
         final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
 
@@ -410,7 +410,7 @@ public class ArticleProcessor {
     @LoginCheckAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void getArticleRevisions(final HTTPRequestContext context, final String id) {
+    public void getArticleRevisions(Map<String, Object> dataModel, final String id) {
         final List<JSONObject> revisions = revisionQueryService.getArticleRevisions(id);
         final JSONObject ret = new JSONObject();
         ret.put(Keys.STATUS_CODE, true);
@@ -435,7 +435,7 @@ public class ArticleProcessor {
     @PermissionGrantAnno
     @CSRFTokenAnno
     @StopWatchEndAnno
-    public void showPreAddArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showPreAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -500,7 +500,7 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -647,7 +647,7 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String articleId) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -931,7 +931,7 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void addArticle(final HTTPRequestContext context, final HttpServletRequest request, final JSONObject requestJSONObject) {
+    public void addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         context.renderJSON();
 
         final String articleTitle = requestJSONObject.optString(Article.ARTICLE_TITLE);
@@ -997,7 +997,7 @@ public class ArticleProcessor {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
@@ -1018,7 +1018,7 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showUpdateArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void showUpdateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String articleId = request.getParameter("id");
         if (Strings.isEmptyOrNull(articleId)) {
@@ -1116,7 +1116,7 @@ public class ArticleProcessor {
     @CSRFCheckAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void updateArticle(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void updateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String id) throws Exception {
         if (Strings.isEmptyOrNull(id)) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -1208,7 +1208,7 @@ public class ArticleProcessor {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
 
-            context.renderMsg(msg);
+            dataModel.put("msg",msg);
             context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
@@ -1277,7 +1277,7 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @StopWatchEndAnno
     public void getArticlePreviewContent(final HttpServletRequest request, final HttpServletResponse response,
-                                         final HTTPRequestContext context, final String articleId) throws Exception {
+                                         Map<String, Object> dataModel, final String articleId) throws Exception {
         final String content = articleQueryService.getArticlePreviewContent(articleId, request);
         if (StringUtils.isBlank(content)) {
             context.renderJSON().renderFalseResult();

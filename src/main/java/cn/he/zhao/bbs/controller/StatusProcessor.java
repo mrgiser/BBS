@@ -18,10 +18,14 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.channel.ArticleChannel;
+import cn.he.zhao.bbs.channel.ArticleListChannel;
+import cn.he.zhao.bbs.channel.ChatRoomChannel;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -68,7 +72,7 @@ public class StatusProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/status", method = RequestMethod.GET)
-    public void reportStatus(final HTTPRequestContext context,
+    public void reportStatus(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {

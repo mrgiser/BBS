@@ -39,13 +39,13 @@ public final class Keys {
 //        dataModel.put("serverPort", Latkes.getServerPort());
 //        dataModel.put("server", Latkes.getServer());
 //        dataModel.put("contextPath", Latkes.getContextPath());
-//        dataModel.put("servePath", Latkes.getServePath());
+//        dataModel.put("servePath", SpringUtil.getServerPath(request));
 //        dataModel.put("staticServerScheme", Latkes.getStaticServerScheme());
 //        dataModel.put("staticServerHost", Latkes.getStaticServerHost());
 //        dataModel.put("staticServerPort", Latkes.getStaticServerPort());
 //        dataModel.put("staticServer", Latkes.getStaticServer());
 //        dataModel.put("staticPath", Latkes.getStaticPath());
-//        dataModel.put("staticServePath", Latkes.getStaticServePath());
+//        dataModel.put("staticServePath", Latkes.SpringUtil.getStaticServePath());
     }
 
     public static void fillRuntime(Map<String, Object> dataModel) {

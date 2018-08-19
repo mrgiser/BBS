@@ -62,9 +62,12 @@ public class ForwardProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/forward", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showForward(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//    @Before(adviceClass = {StopwatchStartAdvice.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showForward(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
         renderer.setTemplateName("forward.ftl");

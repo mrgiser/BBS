@@ -218,7 +218,7 @@ public class UserProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeBreezemoons(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showHomeBreezemoons(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                     final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -290,7 +290,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showLinkForge(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showLinkForge(Map<String, Object> dataModel, final HttpServletRequest request,
                               final HttpServletResponse response, final String userName) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -335,7 +335,7 @@ public class UserProcessor {
 //    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class})
     @StopWatchStartAnno
     @CSRFCheckAnno
-    public void queryInvitecode(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void queryInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final JSONObject ret = Results.falseResult();
         context.renderJSON(ret);
@@ -396,7 +396,7 @@ public class UserProcessor {
     @LoginCheckAnno
     @CSRFTokenAnno
     @PermissionCheckAnno
-    public void pointBuy(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void pointBuy(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final JSONObject ret = Results.falseResult();
         context.renderJSON(ret);
@@ -446,7 +446,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeAnonymousComments(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomeAnonymousComments(Map<String, Object> dataModel, final HttpServletRequest request,
                                           final HttpServletResponse response, final String userName) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -534,7 +534,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAnonymousArticles(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showAnonymousArticles(Map<String, Object> dataModel, final HttpServletRequest request,
                                       final HttpServletResponse response, final String userName) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -616,7 +616,7 @@ public class UserProcessor {
     @RequestMapping(value = "/export/posts", method = RequestMethod.POST)
 //    @Before(adviceClass = {LoginCheck.class})
     @LoginCheckAnno
-    public void exportPosts(final HTTPRequestContext context, final HttpServletRequest request) {
+    public void exportPosts(Map<String, Object> dataModel, final HttpServletRequest request) {
         context.renderJSON();
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
@@ -650,7 +650,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHome(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showHome(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                          final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final int pageNum = Paginator.getPage(request);
@@ -734,7 +734,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeComments(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+    public void showHomeComments(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -810,7 +810,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeFollowingUsers(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomeFollowingUsers(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response, final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -887,7 +887,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeFollowingTags(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomeFollowingTags(Map<String, Object> dataModel, final HttpServletRequest request,
                                       final HttpServletResponse response, final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -963,7 +963,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeFollowingArticles(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomeFollowingArticles(Map<String, Object> dataModel, final HttpServletRequest request,
                                           final HttpServletResponse response, final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -1040,7 +1040,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeWatchingArticles(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomeWatchingArticles(Map<String, Object> dataModel, final HttpServletRequest request,
                                          final HttpServletResponse response, final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -1117,7 +1117,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomeFollowers(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomeFollowers(Map<String, Object> dataModel, final HttpServletRequest request,
                                   final HttpServletResponse response, final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -1201,7 +1201,7 @@ public class UserProcessor {
     @UserBlockCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHomePoints(final HTTPRequestContext context, final HttpServletRequest request,
+    public void showHomePoints(Map<String, Object> dataModel, final HttpServletRequest request,
                                final HttpServletResponse response, final String userName) throws Exception {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
@@ -1267,7 +1267,7 @@ public class UserProcessor {
     @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, PointTransferValidation.class})
     @LoginCheckAnno
     @CSRFCheckAnno
-    public void pointTransfer(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void pointTransfer(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final JSONObject ret = Results.falseResult();
         context.renderJSON(ret);
@@ -1305,7 +1305,7 @@ public class UserProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/users/reset-unverified", method = RequestMethod.GET)
-    public void resetUnverifiedUsers(final HTTPRequestContext context,
+    public void resetUnverifiedUsers(Map<String, Object> dataModel,
                                      final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {
@@ -1327,7 +1327,7 @@ public class UserProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/users/names", method = RequestMethod.GET)
-    public void listNames(final HTTPRequestContext context, final HttpServletRequest request) throws Exception {
+    public void listNames(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
         context.renderJSON().renderTrueResult();
 
         final String namePrefix = request.getParameter("name");
@@ -1361,7 +1361,7 @@ public class UserProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/users/emotions", method = RequestMethod.GET)
-    public void getEmotions(final HTTPRequestContext context, final HttpServletRequest request,
+    public void getEmotions(Map<String, Object> dataModel, final HttpServletRequest request,
                             final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -1387,7 +1387,7 @@ public class UserProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/users/load-names", method = RequestMethod.GET)
-    public void loadUserNames(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void loadUserNames(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");
         if (!key.equals(request.getParameter("key"))) {

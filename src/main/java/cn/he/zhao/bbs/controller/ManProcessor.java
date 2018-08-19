@@ -70,9 +70,12 @@ public class ManProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/man", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showMan(final HTTPRequestContext context,
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showMan(Map<String, Object> dataModel,
                         final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         if (!ManQueryService.TLDR_ENABLED) {
             response.sendRedirect("https://hacpai.com/man");
@@ -117,7 +120,7 @@ public class ManProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/man/cmd", method = RequestMethod.GET)
-    public void listMans(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void listMans(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         context.renderJSON().renderTrueResult();
 

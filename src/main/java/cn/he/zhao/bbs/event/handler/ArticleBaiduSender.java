@@ -22,6 +22,7 @@ import cn.he.zhao.bbs.event.EventTypes;
 import cn.he.zhao.bbs.model.Article;
 import cn.he.zhao.bbs.model.Common;
 import cn.he.zhao.bbs.model.Tag;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URL;
 
 @Component
@@ -51,7 +53,7 @@ public class ArticleBaiduSender implements ApplicationListener<AddArticleEvent> 
      *
      * @param urls the specified URLs
      */
-    public static void sendToBaidu(final String... urls) {
+    public static void sendToBaidu( final String... urls) {
         if (ArrayUtils.isEmpty(urls)) {
             return;
         }
@@ -61,7 +63,7 @@ public class ArticleBaiduSender implements ApplicationListener<AddArticleEvent> 
                 final URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
 
                 final HTTPRequest request = new HTTPRequest();
-                request.setURL(new URL("http://data.zz.baidu.com/urls?site=" + Latkes.getServerHost() + "&token=" + TOKEN));
+                request.setURL(new URL("http://data.zz.baidu.com/urls?site=" + SpringUtil.getServerHost() + "&token=" + TOKEN));
                 request.setRequestMethod(HTTPRequestMethod.POST);
                 request.addHeader(new HTTPHeader(Common.USER_AGENT, "curl/7.12.1"));
                 request.addHeader(new HTTPHeader("Host", "data.zz.baidu.com"));
@@ -86,7 +88,7 @@ public class ArticleBaiduSender implements ApplicationListener<AddArticleEvent> 
         final JSONObject data = event.event;
         LOGGER.trace( "Processing an event [type={0}, data={1}]",  data);
 
-        if (Latkes.RuntimeMode.PRODUCTION != Latkes.getRuntimeMode() || StringUtils.isBlank(TOKEN)) {
+        if (SpringUtil.RuntimeMode.PRO != SpringUtil.getRuntimeMode() || StringUtils.isBlank(TOKEN)) {
             return;
         }
 
@@ -102,7 +104,7 @@ public class ArticleBaiduSender implements ApplicationListener<AddArticleEvent> 
                 return;
             }
 
-            final String articlePermalink = Latkes.getServePath() + article.optString(Article.ARTICLE_PERMALINK);
+            final String articlePermalink = SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK);
 
             sendToBaidu(articlePermalink);
         } catch (final Exception e) {
@@ -130,7 +132,7 @@ public class ArticleBaiduSender implements ApplicationListener<AddArticleEvent> 
 //                return;
 //            }
 //
-//            final String articlePermalink = Latkes.getServePath() + article.optString(Article.ARTICLE_PERMALINK);
+//            final String articlePermalink = SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK);
 //
 //            sendToBaidu(articlePermalink);
 //        } catch (final Exception e) {

@@ -6,6 +6,7 @@ import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.UserMgmtService;
 import cn.he.zhao.bbs.service.UserQueryService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -35,12 +36,6 @@ public class LoginCheck {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     /**
      * User query service.
      */
@@ -61,11 +56,13 @@ public class LoginCheck {
     public void doBefore(JoinPoint joinPoint, LoginCheckAnno anno) throws RequestProcessAdviceException {
 
         final JSONObject exception = new JSONObject();
+        HttpServletRequest request = SpringUtil.getCurrentRequest();
         exception.put(Keys.MSG, HttpServletResponse.SC_UNAUTHORIZED + ", " + request.getRequestURI());
         exception.put(Keys.STATUS_CODE, HttpServletResponse.SC_UNAUTHORIZED);
 
         try {
             JSONObject currentUser = userQueryService.getCurrentUser(request);
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             if (null == currentUser && !userMgmtService.tryLogInWithCookie(request, response)) {
                 throw new RequestProcessAdviceException(exception);
             }

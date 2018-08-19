@@ -1,5 +1,6 @@
 package cn.he.zhao.bbs.advice;
 
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.model.Common;
 import cn.he.zhao.bbs.model.Permission;
@@ -36,12 +37,6 @@ public class PermissionGrant {
 
     ThreadLocal<Long> beginTime = new ThreadLocal<>();
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
-
     /**
      * Language service.
      */
@@ -61,6 +56,7 @@ public class PermissionGrant {
     public void doAfter(JoinPoint joinPoint, PermissionGrantAnno anno) {
 
         Stopwatchs.start("Grant permissions");
+        HttpServletRequest request = SpringUtil.getCurrentRequest();
 
         Map<String, Object> dataModel = null;
         Object[] obj = joinPoint.getArgs();

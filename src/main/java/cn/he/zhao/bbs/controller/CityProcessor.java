@@ -22,6 +22,7 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -102,9 +103,13 @@ public class CityProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"/city/{city}", "/city/{city}/articles"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showCityArticles(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showCityArticles(Map<String, Object> dataModel,
                                  final HttpServletRequest request, final HttpServletResponse response, final String city) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -128,7 +133,7 @@ public class CityProcessor {
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         if (!UserExt.finshedGuide(user)) {
-            response.sendRedirect(Latkes.getServePath() + "/guide");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
             return;
         }
@@ -193,9 +198,13 @@ public class CityProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"/city/{city}/users"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showCityUsers(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showCityUsers(Map<String, Object> dataModel,
                               final HttpServletRequest request, final HttpServletResponse response, final String city) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -218,7 +227,7 @@ public class CityProcessor {
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         if (!UserExt.finshedGuide(user)) {
-            response.sendRedirect(Latkes.getServePath() + "/guide");
+            response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
             return;
         }

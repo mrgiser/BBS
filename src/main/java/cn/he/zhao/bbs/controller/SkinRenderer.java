@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.util.Skins;
+import cn.he.zhao.bbs.util.Symphonys;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.apache.commons.lang.StringUtils;

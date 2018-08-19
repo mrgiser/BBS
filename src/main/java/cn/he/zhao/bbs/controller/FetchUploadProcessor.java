@@ -22,6 +22,8 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -81,9 +83,12 @@ public class FetchUploadProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/fetch-upload", method = RequestMethod.POST)
-    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
-    @After(adviceClass = {StopwatchEndAdvice.class})
-    public void fetchUpload(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, LoginCheck.class})
+//    @After(adviceClass = {StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @LoginCheckAnno
+    @StopWatchEndAnno
+    public void fetchUpload(Map<String, Object> dataModel,
                             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         context.renderJSON();
 
@@ -150,7 +155,7 @@ public class FetchUploadProcessor {
                 IOUtils.write(data, output);
             }
 
-            context.renderJSONValue(Common.URL, Latkes.getServePath() + "/upload/" + fileName);
+            context.renderJSONValue(Common.URL, SpringUtil.getServerPath(request) + "/upload/" + fileName);
             context.renderJSONValue("originalURL", originalURL);
         }
 

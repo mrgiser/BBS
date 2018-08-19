@@ -26,6 +26,7 @@ import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.ActivityQueryService;
 import cn.he.zhao.bbs.service.LivenessQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,28 +47,26 @@ import java.util.Map;
 @Component
 public class Activity1A0001Validation {
 
-    @Autowired
-    private HttpServletResponse response;
 
     /**
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
+    private static LangPropsService langPropsService;
 
     /**
      * Activity query service.
      */
     @Autowired
-    private ActivityQueryService activityQueryService;
+    private static ActivityQueryService activityQueryService;
 
     /**
      * Liveness query service.
      */
     @Autowired
-    private LivenessQueryService livenessQueryService;
+    private static LivenessQueryService livenessQueryService;
 
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request) throws RequestProcessAdviceException {
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
@@ -101,6 +100,7 @@ public class Activity1A0001Validation {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
         } catch (final Exception e) {

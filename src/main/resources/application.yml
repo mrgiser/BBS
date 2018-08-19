@@ -1,5 +1,6 @@
 server:
     port: 8777
+#    context-path: bbs
 
 spring:
     application:
@@ -8,8 +9,10 @@ spring:
         template-loader-path: classpath:/templates/
         suffix: .ftl
 
-Symphonys:
+BBS:
     StaticServePath: classpath:/templates/
+    RuntimeMode: dev
+    staticResourceVersion: 201304262200
 
 #    messages:
 #        basename: lang

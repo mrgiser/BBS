@@ -25,6 +25,7 @@ import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.OptionQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,13 +41,13 @@ public class UserRegister2Validation {
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
+    private static LangPropsService langPropsService;
 
     /**
      * Option query service.
      */
     @Autowired
-    private OptionQueryService optionQueryService;
+    private static OptionQueryService optionQueryService;
 
     /**
      * Max password length.
@@ -62,13 +63,11 @@ public class UserRegister2Validation {
      */
     private static final int MIN_PWD_LENGTH = 1;
 
-    @Autowired
-    private HttpServletResponse response;
-
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request) throws RequestProcessAdviceException {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
 
@@ -106,7 +105,7 @@ public class UserRegister2Validation {
      * @param fieldLabel the specified field label
      * @throws RequestProcessAdviceException request process advice exception
      */
-    private void checkField(final boolean invalid, final String failLabel, final String fieldLabel)
+    private static void checkField(final boolean invalid, final String failLabel, final String fieldLabel)
             throws RequestProcessAdviceException {
         if (invalid) {
             throw new RequestProcessAdviceException(new JSONObject().put(Keys.MSG, langPropsService.get(failLabel)

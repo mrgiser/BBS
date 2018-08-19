@@ -50,7 +50,7 @@ public final class Emotions {
      * Emoji list.
      */
 
-    @Value("${Symphonys.StaticServePath}")
+    @Value("${BBS.StaticServePath}")
     private static String StaticServePath;
     private static final String[] EMOJIS = {
             "+1",

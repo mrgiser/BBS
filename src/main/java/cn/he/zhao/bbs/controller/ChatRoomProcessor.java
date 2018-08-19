@@ -18,10 +18,14 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.channel.ChatRoomChannel;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.Markdowns;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -134,7 +138,7 @@ public class ChatRoomProcessor {
      * @param request the specified request
      */
     @RequestMapping(value = "/cron/xiaov", method = RequestMethod.GET)
-    public void xiaoVReply(final HTTPRequestContext context, final HttpServletRequest request) {
+    public void xiaoVReply(Map<String, Object> dataModel, final HttpServletRequest request) {
         context.renderJSON();
 
         try {
@@ -211,7 +215,8 @@ public class ChatRoomProcessor {
      */
     @RequestMapping(value = "/chat-room/send", method = RequestMethod.POST)
     @Before(adviceClass = {LoginCheck.class, ChatMsgAddValidation.class})
-    public synchronized void addChatRoomMsg(final HTTPRequestContext context, final HttpServletRequest request) {
+    @LoginCheckAnno
+    public synchronized void addChatRoomMsg(Map<String, Object> dataModel, final HttpServletRequest request) {
         context.renderJSON();
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
@@ -276,9 +281,13 @@ public class ChatRoomProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = {"/cr", "/chat-room", "/community"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showChatRoom(final HTTPRequestContext context,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showChatRoom(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -319,9 +328,11 @@ public class ChatRoomProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/community/push", method = RequestMethod.POST)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = StopwatchEndAdvice.class)
-    public synchronized void receiveXiaoV(final HTTPRequestContext context,
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @StopWatchEndAnno
+    public synchronized void receiveXiaoV(Map<String, Object> dataModel,
                                           final HttpServletRequest request, final HttpServletResponse response) throws Exception {
 //        final String key = Symphonys.get("xiaov.key");
 //        if (!key.equals(request.getParameter("key"))) {

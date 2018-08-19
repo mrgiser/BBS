@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.model.*;
@@ -59,8 +60,10 @@ public class IPFSProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/cron/ipfs/articles/publish", method = RequestMethod.GET)
-    @Before(adviceClass = StopwatchStartAdvice.class)
-    @After(adviceClass = StopwatchEndAdvice.class)
+//    @Before(adviceClass = StopwatchStartAdvice.class)
+//    @After(adviceClass = StopwatchEndAdvice.class)
+    @StopWatchStartAnno
+    @StopWatchEndAnno
     public void publishArticles(final HttpServletRequest request, final HttpServletResponse response, final HTTPRequestContext context)
             throws Exception {
         final String key = Symphonys.get("keyOfSymphony");

@@ -21,8 +21,13 @@ import cn.he.zhao.bbs.model.Common;
 import cn.he.zhao.bbs.model.Option;
 import cn.he.zhao.bbs.model.my.CollectionUtils;
 import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.service.LangPropsServiceImpl;
 import cn.he.zhao.bbs.service.OptionQueryService;
+import cn.he.zhao.bbs.service.RoleQueryService;
+import cn.he.zhao.bbs.service.UserQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -59,7 +64,7 @@ public final class Symphonys {
     /**
      * HacPai bot User-Agent.
      */
-    public static final String USER_AGENT_BOT = "Mozilla/5.0 (compatible; Sym/" + SymphonyServletListener.VERSION + "; +" + Latkes.getServePath() + ")";
+    public static final String USER_AGENT_BOT = "Mozilla/5.0 (compatible; Sym/" + SpringUtil.VERSION + "; +" + SpringUtil.getServerPath() + ")";
 
     /**
      * Reserved tags.
@@ -148,15 +153,14 @@ public final class Symphonys {
         new Timer(true).schedule(new TimerTask() {
             @Override
             public void run() {
-                final String symURL = Latkes.getServePath();
+                final String symURL = SpringUtil.getServerPath();
                 if (Networks.isIPv4(symURL)) {
                     return;
                 }
 
                 HttpURLConnection httpConn = null;
                 try {
-                    final LatkeBeanManager beanManager = Lifecycle.getBeanManager();
-                    final OptionQueryService optionQueryService = beanManager.getReference(OptionQueryService.class);
+                    final OptionQueryService optionQueryService = SpringUtil.getBean(OptionQueryService.class);
 
                     final JSONObject statistic = optionQueryService.getStatistic();
                     final int articleCount = statistic.optInt(Option.ID_C_STATISTIC_ARTICLE_COUNT);
@@ -164,7 +168,7 @@ public final class Symphonys {
                         return;
                     }
 
-                    final LangPropsService langPropsService = beanManager.getReference(LangPropsServiceImpl.class);
+                    final LangPropsService langPropsService = SpringUtil.getBean(LangPropsServiceImpl.class);
 
                     httpConn = (HttpURLConnection) new URL("https://rhythm.b3log.org/sym").openConnection();
                     httpConn.setConnectTimeout(10000);
@@ -178,7 +182,7 @@ public final class Symphonys {
                     try (final OutputStream outputStream = httpConn.getOutputStream()) {
                         final JSONObject sym = new JSONObject();
                         sym.put("symURL", symURL);
-                        sym.put("symTitle", langPropsService.get("symphonyLabel", Latkes.getLocale()));
+                        sym.put("symTitle", langPropsService.get("symphonyLabel", Locales.getLocale()));
 
                         IOUtils.write(sym.toString(), outputStream, "UTF-8");
                         outputStream.flush();
@@ -220,7 +224,7 @@ public final class Symphonys {
             httpConn.setConnectTimeout(10000);
             httpConn.setReadTimeout(10000);
             httpConn.setRequestMethod("GET");
-            httpConn.setRequestProperty(Common.USER_AGENT, "B3log Symphony/" + SymphonyServletListener.VERSION);
+            httpConn.setRequestProperty(Common.USER_AGENT, "B3log Symphony/" + SpringUtil.VERSION);
 
             httpConn.connect();
 
@@ -254,7 +258,7 @@ public final class Symphonys {
      * @return {@code true} if it runs on development environment, {@code false} otherwise
      */
     public static boolean runsOnDevEnv() {
-        return Latkes.RuntimeMode.DEVELOPMENT == Latkes.getRuntimeMode();
+        return SpringUtil.RuntimeMode.DEV ==SpringUtil.getRuntimeMode();
     }
 
     /**

@@ -19,9 +19,15 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.model.*;
+import cn.he.zhao.bbs.model.feed.RSSCategory;
+import cn.he.zhao.bbs.model.feed.RSSChannel;
+import cn.he.zhao.bbs.model.feed.RSSItem;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -87,7 +93,7 @@ public class FeedProcessor {
      *
      * @param context the specified context
      */
-    @RequestMapping(value = "/rss/recent.xml", method = {HTTPRequestMethod.GET, HTTPRequestMethod.HEAD})
+    @RequestMapping(value = "/rss/recent.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
     public void genRecentRSS(final HTTPRequestContext context) {
         final RssRenderer renderer = new RssRenderer();
         context.setRenderer(renderer);
@@ -102,8 +108,8 @@ public class FeedProcessor {
             }
             channel.setTitle(langPropsService.get("symphonyLabel"));
             channel.setLastBuildDate(new Date());
-            channel.setLink(Latkes.getServePath());
-            channel.setAtomLink(Latkes.getServePath() + "/rss/recent.xml");
+            channel.setLink(SpringUtil.getServerPath(request));
+            channel.setAtomLink(SpringUtil.getServerPath(request) + "/rss/recent.xml");
             channel.setGenerator("Symphony v" + SymphonyServletListener.VERSION + ", https://sym.b3log.org");
             final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
             final String country = Locales.getCountry(localeString).toLowerCase();
@@ -128,8 +134,8 @@ public class FeedProcessor {
      *
      * @param context the specified context
      */
-    @RequestMapping(value = "/rss/domain/{domainURI}.xml", method = {HTTPRequestMethod.GET, HTTPRequestMethod.HEAD})
-    public void genDomainRSS(final HTTPRequestContext context, final String domainURI) {
+    @RequestMapping(value = "/rss/domain/{domainURI}.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
+    public void genDomainRSS(Map<String, Object> dataModel, final String domainURI) {
         final RssRenderer renderer = new RssRenderer();
         context.setRenderer(renderer);
 
@@ -151,8 +157,8 @@ public class FeedProcessor {
             }
             channel.setTitle(langPropsService.get("symphonyLabel"));
             channel.setLastBuildDate(new Date());
-            channel.setLink(Latkes.getServePath());
-            channel.setAtomLink(Latkes.getServePath() + "/rss/" + domainURI + ".xml");
+            channel.setLink(SpringUtil.getServerPath(request));
+            channel.setAtomLink(SpringUtil.getServerPath(request) + "/rss/" + domainURI + ".xml");
             channel.setGenerator("Symphony v" + SymphonyServletListener.VERSION + ", https://sym.b3log.org");
             final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
             final String country = Locales.getCountry(localeString).toLowerCase();
@@ -183,7 +189,7 @@ public class FeedProcessor {
         ret.setDescription(description);
         final Date pubDate = (Date) article.get(Article.ARTICLE_UPDATE_TIME);
         ret.setPubDate(pubDate);
-        final String link = Latkes.getServePath() + article.getString(Article.ARTICLE_PERMALINK);
+        final String link = SpringUtil.getServerPath(request) + article.getString(Article.ARTICLE_PERMALINK);
         ret.setLink(link);
         ret.setGUID(link);
         ret.setAuthor(article.optString(Article.ARTICLE_T_AUTHOR_NAME));

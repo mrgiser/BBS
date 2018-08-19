@@ -1,10 +1,14 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -19,6 +23,9 @@ public class LangPropsServiceImpl implements LangPropsService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LangPropsServiceImpl.class);
     private static final Map<Locale, Map<String, String>> LANGS = new HashMap();
 
+    @Autowired
+    private HttpServletRequest request;
+
     public LangPropsServiceImpl() {
     }
 
@@ -31,10 +38,10 @@ public class LangPropsServiceImpl implements LangPropsService {
             try {
                 langBundle = ResourceBundle.getBundle("lang", locale);
             } catch (MissingResourceException var8) {
-                LOGGER.warn("{0}, using default locale[{1}] instead", new Object[]{var8.getMessage(), Latkes.getLocale()});
+                LOGGER.warn("{0}, using default locale[{1}] instead", new Object[]{var8.getMessage(), Locale.getDefault()});
 
                 try {
-                    langBundle = ResourceBundle.getBundle("lang", Latkes.getLocale());
+                    langBundle = ResourceBundle.getBundle("lang", Locale.getDefault());
                 } catch (MissingResourceException var7) {
                     LOGGER.warn("{0}, using default lang.properties instead", new Object[]{var8.getMessage()});
                     langBundle = ResourceBundle.getBundle("lang");
@@ -72,15 +79,15 @@ public class LangPropsServiceImpl implements LangPropsService {
             try {
                 return this.replaceVars(ResourceBundle.getBundle(baseName, locale).getString(key));
             } catch (MissingResourceException var5) {
-                LOGGER.error("{0}, get it from default locale[{1}]", new Object[]{var5.getMessage(), Latkes.getLocale()});
-                return ResourceBundle.getBundle(baseName, Latkes.getLocale()).getString(key);
+                LOGGER.error("{0}, get it from default locale[{1}]", new Object[]{var5.getMessage(), Locale.getDefault()});
+                return ResourceBundle.getBundle(baseName, Locale.getDefault()).getString(key);
             }
         }
     }
 
     private String replaceVars(String langValue) {
-        String ret = StringUtils.replace(langValue, "${servePath}", Latkes.getServePath());
-        ret = StringUtils.replace(ret, "${staticServePath}", Latkes.getStaticServePath());
+        String ret = StringUtils.replace(langValue, "${servePath}", SpringUtil.getServerPath(request));
+        ret = StringUtils.replace(ret, "${staticServePath}", SpringUtil.getStaticServePath());
         return ret;
     }
 }

@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.model.*;
@@ -95,7 +96,7 @@ public class TagProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/tags/query", method = RequestMethod.GET)
-    public void queryTags(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+    public void queryTags(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         if (null == Sessions.currentUser(request)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -132,9 +133,13 @@ public class TagProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/tags", method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showTagsWall(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response)
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showTagsWall(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -161,9 +166,13 @@ public class TagProcessor {
      */
     @RequestMapping(value = {"/tag/{tagURI}", "/tag/{tagURI}/hot", "/tag/{tagURI}/good", "/tag/{tagURI}/reply",
             "/tag/{tagURI}/perfect"}, method = RequestMethod.GET)
-    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
-    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
-    public void showTagArticles(final HTTPRequestContext context, final HttpServletRequest request, final HttpServletResponse response,
+//    @Before(adviceClass = {StopwatchStartAdvice.class, AnonymousViewCheck.class})
+//    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
+    @StopWatchStartAnno
+    @AnonymousViewCheckAnno
+    @PermissionGrantAnno
+    @StopWatchEndAnno
+    public void showTagArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                 final String tagURI) throws Exception {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
         context.setRenderer(renderer);
@@ -178,7 +187,7 @@ public class TagProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(Latkes.getServePath() + "/guide");
+                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
 
                 return;
             }
