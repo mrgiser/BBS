@@ -62,7 +62,7 @@ public class SitemapProcessor {
      *
      */
     @RequestMapping(value = "/sitemap.xml", method = RequestMethod.GET)
-    public void sitemap(Map<String, Object> dataModel) {
+    public void sitemap(Map<String, Object> dataModel,final HttpServletResponse response) {
         final TextXMLRenderer renderer = new TextXMLRenderer();
 
         context.setRenderer(renderer);
@@ -85,7 +85,7 @@ public class SitemapProcessor {
             LOGGER.error( "Get blog article feed error", e);
 
             try {
-                context.getResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             } catch (final IOException ex) {
                 throw new RuntimeException(ex);
             }

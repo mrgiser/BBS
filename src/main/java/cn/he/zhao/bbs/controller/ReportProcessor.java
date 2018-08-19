@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * Report processor.
@@ -69,7 +70,6 @@ public class ReportProcessor {
     /**
      * Reports content or users.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/report", method = RequestMethod.POST)
@@ -102,12 +102,13 @@ public class ReportProcessor {
         } catch ( final Exception e) {
             dataModel.put(Keys.MSG ,e.getMessage());
             dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
-        } catch (final Exception e) {
-            LOGGER.error( "Adds a report failed", e);
-
-            dataModel.put(Keys.MSG ,langPropsService.get("systemErrLabel"));
-            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
+//        catch (final Exception e) {
+//            LOGGER.error( "Adds a report failed", e);
+//
+//            dataModel.put(Keys.MSG ,langPropsService.get("systemErrLabel"));
+//            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
+//        }
     }
 
 }

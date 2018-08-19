@@ -18,6 +18,7 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
@@ -90,7 +91,7 @@ public class LinkForgeProcessor {
     /**
      * Submits a link into forge.
      *
-     * @param context the specified context
+
      * @throws Exception exception
      */
     @RequestMapping(value = "/forge/link", method = RequestMethod.POST)
@@ -99,17 +100,17 @@ public class LinkForgeProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void forgeLink(Map<String, Object> dataModel) throws Exception {
+    public void forgeLink(Map<String, Object> dataModel,HttpServletResponse response, HttpServletRequest request) throws Exception {
         dataModel.put(Keys.STATUS_CODE,true);
 
         JSONObject requestJSONObject;
         try {
-            requestJSONObject = Requests.parseRequestJSONObject(context.getRequest(), context.getResponse());
+            requestJSONObject = Requests.parseRequestJSONObject(request, response);
         } catch (final Exception e) {
             throw new RequestProcessAdviceException(new JSONObject().put(Keys.MSG, e.getMessage()));
         }
 
-        final JSONObject user = (JSONObject) context.getRequest().getAttribute(User.USER);
+        final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
 
         final String url = requestJSONObject.optString(Common.URL);
@@ -131,13 +132,14 @@ public class LinkForgeProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showLinkForge(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showLinkForge(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-
-        renderer.setTemplateName("other/link-forge.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("other/link-forge.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "other/link-forge.ftl";
 
         final List<JSONObject> tags = linkForgeQueryService.getForgedLinks();
         dataModel.put(Tag.TAGS, (Object) tags);
@@ -152,6 +154,7 @@ public class LinkForgeProcessor {
         dataModel.put(Link.LINK_T_COUNT, linkCnt);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**

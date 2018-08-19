@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.model.my.User;
@@ -38,15 +39,13 @@ public class UpdatePasswordValidation {
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
+    private static LangPropsService langPropsService;
 
-    @Autowired
-    private HttpServletResponse response;
-
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request) throws RequestProcessAdviceException {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
         } catch (final Exception e) {

@@ -22,7 +22,9 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -96,7 +98,7 @@ public class NotificationProcessor {
     /**
      * Remove notifications by the specified type.
      *
-     * @param context the specified context
+
      * @param request the specified request
      * @param type    the specified type: commented/reply/at/following/point/broadcast
      */
@@ -154,7 +156,8 @@ public class NotificationProcessor {
 
                 break;
             default:
-                context.renderJSON(false);
+//                context.renderJSON(false);
+                dataModel.put(Keys.STATUS_CODE,false);
 
                 return;
         }
@@ -165,7 +168,6 @@ public class NotificationProcessor {
     /**
      * Removes a notification.
      *
-     * @param context           the specified context
      * @param request           the specified request
      * @param requestJSONObject the specified request json object
      */
@@ -209,14 +211,16 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showSysAnnounceNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showSysAnnounceNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                              final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/sys-announce.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/sys-announce.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "/home/notifications/sys-announce.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -249,12 +253,14 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return url;
     }
 
     /**
      * Makes all notifications as read.
      *
-     * @param context the specified context
+
      * @param request the specified request
      */
     @RequestMapping(value = "/notification/all-read", method = RequestMethod.GET)
@@ -275,7 +281,7 @@ public class NotificationProcessor {
     /**
      * Makes the specified type notifications as read.
      *
-     * @param context the specified context
+
      * @param request the specified request
      * @param type    the specified type: "commented"/"at"/"following"
      */
@@ -315,7 +321,8 @@ public class NotificationProcessor {
 
                 break;
             default:
-                context.renderJSON(false);
+//                context.renderJSON(false);
+                dataModel.put(Keys.STATUS_CODE,false);
 
                 return;
         }
@@ -365,13 +372,13 @@ public class NotificationProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void navigateNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String navigateNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                       final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
@@ -381,7 +388,6 @@ public class NotificationProcessor {
         if (unreadCommentedNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/commented");
 
-            return;
         }
 
         final int unreadReplyNotificationCnt
@@ -389,7 +395,6 @@ public class NotificationProcessor {
         if (unreadReplyNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/reply");
 
-            return;
         }
 
         final int unreadAtNotificationCnt
@@ -403,21 +408,18 @@ public class NotificationProcessor {
         if (unreadAtNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/at");
 
-            return;
         }
 
         final int unreadPointNotificationCnt = notificationQueryService.getUnreadPointNotificationCount(userId);
         if (unreadPointNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/point");
 
-            return;
         }
 
         final int unreadFollowingNotificationCnt = notificationQueryService.getUnreadFollowingNotificationCount(userId);
         if (unreadFollowingNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/following");
 
-            return;
         }
 
         final int unreadBroadcastCnt
@@ -425,14 +427,12 @@ public class NotificationProcessor {
         if (unreadBroadcastCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/broadcast");
 
-            return;
         }
 
         final int unreadSysAnnounceCnt = notificationQueryService.getUnreadSysAnnounceNotificationCount(userId);
         if (unreadSysAnnounceCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/sys-announce");
 
-            return;
         }
 
         return "redirect:" +( SpringUtil.getServerPath() + "/notifications/commented");
@@ -453,19 +453,20 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showPointNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showPointNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/point.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/point.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url= "/home/notifications/point.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -494,6 +495,7 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return  url;
     }
 
     /**
@@ -560,19 +562,21 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showCommentedNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showCommentedNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/commented.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/commented.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "/home/notifications/commented.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -602,6 +606,7 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return  url;
     }
 
     /**
@@ -619,19 +624,20 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showReplyNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showReplyNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/reply.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/reply.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/home/notifications/reply.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -661,6 +667,7 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
@@ -678,19 +685,20 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAtNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showAtNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                     final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/at.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/at.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/home/notifications/at.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -728,6 +736,7 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
@@ -745,19 +754,20 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showFollowingNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showFollowingNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/following.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/following.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/home/notifications/following.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -788,6 +798,7 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return  url;
     }
 
     /**
@@ -805,19 +816,20 @@ public class NotificationProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showBroadcastNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String showBroadcastNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/home/notifications/broadcast.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/home/notifications/broadcast.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/home/notifications/broadcast.ftl";
 
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final int pageNum = Paginator.getPage(request);
@@ -848,12 +860,13 @@ public class NotificationProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Gets unread count of notifications.
      *
-     * @param context the specified context
+
      * @param request the specified request
      */
     @RequestMapping(value = "/notification/unread/count", method = RequestMethod.GET)
@@ -865,11 +878,13 @@ public class NotificationProcessor {
     public void getUnreadNotificationCount(Map<String, Object> dataModel, final HttpServletRequest request) {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
-        final Map<String, Object> dataModel = new HashMap<>();
+//        final Map<String, Object> dataModel = new HashMap<>();
 
         fillNotificationCount(userId, dataModel);
 
-        context.renderJSON(new JSONObject(dataModel)).renderTrueResult().
-                renderJSONValue(UserExt.USER_NOTIFY_STATUS, currentUser.optInt(UserExt.USER_NOTIFY_STATUS));
+//        context.renderJSON(new JSONObject(dataModel)).renderTrueResult().
+//                renderJSONValue(UserExt.USER_NOTIFY_STATUS, currentUser.optInt(UserExt.USER_NOTIFY_STATUS));
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(UserExt.USER_NOTIFY_STATUS, currentUser.optInt(UserExt.USER_NOTIFY_STATUS));
     }
 }

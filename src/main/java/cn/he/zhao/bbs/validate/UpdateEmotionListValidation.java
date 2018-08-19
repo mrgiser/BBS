@@ -20,6 +20,7 @@ package cn.he.zhao.bbs.validate;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,13 +32,11 @@ import java.util.Map;
 @Component
 public class UpdateEmotionListValidation {
 
-    @Autowired
-    private HttpServletResponse response;
-
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request) throws RequestProcessAdviceException {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
         } catch (final Exception e) {

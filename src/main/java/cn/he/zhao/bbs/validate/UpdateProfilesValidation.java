@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.model.Role;
 import cn.he.zhao.bbs.model.Tag;
@@ -45,7 +46,7 @@ public class UpdateProfilesValidation {
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
+    private static LangPropsService langPropsService;
 
     /**
      * Max user nickname length.
@@ -70,10 +71,11 @@ public class UpdateProfilesValidation {
     @Autowired
     private HttpServletResponse response;
 
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request) throws RequestProcessAdviceException {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
         } catch (final Exception e) {
@@ -167,7 +169,7 @@ public class UpdateProfilesValidation {
      * @param userURL the specified user URL
      * @return {@code true} if it is invalid, returns {@code false} otherwise
      */
-    private boolean invalidUserURL(final String userURL) {
+    private static boolean invalidUserURL(final String userURL) {
         if (!Strings.isURL(userURL)) {
             return true;
         }

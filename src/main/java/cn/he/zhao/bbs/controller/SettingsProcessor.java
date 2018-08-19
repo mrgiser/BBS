@@ -17,11 +17,16 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.util.Languages;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.util.TimeZones;
+import cn.he.zhao.bbs.validate.UpdateEmotionListValidation;
+import cn.he.zhao.bbs.validate.UpdatePasswordValidation;
+import cn.he.zhao.bbs.validate.UpdateProfilesValidation;
+import cn.he.zhao.bbs.validate.UpdateSyncB3Validation;
 import com.qiniu.util.Auth;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -332,16 +337,17 @@ public class SettingsProcessor {
     @StopWatchEndAnno
     public void showSettings(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
         final String requestURI = request.getRequestURI();
         String page = StringUtils.substringAfter(requestURI, "/settings/");
         if (StringUtils.isBlank(page)) {
             page = "profile";
         }
         page += ".ftl";
-        renderer.setTemplateName("/home/settings/" + page);
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        renderer.setTemplateName("/home/settings/" + page);
+        String url = "/home/settings/" + page;
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
@@ -638,12 +644,18 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/profiles", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateProfilesValidation.class})
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateProfilesValidation.class})
     @LoginCheckAnno
     @CSRFCheckAnno
     public void updateProfiles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
+
+        try {
+            UpdateProfilesValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e){
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -680,12 +692,18 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/avatar", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateProfilesValidation.class})
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateProfilesValidation.class})
     @LoginCheckAnno
     @CSRFCheckAnno
     public void updateAvatar(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
+
+        try {
+            UpdateProfilesValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e){
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
         final String userAvatarURL = requestJSONObject.optString(UserExt.USER_AVATAR_URL);
@@ -729,12 +747,17 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/sync/b3", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateSyncB3Validation.class})
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateSyncB3Validation.class})
     @LoginCheckAnno
     @CSRFCheckAnno
     public void updateSyncB3(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
+        try {
+            UpdateSyncB3Validation.doAdvice(request);
+        } catch (RequestProcessAdviceException e){
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -772,12 +795,18 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/password", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdatePasswordValidation.class})
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdatePasswordValidation.class})
     @LoginCheckAnno
     @CSRFCheckAnno
     public void updatePassword(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
+
+        try {
+            UpdatePasswordValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e){
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -814,12 +843,18 @@ public class SettingsProcessor {
      * @throws Exception exception
      */
     @RequestMapping(value = "/settings/emotionList", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateEmotionListValidation.class})
+//    @Before(adviceClass = {LoginCheck.class, CSRFCheck.class, UpdateEmotionListValidation.class})
     @LoginCheckAnno
     @CSRFCheckAnno
     public void updateEmoji(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
+
+        try {
+            UpdateEmotionListValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e){
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
         final String emotionList = requestJSONObject.optString(Emotion.EMOTIONS);

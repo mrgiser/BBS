@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -105,7 +106,7 @@ public class FollowProcessor {
                            final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingUserId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -149,7 +150,7 @@ public class FollowProcessor {
                              final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingUserId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -183,7 +184,7 @@ public class FollowProcessor {
                           final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingTagId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -217,7 +218,7 @@ public class FollowProcessor {
                             final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingTagId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -252,7 +253,7 @@ public class FollowProcessor {
                               final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -300,7 +301,7 @@ public class FollowProcessor {
                                 final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -335,7 +336,7 @@ public class FollowProcessor {
                              final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -383,7 +384,7 @@ public class FollowProcessor {
                                final HttpServletResponse response) throws Exception {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);

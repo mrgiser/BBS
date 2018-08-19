@@ -122,7 +122,7 @@ public class CaptchaProcessor {
 
             CAPTCHAS.add(challenge);
 
-            final HttpServletResponse response = context.getResponse();
+            final HttpServletResponse response = response;
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -141,7 +141,7 @@ public class CaptchaProcessor {
     public void getLoginCaptcha(Map<String, Object> dataModel, HttpServletRequest request, HttpServletResponse response) {
         try {
 //            final HttpServletRequest request = context.getRequest();
-//            final HttpServletResponse response = context.getResponse();
+//            final HttpServletResponse response = response;
 
             final String userId = request.getParameter(Common.NEED_CAPTCHA);
             if (StringUtils.isBlank(userId)) {

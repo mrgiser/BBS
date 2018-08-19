@@ -23,6 +23,7 @@ import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.MD5;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
@@ -125,7 +126,7 @@ public class FileUploadProcessor {
 
         resp.addHeader("Cache-Control", "public, max-age=31536000");
         resp.addHeader("ETag", etag);
-        resp.setHeader("Server", "Latke Static Server (v" + SymphonyServletListener.VERSION + ")");
+        resp.setHeader("Server", "Latke Static Server (v" + SpringUtil.VERSION + ")");
         final String ext = StringUtils.substringAfterLast(path, ".");
         final String mimeType = MimeTypes.getMimeType(ext);
         resp.addHeader("Content-Type", mimeType);

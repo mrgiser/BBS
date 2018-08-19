@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.util.Escapes;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
@@ -105,19 +106,20 @@ public class SearchProcessor {
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void search(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String search(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("search-articles.ftl");
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("search-articles.ftl");
+        String url = "search-articles.ftl";
 
         if (!Symphonys.getBoolean("es.enabled") && !Symphonys.getBoolean("algolia.enabled")) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-            return;
+            return null;
         }
 
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final Map<String, Object> dataModel = renderer.getDataModel();
         String keyword = request.getParameter("key");
         if (StringUtils.isBlank(keyword)) {
             keyword = "";
@@ -138,7 +140,7 @@ public class SearchProcessor {
             if (null == result || 0 != result.optInt("status")) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-                return;
+                return null;
             }
 
             final JSONObject hitsResult = result.optJSONObject("hits");
@@ -157,7 +159,7 @@ public class SearchProcessor {
             if (null == result) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-                return;
+                return null;
             }
 
             final JSONArray hits = result.optJSONArray("hits");
@@ -201,5 +203,6 @@ public class SearchProcessor {
         String searchEmptyLabel = langPropsService.get("searchEmptyLabel");
         searchEmptyLabel = searchEmptyLabel.replace("${key}", keyword);
         dataModel.put("searchEmptyLabel", searchEmptyLabel);
+        return  url;
     }
 }

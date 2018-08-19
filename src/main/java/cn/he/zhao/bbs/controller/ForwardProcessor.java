@@ -67,11 +67,11 @@ public class ForwardProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showForward(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("forward.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+    public String showForward(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("forward.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         String to = request.getParameter(Common.GOTO);
         if (StringUtils.isBlank(to)) {
@@ -80,6 +80,7 @@ public class ForwardProcessor {
         dataModel.put("forwardURL", to);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "forward.ftl";
     }
 
 }

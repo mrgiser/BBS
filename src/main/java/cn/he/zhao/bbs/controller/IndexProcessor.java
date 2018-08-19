@@ -18,6 +18,8 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.Paginator;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Markdowns;
@@ -117,12 +119,14 @@ public class IndexProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showWatch(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showWatch(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("watch.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("watch.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "watch.ftl";
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
@@ -133,7 +137,6 @@ public class IndexProcessor {
             if (!UserExt.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-                return;
             }
         }
 
@@ -166,6 +169,7 @@ public class IndexProcessor {
 
         dataModel.put(Common.SELECTED, Common.WATCH);
         dataModel.put(Common.CURRENT, StringUtils.substringAfter(request.getRequestURI(), "/watch"));
+        return url;
     }
 
     /**
@@ -180,12 +184,13 @@ public class IndexProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showMDGuide(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showMDGuide(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("other/md-guide.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("other/md-guide.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "other/md-guide.ftl";
 
         try (final InputStream inputStream = IndexProcessor.class.getResourceAsStream("/md_guide.md")) {
             final String md = IOUtils.toString(inputStream, "UTF-8");
@@ -199,6 +204,7 @@ public class IndexProcessor {
         }
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
@@ -215,12 +221,13 @@ public class IndexProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showIndex(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showIndex(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("index.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("index.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "index.ftl";
 
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
         final List<JSONObject> recentArticles = articleQueryService.getIndexRecentArticles(avatarViewMode);
@@ -233,6 +240,7 @@ public class IndexProcessor {
         dataModelService.fillIndexTags(dataModel);
 
         dataModel.put(Common.SELECTED, Common.INDEX);
+        return url;
     }
 
     /**
@@ -250,12 +258,14 @@ public class IndexProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showRecent(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showRecent(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("recent.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("recent.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "recent.ftl";
+
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
         final JSONObject user = userQueryService.getCurrentUser(request);
@@ -265,7 +275,6 @@ public class IndexProcessor {
             if (!UserExt.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-                return;
             }
         }
 
@@ -331,6 +340,7 @@ public class IndexProcessor {
         dataModelService.fillLatestCmts(dataModel);
 
         dataModel.put(Common.CURRENT, StringUtils.substringAfter(request.getRequestURI(), "/recent"));
+        return url;
     }
 
     /**
@@ -348,12 +358,13 @@ public class IndexProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showHotArticles(Map<String, Object> dataModel,
+    public String showHotArticles(Map<String, Object> dataModel,
                                 final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("hot.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("hot.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "hot.ftl";
 
         int pageSize = Symphonys.getInt("indexArticlesCnt");
         final JSONObject user = userQueryService.getCurrentUser(request);
@@ -378,6 +389,7 @@ public class IndexProcessor {
         } finally {
             Stopwatchs.end();
         }
+        return  url;
     }
 
     /**
@@ -395,12 +407,12 @@ public class IndexProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showSymHub(Map<String, Object> dataModel,
+    public String showSymHub(Map<String, Object> dataModel,
                            final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("other/symhub.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("other/symhub.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final List<JSONObject> syms = Symphonys.getSyms();
         dataModel.put("syms", (Object) syms);
@@ -418,6 +430,7 @@ public class IndexProcessor {
         } finally {
             Stopwatchs.end();
         }
+        return "other/symhub.ftl";
     }
 
     /**
@@ -435,12 +448,12 @@ public class IndexProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showPerfectArticles(Map<String, Object> dataModel,
+    public String showPerfectArticles(Map<String, Object> dataModel,
                                     final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("perfect.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("perfect.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
         final JSONObject user = userQueryService.getCurrentUser(request);
@@ -449,7 +462,6 @@ public class IndexProcessor {
             if (!UserExt.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-                return;
             }
         }
 
@@ -475,6 +487,8 @@ public class IndexProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+
+        return "perfect.ftl";
     }
 
     /**
@@ -508,12 +522,12 @@ public class IndexProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showB3log(Map<String, Object> dataModel,
+    public String showB3log(Map<String, Object> dataModel,
                           final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("other/b3log.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("other/b3log.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
@@ -521,6 +535,7 @@ public class IndexProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+        return "other/b3log.ftl";
     }
 
     /**
@@ -535,16 +550,18 @@ public class IndexProcessor {
 //    @After(adviceClass = StopwatchEndAdvice.class)
     @StopWatchStartAnno
     @StopWatchEndAnno
-    public void showKillBrowser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        renderer.setTemplateName("other/kill-browser.ftl");
-        context.setRenderer(renderer);
-
-        final Map<String, Object> dataModel = renderer.getDataModel();
+    public String showKillBrowser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        renderer.setTemplateName("other/kill-browser.ftl");
+//        context.setRenderer(renderer);
+//
+//        final Map<String, Object> dataModel = renderer.getDataModel();
         final Map<String, String> langs = langPropsService.getAll(Locales.getLocale());
 
         dataModel.putAll(langs);
         Keys.fillRuntime(dataModel);
         dataModelService.fillMinified(dataModel);
+
+        return "other/kill-browser.ftl";
     }
 }

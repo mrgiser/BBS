@@ -111,7 +111,7 @@ public class FeedProcessor {
             channel.setLastBuildDate(new Date());
             channel.setLink( SpringUtil.getServerPath());
             channel.setAtomLink( SpringUtil.getServerPath() + "/rss/recent.xml");
-            channel.setGenerator("Symphony v" + SymphonyServletListener.VERSION + ", https://sym.b3log.org");
+            channel.setGenerator("Symphony v" + SpringUtil.VERSION + ", https://sym.b3log.org");
             final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
             final String country = Locales.getCountry(localeString).toLowerCase();
             final String language = Locales.getLanguage(localeString).toLowerCase();
@@ -133,7 +133,7 @@ public class FeedProcessor {
     /**
      * Generates domain articles' RSS.
      *
-     * @param context the specified context
+
      */
     @RequestMapping(value = "/rss/domain/{domainURI}.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
     public void genDomainRSS(Map<String, Object> dataModel, final String domainURI) {
@@ -143,7 +143,7 @@ public class FeedProcessor {
         try {
             final JSONObject domain = domainQueryService.getByURI(domainURI);
             if (null == domain) {
-                context.getResponse().sendError(HttpServletResponse.SC_NOT_FOUND);
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
                 return;
             }
@@ -160,7 +160,7 @@ public class FeedProcessor {
             channel.setLastBuildDate(new Date());
             channel.setLink( SpringUtil.getServerPath());
             channel.setAtomLink( SpringUtil.getServerPath() + "/rss/" + domainURI + ".xml");
-            channel.setGenerator("Symphony v" + SymphonyServletListener.VERSION + ", https://sym.b3log.org");
+            channel.setGenerator("Symphony v" + SpringUtil.VERSION + ", https://sym.b3log.org");
             final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
             final String country = Locales.getCountry(localeString).toLowerCase();
             final String language = Locales.getLanguage(localeString).toLowerCase();
@@ -172,7 +172,7 @@ public class FeedProcessor {
             LOGGER.error( "Generates recent articles' RSS failed", e);
 
             try {
-                context.getResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             } catch (final IOException ex) {
                 throw new RuntimeException(ex);
             }

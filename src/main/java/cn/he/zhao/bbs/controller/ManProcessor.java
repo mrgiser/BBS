@@ -75,18 +75,18 @@ public class ManProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showMan(Map<String, Object> dataModel,
+    public String showMan(Map<String, Object> dataModel,
                         final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         if (!ManQueryService.TLDR_ENABLED) {
             return "redirect:" +("https://hacpai.com/man");
 
-            return;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("other/man.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("other/man.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "other/man.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -108,6 +108,7 @@ public class ManProcessor {
         }
 
         dataModel.put(Common.MANS, mans);
+        return  url;
     }
 
 
