@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * Cache processor.
@@ -101,6 +102,7 @@ public class CacheProcessor {
         articleCache.loadSideRandomArticles();
         tagCache.loadTags();
 
-        context.renderJSON().renderTrueResult();
+//        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }

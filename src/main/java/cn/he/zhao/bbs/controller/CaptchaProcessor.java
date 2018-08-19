@@ -42,6 +42,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -96,7 +97,6 @@ public class CaptchaProcessor {
     /**
      * Gets captcha.
      *
-     * @param context the specified context
      */
     @RequestMapping(value = "/captcha", method = RequestMethod.GET)
     public void get(Map<String, Object> dataModel) {
@@ -136,13 +136,12 @@ public class CaptchaProcessor {
     /**
      * Gets captcha for login.
      *
-     * @param context the specified context
      */
     @RequestMapping(value = "/captcha/login", method = RequestMethod.GET)
-    public void getLoginCaptcha(Map<String, Object> dataModel) {
+    public void getLoginCaptcha(Map<String, Object> dataModel, HttpServletRequest request, HttpServletResponse response) {
         try {
-            final HttpServletRequest request = context.getRequest();
-            final HttpServletResponse response = context.getResponse();
+//            final HttpServletRequest request = context.getRequest();
+//            final HttpServletResponse response = context.getResponse();
 
             final String userId = request.getParameter(Common.NEED_CAPTCHA);
             if (StringUtils.isBlank(userId)) {

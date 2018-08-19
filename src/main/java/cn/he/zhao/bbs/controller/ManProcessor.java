@@ -122,7 +122,7 @@ public class ManProcessor {
     @RequestMapping(value = "/man/cmd", method = RequestMethod.GET)
     public void listMans(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
 
         final String cmdPrefix = request.getParameter(Common.NAME);
         if (StringUtils.isBlank(cmdPrefix)) {
@@ -131,6 +131,6 @@ public class ManProcessor {
 
         final List<JSONObject> mans = manQueryService.getMansByCmdPrefix(cmdPrefix);
 
-        context.renderJSONValue(Common.MANS, mans);
+        dataModel.put(Common.MANS, mans);
     }
 }

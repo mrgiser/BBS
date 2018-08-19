@@ -78,13 +78,15 @@ public class TopProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showBalance(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showBalance(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/top/balance.ftl");
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/top/balance.ftl");
+//
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/top/balance.ftl";
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
         final List<JSONObject> users = pointtransferQueryService.getTopBalanceUsers(avatarViewMode, Symphonys.getInt("topBalanceCnt"));
         dataModel.put(Common.TOP_BALANCE_USERS, users);
@@ -94,6 +96,7 @@ public class TopProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+        return url;
     }
 
     /**
@@ -111,13 +114,14 @@ public class TopProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showConsumption(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showConsumption(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/top/consumption.ftl");
-
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/top/consumption.ftl");
+//
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/top/consumption.ftl";
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
         final List<JSONObject> users = pointtransferQueryService.getTopConsumptionUsers(avatarViewMode, Symphonys.getInt("topConsumptionCnt"));
         dataModel.put(Common.TOP_CONSUMPTION_USERS, users);
@@ -127,6 +131,7 @@ public class TopProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+        return url;
     }
 
     /**
@@ -144,12 +149,14 @@ public class TopProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showCheckin(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("/top/checkin.ftl");
+    public String showCheckin(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("/top/checkin.ftl");
+//
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/top/checkin.ftl";
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
         final List<JSONObject> users = activityQueryService.getTopCheckinUsers(avatarViewMode, Symphonys.getInt("topCheckinCnt"));
         dataModel.put(Common.TOP_CHECKIN_USERS, users);
@@ -159,5 +166,6 @@ public class TopProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+        return url;
     }
 }

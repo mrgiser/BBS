@@ -38,6 +38,7 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * Running status processor.
@@ -81,16 +82,16 @@ public class StatusProcessor {
             return;
         }
 
-        final JSONObject ret = new JSONObject();
-        context.renderJSON(ret);
-        ret.put(Common.ONLINE_VISITOR_CNT, optionQueryService.getOnlineVisitorCount());
-        ret.put(Common.ONLINE_MEMBER_CNT, optionQueryService.getOnlineMemberCount());
-        ret.put(Common.ONLINE_CHAT_CNT, ChatRoomChannel.SESSIONS.size());
-        ret.put(Common.ARTICLE_CHANNEL_CNT, ArticleChannel.SESSIONS.size());
-        ret.put(Common.ARTICLE_LIST_CHANNEL_CNT, ArticleListChannel.SESSIONS.size());
+//        final JSONObject ret = new JSONObject();
+//        context.renderJSON(ret);
+        dataModel.put(Common.ONLINE_VISITOR_CNT, optionQueryService.getOnlineVisitorCount());
+        dataModel.put(Common.ONLINE_MEMBER_CNT, optionQueryService.getOnlineMemberCount());
+        dataModel.put(Common.ONLINE_CHAT_CNT, ChatRoomChannel.SESSIONS.size());
+        dataModel.put(Common.ARTICLE_CHANNEL_CNT, ArticleChannel.SESSIONS.size());
+        dataModel.put(Common.ARTICLE_LIST_CHANNEL_CNT, ArticleListChannel.SESSIONS.size());
 
         final JSONObject memory = new JSONObject();
-        ret.put("memory", memory);
+        dataModel.put("memory", memory);
 
         final int mb = 1024 * 1024;
         final Runtime runtime = Runtime.getRuntime();
@@ -99,7 +100,7 @@ public class StatusProcessor {
         memory.put("used", (runtime.totalMemory() - runtime.freeMemory()) / mb);
         memory.put("max", runtime.maxMemory() / mb);
 
-        LOGGER.info(ret.toString(SymphonyServletListener.JSON_PRINT_INDENT_FACTOR));
-        ret.put(Keys.STATUS_CODE, true);
+        LOGGER.info(dataModel.toString(SymphonyServletListener.JSON_PRINT_INDENT_FACTOR));
+        dataModel.put(Keys.STATUS_CODE, true);
     }
 }

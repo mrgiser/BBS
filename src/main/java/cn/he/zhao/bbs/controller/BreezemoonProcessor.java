@@ -22,7 +22,9 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Headers;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.StatusCodes;
@@ -103,12 +105,14 @@ public class BreezemoonProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showWatchBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showWatchBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("breezemoon.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("breezemoon.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "breezemoon.ftl";
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
@@ -120,7 +124,7 @@ public class BreezemoonProcessor {
             if (!UserExt.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-                return;
+//                return;
             }
 
             currentUserId = user.optString(Keys.OBJECT_ID);
@@ -139,6 +143,7 @@ public class BreezemoonProcessor {
 
         dataModel.put(Common.SELECTED, Common.WATCH);
         dataModel.put(Common.CURRENT, StringUtils.substringAfter(request.getRequestURI(), "/watch"));
+        return url;
     }
 
     /**
@@ -152,7 +157,6 @@ public class BreezemoonProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/breezemoon", method = RequestMethod.POST)
@@ -164,9 +168,9 @@ public class BreezemoonProcessor {
     @PermissionCheckAnno
     @StopWatchEndAnno
     public void addBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
-        if (isInvalid(context, requestJSONObject)) {
+        if (isInvalid(dataModel, requestJSONObject)) {
             return;
         }
 
@@ -184,10 +188,10 @@ public class BreezemoonProcessor {
         try {
             breezemoonMgmtService.addBreezemoon(breezemoon);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
         } catch (final Exception e) {
-            context.renderMsg(e.getMessage());
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,e.getMessage());
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
@@ -202,7 +206,6 @@ public class BreezemoonProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/breezemoon/{id}", method = RequestMethod.PUT)
@@ -215,8 +218,8 @@ public class BreezemoonProcessor {
     @StopWatchEndAnno
     public void updateBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject,
                                  final String id) {
-        context.renderJSON();
-        if (isInvalid(context, requestJSONObject)) {
+        dataModel.put(Keys.STATUS_CODE,false);
+        if (isInvalid(dataModel, requestJSONObject)) {
             return;
         }
 
@@ -235,17 +238,16 @@ public class BreezemoonProcessor {
         try {
             breezemoonMgmtService.updateBreezemoon(breezemoon);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
         } catch (final Exception e) {
-            context.renderMsg(e.getMessage());
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,e.getMessage());
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
     /**
      * Removes a breezemoon.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/breezemoon/{id}", method = RequestMethod.DELETE)
@@ -258,15 +260,15 @@ public class BreezemoonProcessor {
     @StopWatchEndAnno
     public void removeBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject,
                                  final String id) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         try {
             breezemoonMgmtService.removeBreezemoon(id);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
         } catch (final Exception e) {
-            context.renderMsg(e.getMessage());
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,e.getMessage());
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
@@ -275,15 +277,15 @@ public class BreezemoonProcessor {
         breezemoonContent = StringUtils.trim(breezemoonContent);
         final int length = StringUtils.length(breezemoonContent);
         if (1 > length || 512 < length) {
-            context.renderMsg(langPropsService.get("breezemoonLengthLabel"));
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,langPropsService.get("breezemoonLengthLabel"));
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
 
             return true;
         }
 
         if (optionQueryService.containReservedWord(breezemoonContent)) {
-            context.renderMsg(langPropsService.get("contentContainReservedWordLabel"));
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,langPropsService.get("contentContainReservedWordLabel"));
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
 
             return true;
         }

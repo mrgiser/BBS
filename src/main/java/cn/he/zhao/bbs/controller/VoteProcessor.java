@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -114,10 +115,10 @@ public class VoteProcessor {
 //    @Before(adviceClass = {LoginCheck.class, PermissionCheck.class})
     @LoginCheckAnno
     @PermissionCheckAnno
-    public void voteUpComment(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
-        context.renderJSON();
+    public void voteUpComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+        dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String dataId = requestJSONObject.optString(Common.DATA_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -125,7 +126,9 @@ public class VoteProcessor {
 
         if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))
                 && voteQueryService.isOwn(userId, dataId, Vote.DATA_TYPE_C_COMMENT)) {
-            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
+//            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG,langPropsService.get("cantVoteSelfLabel"));
 
             return;
         }
@@ -150,7 +153,9 @@ public class VoteProcessor {
             VOTES.add(userId + dataId);
         }
 
-        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+//        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Vote.TYPE, vote);
     }
 
     /**
@@ -175,9 +180,9 @@ public class VoteProcessor {
     @PermissionCheckAnno
     public void voteDownComment(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String dataId = requestJSONObject.optString(Common.DATA_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -185,7 +190,9 @@ public class VoteProcessor {
 
         if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))
                 && voteQueryService.isOwn(userId, dataId, Vote.DATA_TYPE_C_COMMENT)) {
-            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
+//            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG, langPropsService.get("cantVoteSelfLabel"));
 
             return;
         }
@@ -211,7 +218,9 @@ public class VoteProcessor {
 //            VOTES.add(userId + dataId);
         }
 
-        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+//        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Vote.TYPE, vote);
     }
 
     /**
@@ -236,9 +245,9 @@ public class VoteProcessor {
     @PermissionCheckAnno
     public void voteUpArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                               final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String dataId = requestJSONObject.optString(Common.DATA_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -246,8 +255,10 @@ public class VoteProcessor {
 
         if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))
                 && voteQueryService.isOwn(userId, dataId, Vote.DATA_TYPE_C_ARTICLE)) {
-            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
+//            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
 
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG, langPropsService.get("cantVoteSelfLabel"));
             return;
         }
 
@@ -271,7 +282,9 @@ public class VoteProcessor {
             VOTES.add(userId + dataId);
         }
 
-        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+//        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Vote.TYPE, vote);
     }
 
     /**
@@ -296,9 +309,9 @@ public class VoteProcessor {
     @PermissionCheckAnno
     public void voteDownArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String dataId = requestJSONObject.optString(Common.DATA_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -306,8 +319,10 @@ public class VoteProcessor {
 
         if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))
                 && voteQueryService.isOwn(userId, dataId, Vote.DATA_TYPE_C_ARTICLE)) {
-            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
+//            context.renderFalseResult().renderMsg(langPropsService.get("cantVoteSelfLabel"));
 
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG, langPropsService.get("cantVoteSelfLabel"));
             return;
         }
 
@@ -332,6 +347,8 @@ public class VoteProcessor {
 //            VOTES.add(userId + dataId);
         }
 
-        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+//        context.renderTrueResult().renderJSONValue(Vote.TYPE, vote);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Vote.TYPE, vote);
     }
 }

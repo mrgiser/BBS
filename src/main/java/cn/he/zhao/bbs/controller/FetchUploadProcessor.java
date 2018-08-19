@@ -90,7 +90,7 @@ public class FetchUploadProcessor {
     @StopWatchEndAnno
     public void fetchUpload(Map<String, Object> dataModel,
                             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         JSONObject requestJSONObject;
         try {
@@ -148,17 +148,17 @@ public class FetchUploadProcessor {
             uploadManager.put(data, "e/" + fileName, auth.uploadToken(Symphonys.get("qiniu.bucket")),
                     null, contentType, false);
 
-            context.renderJSONValue(Common.URL, Symphonys.get("qiniu.domain") + "/e/" + fileName);
-            context.renderJSONValue("originalURL", originalURL);
+            dataModel.put(Common.URL, Symphonys.get("qiniu.domain") + "/e/" + fileName);
+            dataModel.put("originalURL", originalURL);
         } else {
             try (final OutputStream output = new FileOutputStream(Symphonys.get("upload.dir") + fileName)) {
                 IOUtils.write(data, output);
             }
 
-            context.renderJSONValue(Common.URL,  SpringUtil.getServerPath() + "/upload/" + fileName);
-            context.renderJSONValue("originalURL", originalURL);
+            dataModel.put(Common.URL,  SpringUtil.getServerPath() + "/upload/" + fileName);
+            dataModel.put("originalURL", originalURL);
         }
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }

@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.spring.Paginator;
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
@@ -104,7 +107,7 @@ public class TagProcessor {
             return;
         }
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
 
         final String titlePrefix = request.getParameter("title");
 
@@ -121,7 +124,7 @@ public class TagProcessor {
             ret.add(tag.optString(Tag.TAG_TITLE));
         }
 
-        context.renderJSONValue(Tag.TAGS, ret);
+        dataModel.put(Tag.TAGS, ret);
     }
 
     /**
@@ -139,12 +142,14 @@ public class TagProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showTagsWall(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showTagsWall(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("tags.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("tags.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "tags.ftl";
 
         final List<JSONObject> trendTags = tagQueryService.getTrendTags(Symphonys.getInt("tagsWallTrendCnt"));
         final List<JSONObject> coldTags = tagQueryService.getColdTags(Symphonys.getInt("tagsWallColdCnt"));
@@ -153,6 +158,7 @@ public class TagProcessor {
         dataModel.put(Common.COLD_TAGS, coldTags);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
@@ -172,12 +178,14 @@ public class TagProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showTagArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showTagArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                 final String tagURI) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("tag-articles.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("tag-articles.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "tag-articles.ftl";
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
@@ -189,7 +197,6 @@ public class TagProcessor {
             if (!UserExt.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-                return;
             }
         }
 
@@ -197,7 +204,7 @@ public class TagProcessor {
         if (null == tag) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-            return;
+            return null;
         }
 
         tag.put(Common.IS_RESERVED, tagQueryService.isReservedTag(tag.optString(Tag.TAG_TITLE)));
@@ -279,5 +286,6 @@ public class TagProcessor {
 
         dataModel.put(Common.CURRENT, StringUtils.substringAfter(URLDecoder.decode(request.getRequestURI(), "UTF-8"),
                 "/tag/" + tagURI));
+        return url;
     }
 }

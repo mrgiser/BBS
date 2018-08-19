@@ -79,7 +79,7 @@ public class ReportProcessor {
 //    @After(adviceClass = StopwatchEndAdvice.class)
     @StopWatchEndAnno
     public void report(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
@@ -98,15 +98,15 @@ public class ReportProcessor {
         try {
             reportMgmtService.addReport(report);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,e.getMessage());
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         } catch (final Exception e) {
             LOGGER.error( "Adds a report failed", e);
 
-            context.renderMsg(langPropsService.get("systemErrLabel"));
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG ,langPropsService.get("systemErrLabel"));
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 

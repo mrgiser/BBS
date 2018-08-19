@@ -26,6 +26,7 @@ import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Feed RSS processor.
@@ -91,10 +93,9 @@ public class FeedProcessor {
     /**
      * Generates recent articles' RSS.
      *
-     * @param context the specified context
      */
     @RequestMapping(value = "/rss/recent.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
-    public void genRecentRSS(Map<String, Object> dataModel) {
+    public void genRecentRSS(Map<String, Object> dataModel, final HttpServletResponse response) {
         final RssRenderer renderer = new RssRenderer();
         context.setRenderer(renderer);
 
@@ -122,7 +123,7 @@ public class FeedProcessor {
             LOGGER.error( "Generates recent articles' RSS failed", e);
 
             try {
-                context.getResponse().sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             } catch (final IOException ex) {
                 throw new RuntimeException(ex);
             }

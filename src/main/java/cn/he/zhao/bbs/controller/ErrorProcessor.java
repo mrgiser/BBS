@@ -67,7 +67,6 @@ public class ErrorProcessor {
     /**
      * Handles the error.
      *
-     * @param context    the specified context
      * @param request    the specified HTTP servlet request
      * @param response   the specified HTTP servlet response
      * @param statusCode the specified status code
@@ -79,25 +78,31 @@ public class ErrorProcessor {
     @StopWatchStartAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void handleErrorPage(Map<String, Object> dataModel, final HttpServletRequest request,
+    public String handleErrorPage(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response, final String statusCode) throws Exception {
         if (StringUtils.equals("GET", request.getMethod())) {
             final String requestURI = request.getRequestURI();
             final String templateName = statusCode + ".ftl";
             LOGGER.trace( "Shows error page[requestURI={0}, templateName={1}]", requestURI, templateName);
 
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            renderer.setTemplateName("error/" + templateName);
-            context.setRenderer(renderer);
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            renderer.setTemplateName("error/" + templateName);
+//            context.setRenderer(renderer);
+//
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
-            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "error/" + templateName;
             dataModel.putAll(langPropsService.getAll(Locales.getLocale()));
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
             dataModelService.fillSideHotArticles(dataModel);
             dataModelService.fillRandomArticles(dataModel);
             dataModelService.fillSideTags(dataModel);
+            return url;
         } else {
-            context.renderJSON().renderMsg(statusCode);
+//            context.renderJSON().renderMsg(statusCode);
+            dataModel.put(Keys.STATUS_CODE,false);
+            dataModel.put(Keys.MSG,statusCode);
+            return null;
         }
     }
 }

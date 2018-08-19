@@ -570,7 +570,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @StopWatchEndAnno
     public void removeUnusedTags(Map<String, Object> dataModel) throws Exception {
-//        context.renderJSON(true);
+//        dataModel.put(Keys.STATUS_CODE,true);
         dataModel.put(Keys.STATUS_CODE,true);
 
         tagMgmtService.removeUnusedTags();
@@ -3065,7 +3065,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public void searchIndex(Map<String, Object> dataModel) {
         dataModel.put(Keys.STATUS_CODE,true);
-//        context.renderJSON(true);
+//        dataModel.put(Keys.STATUS_CODE,true);
 
         if (Symphonys.getBoolean("es.enabled")) {
             searchMgmtService.rebuildESIndex();

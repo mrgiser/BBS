@@ -23,6 +23,7 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.spring.Strings;
@@ -49,6 +50,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.security.Key;
 import java.util.*;
 import java.util.List;
 
@@ -229,24 +231,23 @@ public class ArticleProcessor {
             return;
         }
 
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
         try {
             articleMgmtService.removeArticle(id);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-            context.renderJSONValue(Article.ARTICLE_T_ID, id);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Article.ARTICLE_T_ID, id);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
 
             dataModel.put("msg",msg);
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
     /**
      * Checks article title.
      *
-     * @param context the specified context
      * @param request the specified request
      * @throws Exception exception
      */
@@ -256,17 +257,17 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @LoginCheckAnno
     @StopWatchEndAnno
-    public void checkArticleTitle(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
+    public void checkArticleTitle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String currentUserId = currentUser.optString(Keys.OBJECT_ID);
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         String title = requestJSONObject.optString(Article.ARTICLE_TITLE);
         title = StringUtils.trim(title);
         String id = requestJSONObject.optString(Article.ARTICLE_T_ID);
 
         final JSONObject article = articleQueryService.getArticleByTitle(title);
         if (null == article) {
-            context.renderJSON(true);
+            dataModel.put(Keys.STATUS_CODE,true);
 
             return;
         }
@@ -289,15 +290,16 @@ public class ArticleProcessor {
                         + "'>" + title + "</a>");
             }
 
-            final JSONObject ret = new JSONObject();
-            ret.put(Keys.STATUS_CODE, false);
-            ret.put(Keys.MSG, msg);
+//            final JSONObject ret = new JSONObject();
+            dataModel.put(Keys.STATUS_CODE, false);
+            dataModel.put(Keys.MSG, msg);
 
-            context.renderJSON(ret);
+//            context.renderJSON(ret);
         } else { // Update
             final JSONObject oldArticle = articleQueryService.getArticle(id);
             if (oldArticle.optString(Article.ARTICLE_TITLE).equals(title)) {
-                context.renderJSON(true);
+//                dataModel.put(Keys.STATUS_CODE,true);
+                dataModel.put(Keys.STATUS_CODE,true);
 
                 return;
             }
@@ -319,18 +321,17 @@ public class ArticleProcessor {
                         + "'>" + title + "</a>");
             }
 
-            final JSONObject ret = new JSONObject();
-            ret.put(Keys.STATUS_CODE, false);
-            ret.put(Keys.MSG, msg);
+//            final JSONObject ret = new JSONObject();
+            dataModel.put(Keys.STATUS_CODE, false);
+            dataModel.put(Keys.MSG, msg);
 
-            context.renderJSON(ret);
+//            context.renderJSON(ret);
         }
     }
 
     /**
      * Gets article image.
      *
-     * @param context   the specified context
      * @param articleId the specified article id
      * @throws Exception exception
      */
@@ -350,14 +351,14 @@ public class ArticleProcessor {
         final List<BufferedImage> images = new ArrayList<>();
         for (int i = 0; i < articleContent.length(); i++) {
             final String ch = articleContent.substring(i, i + 1);
-            final JSONObject chRecord = org.b3log.symphony.model.Character.getCharacter(ch, characters);
+            final JSONObject chRecord = cn.he.zhao.bbs.model.Character.getCharacter(ch, characters);
             if (null == chRecord) {
-                images.add(org.b3log.symphony.model.Character.createImage(ch));
+                images.add(cn.he.zhao.bbs.model.Character.createImage(ch));
 
                 continue;
             }
 
-            final String imgData = chRecord.optString(org.b3log.symphony.model.Character.CHARACTER_IMG);
+            final String imgData = chRecord.optString(cn.he.zhao.bbs.model.Character.CHARACTER_IMG);
             final byte[] data = Base64.decode(imgData.getBytes());
             final BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
             final BufferedImage newImage = new BufferedImage(50, 50, img.getType());
@@ -390,17 +391,16 @@ public class ArticleProcessor {
 
         String url = "";
 
-        final JSONObject ret = new JSONObject();
-        ret.put(Keys.STATUS_CODE, true);
-        ret.put(Common.URL, (Object) url);
+//        final JSONObject ret = new JSONObject();
+        dataModel.put(Keys.STATUS_CODE, true);
+        dataModel.put(Common.URL, (Object) url);
 
-        context.renderJSON(ret);
+//        context.renderJSON(ret);
     }
 
     /**
      * Gets an article's revisions.
      *
-     * @param context the specified context
      * @param id      the specified article id
      */
     @RequestMapping(value = "/article/{id}/revisions", method = RequestMethod.GET)
@@ -416,7 +416,9 @@ public class ArticleProcessor {
         ret.put(Keys.STATUS_CODE, true);
         ret.put(Revision.REVISIONS, (Object) revisions);
 
-        context.renderJSON(ret);
+//        context.renderJSON(ret);
+        dataModel.put(Keys.STATUS_CODE,ret.get(Keys.STATUS_CODE));
+        dataModel.put(Revision.REVISIONS, (Object) revisions);
     }
 
     /**
@@ -435,17 +437,19 @@ public class ArticleProcessor {
     @PermissionGrantAnno
     @CSRFTokenAnno
     @StopWatchEndAnno
-    public void showPreAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showPreAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("/home/pre-post.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        renderer.setTemplateName("/home/pre-post.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModel.put(Common.BROADCAST_POINT, Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "/home/pre-post.ftl";
     }
 
     /**
@@ -500,13 +504,14 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-
-        renderer.setTemplateName("/home/post.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("/home/post.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/home/post.ftl";
 
         // Qiniu file upload authenticate
         final Auth auth = Auth.create(Symphonys.get("qiniu.accessKey"), Symphonys.get("qiniu.secretKey"));
@@ -615,6 +620,8 @@ public class ArticleProcessor {
 
         fillPostArticleRequisite(dataModel, currentUser);
         fillDomainsWithTags(dataModel);
+
+        return url;
     }
 
     private void fillPostArticleRequisite(final Map<String, Object> dataModel, final JSONObject currentUser) {
@@ -633,7 +640,6 @@ public class ArticleProcessor {
     /**
      * Shows article with the specified article id.
      *
-     * @param context   the specified context
      * @param request   the specified request
      * @param response  the specified response
      * @param articleId the specified article id
@@ -647,13 +653,15 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String articleId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("/article.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        renderer.setTemplateName("/article.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/article.ftl";
 
         final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
 
@@ -661,7 +669,7 @@ public class ArticleProcessor {
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-            return;
+            return null;
         }
 
         final HttpSession session = request.getSession(false);
@@ -810,7 +818,7 @@ public class ArticleProcessor {
             article.put(Article.ARTICLE_T_COMMENTS, (Object) Collections.emptyList());
             article.put(Article.ARTICLE_T_NICE_COMMENTS, (Object) Collections.emptyList());
 
-            return;
+            return null;
         }
 
         final List<JSONObject> niceComments
@@ -873,7 +881,7 @@ public class ArticleProcessor {
         if (!UserRegisterValidation.invalidUserName(referralUserName)) {
             final JSONObject referralUser = userQueryService.getUserByName(referralUserName);
             if (null == referralUser) {
-                return;
+                return url;
             }
 
             final String viewerIP = Requests.getRemoteAddr(request);
@@ -897,6 +905,7 @@ public class ArticleProcessor {
         if (StringUtils.isNotBlank(Symphonys.get("ipfs.dir"))) {
             articleMgmtService.saveMarkdown(article);
         }
+        return url;
     }
 
     /**
@@ -918,7 +927,6 @@ public class ArticleProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/article", method = RequestMethod.POST)
@@ -932,7 +940,7 @@ public class ArticleProcessor {
     @PermissionCheckAnno
     @StopWatchEndAnno
     public void addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final String articleTitle = requestJSONObject.optString(Article.ARTICLE_TITLE);
         String articleTags = requestJSONObject.optString(Article.ARTICLE_TAGS);
@@ -991,14 +999,14 @@ public class ArticleProcessor {
 
             final String articleId = articleMgmtService.addArticle(article);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-            context.renderJSONValue(Article.ARTICLE_T_ID, articleId);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Article.ARTICLE_T_ID, articleId);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
 
             dataModel.put("msg",msg);
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
@@ -1018,20 +1026,20 @@ public class ArticleProcessor {
     @CSRFTokenAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showUpdateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showUpdateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String articleId = request.getParameter("id");
         if (Strings.isEmptyOrNull(articleId)) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-            return;
+            return null;
         }
 
         final JSONObject article = articleQueryService.getArticle(articleId);
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-            return;
+            return null;
         }
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -1039,14 +1047,15 @@ public class ArticleProcessor {
                 || !currentUser.optString(Keys.OBJECT_ID).equals(article.optString(Article.ARTICLE_AUTHOR_ID))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
-            return;
+            return null;
         }
 
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-
-        renderer.setTemplateName("/home/post.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("/home/post.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "/home/post.ftl";
 
         dataModel.put(Article.ARTICLE, article);
 
@@ -1079,6 +1088,7 @@ public class ArticleProcessor {
         dataModel.put("hasB3Key", !Strings.isEmptyOrNull(b3logKey));
 
         fillPostArticleRequisite(dataModel, currentUser);
+        return url;
     }
 
     /**
@@ -1133,11 +1143,13 @@ public class ArticleProcessor {
             return;
         }
 
-        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
+        dataModel.put(Keys.STATUS_CODE,false);
 
         if (Article.ARTICLE_STATUS_C_VALID != oldArticle.optInt(Article.ARTICLE_STATUS)) {
-            context.renderMsg(langPropsService.get("articleLockedLabel"));
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.MSG , langPropsService.get("articleLockedLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("articleLockedLabel"));
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
 
             return;
         }
@@ -1202,14 +1214,15 @@ public class ArticleProcessor {
         try {
             articleMgmtService.updateArticle(article);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-            context.renderJSONValue(Article.ARTICLE_T_ID, id);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Article.ARTICLE_T_ID, id);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
 
             dataModel.put("msg",msg);
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+//            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
@@ -1234,11 +1247,12 @@ public class ArticleProcessor {
     @StopWatchStartAnno
     @StopWatchEndAnno
     public void markdown2HTML(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel) {
-        context.renderJSON(true);
+//        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Keys.STATUS_CODE, true);
         String markdownText = request.getParameter("markdownText");
         if (Strings.isEmptyOrNull(markdownText)) {
-            context.renderJSONValue("html", "");
-
+//            dataModel.put("html", "");
+            dataModel.put("html", "");
             return;
         }
 
@@ -1251,7 +1265,9 @@ public class ArticleProcessor {
         markdownText = MP3Players.render(markdownText);
         markdownText = VideoPlayers.render(markdownText);
 
-        context.renderJSONValue("html", markdownText);
+//        dataModel.put("html", markdownText);
+//        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put("html", markdownText);
     }
 
     /**
@@ -1267,7 +1283,6 @@ public class ArticleProcessor {
      *
      * @param request   the specified http servlet request
      * @param response  the specified http servlet response
-     * @param context   the specified http request context
      * @param articleId the specified article id
      * @throws Exception exception
      */
@@ -1280,12 +1295,15 @@ public class ArticleProcessor {
                                          Map<String, Object> dataModel, final String articleId) throws Exception {
         final String content = articleQueryService.getArticlePreviewContent(articleId, request);
         if (StringUtils.isBlank(content)) {
-            context.renderJSON().renderFalseResult();
+//            context.renderJSON().renderFalseResult();
+            dataModel.put(Keys.STATUS_CODE,false);
 
             return;
         }
 
-        context.renderJSON(true).renderJSONValue("html", content);
+//        context.renderJSON(true).renderJSONValue("html", content);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put("html", content);
     }
 
     /**
@@ -1317,12 +1335,13 @@ public class ArticleProcessor {
             return;
         }
 
-        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
+        dataModel.put(Keys.STATUS_CODE,false);
 
         try {
             articleMgmtService.reward(articleId, currentUser.optString(Keys.OBJECT_ID));
         } catch ( final Exception e) {
-//            context.renderMsg(langPropsService.get("transferFailLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("transferFailLabel"));
             dataModel.put(Keys.MSG,langPropsService.get("transferFailLabel"));
             return;
         }
@@ -1366,18 +1385,18 @@ public class ArticleProcessor {
             return;
         }
 
-//        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
         dataModel.put(Keys.STATUS_CODE,false);
         try {
             articleMgmtService.thank(articleId, currentUser.optString(Keys.OBJECT_ID));
         } catch (final Exception e) {
-//            context.renderMsg(langPropsService.get("transferFailLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("transferFailLabel"));
             dataModel.put(Keys.MSG,langPropsService.get("transferFailLabel"));
 
             return;
         }
 
-//        context.renderTrueResult();
+//        dataModel.put(Keys.STATUS_CODE,true);
         dataModel.put(Keys.STATUS_CODE,true);
     }
 
@@ -1424,13 +1443,13 @@ public class ArticleProcessor {
             return;
         }
 
-//        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
         dataModel.put(Keys.STATUS_CODE,false);
 
         try {
             articleMgmtService.stick(articleId);
         } catch (final Exception e) {
-//            context.renderMsg(e.getMessage());
+//            dataModel.put(Keys.MSG ,e.getMessage());
             dataModel.put(Keys.MSG,e.getMessage());
 
             return;
@@ -1465,7 +1484,7 @@ public class ArticleProcessor {
 
         articleMgmtService.expireStick();
 
-//        context.renderJSON().renderTrueResult();
+//        dataModel.put(Keys.STATUS_CODE,true);
         dataModel.put(Keys.STATUS_CODE,true);
     }
 }

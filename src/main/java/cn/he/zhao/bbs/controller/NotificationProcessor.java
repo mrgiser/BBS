@@ -159,7 +159,7 @@ public class NotificationProcessor {
                 return;
         }
 
-        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -176,7 +176,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
 //    @After(adviceClass = StopwatchEndAdvice.class)
     public void removeNotification(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
@@ -269,7 +269,7 @@ public class NotificationProcessor {
 
         notificationMgmtService.makeAllRead(userId);
 
-        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -321,7 +321,7 @@ public class NotificationProcessor {
         }
 
 
-        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -348,7 +348,7 @@ public class NotificationProcessor {
 
         notificationMgmtService.makeRead(userId, articleId, commentIds);
 
-        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**

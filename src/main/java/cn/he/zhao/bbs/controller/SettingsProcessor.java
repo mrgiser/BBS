@@ -152,7 +152,6 @@ public class SettingsProcessor {
     /**
      * Sends email verify code.
      *
-     * @param context           the specified context
      * @param request           the specified request
      * @param requestJSONObject the specified request json object
      */
@@ -160,7 +159,7 @@ public class SettingsProcessor {
 //    @Before(adviceClass = {LoginCheck.class})
     @LoginCheckAnno
     public void sendEmailVC(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final String email = StringUtils.lowerCase(StringUtils.trim(requestJSONObject.optString(User.USER_EMAIL)));
         if (!Strings.isEmail(email)) {
@@ -190,13 +189,15 @@ public class SettingsProcessor {
         try {
             JSONObject verifycode = verifycodeQueryService.getVerifycodeByUserId(Verifycode.TYPE_C_EMAIL, Verifycode.BIZ_TYPE_C_BIND_EMAIL, userId);
             if (null != verifycode) {
-                context.renderTrueResult().renderMsg(langPropsService.get("vcSentLabel"));
+//                context.renderTrueResult().renderMsg(langPropsService.get("vcSentLabel"));
+                dataModel.put(Keys.STATUS_CODE,false);
+                dataModel.put(Keys.MSG,langPropsService.get("vcSentLabel"));
 
                 return;
             }
 
             if (null != userQueryService.getUserByEmail(email)) {
-                context.renderMsg(langPropsService.get("duplicatedEmailLabel"));
+                dataModel.put(Keys.MSG ,langPropsService.get("duplicatedEmailLabel"));
 
                 return;
             }
@@ -212,16 +213,17 @@ public class SettingsProcessor {
             verifycode.put(Verifycode.RECEIVER, email);
             verifycodeMgmtService.addVerifycode(verifycode);
 
-            context.renderTrueResult().renderMsg(langPropsService.get("verifycodeSentLabel"));
+//            context.renderTrueResult().renderMsg(langPropsService.get("verifycodeSentLabel"));
+            dataModel.put(Keys.STATUS_CODE,true);
+            dataModel.put(Keys.MSG,langPropsService.get("verifycodeSentLabel"));
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
     /**
      * Updates email.
      *
-     * @param context           the specified context
      * @param request           the specified request
      * @param requestJSONObject the specified request json object
      */
@@ -229,7 +231,7 @@ public class SettingsProcessor {
 //    @Before(adviceClass = {LoginCheck.class})
     @LoginCheckAnno
     public void updateEmail(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final String captcha = requestJSONObject.optString(CaptchaProcessor.CAPTCHA);
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
@@ -239,7 +241,7 @@ public class SettingsProcessor {
             if (null == verifycode) {
                 final String msg = langPropsService.get("updateFailLabel") + " - " + langPropsService.get("captchaErrorLabel");
                 dataModel.put("msg",msg);
-                context.renderJSONValue(Common.CODE, 2);
+                dataModel.put(Common.CODE, 2);
 
                 return;
             }
@@ -247,7 +249,7 @@ public class SettingsProcessor {
             if (!StringUtils.equals(verifycode.optString(Verifycode.CODE), captcha)) {
                 final String msg = langPropsService.get("updateFailLabel") + " - " + langPropsService.get("captchaErrorLabel");
                 dataModel.put("msg",msg);
-                context.renderJSONValue(Common.CODE, 2);
+                dataModel.put(Common.CODE, 2);
 
                 return;
             }
@@ -258,9 +260,9 @@ public class SettingsProcessor {
             userMgmtService.updateUserEmail(userId, user);
             verifycodeMgmtService.removeByCode(captcha);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -277,7 +279,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateI18n(Map<String, Object> dataModel,
                            final HttpServletRequest request, final HttpServletResponse response) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         JSONObject requestJSONObject;
         try {
@@ -306,9 +308,9 @@ public class SettingsProcessor {
 
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -440,7 +442,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateGeoStatus(Map<String, Object> dataModel,
                                 final HttpServletRequest request, final HttpServletResponse response) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         JSONObject requestJSONObject;
         try {
@@ -463,9 +465,9 @@ public class SettingsProcessor {
 
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -483,7 +485,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updatePrivacy(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         JSONObject requestJSONObject;
         try {
@@ -547,9 +549,9 @@ public class SettingsProcessor {
         try {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -567,7 +569,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateFunction(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         JSONObject requestJSONObject;
         try {
@@ -621,9 +623,9 @@ public class SettingsProcessor {
         try {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -641,7 +643,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateProfiles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -663,9 +665,9 @@ public class SettingsProcessor {
         try {
             userMgmtService.updateProfiles(user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -683,7 +685,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateAvatar(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
         final String userAvatarURL = requestJSONObject.optString(UserExt.USER_AVATAR_URL);
@@ -712,9 +714,9 @@ public class SettingsProcessor {
         try {
             userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -732,7 +734,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateSyncB3(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -752,7 +754,7 @@ public class SettingsProcessor {
         try {
             userMgmtService.updateSyncB3(user);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
@@ -775,7 +777,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updatePassword(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -785,7 +787,7 @@ public class SettingsProcessor {
         final JSONObject user = userQueryService.getCurrentUser(request);
 
         if (!password.equals(user.optString(User.USER_PASSWORD))) {
-            context.renderMsg(langPropsService.get("invalidOldPwdLabel"));
+            dataModel.put(Keys.MSG ,langPropsService.get("invalidOldPwdLabel"));
 
             return;
         }
@@ -794,7 +796,7 @@ public class SettingsProcessor {
 
         try {
             userMgmtService.updatePassword(user);
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);
@@ -817,7 +819,7 @@ public class SettingsProcessor {
     @CSRFCheckAnno
     public void updateEmoji(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
         final String emotionList = requestJSONObject.optString(Emotion.EMOTIONS);
@@ -827,7 +829,7 @@ public class SettingsProcessor {
         try {
             emotionMgmtService.setEmotionList(user.optString(Keys.OBJECT_ID), emotionList);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
             LOGGER.error( msg, e);

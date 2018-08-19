@@ -100,7 +100,7 @@ public class LinkForgeProcessor {
     @LoginCheckAnno
     @StopWatchEndAnno
     public void forgeLink(Map<String, Object> dataModel) throws Exception {
-        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
 
         JSONObject requestJSONObject;
         try {
@@ -185,6 +185,6 @@ public class LinkForgeProcessor {
 
         linkForgeMgmtService.purge();
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }

@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.model.my.Keys;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * Verifycode processor.
@@ -67,7 +69,7 @@ public class VerifycodeProcessor {
 
         verifycodeMgmtService.sendEmailVerifycode();
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -90,6 +92,6 @@ public class VerifycodeProcessor {
 
         verifycodeMgmtService.removeExpiredVerifycodes();
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }

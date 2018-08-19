@@ -22,6 +22,8 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Paginator;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -85,7 +87,6 @@ public class DomainProcessor {
     /**
      * Shows domain articles.
      *
-     * @param context   the specified context
      * @param request   the specified request
      * @param response  the specified response
      * @param domainURI the specified domain URI
@@ -98,13 +99,15 @@ public class DomainProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDomainArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showDomainArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                    final String domainURI)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("domain-articles.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("domain-articles.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "domain-articles.ftl";
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
 
@@ -115,7 +118,6 @@ public class DomainProcessor {
             if (!UserExt.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-                return;
             }
         }
 
@@ -123,7 +125,7 @@ public class DomainProcessor {
         if (null == domain) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
-            return;
+            return null;
         }
 
         final List<JSONObject> tags = domainQueryService.getTags(domain.optString(Keys.OBJECT_ID));
@@ -158,6 +160,7 @@ public class DomainProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+        return url;
     }
 
     /**
@@ -175,13 +178,15 @@ public class DomainProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDomains(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showDomains(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("domains.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        renderer.setTemplateName("domains.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "domains.ftl";
 
         final JSONObject statistic = optionQueryService.getStatistic();
         final int tagCnt = statistic.optInt(Option.ID_C_STATISTIC_TAG_COUNT);
@@ -194,5 +199,6 @@ public class DomainProcessor {
         dataModel.put(Common.ALL_DOMAINS, domains);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 }

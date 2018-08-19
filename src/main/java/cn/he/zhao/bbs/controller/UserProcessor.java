@@ -617,14 +617,14 @@ public class UserProcessor {
 //    @Before(adviceClass = {LoginCheck.class})
     @LoginCheckAnno
     public void exportPosts(Map<String, Object> dataModel, final HttpServletRequest request) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
 
         final String downloadURL = postExportService.exportPosts(userId);
         if ("-1".equals(downloadURL)) {
-            context.renderJSONValue(Keys.MSG, langPropsService.get("insufficientBalanceLabel"));
+            dataModel.put(Keys.MSG, langPropsService.get("insufficientBalanceLabel"));
 
         } else if (StringUtils.isBlank(downloadURL)) {
             return;
@@ -1316,7 +1316,7 @@ public class UserProcessor {
 
         userMgmtService.resetUnverifiedUsers();
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -1328,7 +1328,7 @@ public class UserProcessor {
      */
     @RequestMapping(value = "/users/names", method = RequestMethod.GET)
     public void listNames(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
 
         final String namePrefix = request.getParameter("name");
         if (StringUtils.isBlank(namePrefix)) {
@@ -1343,13 +1343,13 @@ public class UserProcessor {
                 userNames.add(userName);
             }
 
-            context.renderJSONValue(Common.USER_NAMES, userNames);
+            dataModel.put(Common.USER_NAMES, userNames);
 
             return;
         }
 
         final List<JSONObject> userNames = userQueryService.getUserNamesByPrefix(namePrefix);
-        context.renderJSONValue(Common.USER_NAMES, userNames);
+        dataModel.put(Common.USER_NAMES, userNames);
     }
 
     /**
@@ -1363,11 +1363,11 @@ public class UserProcessor {
     @RequestMapping(value = "/users/emotions", method = RequestMethod.GET)
     public void getEmotions(Map<String, Object> dataModel, final HttpServletRequest request,
                             final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         if (null == currentUser) {
-            context.renderJSONValue("emotions", "");
+            dataModel.put("emotions", "");
 
             return;
         }
@@ -1375,7 +1375,7 @@ public class UserProcessor {
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         final String emotions = emotionQueryService.getEmojis(userId);
 
-        context.renderJSONValue("emotions", emotions);
+        dataModel.put("emotions", emotions);
     }
 
     /**
@@ -1398,7 +1398,7 @@ public class UserProcessor {
 
         userQueryService.loadUserNames();
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**

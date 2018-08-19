@@ -201,7 +201,7 @@ public class StatisticProcessor {
             historyCommentCnts.add(commentCnt);
         }
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -219,12 +219,14 @@ public class StatisticProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showStatistic(Map<String, Object> dataModel,
+    public String showStatistic(Map<String, Object> dataModel,
                               final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("statistic.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("statistic.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "statistic.ftl";
 
         dataModel.put("monthDays", monthDays);
         dataModel.put("userCnts", userCnts);
@@ -250,5 +252,7 @@ public class StatisticProcessor {
 
         final JSONObject statistic = optionQueryService.getStatistic();
         dataModel.put(Option.CATEGORY_C_STATISTIC, statistic);
+
+        return url;
     }
 }

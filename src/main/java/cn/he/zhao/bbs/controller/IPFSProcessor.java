@@ -73,7 +73,7 @@ public class IPFSProcessor {
             return;
         }
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
 
         final String dir = Symphonys.get("ipfs.dir");
         final String bin = Symphonys.get("ipfs.bin");

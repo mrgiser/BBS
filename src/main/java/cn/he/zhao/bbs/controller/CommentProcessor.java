@@ -18,12 +18,15 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.util.*;
+import cn.he.zhao.bbs.validate.CommentAddValidation;
+import cn.he.zhao.bbs.validate.CommentUpdateValidation;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -41,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -129,7 +133,6 @@ public class CommentProcessor {
     /**
      * Accepts a comment.
      *
-     * @param context           the specified context
      * @param request           the specified request
      * @param requestJSONObject the specified request json object, for example,
      *                          {
@@ -142,7 +145,7 @@ public class CommentProcessor {
     @CSRFCheckAnno
     @PermissionCheckAnno
     public void acceptComment(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
@@ -151,30 +154,36 @@ public class CommentProcessor {
         try {
             final JSONObject comment = commentQueryService.getComment(commentId);
             if (null == comment) {
-                context.renderFalseResult().renderMsg("Not found comment to accept");
+//                context.renderFalseResult().renderMsg("Not found comment to accept");
+                dataModel.put(Keys.STATUS_CODE,false);
+                dataModel.put(Keys.MSG, "Not found comment to accept");
 
                 return;
             }
             final String commentAuthorId = comment.optString(Comment.COMMENT_AUTHOR_ID);
             if (StringUtils.equals(userId, commentAuthorId)) {
-                context.renderFalseResult().renderMsg(langPropsService.get("thankSelfLabel"));
+//                context.renderFalseResult().renderMsg(langPropsService.get("thankSelfLabel"));
 
+                dataModel.put(Keys.STATUS_CODE,false);
+                dataModel.put(Keys.MSG, langPropsService.get("thankSelfLabel"));
                 return;
             }
 
             final String articleId = comment.optString(Comment.COMMENT_ON_ARTICLE_ID);
             final JSONObject article = articleQueryService.getArticle(articleId);
             if (!StringUtils.equals(userId, article.optString(Article.ARTICLE_AUTHOR_ID))) {
-                context.renderFalseResult().renderMsg(langPropsService.get("sc403Label"));
+//                context.renderFalseResult().renderMsg(langPropsService.get("sc403Label"));
 
+                dataModel.put(Keys.STATUS_CODE,false);
+                dataModel.put(Keys.MSG, langPropsService.get("sc403Label"));
                 return;
             }
 
             commentMgmtService.acceptComment(commentId);
 
-            context.renderTrueResult();
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -217,24 +226,23 @@ public class CommentProcessor {
             return;
         }
 
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
         try {
             commentMgmtService.removeComment(id);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-            context.renderJSONValue(Comment.COMMENT_T_ID, id);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Comment.COMMENT_T_ID, id);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
 
             dataModel.put("msg",msg);
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
         }
     }
 
     /**
      * Gets a comment's revisions.
      *
-     * @param context the specified context
      * @param id      the specified comment id
      */
     @RequestMapping(value = "/comment/{id}/revisions", method = RequestMethod.GET)
@@ -247,10 +255,10 @@ public class CommentProcessor {
     public void getCommentRevisions(Map<String, Object> dataModel, final String id) {
         final List<JSONObject> revisions = revisionQueryService.getCommentRevisions(id);
         final JSONObject ret = new JSONObject();
-        ret.put(Keys.STATUS_CODE, true);
-        ret.put(Revision.REVISIONS, (Object) revisions);
+        dataModel.put(Keys.STATUS_CODE, true);
+        dataModel.put(Revision.REVISIONS, (Object) revisions);
 
-        context.renderJSON(ret);
+//        context.renderJSON(ret);
     }
 
     /**
@@ -266,7 +274,8 @@ public class CommentProcessor {
     @LoginCheckAnno
     public void getCommentContent(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                   final String id) throws IOException {
-        context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+//        context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+        dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
 
         try {
             final JSONObject comment = commentQueryService.getComment(id);
@@ -283,10 +292,10 @@ public class CommentProcessor {
                 return;
             }
 
-            context.renderJSONValue(Comment.COMMENT_CONTENT, comment.optString(Comment.COMMENT_CONTENT));
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Comment.COMMENT_CONTENT, comment.optString(Comment.COMMENT_CONTENT));
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
@@ -307,13 +316,21 @@ public class CommentProcessor {
      * @throws IOException io exception
      */
     @RequestMapping(value = "/comment/{id}", method = RequestMethod.PUT)
-    @Before(adviceClass = {CSRFCheck.class, LoginCheck.class, CommentUpdateValidation.class, PermissionCheck.class})
+//    @Before(adviceClass = {CSRFCheck.class, LoginCheck.class, CommentUpdateValidation.class, PermissionCheck.class})
     @CSRFCheckAnno
     @LoginCheckAnno
     @PermissionCheckAnno
     public void updateComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String id) throws IOException {
-        context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+//        context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+        dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
+
+        try {
+            CommentUpdateValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e) {
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+            dataModel.put(Keys.STATUS_CODE, e.getJsonObject().get(Keys.STATUS_CODE));
+        }
 
         try {
             final JSONObject comment = commentQueryService.getComment(id);
@@ -358,23 +375,22 @@ public class CommentProcessor {
             commentContent = MP3Players.render(commentContent);
             commentContent = VideoPlayers.render(commentContent);
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
-            context.renderJSONValue(Comment.COMMENT_CONTENT, commentContent);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Comment.COMMENT_CONTENT, commentContent);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
     /**
      * Gets a comment's original comment.
      *
-     * @param context the specified context
      * @param request the specified request
      * @throws Exception exception
      */
     @RequestMapping(value = "/comment/original", method = RequestMethod.POST)
-    public void getOriginalComment(Map<String, Object> dataModel, final HttpServletRequest request) throws Exception {
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+    public void getOriginalComment(Map<String, Object> dataModel, final HttpServletRequest request,final HttpServletResponse response) throws Exception {
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String commentId = requestJSONObject.optString(Comment.COMMENT_T_ID);
         int commentViewMode = requestJSONObject.optInt(UserExt.USER_COMMENT_VIEW_MODE);
         int avatarViewMode = UserExt.USER_AVATAR_VIEW_MODE_C_ORIGINAL;
@@ -396,7 +412,9 @@ public class CommentProcessor {
 
         originalCmt.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(originalCmtId, Reward.TYPE_C_COMMENT));
 
-        context.renderJSON(true).renderJSONValue(Comment.COMMENT_T_REPLIES, (Object) originalCmt);
+//        context.renderJSON(true).renderJSONValue(Comment.COMMENT_T_REPLIES, (Object) originalCmt);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Comment.COMMENT_T_REPLIES, (Object) originalCmt);
     }
 
     /**
@@ -410,7 +428,7 @@ public class CommentProcessor {
     @RequestMapping(value = "/comment/replies", method = RequestMethod.POST)
     public void getReplies(Map<String, Object> dataModel,
                            final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
+        final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final String commentId = requestJSONObject.optString(Comment.COMMENT_T_ID);
         int commentViewMode = requestJSONObject.optInt(UserExt.USER_COMMENT_VIEW_MODE);
         int avatarViewMode = UserExt.USER_AVATAR_VIEW_MODE_C_ORIGINAL;
@@ -420,8 +438,9 @@ public class CommentProcessor {
         }
 
         if (StringUtils.isBlank(commentId)) {
-            context.renderJSON(true).renderJSONValue(Comment.COMMENT_T_REPLIES, (Object) Collections.emptyList());
-
+//            context.renderJSON(true).renderJSONValue(Comment.COMMENT_T_REPLIES, (Object) Collections.emptyList());
+            dataModel.put(Keys.STATUS_CODE,true);
+            dataModel.put(Comment.COMMENT_T_REPLIES, (Object) Collections.emptyList());
             return;
         }
 
@@ -440,7 +459,9 @@ public class CommentProcessor {
             reply.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(replyId, Reward.TYPE_C_COMMENT));
         }
 
-        context.renderJSON(true).renderJSONValue(Comment.COMMENT_T_REPLIES, (Object) replies);
+//        context.renderJSON(true).renderJSONValue(Comment.COMMENT_T_REPLIES, (Object) replies);
+        dataModel.put(Keys.STATUS_CODE,true);
+        dataModel.put(Comment.COMMENT_T_REPLIES, (Object) replies);
     }
 
     /**
@@ -465,13 +486,21 @@ public class CommentProcessor {
      * @throws ServletException servlet exception
      */
     @RequestMapping(value = "/comment", method = RequestMethod.POST)
-    @Before(adviceClass = {CSRFCheck.class, LoginCheck.class, CommentAddValidation.class, PermissionCheck.class})
+//    @Before(adviceClass = {CSRFCheck.class, LoginCheck.class, CommentAddValidation.class, PermissionCheck.class})
     @CSRFCheckAnno
     @LoginCheckAnno
     @PermissionCheckAnno
     public void addComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
-        context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+//        context.renderJSON().renderJSONValue(Keys.STATUS_CODE, StatusCodes.ERR);
+        dataModel.put(Keys.STATUS_CODE,StatusCodes.ERR);
+
+        try {
+            CommentAddValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e) {
+            dataModel.put(Keys.STATUS_CODE,e.getJsonObject().get(Keys.STATUS_CODE));
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
@@ -538,16 +567,15 @@ public class CommentProcessor {
                 followMgmtService.watchArticle(commentAuthorId, articleId);
             }
 
-            context.renderJSONValue(Keys.STATUS_CODE, StatusCodes.SUCC);
+            dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 
     /**
      * Thanks a comment.
      *
-     * @param context           the specified context
      * @param request           the specified request
      * @param requestJSONObject the specified request json object, for example,
      *                          {
@@ -560,7 +588,7 @@ public class CommentProcessor {
     @LoginCheckAnno
     @PermissionCheckAnno
     public void thankComment(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String commentId = requestJSONObject.optString(Comment.COMMENT_T_ID);
@@ -568,9 +596,11 @@ public class CommentProcessor {
         try {
             commentMgmtService.thankComment(commentId, currentUser.optString(Keys.OBJECT_ID));
 
-            context.renderTrueResult().renderMsg(langPropsService.get("thankSentLabel"));
+//            context.renderTrueResult().renderMsg(langPropsService.get("thankSentLabel"));
+            dataModel.put(Keys.STATUS_CODE,true);
+            dataModel.put(Keys.MSG,langPropsService.get("thankSentLabel"));
         } catch ( final Exception e) {
-            context.renderMsg(e.getMessage());
+            dataModel.put(Keys.MSG ,e.getMessage());
         }
     }
 }

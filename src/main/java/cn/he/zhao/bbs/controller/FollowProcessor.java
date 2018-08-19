@@ -103,7 +103,7 @@ public class FollowProcessor {
     @LoginCheckAnno
     public void followUser(Map<String, Object> dataModel, final HttpServletRequest request,
                            final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingUserId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -123,7 +123,7 @@ public class FollowProcessor {
 
         FOLLOWS.add(followingUserId + followerUserId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -147,7 +147,7 @@ public class FollowProcessor {
     @LoginCheckAnno
     public void unfollowUser(Map<String, Object> dataModel, final HttpServletRequest request,
                              final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingUserId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -157,7 +157,7 @@ public class FollowProcessor {
 
         followMgmtService.unfollowUser(followerUserId, followingUserId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -181,7 +181,7 @@ public class FollowProcessor {
     @LoginCheckAnno
     public void followTag(Map<String, Object> dataModel, final HttpServletRequest request,
                           final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingTagId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -191,7 +191,7 @@ public class FollowProcessor {
 
         followMgmtService.followTag(followerUserId, followingTagId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -215,7 +215,7 @@ public class FollowProcessor {
     @LoginCheckAnno
     public void unfollowTag(Map<String, Object> dataModel, final HttpServletRequest request,
                             final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingTagId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -225,7 +225,7 @@ public class FollowProcessor {
 
         followMgmtService.unfollowTag(followerUserId, followingTagId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -250,7 +250,7 @@ public class FollowProcessor {
     @PermissionGrantAnno
     public void followArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                               final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -274,7 +274,7 @@ public class FollowProcessor {
 
         FOLLOWS.add(articleAuthorId + followingArticleId + "-" + followerUserId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -298,7 +298,7 @@ public class FollowProcessor {
     @LoginCheckAnno
     public void unfollowArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                                 final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -308,7 +308,7 @@ public class FollowProcessor {
 
         followMgmtService.unfollowArticle(followerUserId, followingArticleId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -333,7 +333,7 @@ public class FollowProcessor {
     @PermissionGrantAnno
     public void watchArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                              final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -357,7 +357,7 @@ public class FollowProcessor {
 
         FOLLOWS.add(articleAuthorId + followingArticleId + "-" + followerUserId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 
     /**
@@ -381,7 +381,7 @@ public class FollowProcessor {
     @LoginCheckAnno
     public void unwatchArticle(Map<String, Object> dataModel, final HttpServletRequest request,
                                final HttpServletResponse response) throws Exception {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, context.getResponse());
         final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
@@ -391,6 +391,6 @@ public class FollowProcessor {
 
         followMgmtService.unwatchArticle(followerUserId, followingArticleId);
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }

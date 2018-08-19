@@ -338,7 +338,7 @@ public class LoginProcessor {
     @RequestMapping(value = "/forget-pwd", method = RequestMethod.POST)
 //    @Before(adviceClass = UserForgetPwdValidation.class)
     public void forgetPwd(Map<String, Object> dataModel, final HttpServletRequest request) {
-//        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
 
         dataModel.put(Keys.STATUS_CODE,false);
 
@@ -431,7 +431,7 @@ public class LoginProcessor {
      */
     @RequestMapping(value = "/reset-pwd", method = RequestMethod.POST)
     public void resetPwd(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
-//        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
@@ -440,7 +440,7 @@ public class LoginProcessor {
         final String code = requestJSONObject.optString(Common.CODE);
         final JSONObject verifycode = verifycodeQueryService.getVerifycode(code);
         if (null == verifycode || !verifycode.optString(Verifycode.USER_ID).equals(userId)) {
-//            context.renderMsg(langPropsService.get("verifycodeExpiredLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("verifycodeExpiredLabel"));
             dataModel.put("msg", langPropsService.get("verifycodeExpiredLabel"));
             return;
         }
@@ -450,7 +450,7 @@ public class LoginProcessor {
         try {
             final JSONObject user = userQueryService.getUser(userId);
             if (null == user) {
-//                context.renderMsg(langPropsService.get("resetPwdLabel") + " - " + "User Not Found");
+//                dataModel.put(Keys.MSG ,langPropsService.get("resetPwdLabel") + " - " + "User Not Found");
                 dataModel.put("msg", langPropsService.get("resetPwdLabel") + " - " + "User Not Found");
                 return;
             }
@@ -458,7 +458,7 @@ public class LoginProcessor {
             user.put(User.USER_PASSWORD, password);
             userMgmtService.updatePassword(user);
             verifycodeMgmtService.removeByCode(code);
-//            context.renderTrueResult();
+//            dataModel.put(Keys.STATUS_CODE,true);
             dataModel.put(Keys.STATUS_CODE,true);
             LOGGER.info("User [email=" + user.optString(User.USER_EMAIL) + "] reseted password");
 
@@ -636,7 +636,7 @@ public class LoginProcessor {
     @RequestMapping(value = "/register2", method = RequestMethod.POST)
 //    @Before(adviceClass = UserRegister2Validation.class)
     public void register2(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response) {
-//        context.renderJSON();
+//        dataModel.put(Keys.STATUS_CODE,false);
         dataModel.put(Keys.STATUS_CODE, false);
 
         try {
@@ -658,7 +658,7 @@ public class LoginProcessor {
         try {
             final JSONObject user = userQueryService.getUser(userId);
             if (null == user) {
-//                context.renderMsg(langPropsService.get("registerFailLabel") + " - " + "User Not Found");
+//                dataModel.put(Keys.MSG ,langPropsService.get("registerFailLabel") + " - " + "User Not Found");
                 dataModel.put(Keys.MSG, langPropsService.get("registerFailLabel") + " - " + "User Not Found");
                 return;
             }
@@ -720,7 +720,7 @@ public class LoginProcessor {
                 }
             }
 
-//            context.renderTrueResult();
+//            dataModel.put(Keys.STATUS_CODE,true);
             dataModel.put(Keys.STATUS_CODE, true);
 
             LOGGER.info( "Registered a user [name={0}, email={1}]", name, email);
@@ -748,7 +748,7 @@ public class LoginProcessor {
         try {
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
         } catch (final Exception e) {
-//            context.renderMsg(langPropsService.get("paramsParseFailedLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("paramsParseFailedLabel"));
             dataModel.put(Keys.MSG, langPropsService.get("paramsParseFailedLabel"));
 
             return;
@@ -763,21 +763,21 @@ public class LoginProcessor {
             }
 
             if (null == user) {
-//                context.renderMsg(langPropsService.get("notFoundUserLabel"));
+//                dataModel.put(Keys.MSG ,langPropsService.get("notFoundUserLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("notFoundUserLabel"));
                 return;
             }
 
             if (UserExt.USER_STATUS_C_INVALID == user.optInt(UserExt.USER_STATUS)) {
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
-//                context.renderMsg(langPropsService.get("userBlockLabel"));
+//                dataModel.put(Keys.MSG ,langPropsService.get("userBlockLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("userBlockLabel"));
                 return;
             }
 
             if (UserExt.USER_STATUS_C_NOT_VERIFIED == user.optInt(UserExt.USER_STATUS)) {
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
-//                context.renderMsg(langPropsService.get("notVerifiedLabel"));
+//                dataModel.put(Keys.MSG ,langPropsService.get("notVerifiedLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("notVerifiedLabel"));
 
                 return;
@@ -785,7 +785,7 @@ public class LoginProcessor {
 
             if (UserExt.USER_STATUS_C_INVALID_LOGIN == user.optInt(UserExt.USER_STATUS)) {
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
-//                context.renderMsg(langPropsService.get("invalidLoginLabel"));
+//                dataModel.put(Keys.MSG ,langPropsService.get("invalidLoginLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("invalidLoginLabel"));
 
                 return;
@@ -801,8 +801,8 @@ public class LoginProcessor {
             if (wrongCount > 3) {
                 final String captcha = requestJSONObject.optString(CaptchaProcessor.CAPTCHA);
                 if (!StringUtils.equals(wrong.optString(CaptchaProcessor.CAPTCHA), captcha)) {
-//                    context.renderMsg(langPropsService.get("captchaErrorLabel"));
-//                    context.renderJSONValue(Common.NEED_CAPTCHA, userId);
+//                    dataModel.put(Keys.MSG ,langPropsService.get("captchaErrorLabel"));
+//                    dataModel.put(Common.NEED_CAPTCHA, userId);
                     dataModel.put(Keys.MSG, langPropsService.get("captchaErrorLabel"));
                     dataModel.put(Common.NEED_CAPTCHA, userId);
 
@@ -817,8 +817,8 @@ public class LoginProcessor {
                 final String ip = Requests.getRemoteAddr(request);
                 userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
 
-//                context.renderMsg("").renderTrueResult();
-//                context.renderJSONValue(Keys.TOKEN, token);
+//                dataModel.put(Keys.MSG ,"").renderTrueResult();
+//                dataModel.put(Keys.TOKEN, token);
                 dataModel.put(Keys.MSG, "");
                 dataModel.put(Keys.TOKEN, token);
 
@@ -828,17 +828,17 @@ public class LoginProcessor {
             }
 
             if (wrongCount > 2) {
-//                context.renderJSONValue(Common.NEED_CAPTCHA, userId);
+//                dataModel.put(Common.NEED_CAPTCHA, userId);
                 dataModel.put(Common.NEED_CAPTCHA, userId);
             }
 
             wrong.put(Common.WRON_COUNT, wrongCount + 1);
             WRONG_PWD_TRIES.put(userId, wrong);
 
-//            context.renderMsg(langPropsService.get("wrongPwdLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("wrongPwdLabel"));
             dataModel.put(Keys.MSG, langPropsService.get("wrongPwdLabel"));
         } catch (final Exception e) {
-//            context.renderMsg(langPropsService.get("loginFailLabel"));
+//            dataModel.put(Keys.MSG ,langPropsService.get("loginFailLabel"));
             dataModel.put(Keys.MSG, langPropsService.get("loginFailLabel"));
         }
     }
@@ -884,7 +884,7 @@ public class LoginProcessor {
 
         invitecodeMgmtService.expireInvitecodes();
 
-//        context.renderJSON().renderTrueResult();
+//        dataModel.put(Keys.STATUS_CODE,true);
         dataModel.put(Keys.STATUS_CODE,true);
     }
 }

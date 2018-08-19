@@ -22,6 +22,8 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Paginator;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -109,13 +111,15 @@ public class CityProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showCityArticles(Map<String, Object> dataModel,
+    public String showCityArticles(Map<String, Object> dataModel,
                                  final HttpServletRequest request, final HttpServletResponse response, final String city) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("city.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        renderer.setTemplateName("city.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "city.ftl";
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
         dataModel.put(Common.CURRENT, "");
@@ -135,7 +139,7 @@ public class CityProcessor {
         if (!UserExt.finshedGuide(user)) {
             return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-            return;
+//            return;
         }
 
         dataModel.put(UserExt.USER_GEO_STATUS, true);
@@ -145,7 +149,7 @@ public class CityProcessor {
         if (UserExt.USER_GEO_STATUS_C_PUBLIC != user.optInt(UserExt.USER_GEO_STATUS)) {
             dataModel.put(UserExt.USER_GEO_STATUS, false);
 
-            return;
+            return url;
         }
 
         final String userCity = user.optString(UserExt.USER_CITY);
@@ -161,7 +165,7 @@ public class CityProcessor {
         if (StringUtils.isBlank(userCity)) {
             dataModel.put(Common.CITY_FOUND, false);
 
-            return;
+            return url;
         }
 
         final int pageNum = Paginator.getPage(request);
@@ -186,6 +190,7 @@ public class CityProcessor {
         dataModel.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
         dataModel.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
+        return url;
     }
 
     /**
@@ -204,13 +209,14 @@ public class CityProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showCityUsers(Map<String, Object> dataModel,
+    public String showCityUsers(Map<String, Object> dataModel,
                               final HttpServletRequest request, final HttpServletResponse response, final String city) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-
-        renderer.setTemplateName("city.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//
+//        renderer.setTemplateName("city.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "city.ftl";
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
         dataModel.put(Common.CURRENT, "/users");
@@ -229,7 +235,7 @@ public class CityProcessor {
         if (!UserExt.finshedGuide(user)) {
             return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
-            return;
+//            return;
         }
 
         dataModel.put(UserExt.USER_GEO_STATUS, true);
@@ -238,7 +244,7 @@ public class CityProcessor {
         if (UserExt.USER_GEO_STATUS_C_PUBLIC != user.optInt(UserExt.USER_GEO_STATUS)) {
             dataModel.put(UserExt.USER_GEO_STATUS, false);
 
-            return;
+            return url;
         }
 
         final String userCity = user.optString(UserExt.USER_CITY);
@@ -254,7 +260,7 @@ public class CityProcessor {
         if (StringUtils.isBlank(userCity)) {
             dataModel.put(Common.CITY_FOUND, false);
 
-            return;
+            return url;
         }
 
         final int pageNum = Paginator.getPage(request);
@@ -290,5 +296,6 @@ public class CityProcessor {
         dataModel.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
         dataModel.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
+        return url;
     }
 }

@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Sitemap processor.
@@ -59,7 +60,6 @@ public class SitemapProcessor {
     /**
      * Returns the sitemap.
      *
-     * @param context the specified context
      */
     @RequestMapping(value = "/sitemap.xml", method = RequestMethod.GET)
     public void sitemap(Map<String, Object> dataModel) {

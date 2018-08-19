@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.model.Common;
 import cn.he.zhao.bbs.model.Role;
@@ -45,32 +46,30 @@ public class ChatMsgAddValidation {
      * Language service.
      */
     @Autowired
-    private LangPropsService langPropsService;
+    private static LangPropsService langPropsService;
 
     /**
      * Option query service.
      */
     @Autowired
-    private OptionQueryService optionQueryService;
+    private static OptionQueryService optionQueryService;
 
     /**
      * User query service.
      */
     @Autowired
-    private UserQueryService userQueryService;
-
-    @Autowired
-    private HttpServletResponse response;
+    private static UserQueryService userQueryService;
 
     /**
      * Max content length.
      */
     public static final int MAX_CONTENT_LENGTH = 2000;
 
-    public void doAdvice(final HttpServletRequest request, final Map<String, Object> args) throws RequestProcessAdviceException {
+    public static void doAdvice(final HttpServletRequest request) throws RequestProcessAdviceException {
 
         JSONObject requestJSONObject;
         try {
+            HttpServletResponse response = SpringUtil.getCurrentResponse();
             requestJSONObject = Requests.parseRequestJSONObject(request, response);
             request.setAttribute(Keys.REQUEST, requestJSONObject);
 

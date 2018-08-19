@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.channel.ChatRoomChannel;
+import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
@@ -26,6 +27,7 @@ import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Markdowns;
 import cn.he.zhao.bbs.util.Symphonys;
+import cn.he.zhao.bbs.validate.ChatMsgAddValidation;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -134,12 +136,11 @@ public class ChatRoomProcessor {
     /**
      * XiaoV replies Stm.
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/cron/xiaov", method = RequestMethod.GET)
     public void xiaoVReply(Map<String, Object> dataModel, final HttpServletRequest request) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
 
         try {
             final JSONObject xiaoV = userQueryService.getUserByName(TuringQueryService.ROBOT_NAME);
@@ -193,7 +194,8 @@ public class ChatRoomProcessor {
                 }
             }
 
-            context.renderTrueResult();
+//            dataModel.put(Keys.STATUS_CODE,true);
+            dataModel.put(Keys.STATUS_CODE,true);
         } catch (final Exception e) {
             LOGGER.error( "Update user latest comment time failed", e);
         }
@@ -210,14 +212,20 @@ public class ChatRoomProcessor {
      * </pre>
      * </p>
      *
-     * @param context the specified context
      * @param request the specified request
      */
     @RequestMapping(value = "/chat-room/send", method = RequestMethod.POST)
-    @Before(adviceClass = {LoginCheck.class, ChatMsgAddValidation.class})
+//    @Before(adviceClass = {LoginCheck.class, ChatMsgAddValidation.class})
     @LoginCheckAnno
     public synchronized void addChatRoomMsg(Map<String, Object> dataModel, final HttpServletRequest request) {
-        context.renderJSON();
+        dataModel.put(Keys.STATUS_CODE,false);
+
+        try {
+            ChatMsgAddValidation.doAdvice(request);
+        } catch (RequestProcessAdviceException e) {
+            dataModel.put(Keys.MSG,e.getJsonObject().get(Keys.MSG));
+            return;
+        }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
         String content = requestJSONObject.optString(Common.CONTENT);
@@ -262,7 +270,7 @@ public class ChatRoomProcessor {
             }
         }
 
-        context.renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
 
         currentUser.put(UserExt.USER_LATEST_CMT_TIME, System.currentTimeMillis());
         try {
@@ -287,12 +295,13 @@ public class ChatRoomProcessor {
     @AnonymousViewCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showChatRoom(Map<String, Object> dataModel,
+    public String showChatRoom(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("chat-room.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("chat-room.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "chat-room.ftl";
 
         dataModel.put(Common.MESSAGES, messages);
         dataModel.put("chatRoomMsgCnt", Symphonys.getInt("chatRoom.msgCnt"));
@@ -307,7 +316,7 @@ public class ChatRoomProcessor {
         final long fileMaxSize = Symphonys.getLong("upload.file.maxSize");
         dataModel.put("fileMaxSize", fileMaxSize);
 
-        dataModel.put(Common.ONLINE_CHAT_CNT, SESSIONS.size());
+        dataModel.put(Common.ONLINE_CHAT_CNT, ChatRoomChannel.SESSIONS.size());
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -317,6 +326,8 @@ public class ChatRoomProcessor {
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
+
+        return url;
     }
 
     /**
@@ -353,8 +364,8 @@ public class ChatRoomProcessor {
             user = "V";
         }
 
-        final JSONObject ret = new JSONObject();
-        context.renderJSON(ret);
+//        final JSONObject ret = new JSONObject();
+//        context.renderJSON(ret);
 
         final String defaultAvatarURL = Symphonys.get("defaultThumbnailURL");
         final JSONObject chatroomMsg = new JSONObject();
@@ -369,6 +380,7 @@ public class ChatRoomProcessor {
             messages.remove(maxCnt);
         }
 
-        ret.put(Keys.STATUS_CODE, true);
+        dataModel.put(Keys.STATUS_CODE, true);
+
     }
 }

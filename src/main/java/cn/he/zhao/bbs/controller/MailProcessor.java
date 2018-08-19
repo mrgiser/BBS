@@ -80,6 +80,6 @@ public class MailProcessor {
 
         mailMgmtService.sendWeeklyNewsletter();
 
-        context.renderJSON().renderTrueResult();
+        dataModel.put(Keys.STATUS_CODE,true);
     }
 }
