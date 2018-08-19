@@ -120,7 +120,7 @@ public class LinkForgeProcessor {
     /**
      * Shows link forge.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -157,7 +157,7 @@ public class LinkForgeProcessor {
     /**
      * Purges link forge.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

@@ -712,6 +712,6 @@ public final class UserExt {
      * @return user link
      */
     public static String getUserLink(final String userName) {
-        return "<a href=\"" + SpringUtil.getServerPath(request) + "/member/" + userName + "\">" + userName + "</a> ";
+        return "<a href=\"" +  SpringUtil.getServerPath() + "/member/" + userName + "\">" + userName + "</a> ";
     }
 }

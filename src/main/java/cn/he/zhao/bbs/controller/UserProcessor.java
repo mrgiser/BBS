@@ -203,7 +203,7 @@ public class UserProcessor {
     /**
      * Shows user home breezemoons page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -277,7 +277,7 @@ public class UserProcessor {
     /**
      * Shows user link forge.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -326,7 +326,7 @@ public class UserProcessor {
     /**
      * Queries invitecode state.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -386,7 +386,7 @@ public class UserProcessor {
     /**
      * Point buy invitecode.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -433,7 +433,7 @@ public class UserProcessor {
     /**
      * Shows user home anonymous comments page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -521,7 +521,7 @@ public class UserProcessor {
     /**
      * Shows user home anonymous articles page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -636,7 +636,7 @@ public class UserProcessor {
     /**
      * Shows user home page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -720,7 +720,7 @@ public class UserProcessor {
     /**
      * Shows user home comments page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -796,7 +796,7 @@ public class UserProcessor {
     /**
      * Shows user home following users page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -873,7 +873,7 @@ public class UserProcessor {
     /**
      * Shows user home following tags page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -949,7 +949,7 @@ public class UserProcessor {
     /**
      * Shows user home following articles page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -1026,7 +1026,7 @@ public class UserProcessor {
     /**
      * Shows user home watching articles page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -1103,7 +1103,7 @@ public class UserProcessor {
     /**
      * Shows user home follower users page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -1187,7 +1187,7 @@ public class UserProcessor {
     /**
      * Shows user home points page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userName the specified user name
@@ -1258,7 +1258,7 @@ public class UserProcessor {
     /**
      * Point transfer.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1299,7 +1299,7 @@ public class UserProcessor {
     /**
      * Resets unverified users.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1355,7 +1355,7 @@ public class UserProcessor {
     /**
      * Lists emotions.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1381,7 +1381,7 @@ public class UserProcessor {
     /**
      * Loads usernames.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

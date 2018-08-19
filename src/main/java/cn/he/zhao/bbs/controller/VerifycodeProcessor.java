@@ -50,7 +50,7 @@ public class VerifycodeProcessor {
     /**
      * Sends email register verifycode.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -73,7 +73,7 @@ public class VerifycodeProcessor {
     /**
      * Remove expired verifycodes.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

@@ -113,7 +113,7 @@ public class DomainProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+                return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
                 return;
             }
@@ -163,7 +163,7 @@ public class DomainProcessor {
     /**
      * Shows domains.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

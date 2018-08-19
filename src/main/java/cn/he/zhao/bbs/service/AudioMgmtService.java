@@ -182,7 +182,7 @@ public class AudioMgmtService {
                     IOUtils.write(bytes, output);
                 }
 
-                ret = SpringUtil.getServerPath(request) + "/upload/" + fileName;
+                ret =  SpringUtil.getServerPath() + "/upload/" + fileName;
             }
 
             return ret;

@@ -275,7 +275,7 @@ public class ChatRoomProcessor {
     /**
      * Shows chat room.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -322,7 +322,7 @@ public class ChatRoomProcessor {
     /**
      * XiaoV push API.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

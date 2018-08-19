@@ -267,7 +267,7 @@ public class SettingsProcessor {
     /**
      * Updates user i18n.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      */
@@ -315,7 +315,7 @@ public class SettingsProcessor {
     /**
      * Shows settings pages.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -430,7 +430,7 @@ public class SettingsProcessor {
     /**
      * Updates user geo status.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      */
@@ -472,7 +472,7 @@ public class SettingsProcessor {
     /**
      * Updates user privacy.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -556,7 +556,7 @@ public class SettingsProcessor {
     /**
      * Updates user function.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -630,7 +630,7 @@ public class SettingsProcessor {
     /**
      * Updates user profiles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -672,7 +672,7 @@ public class SettingsProcessor {
     /**
      * Updates user avatar.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -721,7 +721,7 @@ public class SettingsProcessor {
     /**
      * Updates user B3log sync.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -764,7 +764,7 @@ public class SettingsProcessor {
     /**
      * Updates user password.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -806,7 +806,7 @@ public class SettingsProcessor {
     /**
      * Updates user emotions.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

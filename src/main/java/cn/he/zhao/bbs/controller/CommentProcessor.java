@@ -181,7 +181,7 @@ public class CommentProcessor {
     /**
      * Removes a comment.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -256,7 +256,7 @@ public class CommentProcessor {
     /**
      * Gets a comment's content.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws IOException io exception
@@ -301,7 +301,7 @@ public class CommentProcessor {
      * </pre>
      * </p>
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws IOException io exception
@@ -402,7 +402,7 @@ public class CommentProcessor {
     /**
      * Gets a comment's replies.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -458,7 +458,7 @@ public class CommentProcessor {
      * </pre>
      * </p>
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws IOException      io exception

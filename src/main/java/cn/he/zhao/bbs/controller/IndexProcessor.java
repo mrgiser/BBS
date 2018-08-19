@@ -105,7 +105,7 @@ public class IndexProcessor {
     /**
      * Shows watch articles or users.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -131,7 +131,7 @@ public class IndexProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+                return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
                 return;
             }
@@ -204,7 +204,7 @@ public class IndexProcessor {
     /**
      * Shows index.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -238,7 +238,7 @@ public class IndexProcessor {
     /**
      * Shows recent articles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -263,7 +263,7 @@ public class IndexProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+                return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
                 return;
             }
@@ -336,7 +336,7 @@ public class IndexProcessor {
     /**
      * Shows hot articles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -383,7 +383,7 @@ public class IndexProcessor {
     /**
      * Shows SymHub page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -423,7 +423,7 @@ public class IndexProcessor {
     /**
      * Shows perfect articles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -447,7 +447,7 @@ public class IndexProcessor {
         if (null != user) {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+                return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
                 return;
             }
@@ -497,7 +497,7 @@ public class IndexProcessor {
     /**
      * Shows b3log.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -526,7 +526,7 @@ public class IndexProcessor {
     /**
      * Shows kill browser page with the specified context.
      *
-     * @param context  the specified context
+
      * @param request  the specified HTTP servlet request
      * @param response the specified HTTP servlet response
      */

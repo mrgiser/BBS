@@ -108,8 +108,8 @@ public class FeedProcessor {
             }
             channel.setTitle(langPropsService.get("symphonyLabel"));
             channel.setLastBuildDate(new Date());
-            channel.setLink(SpringUtil.getServerPath(request));
-            channel.setAtomLink(SpringUtil.getServerPath(request) + "/rss/recent.xml");
+            channel.setLink( SpringUtil.getServerPath());
+            channel.setAtomLink( SpringUtil.getServerPath() + "/rss/recent.xml");
             channel.setGenerator("Symphony v" + SymphonyServletListener.VERSION + ", https://sym.b3log.org");
             final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
             final String country = Locales.getCountry(localeString).toLowerCase();
@@ -157,8 +157,8 @@ public class FeedProcessor {
             }
             channel.setTitle(langPropsService.get("symphonyLabel"));
             channel.setLastBuildDate(new Date());
-            channel.setLink(SpringUtil.getServerPath(request));
-            channel.setAtomLink(SpringUtil.getServerPath(request) + "/rss/" + domainURI + ".xml");
+            channel.setLink( SpringUtil.getServerPath());
+            channel.setAtomLink( SpringUtil.getServerPath() + "/rss/" + domainURI + ".xml");
             channel.setGenerator("Symphony v" + SymphonyServletListener.VERSION + ", https://sym.b3log.org");
             final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
             final String country = Locales.getCountry(localeString).toLowerCase();
@@ -189,7 +189,7 @@ public class FeedProcessor {
         ret.setDescription(description);
         final Date pubDate = (Date) article.get(Article.ARTICLE_UPDATE_TIME);
         ret.setPubDate(pubDate);
-        final String link = SpringUtil.getServerPath(request) + article.getString(Article.ARTICLE_PERMALINK);
+        final String link =  SpringUtil.getServerPath() + article.getString(Article.ARTICLE_PERMALINK);
         ret.setLink(link);
         ret.setGUID(link);
         ret.setAuthor(article.optString(Article.ARTICLE_T_AUTHOR_NAME));

@@ -90,7 +90,7 @@ public class BreezemoonProcessor {
     /**
      * Shows breezemoon page.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -118,7 +118,7 @@ public class BreezemoonProcessor {
             pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
 
             if (!UserExt.finshedGuide(user)) {
-                response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+                return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
                 return;
             }

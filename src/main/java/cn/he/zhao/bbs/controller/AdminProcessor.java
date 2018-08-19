@@ -27,6 +27,7 @@ import cn.he.zhao.bbs.model.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.MD5;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.util.Escapes;
@@ -293,17 +294,18 @@ public class AdminProcessor {
      * @param reportId the specified report id
      * @throws Exception exception
      */
-//    @RequestMapping(value = "/admin/report/ignore/{reportId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/report/ignore/{reportId}", method = RequestMethod.GET)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
     @StopWatchStartAnno
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void makeReportIgnored(final HttpServletRequest request, final HttpServletResponse response, final String reportId) throws Exception {
+    public String makeReportIgnored(final HttpServletRequest request, final HttpServletResponse response, final String reportId) throws Exception {
         reportMgmtService.makeReportIgnored(reportId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reports");
+//        return "redirect:" +(SpringUtil.getServerPath() + "/admin/reports");
+        return "redirect:"+ SpringUtil.getServerPath() + "/admin/reports";
     }
 
     /**
@@ -313,40 +315,41 @@ public class AdminProcessor {
      * @param reportId the specified report id
      * @throws Exception exception
      */
-//    @RequestMapping(value = "/admin/report/{reportId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/report/{reportId}", method = RequestMethod.GET)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
     @StopWatchStartAnno
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void makeReportHandled(final HttpServletRequest request, final HttpServletResponse response, final String reportId) throws Exception {
+    public String makeReportHandled(final HttpServletRequest request, final HttpServletResponse response, final String reportId) throws Exception {
         reportMgmtService.makeReportHandled(reportId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reports");
+//        return "redirect:" +(SpringUtil.getServerPath() + "/admin/reports");
+        return "redirect:"+ SpringUtil.getServerPath() + "/admin/reports";
     }
 
     /**
      * Shows reports.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
      */
-//    @RequestMapping(value = "/admin/reports", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/reports", method = RequestMethod.GET)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
 //    @After(adviceClass = {PermissionGrant.class, StopwatchEndAdvice.class})
     @StopWatchStartAnno
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showReports(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showReports(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/reports.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/reports.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/reports.ftl";
 
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
@@ -370,12 +373,13 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return url;
     }
 
     /**
      * Removes an role.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -385,29 +389,30 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void removeRole(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response, final String roleId) throws Exception {
+    public String removeRole(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response, final String roleId) throws Exception {
         final int count = roleQueryService.countUser(roleId);
         if (0 < count) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String result = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, "Still [" + count + "] users are using this role.");
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return result;
         }
 
         roleMgmtService.removeRole(roleId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/roles");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/roles");
+        return "redirect:"+ SpringUtil.getServerPath() + "/admin/roles";
     }
 
     /**
      * Show admin breezemoons.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -417,12 +422,15 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showBreezemoons(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showBreezemoons(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/breezemoons.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/breezemoons.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/breezemoons.ftl";
+
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -453,12 +461,13 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return url;
     }
 
     /**
      * Shows a breezemoon.
      *
-     * @param context      the specified context
      * @param request      the specified request
      * @param response     the specified response
      * @param breezemoonId the specified breezemoon id
@@ -469,24 +478,27 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String breezemoonId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/breezemoon.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/breezemoon.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/breezemoons.ftl";
 
         final JSONObject breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
         Escapes.escapeHTML(breezemoon);
         dataModel.put(Breezemoon.BREEZEMOON, breezemoon);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return url;
     }
 
     /**
      * Updates a breezemoon.
      *
-     * @param context      the specified context
      * @param request      the specified request
      * @param response     the specified response
      * @param breezemoonId the specified breezemoon id
@@ -497,12 +509,13 @@ public class AdminProcessor {
     @LoginCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateBreezemoon(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String breezemoonId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/breezemoon.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/breezemoon.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/breezemoon.ftl";
 
         JSONObject breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
 
@@ -524,6 +537,8 @@ public class AdminProcessor {
         dataModel.put(Breezemoon.BREEZEMOON, breezemoon);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return url;
     }
 
     /**
@@ -537,25 +552,26 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeBreezemoon(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public String removeBreezemoon(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String id = request.getParameter(Common.ID);
         breezemoonMgmtService.removeBreezemoon(id);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/breezemoons");
+//        return "redirect:" +(SpringUtil.getServerPath() + "/admin/breezemoons");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/breezemoons";
     }
 
     /**
      * Removes unused tags.
      *
-     * @param context the specified context
      * @throws Exception exception
      */
     @RequestMapping(value = "/admin/tags/remove-unused", method = RequestMethod.POST)
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeUnusedTags(final HTTPRequestContext context) throws Exception {
-        context.renderJSON(true);
+    public void removeUnusedTags(Map<String, Object> dataModel) throws Exception {
+//        context.renderJSON(true);
+        dataModel.put(Keys.STATUS_CODE,true);
 
         tagMgmtService.removeUnusedTags();
     }
@@ -571,12 +587,11 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void addRole(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public String addRole(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String roleName = request.getParameter(Role.ROLE_NAME);
         if (StringUtils.isBlank(roleName)) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/roles");
-
-            return;
+//            return "redirect:" +( SpringUtil.getServerPath() + "/admin/roles");
+            return "redirect:" +SpringUtil.getServerPath() + "/admin/roles";
         }
 
         final String roleDesc = request.getParameter(Role.ROLE_DESCRIPTION);
@@ -587,13 +602,13 @@ public class AdminProcessor {
 
         roleMgmtService.addRole(role);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/roles");
+//        return "redirect:" +(SpringUtil.getServerPath() + "/admin/roles");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/roles";
     }
 
     /**
      * Updates role permissions.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -602,7 +617,7 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void updateRolePermissions(Map<String, Object> dataModel,
+    public String updateRolePermissions(Map<String, Object> dataModel,
                                       final HttpServletRequest request, final HttpServletResponse response,
                                       final String roleId) throws Exception {
         final Map<String, String[]> parameterMap = request.getParameterMap();
@@ -610,13 +625,13 @@ public class AdminProcessor {
 
         roleMgmtService.updateRolePermissions(roleId, permissionIds);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/role/" + roleId + "/permissions");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/role/" + roleId + "/permissions");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/role/" + roleId + "/permissions";
     }
 
     /**
      * Shows role permissions.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @param roleId   the specified role id
@@ -627,13 +642,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showRolePermissions(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showRolePermissions(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                     final String roleId)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/role-permissions.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/role-permissions.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/role-permissions.ftl";
 
         final JSONObject role = roleQueryService.getRole(roleId);
         dataModel.put(Role.ROLE, role);
@@ -655,12 +671,14 @@ public class AdminProcessor {
         dataModel.put(Permission.PERMISSION_T_CATEGORIES, categories);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return url;
     }
 
     /**
      * Shows roles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -670,12 +688,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showRoles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showRoles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/roles.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/roles.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/roles.ftl";
 
         final JSONObject result = roleQueryService.getRoles(1, Integer.MAX_VALUE, 10);
         final List<JSONObject> roles = (List<JSONObject>) result.opt(Role.ROLES);
@@ -683,12 +703,13 @@ public class AdminProcessor {
         dataModel.put(Role.ROLES, roles);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Updates side ad.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -698,7 +719,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateSideAd(Map<String, Object> dataModel,
+    public String updateSideAd(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String sideFullAd = request.getParameter("sideFullAd");
 
@@ -716,13 +737,13 @@ public class AdminProcessor {
             optionMgmtService.updateOption(Option.ID_C_SIDE_FULL_AD, adOption);
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/ad");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/ad");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Updates banner.
      *
-     * @param context  the specified context
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -734,7 +755,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateBanner(Map<String, Object> dataModel,
+    public String updateBanner(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String headerBanner = request.getParameter("headerBanner");
 
@@ -752,13 +773,15 @@ public class AdminProcessor {
             optionMgmtService.updateOption(Option.ID_C_HEADER_BANNER, adOption);
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/ad");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/ad");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
+
     }
 
     /**
      * Shows ad.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -770,12 +793,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAd(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAd(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/ad.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/ad.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/ad.ftl";
 
         dataModel.put("sideFullAd", "");
         dataModel.put("headerBanner", "");
@@ -791,12 +816,13 @@ public class AdminProcessor {
         }
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows add tag.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -808,20 +834,22 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAddTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/add-tag.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/add-tag.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/add-tag.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Adds a tag.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -833,7 +861,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String addTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         String title = StringUtils.trim(request.getParameter(Tag.TAG_TITLE));
         try {
@@ -853,16 +881,17 @@ public class AdminProcessor {
                 }
             }
         } catch (final Exception e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, e.getMessage());
 
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
         final JSONObject admin = (JSONObject) request.getAttribute(User.USER);
@@ -871,19 +900,21 @@ public class AdminProcessor {
         String tagId;
         try {
             tagId = tagMgmtService.addTag(userId, title);
-        } catch (final ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/tag/" + tagId);
+//        return "redirect:" +(SpringUtil.getServerPath() + "/admin/tag/" + tagId);
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
@@ -899,12 +930,13 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void stickArticle(final HttpServletRequest request, final HttpServletResponse response)
+    public String stickArticle(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         articleMgmtService.adminStick(articleId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
@@ -920,12 +952,13 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void stickCancelArticle(final HttpServletRequest request, final HttpServletResponse response)
+    public String stickCancelArticle(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         articleMgmtService.adminCancelStick(articleId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
@@ -941,7 +974,7 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void generateInvitecodes(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public String generateInvitecodes(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String quantityStr = request.getParameter("quantity");
         int quantity = 20;
         try {
@@ -957,13 +990,14 @@ public class AdminProcessor {
 
         invitecodeMgmtService.adminGenInvitecodes(quantity, memo);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/invitecodes");
+//        return "redirect:" +( SpringUtil.getServerPath() + "/admin/invitecodes");
+        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Shows admin invitecodes.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -975,12 +1009,13 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showInvitecodes(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showInvitecodes(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/invitecodes.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/invitecodes.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/invitecodes.ftl";
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -1003,12 +1038,12 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return  url;
     }
 
     /**
      * Shows an invitecode.
      *
-     * @param context      the specified context
      * @param request      the specified request
      * @param response     the specified response
      * @param invitecodeId the specified invitecode id
@@ -1021,23 +1056,25 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String invitecodeId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/invitecode.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/invitecode.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/invitecode.ftl";
 
         final JSONObject invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
         dataModel.put(Invitecode.INVITECODE, invitecode);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Updates an invitecode.
      *
-     * @param context      the specified context
+
      * @param request      the specified request
      * @param response     the specified response
      * @param invitecodeId the specified invitecode id
@@ -1050,12 +1087,13 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateInvitecode(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String invitecodeId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/invitecode.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/invitecode.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/invitecode.ftl";
 
         JSONObject invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
 
@@ -1073,12 +1111,13 @@ public class AdminProcessor {
         dataModel.put(Invitecode.INVITECODE, invitecode);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows add article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1090,20 +1129,22 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAddArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/add-article.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/add-article.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/add-article.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Adds an article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1115,20 +1156,20 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String userName = request.getParameter(User.USER_NAME);
         final JSONObject author = userQueryService.getUserByName(userName);
         if (null == author) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, langPropsService.get("notFoundUserLabel"));
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
         final String timeStr = request.getParameter(Common.TIME);
@@ -1161,25 +1202,25 @@ public class AdminProcessor {
 
         try {
             articleMgmtService.addArticleByAdmin(article);
-        } catch (final ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
     }
 
     /**
      * Adds a reserved word.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1190,26 +1231,24 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void addReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String addReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         String word = request.getParameter(Common.WORD);
         word = StringUtils.trim(word);
         if (StringUtils.isBlank(word)) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, langPropsService.get("invalidReservedWordLabel"));
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
         if (optionQueryService.isReservedWord(word)) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reserved-words");
-
-            return;
+            return "redirect:" +( SpringUtil.getServerPath() + "/admin/reserved-words");
         }
 
         try {
@@ -1219,24 +1258,25 @@ public class AdminProcessor {
 
             optionMgmtService.addOption(reservedWord);
         } catch (final Exception e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reserved-words");
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/reserved-words");
+//        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Shows add reserved word.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1248,20 +1288,21 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAddReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/add-reserved-word.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/add-reserved-word.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/add-reserved-word.ftl";
     }
 
     /**
      * Updates a reserved word.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param id       the specified reserved wordid
@@ -1274,12 +1315,12 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                    final String id) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/reserved-word.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/reserved-word.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject word = optionQueryService.getOption(id);
         dataModel.put(Common.WORD, word);
@@ -1295,12 +1336,13 @@ public class AdminProcessor {
         optionMgmtService.updateOption(id, word);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/reserved-word.ftl";
     }
 
     /**
      * Shows reserved words.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1312,22 +1354,23 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showReservedWords(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showReservedWords(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/reserved-words.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/reserved-words.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModel.put(Common.WORDS, optionQueryService.getReservedWords());
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/reserved-words.ftl";
     }
 
     /**
      * Shows a reserved word.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param id       the specified reserved word id
@@ -1340,23 +1383,24 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                  final String id) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/reserved-word.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/reserved-word.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject word = optionQueryService.getOption(id);
         dataModel.put(Common.WORD, word);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/reserved-word.ftl";
     }
 
     /**
      * Removes a reserved word.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1367,18 +1411,19 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String removeReservedWord(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String id = request.getParameter("id");
         optionMgmtService.removeOption(id);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/reserved-words");
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/reserved-words");
+//        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Removes a comment.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1389,18 +1434,19 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String removeComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String commentId = request.getParameter(Comment.COMMENT_T_ID);
         commentMgmtService.removeCommentByAdmin(commentId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/comments");
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/comments");
+//        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Removes an article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1411,18 +1457,19 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String removeArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         articleMgmtService.removeArticleByAdmin(articleId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
+//        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Shows admin index.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1434,12 +1481,12 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showIndex(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showIndex(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/index.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/index.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -1449,12 +1496,13 @@ public class AdminProcessor {
         final JSONObject statistic = optionQueryService.getStatistic();
         dataModel.put(Option.CATEGORY_C_STATISTIC, statistic);
 
+        return "admin/index.ftl";
     }
 
     /**
      * Shows admin users.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1464,12 +1512,12 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showUsers(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showUsers(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/users.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/users.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -1496,12 +1544,13 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/users.ftl";
     }
 
     /**
      * Shows a user.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1514,12 +1563,12 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                          final String userId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/user.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/user.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject user = userQueryService.getUser(userId);
         Escapes.escapeHTML(user);
@@ -1530,12 +1579,13 @@ public class AdminProcessor {
         dataModel.put(Role.ROLES, roles);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/user.ftl";
     }
 
     /**
      * Shows add user.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1547,20 +1597,21 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAddUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/add-user.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/add-user.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/add-user.ftl";
     }
 
     /**
      * Adds a user.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1572,7 +1623,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String addUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String userName = request.getParameter(User.USER_NAME);
         final String email = request.getParameter(User.USER_EMAIL);
@@ -1584,10 +1635,10 @@ public class AdminProcessor {
         final boolean passwordInvalid = UserRegister2Validation.invalidUserPassword(password);
 
         if (nameInvalid || emailInvalid || passwordInvalid) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             if (nameInvalid) {
                 dataModel.put(Keys.MSG, langPropsService.get("invalidUserNameLabel"));
@@ -1599,7 +1650,7 @@ public class AdminProcessor {
 
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
         String userId;
@@ -1615,25 +1666,26 @@ public class AdminProcessor {
             user.put(UserExt.USER_LANGUAGE, admin.optString(UserExt.USER_LANGUAGE));
 
             userId = userMgmtService.addUser(user);
-        } catch (final ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/user/" + userId);
+//        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Updates a user.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1646,12 +1698,12 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateUser(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                            final String userId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/user.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/user.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject user = userQueryService.getUser(userId);
         dataModel.put(User.USER, user);
@@ -1723,12 +1775,14 @@ public class AdminProcessor {
         userMgmtService.updateUser(userId, user);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return "admin/user.ftl";
     }
 
     /**
      * Updates a user's email.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1741,41 +1795,42 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateUserEmail(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateUserEmail(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                 final String userId) throws Exception {
         final JSONObject user = userQueryService.getUser(userId);
         final String oldEmail = user.optString(User.USER_EMAIL);
         final String newEmail = request.getParameter(User.USER_EMAIL);
 
         if (oldEmail.equals(newEmail)) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
-
-            return;
+            return "redirect:" +( SpringUtil.getServerPath() + "/admin/user/" + userId);
+//            return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
+//            return;
         }
 
         user.put(User.USER_EMAIL, newEmail);
 
         try {
             userMgmtService.updateUserEmail(userId, user);
-        } catch (final ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/user/" + userId);
+//        return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
     }
 
     /**
      * Updates a user's username.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1788,41 +1843,41 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateUserName(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateUserName(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String userId) throws Exception {
         final JSONObject user = userQueryService.getUser(userId);
         final String oldUserName = user.optString(User.USER_NAME);
         final String newUserName = request.getParameter(User.USER_NAME);
 
         if (oldUserName.equals(newUserName)) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
-
-            return;
+            return "redirect:" + ( SpringUtil.getServerPath() + "/admin/user/" + userId);
+//            return "redirect:" + SpringUtil.getServerPath() + "/admin/ad";
+//            return;
         }
 
         user.put(User.USER_NAME, newUserName);
 
         try {
             userMgmtService.updateUserName(userId, user);
-        } catch (final ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +( SpringUtil.getServerPath() + "/admin/user/" + userId);
     }
 
     /**
      * Charges a user's point.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1835,7 +1890,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void chargePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String chargePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String userId) throws Exception {
         final String pointStr = request.getParameter(Common.POINT);
         final String memo = request.getParameter("memo");
@@ -1843,9 +1898,9 @@ public class AdminProcessor {
         if (StringUtils.isBlank(pointStr) || StringUtils.isBlank(memo) || !Strings.isNumeric(memo.split("-")[0])) {
             LOGGER.warn("Charge point memo format error");
 
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+            return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
 
-            return;
+//            return;
         }
 
         try {
@@ -1859,25 +1914,25 @@ public class AdminProcessor {
             notification.put(Notification.NOTIFICATION_DATA_ID, transferId);
 
             notificationMgmtService.addPointChargeNotification(notification);
-        } catch (final NumberFormatException | ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final NumberFormatException | Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
     }
 
     /**
      * Deducts a user's abuse point.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1890,7 +1945,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void abusePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String abusePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                            final String userId) throws Exception {
         final String pointStr = request.getParameter(Common.POINT);
 
@@ -1901,15 +1956,15 @@ public class AdminProcessor {
             final int currentPoint = user.optInt(UserExt.USER_POINT);
 
             if (currentPoint - point < 0) {
-                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-                context.setRenderer(renderer);
-                renderer.setTemplateName("admin/error.ftl");
-                final Map<String, Object> dataModel = renderer.getDataModel();
+//                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//                context.setRenderer(renderer);
+//                renderer.setTemplateName("admin/error.ftl");
+//                final Map<String, Object> dataModel = renderer.getDataModel();
 
                 dataModel.put(Keys.MSG, langPropsService.get("insufficientBalanceLabel"));
                 dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-                return;
+                return "admin/error.ftl";
             }
 
             final String memo = request.getParameter(Common.MEMO);
@@ -1923,24 +1978,24 @@ public class AdminProcessor {
 
             notificationMgmtService.addAbusePointDeductNotification(notification);
         } catch (final Exception e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
     }
 
     /**
      * Compensates a user's initial point.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -1953,16 +2008,16 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void initPoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String initPoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                           final String userId) throws Exception {
         try {
             final JSONObject user = userQueryService.getUser(userId);
             if (null == user
                     || UserExt.USER_STATUS_C_VALID != user.optInt(UserExt.USER_STATUS)
                     || UserExt.NULL_USER_NAME.equals(user.optString(User.USER_NAME))) {
-                response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+                return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
 
-                return;
+//                return;
             }
 
             final List<JSONObject> records
@@ -1971,25 +2026,25 @@ public class AdminProcessor {
                 pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId, Pointtransfer.TRANSFER_TYPE_C_INIT,
                         Pointtransfer.TRANSFER_SUM_C_INIT, userId, Long.valueOf(userId));
             }
-        } catch (final IOException | NumberFormatException | ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final IOException | NumberFormatException | Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
     }
 
     /**
      * Exchanges a user's point.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param userId   the specified user id
@@ -2002,7 +2057,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void exchangePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String exchangePoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String userId) throws Exception {
         final String pointStr = request.getParameter(Common.POINT);
 
@@ -2013,15 +2068,15 @@ public class AdminProcessor {
             final int currentPoint = user.optInt(UserExt.USER_POINT);
 
             if (currentPoint - point < Symphonys.getInt("pointExchangeMin")) {
-                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-                context.setRenderer(renderer);
-                renderer.setTemplateName("admin/error.ftl");
-                final Map<String, Object> dataModel = renderer.getDataModel();
+//                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//                context.setRenderer(renderer);
+//                renderer.setTemplateName("admin/error.ftl");
+//                final Map<String, Object> dataModel = renderer.getDataModel();
 
                 dataModel.put(Keys.MSG, langPropsService.get("insufficientBalanceLabel"));
                 dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-                return;
+                return "admin/error.ftl";
             }
 
             final String memo = String.valueOf(Math.floor(point / (double) Symphonys.getInt("pointExchangeUnit")));
@@ -2035,24 +2090,24 @@ public class AdminProcessor {
 
             notificationMgmtService.addPointExchangeNotification(notification);
         } catch (final Exception e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return "admin/error.ftl";
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/user/" + userId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/user/" + userId);
     }
 
     /**
      * Shows admin articles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2064,12 +2119,12 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showArticles(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/articles.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/articles.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -2111,12 +2166,13 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+
+        return "admin/articles.ftl";
     }
 
     /**
      * Shows an article.
      *
-     * @param context   the specified context
      * @param request   the specified request
      * @param response  the specified response
      * @param articleId the specified article id
@@ -2129,24 +2185,24 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String articleId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/article.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/article.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject article = articleQueryService.getArticle(articleId);
         Escapes.escapeHTML(article);
         dataModel.put(Article.ARTICLE, article);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return "admin/article.ftl";
     }
 
     /**
      * Updates an article.
      *
-     * @param context   the specified context
      * @param request   the specified request
      * @param response  the specified response
      * @param articleId the specified article id
@@ -2159,12 +2215,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String articleId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/article.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/article.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/article.ftl";
 
         JSONObject article = articleQueryService.getArticle(articleId);
 
@@ -2197,12 +2255,13 @@ public class AdminProcessor {
         dataModel.put(Article.ARTICLE, article);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows admin comments.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2214,12 +2273,15 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showComments(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showComments(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/comments.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/comments.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/comments.ftl";
+
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -2253,12 +2315,12 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows a comment.
      *
-     * @param context   the specified context
      * @param request   the specified request
      * @param response  the specified response
      * @param commentId the specified comment id
@@ -2271,24 +2333,26 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                             final String commentId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/comment.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/comment.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/comment.ftl";
 
         final JSONObject comment = commentQueryService.getComment(commentId);
         Escapes.escapeHTML(comment);
         dataModel.put(Comment.COMMENT, comment);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Updates a comment.
      *
-     * @param context   the specified context
      * @param request   the specified request
      * @param response  the specified response
      * @param commentId the specified comment id
@@ -2301,12 +2365,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                               final String commentId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/comment.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/comment.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/comment.ftl";
 
         JSONObject comment = commentQueryService.getComment(commentId);
 
@@ -2330,12 +2396,13 @@ public class AdminProcessor {
         dataModel.put(Comment.COMMENT, comment);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows admin miscellaneous.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2347,23 +2414,26 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showMisc(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showMisc(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/misc.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/misc.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/misc.ftl";
 
         final List<JSONObject> misc = optionQueryService.getMisc();
         dataModel.put(Option.OPTIONS, misc);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Updates admin miscellaneous.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2375,12 +2445,13 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateMisc(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String updateMisc(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/misc.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/misc.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/misc.ftl";
 
         List<JSONObject> misc = new ArrayList<>();
 
@@ -2405,12 +2476,13 @@ public class AdminProcessor {
         dataModel.put(Option.OPTIONS, misc);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows admin tags.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2422,12 +2494,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showTags(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showTags(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/tags.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/tags.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/tags.ftl";
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -2469,12 +2543,13 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows a tag.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param tagId    the specified tag id
@@ -2487,23 +2562,26 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                         final String tagId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/tag.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/tag.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/tag.ftl";
 
         final JSONObject tag = tagQueryService.getTag(tagId);
         dataModel.put(Tag.TAG, tag);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Updates a tag.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param tagId    the specified tag id
@@ -2516,12 +2594,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                           final String tagId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/tag.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/tag.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+
+        String url = "admin/tag.ftl";
 
         JSONObject tag = tagQueryService.getTag(tagId);
 
@@ -2555,12 +2635,13 @@ public class AdminProcessor {
         dataModel.put(Tag.TAG, tag);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows admin domains.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2572,12 +2653,14 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDomains(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showDomains(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/domains.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/domains.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/domains.ftl";
+
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
@@ -2613,12 +2696,13 @@ public class AdminProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, CollectionUtils.jsonArrayToList(pageNums));
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows a domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param domainId the specified domain id
@@ -2631,24 +2715,25 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String showDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                            final String domainId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/domain.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/domain.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/domain.ftl";
 
         final JSONObject domain = domainQueryService.getDomain(domainId);
         dataModel.put(Domain.DOMAIN, domain);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
-
+        return url;
     }
 
     /**
      * Updates a domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param domainId the specified domain id
@@ -2661,12 +2746,13 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void updateDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String updateDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                              final String domainId) throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/domain.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/domain.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/domain.ftl";
 
         JSONObject domain = domainQueryService.getDomain(domainId);
         final String oldTitle = domain.optString(Domain.DOMAIN_TITLE);
@@ -2695,12 +2781,13 @@ public class AdminProcessor {
         dataModel.put(Domain.DOMAIN, domain);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Shows add domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2712,20 +2799,22 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void showAddDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String showAddDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-        context.setRenderer(renderer);
-        renderer.setTemplateName("admin/add-domain.ftl");
-        final Map<String, Object> dataModel = renderer.getDataModel();
+//        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//        context.setRenderer(renderer);
+//        renderer.setTemplateName("admin/add-domain.ftl");
+//        final Map<String, Object> dataModel = renderer.getDataModel();
+        String url = "admin/add-domain.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
+        return url;
     }
 
     /**
      * Adds a domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2737,34 +2826,36 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String addDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String domainTitle = request.getParameter(Domain.DOMAIN_TITLE);
 
         if (StringUtils.isBlank(domainTitle)) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, langPropsService.get("invalidDomainTitleLabel"));
 
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
         if (null != domainQueryService.getByTitle(domainTitle)) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, langPropsService.get("duplicatedDomainLabel"));
 
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
         String domainId;
@@ -2776,25 +2867,26 @@ public class AdminProcessor {
             domain.put(Domain.DOMAIN_STATUS, Domain.DOMAIN_STATUS_C_VALID);
 
             domainId = domainMgmtService.addDomain(domain);
-        } catch (final ServiceException e) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+        } catch (final Exception e) {
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, e.getMessage());
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domain/" + domainId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/domain/" + domainId);
     }
 
     /**
      * Removes a domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -2805,18 +2897,18 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
+    public String removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String domainId = request.getParameter(Domain.DOMAIN_T_ID);
         domainMgmtService.removeDomain(domainId);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domains");
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/domains");
     }
 
     /**
      * Adds a tag into a domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param domainId the specified domain id
@@ -2829,7 +2921,7 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void addDomainTag(Map<String, Object> dataModel,
+    public String addDomainTag(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response, final String domainId)
             throws Exception {
         String tagTitle = request.getParameter(Tag.TAG_TITLE);
@@ -2856,16 +2948,17 @@ public class AdminProcessor {
                     }
                 }
             } catch (final Exception e) {
-                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-                context.setRenderer(renderer);
-                renderer.setTemplateName("admin/error.ftl");
-                final Map<String, Object> dataModel = renderer.getDataModel();
+//                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//                context.setRenderer(renderer);
+//                renderer.setTemplateName("admin/error.ftl");
+//                final Map<String, Object> dataModel = renderer.getDataModel();
+                String url = "admin/error.ftl";
 
                 dataModel.put(Keys.MSG, e.getMessage());
 
                 dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-                return;
+                return url;
             }
 
             final JSONObject admin = (JSONObject) request.getAttribute(User.USER);
@@ -2873,24 +2966,26 @@ public class AdminProcessor {
 
             try {
                 tagId = tagMgmtService.addTag(userId, tagTitle);
-            } catch (final ServiceException e) {
-                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-                context.setRenderer(renderer);
-                renderer.setTemplateName("admin/error.ftl");
-                final Map<String, Object> dataModel = renderer.getDataModel();
+            } catch (final Exception e) {
+//                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//                context.setRenderer(renderer);
+//                renderer.setTemplateName("admin/error.ftl");
+//                final Map<String, Object> dataModel = renderer.getDataModel();
+                String url = "admin/error.ftl";
 
                 dataModel.put(Keys.MSG, e.getMessage());
                 dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-                return;
+                return url;
             }
         }
 
         if (domainQueryService.containTag(tagTitle, domainId)) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             String msg = langPropsService.get("domainContainTagLabel");
             msg = msg.replace("{tag}", tagTitle);
@@ -2899,7 +2994,7 @@ public class AdminProcessor {
 
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
         final JSONObject domainTag = new JSONObject();
@@ -2908,13 +3003,13 @@ public class AdminProcessor {
 
         domainMgmtService.addDomainTag(domainTag);
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domain/" + domainId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/domain/" + domainId);
     }
 
     /**
      * Removes a tag from a domain.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param domainId the specified domain id
@@ -2927,23 +3022,24 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @PermissionGrantAnno
     @StopWatchEndAnno
-    public void removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
+    public String removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                              final String domainId)
             throws Exception {
         final String tagTitle = request.getParameter(Tag.TAG_TITLE);
         final JSONObject tag = tagQueryService.getTagByTitle(tagTitle);
 
         if (null == tag) {
-            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
-            context.setRenderer(renderer);
-            renderer.setTemplateName("admin/error.ftl");
-            final Map<String, Object> dataModel = renderer.getDataModel();
+//            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
+//            context.setRenderer(renderer);
+//            renderer.setTemplateName("admin/error.ftl");
+//            final Map<String, Object> dataModel = renderer.getDataModel();
+            String url = "admin/error.ftl";
 
             dataModel.put(Keys.MSG, langPropsService.get("invalidTagLabel"));
 
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-            return;
+            return url;
         }
 
         final JSONObject domainTag = new JSONObject();
@@ -2952,13 +3048,12 @@ public class AdminProcessor {
 
         domainMgmtService.removeDomainTag(domainId, tag.optString(Keys.OBJECT_ID));
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/admin/domain/" + domainId);
+        return "redirect:" +(SpringUtil.getServerPath() + "/admin/domain/" + domainId);
     }
 
     /**
      * Search index.
      *
-     * @param context the specified context
      */
     @RequestMapping(value = "/admin/search/index", method = RequestMethod.POST)
 //    @Before(adviceClass = {StopwatchStartAdvice.class, PermissionCheck.class})
@@ -2966,8 +3061,9 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void searchIndex(final HTTPRequestContext context) {
-        context.renderJSON(true);
+    public void searchIndex(Map<String, Object> dataModel) {
+        dataModel.put(Keys.STATUS_CODE,true);
+//        context.renderJSON(true);
 
         if (Symphonys.getBoolean("es.enabled")) {
             searchMgmtService.rebuildESIndex();
@@ -3011,7 +3107,6 @@ public class AdminProcessor {
     /**
      * Search index one article.
      *
-     * @param context the specified context
      * @throws Exception exception
      */
     @RequestMapping(value = "/admin/search-index-article", method = RequestMethod.POST)
@@ -3020,8 +3115,8 @@ public class AdminProcessor {
     @StopWatchStartAnno
     @PermissionCheckAnno
     @StopWatchEndAnno
-    public void searchIndexArticle(final HTTPRequestContext context) throws Exception {
-        final String articleId = context.getRequest().getParameter(Article.ARTICLE_T_ID);
+    public void searchIndexArticle(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
         final JSONObject article = articleQueryService.getArticle(articleId);
 
         if (null == article || Article.ARTICLE_TYPE_C_DISCUSSION == article.optInt(Article.ARTICLE_TYPE)
@@ -3032,17 +3127,17 @@ public class AdminProcessor {
         if (Symphonys.getBoolean("algolia.enabled")) {
             searchMgmtService.updateAlgoliaDocument(article);
 
-            final String articlePermalink = SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK);
+            final String articlePermalink = SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK);
             ArticleBaiduSender.sendToBaidu(articlePermalink);
         }
 
         if (Symphonys.getBoolean("es.enabled")) {
             searchMgmtService.updateESDocument(article, Article.ARTICLE);
 
-            final String articlePermalink = SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK);
+            final String articlePermalink = SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK);
             ArticleBaiduSender.sendToBaidu(articlePermalink);
         }
 
-        context.getResponse().sendRedirect(SpringUtil.getServerPath(request) + "/admin/articles");
+        response.sendRedirect(SpringUtil.getServerPath() + "/admin/articles");
     }
 }

@@ -96,7 +96,7 @@ public class CityProcessor {
     /**
      * Shows city articles.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param city     the specified city
@@ -133,7 +133,7 @@ public class CityProcessor {
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         if (!UserExt.finshedGuide(user)) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+            return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             return;
         }
@@ -191,7 +191,7 @@ public class CityProcessor {
     /**
      * Shows city users.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param city     the specified city
@@ -227,7 +227,7 @@ public class CityProcessor {
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         if (!UserExt.finshedGuide(user)) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/guide");
+            return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             return;
         }

@@ -193,7 +193,7 @@ public class ArticleProcessor {
     /**
      * Removes an article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -422,7 +422,7 @@ public class ArticleProcessor {
     /**
      * Shows pre-add article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -487,7 +487,7 @@ public class ArticleProcessor {
     /**
      * Shows add article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1005,7 +1005,7 @@ public class ArticleProcessor {
     /**
      * Shows update article.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -1099,7 +1099,7 @@ public class ArticleProcessor {
      * </pre>
      * </p>
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @param id       the specified article id

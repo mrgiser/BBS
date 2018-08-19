@@ -178,7 +178,7 @@ public class FileUploadProcessor {
                 final JSONObject data = new JSONObject();
                 data.put("code", 1);
                 data.put("msg", "Invalid suffix [" + suffix + "], please compress this file and try again");
-                data.put("key", SpringUtil.getServerPath(request) + "/upload/" + fileName);
+                data.put("key",  SpringUtil.getServerPath() + "/upload/" + fileName);
                 data.put("name", fileName);
                 resp.setContentType("application/json");
                 try (final PrintWriter writer = resp.getWriter()) {
@@ -201,7 +201,7 @@ public class FileUploadProcessor {
 
         final JSONObject data = new JSONObject();
         data.put("code", 0);
-        data.put("key", SpringUtil.getServerPath(request) + "/upload/" + fileName);
+        data.put("key",  SpringUtil.getServerPath() + "/upload/" + fileName);
         data.put("name", fileName);
         resp.setContentType("application/json");
         try (final PrintWriter writer = resp.getWriter()) {

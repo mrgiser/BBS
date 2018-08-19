@@ -41,7 +41,7 @@ public class ShortLinkQueryService {
      * Article pattern - full.
      */
     private static final Pattern ARTICLE_PATTERN_FULL
-            = Pattern.compile("(?:^|[^\"'\\](])(" + SpringUtil.getServerPath(request) + "/article/\\d{13,15}[?\\w&=#%:]*(\\b|$))");
+            = Pattern.compile("(?:^|[^\"'\\](])(" +  SpringUtil.getServerPath() + "/article/\\d{13,15}[?\\w&=#%:]*(\\b|$))");
 
     /**
      * Tag title pattern.
@@ -101,7 +101,7 @@ public class ShortLinkQueryService {
 
                     final JSONObject linkArticle = results.optJSONObject(0);
                     final String linkTitle = linkArticle.optString(Article.ARTICLE_TITLE);
-                    String link = " [" + linkTitle + "](" + SpringUtil.getServerPath(request) + "/article/" + linkId;
+                    String link = " [" + linkTitle + "](" +  SpringUtil.getServerPath() + "/article/" + linkId;
                     if (StringUtils.isNotBlank(queryStr)) {
                         link += "?" + queryStr;
                     }
@@ -132,7 +132,7 @@ public class ShortLinkQueryService {
                     final JSONObject linkArticle = results.optJSONObject(0);
 
                     final String linkTitle = linkArticle.optString(Article.ARTICLE_TITLE);
-                    final String link = " [" + linkTitle + "](" + SpringUtil.getServerPath(request) + "/article/" + linkId + ") ";
+                    final String link = " [" + linkTitle + "](" +  SpringUtil.getServerPath() + "/article/" + linkId + ") ";
 
                     matcher.appendReplacement(contentBuilder, link);
                 }
@@ -181,7 +181,7 @@ public class ShortLinkQueryService {
 
                     final String linkTitle = linkTag.optString(Tag.TAG_TITLE);
                     final String linkURI = linkTag.optString(Tag.TAG_URI);
-                    final String link = " [" + linkTitle + "](" + SpringUtil.getServerPath(request) + "/tag/" + linkURI + ") ";
+                    final String link = " [" + linkTitle + "](" +  SpringUtil.getServerPath() + "/tag/" + linkURI + ") ";
 
                     matcher.appendReplacement(contentBuilder, link);
                 }

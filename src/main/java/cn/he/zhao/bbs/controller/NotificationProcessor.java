@@ -197,7 +197,7 @@ public class NotificationProcessor {
     /**
      * Shows [sysAnnounce] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -327,7 +327,7 @@ public class NotificationProcessor {
     /**
      * Makes article/comment read.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -354,7 +354,7 @@ public class NotificationProcessor {
     /**
      * Navigates notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -379,7 +379,7 @@ public class NotificationProcessor {
         final int unreadCommentedNotificationCnt
                 = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENTED);
         if (unreadCommentedNotificationCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/commented");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/commented");
 
             return;
         }
@@ -387,7 +387,7 @@ public class NotificationProcessor {
         final int unreadReplyNotificationCnt
                 = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_REPLY);
         if (unreadReplyNotificationCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/reply");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/reply");
 
             return;
         }
@@ -401,21 +401,21 @@ public class NotificationProcessor {
                 + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP)
                 + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
         if (unreadAtNotificationCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/at");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/at");
 
             return;
         }
 
         final int unreadPointNotificationCnt = notificationQueryService.getUnreadPointNotificationCount(userId);
         if (unreadPointNotificationCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/point");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/point");
 
             return;
         }
 
         final int unreadFollowingNotificationCnt = notificationQueryService.getUnreadFollowingNotificationCount(userId);
         if (unreadFollowingNotificationCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/following");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/following");
 
             return;
         }
@@ -423,25 +423,25 @@ public class NotificationProcessor {
         final int unreadBroadcastCnt
                 = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_BROADCAST);
         if (unreadBroadcastCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/broadcast");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/broadcast");
 
             return;
         }
 
         final int unreadSysAnnounceCnt = notificationQueryService.getUnreadSysAnnounceNotificationCount(userId);
         if (unreadSysAnnounceCnt > 0) {
-            response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/sys-announce");
+            return "redirect:" +( SpringUtil.getServerPath() + "/notifications/sys-announce");
 
             return;
         }
 
-        response.sendRedirect(SpringUtil.getServerPath(request) + "/notifications/commented");
+        return "redirect:" +( SpringUtil.getServerPath() + "/notifications/commented");
     }
 
     /**
      * Shows [point] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -548,7 +548,7 @@ public class NotificationProcessor {
     /**
      * Shows [commented] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -607,7 +607,7 @@ public class NotificationProcessor {
     /**
      * Shows [reply] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -666,7 +666,7 @@ public class NotificationProcessor {
     /**
      * Shows [at] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -733,7 +733,7 @@ public class NotificationProcessor {
     /**
      * Shows [following] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -793,7 +793,7 @@ public class NotificationProcessor {
     /**
      * Shows [broadcast] notifications.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

@@ -271,7 +271,7 @@ public class NotificationQueryService {
                         }
 
                         final String articleLink15 = "<a href=\""
-                                + SpringUtil.getServerPath(request) + article15.optString(Article.ARTICLE_PERMALINK) + "\">"
+                                +  SpringUtil.getServerPath() + article15.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + article15.optString(Article.ARTICLE_TITLE) + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleLink15);
 
@@ -480,7 +480,7 @@ public class NotificationQueryService {
                         desTemplate = desTemplate.replace("{user}", userLink12);
 
                         final String articleLink12 = "<a href=\""
-                                + SpringUtil.getServerPath(request) + article12.optString(Article.ARTICLE_PERMALINK) + "\">"
+                                +  SpringUtil.getServerPath() + article12.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + article12.optString(Article.ARTICLE_TITLE) + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleLink12);
 
@@ -503,7 +503,7 @@ public class NotificationQueryService {
                         desTemplate = desTemplate.replace("{user}", userLink7);
 
                         final String articleLink7 = "<a href=\""
-                                + SpringUtil.getServerPath(request) + article7.optString(Article.ARTICLE_PERMALINK) + "\">"
+                                +  SpringUtil.getServerPath() + article7.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + article7.optString(Article.ARTICLE_TITLE) + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleLink7);
 
@@ -561,7 +561,7 @@ public class NotificationQueryService {
                         desTemplate = desTemplate.replace("{user}", userLink8);
 
                         final String articleLink8 = "<a href=\""
-                                + SpringUtil.getServerPath(request) + article8.optString(Article.ARTICLE_PERMALINK) + "\">"
+                                +  SpringUtil.getServerPath() + article8.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + article8.optString(Article.ARTICLE_TITLE) + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleLink8);
 
@@ -584,7 +584,7 @@ public class NotificationQueryService {
                         desTemplate = desTemplate.replace("{user}", userLink33);
 
                         final String articleLink33 = "<a href=\""
-                                + SpringUtil.getServerPath(request) + article33.optString(Article.ARTICLE_PERMALINK) + "\">"
+                                +  SpringUtil.getServerPath() + article33.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + article33.optString(Article.ARTICLE_TITLE) + "</a>";
                         desTemplate = desTemplate.replace("{article}", Emotions.convert(articleLink33));
 
@@ -631,7 +631,7 @@ public class NotificationQueryService {
                         }
 
                         final String articleLink22 = "<a href=\""
-                                + SpringUtil.getServerPath(request) + article22.optString(Article.ARTICLE_PERMALINK) + "\">"
+                                +  SpringUtil.getServerPath() + article22.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + article22.optString(Article.ARTICLE_TITLE) + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleLink22);
 
@@ -976,7 +976,7 @@ public class NotificationQueryService {
                             atNotification.put(Common.THUMBNAIL_UPDATE_TIME, articleAuthor.optLong(UserExt.USER_UPDATE_TIME));
                             atNotification.put(Article.ARTICLE_TITLE, Emotions.convert(article.optString(Article.ARTICLE_TITLE)));
                             atNotification.put(Article.ARTICLE_TYPE, article.optInt(Article.ARTICLE_TYPE));
-                            atNotification.put(Common.URL, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                            atNotification.put(Common.URL,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
                             atNotification.put(Common.CREATE_TIME, new Date(article.optLong(Article.ARTICLE_CREATE_TIME)));
                             atNotification.put(Notification.NOTIFICATION_T_AT_IN_ARTICLE, true);
 
@@ -1025,7 +1025,7 @@ public class NotificationQueryService {
                         final String userLink = UserExt.getUserLink(followerUserName);
                         description = description.replace("{user}", userLink);
 
-                        final String articleLink = " <a href=\"" + SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK) + "\">"
+                        final String articleLink = " <a href=\"" +  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + Emotions.convert(article.optString(Article.ARTICLE_TITLE)) + "</a>";
                         description = description.replace("{article}", articleLink);
 
@@ -1118,7 +1118,7 @@ public class NotificationQueryService {
 
                         userLinkVote = UserExt.getUserLink(voterUserName);
                         description = description.replace("{user}", userLinkVote);
-                        final String articleLinkVote = " <a href=\"" + SpringUtil.getServerPath(request) + voteArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
+                        final String articleLinkVote = " <a href=\"" +  SpringUtil.getServerPath() + voteArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
                                 + Emotions.convert(voteArticle.optString(Article.ARTICLE_TITLE)) + "</a>";
                         description = description.replace("{article}", articleLinkVote);
                         atNotification.put(Common.DESCRIPTION, description);
@@ -1252,7 +1252,7 @@ public class NotificationQueryService {
                         followingNotification.put(Common.THUMBNAIL_UPDATE_TIME, articleAuthor.optLong(UserExt.USER_UPDATE_TIME));
                         followingNotification.put(Article.ARTICLE_TITLE, Emotions.convert(article.optString(Article.ARTICLE_TITLE)));
                         followingNotification.put(Article.ARTICLE_TYPE, article.optInt(Article.ARTICLE_TYPE));
-                        followingNotification.put(Common.URL, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                        followingNotification.put(Common.URL,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
                         followingNotification.put(Common.CREATE_TIME, new Date(article.optLong(Article.ARTICLE_CREATE_TIME)));
                         followingNotification.put(Notification.NOTIFICATION_HAS_READ, notification.optBoolean(Notification.NOTIFICATION_HAS_READ));
                         followingNotification.put(Notification.NOTIFICATION_T_IS_COMMENT, false);
@@ -1372,7 +1372,7 @@ public class NotificationQueryService {
                         avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "48"));
                 broadcastNotification.put(Common.THUMBNAIL_UPDATE_TIME, author.optLong(UserExt.USER_UPDATE_TIME));
                 broadcastNotification.put(Article.ARTICLE_TITLE, Emotions.convert(articleTitle));
-                broadcastNotification.put(Common.URL, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                broadcastNotification.put(Common.URL,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
                 broadcastNotification.put(Common.CREATE_TIME, new Date(article.optLong(Article.ARTICLE_CREATE_TIME)));
                 broadcastNotification.put(Notification.NOTIFICATION_HAS_READ,
                         notification.optBoolean(Notification.NOTIFICATION_HAS_READ));

@@ -132,7 +132,7 @@ public class ArticleBaiduSender implements ApplicationListener<AddArticleEvent> 
 //                return;
 //            }
 //
-//            final String articlePermalink = SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK);
+//            final String articlePermalink =  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK);
 //
 //            sendToBaidu(articlePermalink);
 //        } catch (final Exception e) {

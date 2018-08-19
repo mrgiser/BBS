@@ -151,12 +151,12 @@ public class VerifycodeMgmtService {
                 final int bizType = verifycode.optInt(Verifycode.BIZ_TYPE);
                 switch (bizType) {
                     case Verifycode.BIZ_TYPE_C_REGISTER:
-                        dataModel.put(Common.URL, SpringUtil.getServerPath(request) + "/register?code=" + code);
+                        dataModel.put(Common.URL,  SpringUtil.getServerPath() + "/register?code=" + code);
                         subject = langPropsService.get("registerEmailSubjectLabel", Locales.getLocale());
 
                         break;
                     case Verifycode.BIZ_TYPE_C_RESET_PWD:
-                        dataModel.put(Common.URL, SpringUtil.getServerPath(request) + "/reset-pwd?code=" + code);
+                        dataModel.put(Common.URL,  SpringUtil.getServerPath() + "/reset-pwd?code=" + code);
                         subject = langPropsService.get("forgetEmailSubjectLabel", Locales.getLocale());
 
                         break;

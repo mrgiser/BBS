@@ -246,7 +246,7 @@ public class ActivityProcessor {
     /**
      * Shows daily checkin page.
      *
-//     * @param context  the specified context
+//
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -260,7 +260,7 @@ public class ActivityProcessor {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
         if (activityQueryService.isCheckedinToday(userId)) {
-//            response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//            return "redirect:" +(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
 
             return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
         }
@@ -306,7 +306,7 @@ public class ActivityProcessor {
             final String validate = request.getParameter(GeetestLib.fn_geetest_validate);
             final String seccode = request.getParameter(GeetestLib.fn_geetest_seccode);
             if (StringUtils.isBlank(challenge) || StringUtils.isBlank(validate) || StringUtils.isBlank(seccode)) {
-//                response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//                return "redirect:" +(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
 
                 return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
             }
@@ -325,7 +325,7 @@ public class ActivityProcessor {
             }
         }
 
-//        response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//        return "redirect:" +(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
         return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
     }
 
@@ -346,7 +346,7 @@ public class ActivityProcessor {
 
         activityMgmtService.yesterdayLivenessReward(userId);
 
-//        response.sendRedirect(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
+//        return "redirect:" +(SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points");
         return "redirect:" + SpringUtil.getServerPath() + "/member/" + user.optString(User.USER_NAME) + "/points";
     }
 

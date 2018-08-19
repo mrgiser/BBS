@@ -207,7 +207,7 @@ public class StatisticProcessor {
     /**
      * Shows data statistic.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

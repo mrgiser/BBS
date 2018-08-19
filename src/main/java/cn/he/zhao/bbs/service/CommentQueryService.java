@@ -132,7 +132,7 @@ public class CommentQueryService {
             title = Emotions.convert(title);
             final int commentPage = getCommentPage(articleId, commentId, sortMode, pageSize);
 
-            return "<a href=\"" + SpringUtil.getServerPath(request) + "/article/" + articleId + "?p=" + commentPage
+            return "<a href=\"" +  SpringUtil.getServerPath() + "/article/" + articleId + "?p=" + commentPage
                     + "&m=" + sortMode + "#" + commentId + "\" target=\"_blank\">" + title + "</a>";
         } catch (final Exception e) {
             LOGGER.error( "Gets comment URL failed", e);

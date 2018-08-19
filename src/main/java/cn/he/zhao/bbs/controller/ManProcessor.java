@@ -64,7 +64,7 @@ public class ManProcessor {
     /**
      * Shows man.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -78,7 +78,7 @@ public class ManProcessor {
     public void showMan(Map<String, Object> dataModel,
                         final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         if (!ManQueryService.TLDR_ENABLED) {
-            response.sendRedirect("https://hacpai.com/man");
+            return "redirect:" +("https://hacpai.com/man");
 
             return;
         }
@@ -114,7 +114,7 @@ public class ManProcessor {
     /**
      * Lists mans.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

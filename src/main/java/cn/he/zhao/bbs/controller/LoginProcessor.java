@@ -218,7 +218,7 @@ public class LoginProcessor {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final int step = currentUser.optInt(UserExt.USER_GUIDE_STEP);
         if (UserExt.USER_GUIDE_STEP_FIN == step) {
-//            response.sendRedirect(SpringUtil.getServerPath());
+//            return "redirect:" +(SpringUtil.getServerPath());
 
             return "redirect:/";
         }
@@ -280,7 +280,7 @@ public class LoginProcessor {
             throws Exception {
         if (null != userQueryService.getCurrentUser(request)
                 || userMgmtService.tryLogInWithCookie(request, response)) {
-//            response.sendRedirect(SpringUtil.getServerPath());
+//            return "redirect:" +(SpringUtil.getServerPath());
 
             return "redirect:/";
         }
@@ -490,7 +490,7 @@ public class LoginProcessor {
 
         if (null != userQueryService.getCurrentUser(request)
                 || userMgmtService.tryLogInWithCookie(request, response)) {
-//            response.sendRedirect(SpringUtil.getServerPath());
+//            return "redirect:" +(SpringUtil.getServerPath());
 
             return "redirect:/";
         }
@@ -859,7 +859,7 @@ public class LoginProcessor {
             destinationURL = "/";
         }
 
-//        response.sendRedirect(destinationURL);
+//        return "redirect:" +(destinationURL);
         return "redirect:" + destinationURL;
     }
 

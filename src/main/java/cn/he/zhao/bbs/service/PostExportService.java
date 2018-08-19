@@ -211,7 +211,7 @@ public class PostExportService {
 
                 FileUtils.copyFile(zipFile, new File(filePath));
 
-                return SpringUtil.getServerPath(request) + "/upload/" + fileKey;
+                return  SpringUtil.getServerPath() + "/upload/" + fileKey;
             }
         } catch (final Exception e) {
             LOGGER.error( "Uploading exprted data failed", e);

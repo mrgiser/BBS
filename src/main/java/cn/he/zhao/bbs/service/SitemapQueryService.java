@@ -50,7 +50,7 @@ public class SitemapQueryService {
      */
     public void genIndex(final Sitemap sitemap) {
         final Sitemap.URL url = new Sitemap.URL();
-        url.setLoc(SpringUtil.getServerPath(request));
+        url.setLoc( SpringUtil.getServerPath());
         url.setChangeFreq("always");
         url.setPriority("1.0");
 
@@ -66,7 +66,7 @@ public class SitemapQueryService {
         final List<JSONObject> domains = domainCache.getDomains(Integer.MAX_VALUE);
 
         for (final JSONObject domain : domains) {
-            final String permalink = SpringUtil.getServerPath(request) + "/domain/" + domain.optString(Domain.DOMAIN_URI);
+            final String permalink =  SpringUtil.getServerPath() + "/domain/" + domain.optString(Domain.DOMAIN_URI);
 
             final Sitemap.URL url = new Sitemap.URL();
             url.setLoc(permalink);
@@ -95,7 +95,7 @@ public class SitemapQueryService {
             for (int i = 0; i < articles.length(); i++) {
                 final JSONObject article = articles.getJSONObject(i);
                 final long id = article.getLong(Keys.OBJECT_ID);
-                final String permalink = SpringUtil.getServerPath(request) + "/article/" + id;
+                final String permalink =  SpringUtil.getServerPath() + "/article/" + id;
 
                 final Sitemap.URL url = new Sitemap.URL();
                 url.setLoc(permalink);

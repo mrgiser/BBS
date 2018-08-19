@@ -86,7 +86,7 @@ public class LangPropsServiceImpl implements LangPropsService {
     }
 
     private String replaceVars(String langValue) {
-        String ret = StringUtils.replace(langValue, "${servePath}", SpringUtil.getServerPath(request));
+        String ret = StringUtils.replace(langValue, "${servePath}",  SpringUtil.getServerPath());
         ret = StringUtils.replace(ret, "${staticServePath}", SpringUtil.getStaticServePath());
         return ret;
     }

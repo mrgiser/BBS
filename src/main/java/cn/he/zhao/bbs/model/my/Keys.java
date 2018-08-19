@@ -39,7 +39,7 @@ public final class Keys {
 //        dataModel.put("serverPort", Latkes.getServerPort());
 //        dataModel.put("server", Latkes.getServer());
 //        dataModel.put("contextPath", Latkes.getContextPath());
-//        dataModel.put("servePath", SpringUtil.getServerPath(request));
+//        dataModel.put("servePath",  SpringUtil.getServerPath());
 //        dataModel.put("staticServerScheme", Latkes.getStaticServerScheme());
 //        dataModel.put("staticServerHost", Latkes.getStaticServerHost());
 //        dataModel.put("staticServerPort", Latkes.getStaticServerPort());

@@ -698,7 +698,7 @@ public class ArticleQueryService {
             int i = 0;
             while (iterator.hasNext()) {
                 final JSONObject article = iterator.next();
-                article.put(Article.ARTICLE_PERMALINK, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                article.put(Article.ARTICLE_PERMALINK,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
 
                 article.remove(Article.ARTICLE_T_AUTHOR);
                 article.remove(Article.ARTICLE_AUTHOR_ID);
@@ -763,7 +763,7 @@ public class ArticleQueryService {
 
             final List<JSONObject> ret = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
             for (final JSONObject article : ret) {
-                article.put(Article.ARTICLE_PERMALINK, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                article.put(Article.ARTICLE_PERMALINK,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
             }
 
             return ret;
@@ -1849,7 +1849,7 @@ public class ArticleQueryService {
                     story.put("title", article.optString(Article.ARTICLE_TITLE));
                 }
                 story.put("id", article.optLong("oId"));
-                story.put("url", SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                story.put("url",  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
                 story.put("user_display_name", article.optString(Article.ARTICLE_T_AUTHOR_NAME));
                 story.put("user_job", author.optString(UserExt.USER_INTRO));
                 story.put("comment_html", article.optString(Article.ARTICLE_CONTENT));
@@ -2082,7 +2082,7 @@ public class ArticleQueryService {
                 ret = "";
             }
         } else {
-            if (!StringUtils.startsWith(ret, SpringUtil.getServerPath(request))) {
+            if (!StringUtils.startsWith(ret,  SpringUtil.getServerPath())) {
                 ret = "";
             }
         }
@@ -2495,12 +2495,12 @@ public class ArticleQueryService {
         final int articleType = article.optInt(Article.ARTICLE_TYPE);
         if (Article.ARTICLE_TYPE_C_THOUGHT != articleType) {
             content = Markdowns.toHTML(content);
-            content = Markdowns.clean(content, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+            content = Markdowns.clean(content,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
         } else {
             final Document.OutputSettings outputSettings = new Document.OutputSettings();
             outputSettings.prettyPrint(false);
 
-            content = Jsoup.clean(content, SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK),
+            content = Jsoup.clean(content,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK),
                     Whitelist.relaxed().addAttributes(":all", "id", "target", "class").
                             addTags("span", "hr").addAttributes("iframe", "src", "width", "height")
                             .addAttributes("audio", "controls", "src"), outputSettings);
@@ -2515,7 +2515,7 @@ public class ArticleQueryService {
             String rewardContent = article.optString(Article.ARTICLE_REWARD_CONTENT);
             rewardContent = Markdowns.toHTML(rewardContent);
             rewardContent = Markdowns.clean(rewardContent,
-                    SpringUtil.getServerPath(request) + article.optString(Article.ARTICLE_PERMALINK));
+                     SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
             article.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
         }
     }

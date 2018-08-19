@@ -77,7 +77,7 @@ public class FetchUploadProcessor {
     /**
      * Fetches the remote file and upload it.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -155,7 +155,7 @@ public class FetchUploadProcessor {
                 IOUtils.write(data, output);
             }
 
-            context.renderJSONValue(Common.URL, SpringUtil.getServerPath(request) + "/upload/" + fileName);
+            context.renderJSONValue(Common.URL,  SpringUtil.getServerPath() + "/upload/" + fileName);
             context.renderJSONValue("originalURL", originalURL);
         }
 

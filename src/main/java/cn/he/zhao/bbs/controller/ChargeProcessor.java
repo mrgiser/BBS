@@ -61,7 +61,7 @@ public class ChargeProcessor {
     /**
      * Shows charge point.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception

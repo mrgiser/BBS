@@ -68,7 +68,7 @@ public class TopProcessor {
     /**
      * Shows balance ranking list.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -99,7 +99,7 @@ public class TopProcessor {
     /**
      * Shows consumption ranking list.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
@@ -132,7 +132,7 @@ public class TopProcessor {
     /**
      * Shows checkin ranking list.
      *
-     * @param context  the specified context
+
      * @param request  the specified request
      * @param response the specified response
      * @throws Exception exception
