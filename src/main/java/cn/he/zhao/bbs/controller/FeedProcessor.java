@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -96,10 +97,15 @@ public class FeedProcessor {
      */
     @RequestMapping(value = "/rss/recent.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
     public void genRecentRSS(Map<String, Object> dataModel, final HttpServletResponse response) {
-        final RssRenderer renderer = new RssRenderer();
-        context.setRenderer(renderer);
+//        final RssRenderer renderer = new RssRenderer();
+//        context.setRenderer(renderer);
 
         try {
+            response.setContentType("application/rss+xml");
+            response.setCharacterEncoding("UTF-8");
+            PrintWriter writer = response.getWriter();
+
+
             final RSSChannel channel = new RSSChannel();
             final JSONObject result = articleQueryService.getRecentArticles(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, 0, 1, Symphonys.getInt("indexArticlesCnt"));
             final List<JSONObject> articles = (List<JSONObject>) result.get(Article.ARTICLES);
@@ -118,7 +124,10 @@ public class FeedProcessor {
             channel.setLanguage(language + '-' + country);
             channel.setDescription(langPropsService.get("symDescriptionLabel"));
 
-            renderer.setContent(channel.toString());
+//            renderer.setContent(channel.toString());
+            writer.write(channel.toString());
+            writer.close();
+
         } catch (final Exception e) {
             LOGGER.error( "Generates recent articles' RSS failed", e);
 
@@ -136,11 +145,15 @@ public class FeedProcessor {
 
      */
     @RequestMapping(value = "/rss/domain/{domainURI}.xml", method = {RequestMethod.GET, RequestMethod.HEAD})
-    public void genDomainRSS(Map<String, Object> dataModel, final String domainURI) {
-        final RssRenderer renderer = new RssRenderer();
-        context.setRenderer(renderer);
+    public void genDomainRSS(Map<String, Object> dataModel,final HttpServletResponse response, final String domainURI) {
+//        final RssRenderer renderer = new RssRenderer();
+//        context.setRenderer(renderer);
 
         try {
+            response.setContentType("application/rss+xml");
+            response.setCharacterEncoding("UTF-8");
+            PrintWriter writer = response.getWriter();
+
             final JSONObject domain = domainQueryService.getByURI(domainURI);
             if (null == domain) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -167,7 +180,9 @@ public class FeedProcessor {
             channel.setLanguage(language + '-' + country);
             channel.setDescription(langPropsService.get("symDescriptionLabel"));
 
-            renderer.setContent(channel.toString());
+//            renderer.setContent(channel.toString());
+            writer.write(channel.toString());
+            writer.close();
         } catch (final Exception e) {
             LOGGER.error( "Generates recent articles' RSS failed", e);
 

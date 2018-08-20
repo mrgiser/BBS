@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 
 /**
@@ -63,13 +64,18 @@ public class SitemapProcessor {
      */
     @RequestMapping(value = "/sitemap.xml", method = RequestMethod.GET)
     public void sitemap(Map<String, Object> dataModel,final HttpServletResponse response) {
-        final TextXMLRenderer renderer = new TextXMLRenderer();
-
-        context.setRenderer(renderer);
+//        final TextXMLRenderer renderer = new TextXMLRenderer();
+//
+//        context.setRenderer(renderer);
 
         final Sitemap sitemap = new Sitemap();
 
         try {
+
+            response.setContentType("text/xml");
+            response.setCharacterEncoding("UTF-8");
+            PrintWriter writer = response.getWriter();
+
             LOGGER.info( "Generating sitemap....");
 
             sitemapQueryService.genIndex(sitemap);
@@ -80,7 +86,12 @@ public class SitemapProcessor {
 
             LOGGER.info( "Generated sitemap");
 
-            renderer.setContent(content);
+//            renderer.setContent(content);
+
+            writer.write(content);
+            writer.flush();
+            writer.close();
+
         } catch (final Exception e) {
             LOGGER.error( "Get blog article feed error", e);
 

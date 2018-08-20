@@ -26,6 +26,11 @@ public class SpringUtil implements ApplicationContextAware {
      */
     public static final String VERSION = "3.1.0";
 
+    /**
+     * JSONO print indent factor.
+     */
+    public static final int JSON_PRINT_INDENT_FACTOR = 4;
+
     @Value("${BBS.RuntimeMode}")
     private static String runtimeMode;
 

@@ -3101,7 +3101,8 @@ public class AdminProcessor {
             } catch (final Exception e) {
                 LOGGER.error( "Search index failed", e);
             } finally {
-                JdbcRepository.dispose();
+                // TODO: 2018/8/20 下面一句怎么改
+//                JdbcRepository.dispose();
             }
         }).start();
     }

@@ -20,11 +20,17 @@ package cn.he.zhao.bbs.controller;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.model.my.Image;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
+import org.patchca.color.SingleColorFactory;
+import org.patchca.filter.predefined.CurvesRippleFilterFactory;
+import org.patchca.service.Captcha;
+import org.patchca.service.ConfigurableCaptchaService;
+import org.patchca.word.RandomWordFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +47,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -96,14 +103,16 @@ public class CaptchaProcessor {
 
     /**
      * Gets captcha.
-     *
      */
     @RequestMapping(value = "/captcha", method = RequestMethod.GET)
-    public void get(Map<String, Object> dataModel) {
-        final PNGRenderer renderer = new PNGRenderer();
-        context.setRenderer(renderer);
+    public void get(Map<String, Object> dataModel, final HttpServletResponse response) {
+//        final PNGRenderer renderer = new PNGRenderer();
+//        context.setRenderer(renderer);
 
         try {
+            response.setContentType("image/png");
+            OutputStream outputStream = response.getOutputStream();
+
             final ConfigurableCaptchaService cs = new ConfigurableCaptchaService();
             cs.setColorFactory(new SingleColorFactory(new Color(25, 60, 170)));
             cs.setFilterFactory(new CurvesRippleFilterFactory(cs.getColorFactory()));
@@ -122,20 +131,29 @@ public class CaptchaProcessor {
 
             CAPTCHAS.add(challenge);
 
-            final HttpServletResponse response = response;
+//            final HttpServletResponse response = response;
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
 
-            renderImg(renderer, bufferedImage);
+//            renderImg(renderer, bufferedImage);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+            final byte[] data = baos.toByteArray();
+            final Image captchaImg = new Image();
+            captchaImg.setData(data);
+
+
+            outputStream.write(captchaImg.getData());
+            outputStream.flush();
+            outputStream.close();
         } catch (final Exception e) {
-            LOGGER.error( e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     /**
      * Gets captcha for login.
-     *
      */
     @RequestMapping(value = "/captcha/login", method = RequestMethod.GET)
     public void getLoginCaptcha(Map<String, Object> dataModel, HttpServletRequest request, HttpServletResponse response) {
@@ -157,8 +175,11 @@ public class CaptchaProcessor {
                 return;
             }
 
-            final PNGRenderer renderer = new PNGRenderer();
-            context.setRenderer(renderer);
+//            final PNGRenderer renderer = new PNGRenderer();
+//            context.setRenderer(renderer);
+            response.setContentType("image/png");
+            OutputStream outputStream = response.getOutputStream();
+
 
             final ConfigurableCaptchaService cs = new ConfigurableCaptchaService();
             cs.setColorFactory(new SingleColorFactory(new Color(26, 52, 96)));
@@ -178,19 +199,29 @@ public class CaptchaProcessor {
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
 
-            renderImg(renderer, bufferedImage);
-        } catch (final Exception e) {
-            LOGGER.error( e.getMessage(), e);
-        }
-    }
-
-    private void renderImg(final PNGRenderer renderer, final BufferedImage bufferedImage) throws IOException {
-        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+//            renderImg(renderer, bufferedImage);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage, "png", baos);
             final byte[] data = baos.toByteArray();
             final Image captchaImg = new Image();
             captchaImg.setData(data);
-            renderer.setImage(captchaImg);
+
+
+            outputStream.write(captchaImg.getData());
+            outputStream.flush();
+            outputStream.close();
+        } catch (final Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
+
+//    private void renderImg(final PNGRenderer renderer, final BufferedImage bufferedImage) throws IOException {
+//        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+//            ImageIO.write(bufferedImage, "png", baos);
+//            final byte[] data = baos.toByteArray();
+//            final Image captchaImg = new Image();
+//            captchaImg.setData(data);
+//            renderer.setImage(captchaImg);
+//        }
+//    }
 }

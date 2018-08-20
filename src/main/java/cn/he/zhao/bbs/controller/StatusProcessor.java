@@ -25,7 +25,9 @@ import cn.he.zhao.bbs.model.*;
 import cn.he.zhao.bbs.model.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -100,7 +102,8 @@ public class StatusProcessor {
         memory.put("used", (runtime.totalMemory() - runtime.freeMemory()) / mb);
         memory.put("max", runtime.maxMemory() / mb);
 
-        LOGGER.info(dataModel.toString(SymphonyServletListener.JSON_PRINT_INDENT_FACTOR));
+        // TODO: 2018/8/20  dataModel.toString
+//        LOGGER.info(dataModel.toString(SpringUtil.JSON_PRINT_INDENT_FACTOR));
         dataModel.put(Keys.STATUS_CODE, true);
     }
 }
