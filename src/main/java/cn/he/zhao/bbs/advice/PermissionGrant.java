@@ -2,10 +2,10 @@ package cn.he.zhao.bbs.advice;
 
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.Permission;
-import cn.he.zhao.bbs.model.Role;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.Permission;
+import cn.he.zhao.bbs.entity.Role;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.RoleQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.aspectj.lang.JoinPoint;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**

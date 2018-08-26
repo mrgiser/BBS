@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
-import cn.he.zhao.bbs.model.*;
+import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.json.JSONObject;
@@ -48,7 +48,7 @@ import java.util.Map;
 public class TopProcessor {
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;

@@ -20,10 +20,10 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.mapper.CharacterMapper;
 import cn.he.zhao.bbs.mapper.PointtransferMapper;
-import cn.he.zhao.bbs.model.Liveness;
-import cn.he.zhao.bbs.model.Pointtransfer;
-import cn.he.zhao.bbs.model.UserExt;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.Liveness;
+import cn.he.zhao.bbs.entity.Pointtransfer;
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.entity.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Results;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -233,8 +233,8 @@ public class ActivityMgmtService {
         if (StringUtils.equals(character, recognizedCharacter)) {
             final Query query = new Query();
             query.setFilter(CompositeFilterOperator.and(
-                    new PropertyFilter(cn.he.zhao.bbs.model.Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
-                    new PropertyFilter(cn.he.zhao.bbs.model.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, character)
+                    new PropertyFilter(cn.he.zhao.bbs.entity.Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
+                    new PropertyFilter(cn.he.zhao.bbs.entity.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, character)
             ));
 
             try {
@@ -248,9 +248,9 @@ public class ActivityMgmtService {
             }
 
             final JSONObject record = new JSONObject();
-            record.put(cn.he.zhao.bbs.model.Character.CHARACTER_CONTENT, character);
-            record.put(cn.he.zhao.bbs.model.Character.CHARACTER_IMG, characterImg);
-            record.put(cn.he.zhao.bbs.model.Character.CHARACTER_USER_ID, userId);
+            record.put(cn.he.zhao.bbs.entity.Character.CHARACTER_CONTENT, character);
+            record.put(cn.he.zhao.bbs.entity.Character.CHARACTER_IMG, characterImg);
+            record.put(cn.he.zhao.bbs.entity.Character.CHARACTER_USER_ID, userId);
 
             String characterId = "";
             final Transaction transaction = characterMapper.beginTransaction();

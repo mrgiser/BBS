@@ -21,8 +21,8 @@ import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 @Component
 public class UpdatePasswordValidation {

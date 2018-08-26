@@ -1,14 +1,13 @@
 package cn.he.zhao.bbs.advice;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 描述:

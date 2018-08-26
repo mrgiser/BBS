@@ -18,10 +18,9 @@
 package cn.he.zhao.bbs.event.handler;
 
 import cn.he.zhao.bbs.event.AddArticleEvent;
-import cn.he.zhao.bbs.event.EventTypes;
-import cn.he.zhao.bbs.model.Article;
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.Tag;
+import cn.he.zhao.bbs.entity.Article;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.Tag;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.ArrayUtils;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URL;
 
 @Component

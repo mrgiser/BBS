@@ -19,11 +19,11 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.event.handler.ArticleBaiduSender;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.CollectionUtils;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.Pagination;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.CollectionUtils;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.Pagination;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.MD5;
@@ -48,7 +48,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
@@ -258,7 +257,7 @@ public class AdminProcessor {
     private RoleMgmtService roleMgmtService;
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;

@@ -21,10 +21,10 @@ import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.UserExt;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.UserQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 @Component
 public class PointTransferValidation {

@@ -18,11 +18,11 @@
 package cn.he.zhao.bbs.event.handler;
 
 import cn.he.zhao.bbs.event.UpdateArticleEvent;
-import cn.he.zhao.bbs.model.Article;
-import cn.he.zhao.bbs.model.Notification;
-import cn.he.zhao.bbs.model.UserExt;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.Article;
+import cn.he.zhao.bbs.entity.Notification;
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.FollowQueryService;
 import cn.he.zhao.bbs.service.NotificationMgmtService;
 import cn.he.zhao.bbs.service.UserQueryService;

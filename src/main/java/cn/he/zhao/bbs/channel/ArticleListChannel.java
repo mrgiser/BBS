@@ -17,7 +17,7 @@
  */
 package cn.he.zhao.bbs.channel;
 
-import cn.he.zhao.bbs.model.Article;
+import cn.he.zhao.bbs.entity.Article;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;

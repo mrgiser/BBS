@@ -17,8 +17,6 @@
  */
 package cn.he.zhao.bbs.mapper;
 
-import cn.he.zhao.bbs.model.Article;
-import cn.he.zhao.bbs.model.Breezemoon;
 import org.springframework.data.jpa.Mapper.JpaMapper;
 
 /**

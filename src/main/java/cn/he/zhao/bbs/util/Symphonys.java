@@ -17,14 +17,12 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.Option;
-import cn.he.zhao.bbs.model.my.CollectionUtils;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.Option;
+import cn.he.zhao.bbs.entity.my.CollectionUtils;
+import cn.he.zhao.bbs.entity.my.Keys;
 import cn.he.zhao.bbs.service.LangPropsServiceImpl;
 import cn.he.zhao.bbs.service.OptionQueryService;
-import cn.he.zhao.bbs.service.RoleQueryService;
-import cn.he.zhao.bbs.service.UserQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Locales;
 import cn.he.zhao.bbs.spring.SpringUtil;

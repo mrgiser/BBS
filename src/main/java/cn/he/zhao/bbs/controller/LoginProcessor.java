@@ -19,8 +19,8 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Locales;
@@ -105,7 +105,7 @@ public class LoginProcessor {
     private PointtransferMgmtService pointtransferMgmtService;
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;

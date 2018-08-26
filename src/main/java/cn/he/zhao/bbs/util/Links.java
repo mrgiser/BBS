@@ -17,8 +17,8 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.Link;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.Link;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;

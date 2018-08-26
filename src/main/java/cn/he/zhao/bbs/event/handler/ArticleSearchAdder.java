@@ -18,9 +18,8 @@
 package cn.he.zhao.bbs.event.handler;
 
 import cn.he.zhao.bbs.event.AddArticleEvent;
-import cn.he.zhao.bbs.event.EventTypes;
-import cn.he.zhao.bbs.model.Article;
-import cn.he.zhao.bbs.model.Tag;
+import cn.he.zhao.bbs.entity.Article;
+import cn.he.zhao.bbs.entity.Tag;
 import cn.he.zhao.bbs.service.SearchMgmtService;
 import cn.he.zhao.bbs.util.JSONs;
 import cn.he.zhao.bbs.util.Symphonys;

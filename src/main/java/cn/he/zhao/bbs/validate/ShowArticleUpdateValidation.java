@@ -19,9 +19,9 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.model.Article;
-import cn.he.zhao.bbs.model.UserExt;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.Article;
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.entity.my.Keys;
 import cn.he.zhao.bbs.service.ArticleQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.json.JSONObject;

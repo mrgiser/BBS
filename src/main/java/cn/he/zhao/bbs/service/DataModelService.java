@@ -21,9 +21,9 @@ import cn.he.zhao.bbs.cache.DomainCache;
 import cn.he.zhao.bbs.spring.Locales;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
- * Data model service.
+ * Data entity service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.12.2.34, Apr 3, 2018
@@ -129,7 +129,7 @@ public class DataModelService {
      * Fills relevant articles.
      *
      * @param avatarViewMode the specified avatar view mode
-     * @param dataModel      the specified data model
+     * @param dataModel      the specified data entity
      * @param article        the specified article
      * @throws Exception exception
      */
@@ -155,7 +155,7 @@ public class DataModelService {
     /**
      * Fills the latest comments.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     public void fillLatestCmts(final Map<String, Object> dataModel) throws Exception {
@@ -171,7 +171,7 @@ public class DataModelService {
     /**
      * Fills random articles.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     public void fillRandomArticles(final Map<String, Object> dataModel) {
         Stopwatchs.start("Fills random articles");
@@ -185,7 +185,7 @@ public class DataModelService {
     /**
      * Fills side hot articles.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     public void fillSideHotArticles(final Map<String, Object> dataModel) {
         Stopwatchs.start("Fills hot articles");
@@ -199,7 +199,7 @@ public class DataModelService {
     /**
      * Fills tags.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     public void fillSideTags(final Map<String, Object> dataModel) throws Exception {
@@ -218,7 +218,7 @@ public class DataModelService {
     /**
      * Fills index tags.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     public void fillIndexTags(final Map<String, Object> dataModel) throws Exception {
@@ -249,7 +249,7 @@ public class DataModelService {
      *
      * @param request   the specified request
      * @param response  the specified response
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     private void fillHeader(final HttpServletRequest request, final HttpServletResponse response,
@@ -276,7 +276,7 @@ public class DataModelService {
     /**
      * Fills domain navigation.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillDomainNav(final Map<String, Object> dataModel) {
         Stopwatchs.start("Fills domain nav");
@@ -290,7 +290,7 @@ public class DataModelService {
     /**
      * Fills footer.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     private void fillFooter(final Map<String, Object> dataModel) throws Exception {
@@ -310,7 +310,7 @@ public class DataModelService {
      *
      * @param request   the specified request
      * @param response  the specified response
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     public void fillHeaderAndFooter(final HttpServletRequest request, final HttpServletResponse response,
@@ -340,7 +340,7 @@ public class DataModelService {
      *
      * @param request   the specified request
      * @param response  the specified response
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillPersonalNav(final HttpServletRequest request, final HttpServletResponse response,
                                  final Map<String, Object> dataModel) {
@@ -420,7 +420,7 @@ public class DataModelService {
     /**
      * Fills minified directory and file postfix for static JavaScript, CSS.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     public void fillMinified(final Map<String, Object> dataModel) {
         switch (SpringUtil.getRuntimeMode()) {
@@ -438,7 +438,7 @@ public class DataModelService {
     /**
      * Fills the all language labels.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillLangs(final Map<String, Object> dataModel) {
         Stopwatchs.start("Fills lang");
@@ -452,7 +452,7 @@ public class DataModelService {
     /**
      * Fills the side ad labels.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillSideAd(final Map<String, Object> dataModel) {
         final JSONObject adOption = optionQueryService.getOption(Option.ID_C_SIDE_FULL_AD);
@@ -466,7 +466,7 @@ public class DataModelService {
     /**
      * Fills the side tips.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillSideTips(final Map<String, Object> dataModel) {
         if (RandomUtils.nextFloat() < 0.8) {
@@ -494,7 +494,7 @@ public class DataModelService {
     /**
      * Fills the header banner.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillHeaderBanner(final Map<String, Object> dataModel) {
         final JSONObject adOption = optionQueryService.getOption(Option.ID_C_HEADER_BANNER);
@@ -508,7 +508,7 @@ public class DataModelService {
     /**
      * Fills trend tags.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     private void fillTrendTags(final Map<String, Object> dataModel) throws Exception {
@@ -524,7 +524,7 @@ public class DataModelService {
     /**
      * Fils new tags.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     private void fillNewTags(final Map<String, Object> dataModel) throws Exception {
@@ -534,7 +534,7 @@ public class DataModelService {
     /**
      * Fills system info.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @throws Exception exception
      */
     private void fillSysInfo(final Map<String, Object> dataModel) throws Exception {

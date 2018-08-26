@@ -21,18 +21,16 @@ import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.util.Escapes;
-import cn.he.zhao.bbs.util.Results;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.validate.PointTransferValidation;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import cn.he.zhao.bbs.advice.*;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -132,7 +129,7 @@ public class UserProcessor {
     private EmotionMgmtService emotionMgmtService;
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;
@@ -1438,7 +1435,7 @@ public class UserProcessor {
     /**
      * Fills home user.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      * @param user      the specified user
      */
     static void fillHomeUser(final Map<String, Object> dataModel, final JSONObject user, final RoleQueryService roleQueryService) {

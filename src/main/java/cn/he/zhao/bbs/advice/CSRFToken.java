@@ -1,20 +1,17 @@
 package cn.he.zhao.bbs.advice;
 
-import cn.he.zhao.bbs.model.Common;
+import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**

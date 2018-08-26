@@ -18,10 +18,10 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.mapper.*;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.CollectionUtils;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.CollectionUtils;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Symphonys;

@@ -19,8 +19,8 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.cache.DomainCache;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Paginator;
@@ -50,7 +50,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.security.Key;
 import java.util.*;
 import java.util.List;
 
@@ -187,7 +186,7 @@ public class ArticleProcessor {
     private DomainCache domainCache;
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;
@@ -351,14 +350,14 @@ public class ArticleProcessor {
         final List<BufferedImage> images = new ArrayList<>();
         for (int i = 0; i < articleContent.length(); i++) {
             final String ch = articleContent.substring(i, i + 1);
-            final JSONObject chRecord = cn.he.zhao.bbs.model.Character.getCharacter(ch, characters);
+            final JSONObject chRecord = cn.he.zhao.bbs.entity.Character.getCharacter(ch, characters);
             if (null == chRecord) {
-                images.add(cn.he.zhao.bbs.model.Character.createImage(ch));
+                images.add(cn.he.zhao.bbs.entity.Character.createImage(ch));
 
                 continue;
             }
 
-            final String imgData = chRecord.optString(cn.he.zhao.bbs.model.Character.CHARACTER_IMG);
+            final String imgData = chRecord.optString(cn.he.zhao.bbs.entity.Character.CHARACTER_IMG);
             final byte[] data = Base64.decode(imgData.getBytes());
             final BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
             final BufferedImage newImage = new BufferedImage(50, 50, img.getType());
@@ -455,7 +454,7 @@ public class ArticleProcessor {
     /**
      * Fills the domains with tags.
      *
-     * @param dataModel the specified data model
+     * @param dataModel the specified data entity
      */
     private void fillDomainsWithTags(final Map<String, Object> dataModel) {
         final List<JSONObject> domains = domainQueryService.getAllDomains();

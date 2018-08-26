@@ -17,8 +17,8 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.my.Keys;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
@@ -155,7 +155,7 @@ public final class Mails {
      * @param subject      the specified subject
      * @param toMail       the specified receiver mail
      * @param templateName the specified template name
-     * @param dataModel    the specified data model
+     * @param dataModel    the specified data entity
      */
     public static void sendHTML(final String fromName, final String subject, final String toMail,
                                 final String templateName, final Map<String, Object> dataModel) {
@@ -227,7 +227,7 @@ public final class Mails {
      * @param subject      the specified subject
      * @param toMails      the specified receiver mails
      * @param templateName the specified template name
-     * @param dataModel    the specified data model
+     * @param dataModel    the specified data entity
      */
     public static void batchSendHTML(final String fromName, final String subject, final List<String> toMails,
                                      final String templateName, final Map<String, Object> dataModel) {

@@ -20,10 +20,9 @@ package cn.he.zhao.bbs.controller;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.channel.ChatRoomChannel;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
-import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Markdowns;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -37,8 +36,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.qiniu.util.Auth;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,7 +71,7 @@ public class ChatRoomProcessor {
     public static LinkedList<JSONObject> messages = new LinkedList<>();
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;

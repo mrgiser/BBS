@@ -18,7 +18,6 @@
 package cn.he.zhao.bbs.mapper;
 
 
-import cn.he.zhao.bbs.model.Article;
 import org.springframework.data.jpa.Mapper.JpaMapper;
 
 /**

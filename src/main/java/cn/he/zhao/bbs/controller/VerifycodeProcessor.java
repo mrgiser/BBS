@@ -17,7 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.my.Keys;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.springframework.beans.factory.annotation.Autowired;

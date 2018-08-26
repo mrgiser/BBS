@@ -18,10 +18,10 @@
 package cn.he.zhao.bbs.channel;
 
 import cn.he.zhao.bbs.mapper.UserMapper;
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.UserExt;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;

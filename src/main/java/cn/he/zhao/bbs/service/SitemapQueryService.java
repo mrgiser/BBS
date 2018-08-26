@@ -1,12 +1,11 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
-import cn.he.zhao.bbs.model.my.*;
-import cn.he.zhao.bbs.model.sitemap.Sitemap;
+import cn.he.zhao.bbs.entity.my.*;
+import cn.he.zhao.bbs.entity.sitemap.Sitemap;
 import cn.he.zhao.bbs.spring.SpringUtil;
-import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
-import cn.he.zhao.bbs.model.*;
+import cn.he.zhao.bbs.entity.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

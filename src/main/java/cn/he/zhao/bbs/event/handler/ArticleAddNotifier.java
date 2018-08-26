@@ -18,16 +18,14 @@
 package cn.he.zhao.bbs.event.handler;
 
 import cn.he.zhao.bbs.event.AddArticleEvent;
-import cn.he.zhao.bbs.event.EventTypes;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.Pagination;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.Pagination;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.FollowQueryService;
 import cn.he.zhao.bbs.service.NotificationMgmtService;
 import cn.he.zhao.bbs.service.RoleQueryService;
 import cn.he.zhao.bbs.service.UserQueryService;
-import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Escapes;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;

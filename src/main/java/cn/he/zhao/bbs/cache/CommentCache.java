@@ -17,8 +17,8 @@
  */
 package cn.he.zhao.bbs.cache;
 
-import cn.he.zhao.bbs.model.Comment;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.Comment;
+import cn.he.zhao.bbs.entity.my.Keys;
 import cn.he.zhao.bbs.util.JSONs;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.json.JSONObject;

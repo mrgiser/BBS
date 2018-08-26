@@ -23,19 +23,14 @@ import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
-import cn.he.zhao.bbs.service.interf.LangPropsService;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -85,7 +80,7 @@ public class TagProcessor {
     private UserQueryService userQueryService;
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;

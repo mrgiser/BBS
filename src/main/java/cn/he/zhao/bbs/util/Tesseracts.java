@@ -17,7 +17,7 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.model.my.Execs;
+import cn.he.zhao.bbs.entity.my.Execs;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 

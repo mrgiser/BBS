@@ -17,8 +17,8 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.UserExt;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.profiles.pegdown.Extensions;

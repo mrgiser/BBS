@@ -19,10 +19,10 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
-import cn.he.zhao.bbs.model.Common;
-import cn.he.zhao.bbs.model.UserExt;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.Common;
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.ActivityQueryService;
 import cn.he.zhao.bbs.service.LivenessQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Calendar;
-import java.util.Map;
 
 /**
  * Validates for activity 1A0001.

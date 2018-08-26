@@ -17,10 +17,10 @@
  */
 package cn.he.zhao.bbs.service;
 
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
-import cn.he.zhao.bbs.model.*;
+import cn.he.zhao.bbs.entity.*;
 
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;

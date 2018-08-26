@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.model.UserExt;
+import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

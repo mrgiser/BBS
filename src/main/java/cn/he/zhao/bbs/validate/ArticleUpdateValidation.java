@@ -19,7 +19,7 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
-import cn.he.zhao.bbs.model.my.Keys;
+import cn.he.zhao.bbs.entity.my.Keys;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -19,8 +19,8 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
-import cn.he.zhao.bbs.model.*;
-import cn.he.zhao.bbs.model.my.*;
+import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Requests;
@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.security.Key;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +100,7 @@ public class ActivityProcessor {
     private PointtransferQueryService pointtransferQueryService;
 
     /**
-     * Data model service.
+     * Data entity service.
      */
     @Autowired
     private DataModelService dataModelService;

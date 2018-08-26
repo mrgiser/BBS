@@ -23,11 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
-import cn.he.zhao.bbs.model.*;
+import cn.he.zhao.bbs.entity.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;

@@ -19,7 +19,7 @@ package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.mapper.*;
-import cn.he.zhao.bbs.model.*;
+import cn.he.zhao.bbs.entity.*;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;

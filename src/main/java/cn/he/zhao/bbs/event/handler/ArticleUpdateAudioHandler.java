@@ -17,9 +17,8 @@
  */
 package cn.he.zhao.bbs.event.handler;
 
-import cn.he.zhao.bbs.event.EventTypes;
 import cn.he.zhao.bbs.event.UpdateArticleEvent;
-import cn.he.zhao.bbs.model.Article;
+import cn.he.zhao.bbs.entity.Article;
 import cn.he.zhao.bbs.service.ArticleMgmtService;
 import org.json.JSONObject;
 import org.slf4j.Logger;

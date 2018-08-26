@@ -19,11 +19,11 @@ package cn.he.zhao.bbs.validate;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.model.Article;
-import cn.he.zhao.bbs.model.Role;
-import cn.he.zhao.bbs.model.Tag;
-import cn.he.zhao.bbs.model.my.Keys;
-import cn.he.zhao.bbs.model.my.User;
+import cn.he.zhao.bbs.entity.Article;
+import cn.he.zhao.bbs.entity.Role;
+import cn.he.zhao.bbs.entity.Tag;
+import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entity.my.User;
 import cn.he.zhao.bbs.service.OptionQueryService;
 import cn.he.zhao.bbs.service.TagQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;

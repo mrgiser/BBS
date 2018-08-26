@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.mapper.EmotionMapper;
-import cn.he.zhao.bbs.model.Emotion;
+import cn.he.zhao.bbs.entity.Emotion;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
