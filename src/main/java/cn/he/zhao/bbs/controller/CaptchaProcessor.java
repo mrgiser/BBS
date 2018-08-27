@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.Image;
+import cn.he.zhao.bbs.entityUtil.my.Image;
 import cn.he.zhao.bbs.spring.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;

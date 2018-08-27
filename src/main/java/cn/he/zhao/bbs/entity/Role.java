@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.1.0.2, Dec 14, 2016
  * @since 1.8.0
  */
-public final class Role {
+public class Role {
 
     /**
      * Role.

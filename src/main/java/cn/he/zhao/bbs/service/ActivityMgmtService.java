@@ -23,7 +23,7 @@ import cn.he.zhao.bbs.mapper.PointtransferMapper;
 import cn.he.zhao.bbs.entity.Liveness;
 import cn.he.zhao.bbs.entity.Pointtransfer;
 import cn.he.zhao.bbs.entity.UserExt;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Results;
 import cn.he.zhao.bbs.util.Symphonys;

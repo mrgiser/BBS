@@ -17,7 +17,6 @@
  */
 package cn.he.zhao.bbs.service;
 
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 

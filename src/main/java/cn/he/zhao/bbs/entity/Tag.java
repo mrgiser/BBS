@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  * @version 1.17.0.1, Jun 22, 2017
  * @since 0.2.0
  */
-public final class Tag {
+public class Tag {
 
     /**
      * Tag.

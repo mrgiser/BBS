@@ -27,7 +27,7 @@ import org.json.JSONObject;
  * @version 1.1.0.0, Jun 12, 2018
  * @since 1.4.0
  */
-public final class Liveness {
+public class Liveness {
 
     /**
      * Liveness.

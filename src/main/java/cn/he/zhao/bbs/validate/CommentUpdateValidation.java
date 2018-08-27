@@ -22,7 +22,7 @@ import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.entity.Comment;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.OptionQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.StatusCodes;

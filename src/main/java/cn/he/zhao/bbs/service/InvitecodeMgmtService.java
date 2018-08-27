@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;

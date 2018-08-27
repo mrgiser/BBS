@@ -24,7 +24,7 @@ import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.entity.Article;
 import cn.he.zhao.bbs.entity.Comment;
 import cn.he.zhao.bbs.entity.UserExt;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.ArticleQueryService;
 import cn.he.zhao.bbs.service.CommentQueryService;
 import cn.he.zhao.bbs.service.OptionQueryService;

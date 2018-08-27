@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.0.0.0, Apr 28, 2016
  * @since 1.4.0
  */
-public final class Referral {
+public class Referral {
 
     /**
      * Referral.

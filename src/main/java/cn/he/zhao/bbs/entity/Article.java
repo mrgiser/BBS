@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.32.0.0, Jun 19, 2018
  * @since 0.2.0
  */
-public final class Article {
+public class Article {
 
     /**
      * Article.

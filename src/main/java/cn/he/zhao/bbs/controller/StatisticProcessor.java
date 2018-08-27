@@ -23,7 +23,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

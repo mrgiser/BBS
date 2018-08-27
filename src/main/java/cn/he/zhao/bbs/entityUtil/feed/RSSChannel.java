@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.he.zhao.bbs.entity.feed;
+package cn.he.zhao.bbs.entityUtil.feed;
 
 import cn.he.zhao.bbs.util.XMLs;
 import org.apache.commons.lang.StringEscapeUtils;

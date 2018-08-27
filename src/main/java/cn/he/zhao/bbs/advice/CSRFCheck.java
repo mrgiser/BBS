@@ -2,7 +2,7 @@ package cn.he.zhao.bbs.advice;
 
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.entity.Common;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Sessions;

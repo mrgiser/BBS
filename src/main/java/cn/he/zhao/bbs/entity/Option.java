@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 2.8.0.2, Dec 24, 2016
  * @since 0.2.0
  */
-public final class Option {
+public class Option {
 
     /**
      * Option.

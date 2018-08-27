@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.1.0.0, May 24, 2018
  * @since 2.8.0
  */
-public final class Breezemoon {
+public class Breezemoon {
 
     /**
      * Breezemoon.

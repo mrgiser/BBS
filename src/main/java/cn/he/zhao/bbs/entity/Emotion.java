@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.0.0.1, Dec 13, 2016
  * @since 1.5.0
  */
-public final class Emotion {
+public class Emotion {
 
     /**
      * Emotion.

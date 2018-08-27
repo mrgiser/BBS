@@ -23,7 +23,7 @@ package cn.he.zhao.bbs.entity;
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.1, Aug 22, 2010
  */
-public final class Skin {
+public class Skin {
 
     /**
      * Skin.

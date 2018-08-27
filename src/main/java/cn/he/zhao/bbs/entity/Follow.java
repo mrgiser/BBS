@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.1.0.0, Jun 3, 2015
  * @since 0.2.5
  */
-public final class Follow {
+public class Follow {
 
     /**
      * Follow.

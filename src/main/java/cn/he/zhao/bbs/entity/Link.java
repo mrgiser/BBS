@@ -30,7 +30,7 @@ import java.util.Set;
  * @version 1.3.0.5, Jun 28, 2017
  * @since 1.6.0
  */
-public final class Link {
+public class Link {
 
     /**
      * Link.

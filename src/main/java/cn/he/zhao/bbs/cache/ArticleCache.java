@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.cache;
 
 import cn.he.zhao.bbs.entity.Article;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.ArticleMapper;
 import cn.he.zhao.bbs.service.ArticleQueryService;
 import org.apache.commons.lang.time.DateUtils;

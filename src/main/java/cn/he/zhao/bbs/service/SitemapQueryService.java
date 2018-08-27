@@ -1,8 +1,7 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
-import cn.he.zhao.bbs.entity.my.*;
-import cn.he.zhao.bbs.entity.sitemap.Sitemap;
+import cn.he.zhao.bbs.entityUtil.sitemap.Sitemap;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;

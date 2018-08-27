@@ -27,7 +27,7 @@ import org.b3log.symphony.util.Symphonys;
  * @version 1.25.0.0, Jul 15, 2018
  * @since 1.3.0
  */
-public final class Pointtransfer {
+public class Pointtransfer {
 
     /**
      * Pointtransfer.

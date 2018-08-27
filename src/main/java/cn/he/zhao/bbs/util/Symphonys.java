@@ -19,8 +19,8 @@ package cn.he.zhao.bbs.util;
 
 import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.Option;
-import cn.he.zhao.bbs.entity.my.CollectionUtils;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.LangPropsServiceImpl;
 import cn.he.zhao.bbs.service.OptionQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;

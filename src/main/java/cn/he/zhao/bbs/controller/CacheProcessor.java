@@ -20,7 +20,6 @@ package cn.he.zhao.bbs.controller;
 import cn.he.zhao.bbs.cache.ArticleCache;
 import cn.he.zhao.bbs.cache.DomainCache;
 import cn.he.zhao.bbs.cache.TagCache;
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

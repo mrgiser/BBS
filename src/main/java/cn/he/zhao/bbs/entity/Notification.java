@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.17.0.0, Jul 15, 2017
  * @since 0.2.5
  */
-public final class Notification {
+public class Notification {
 
     /**
      * Notification.

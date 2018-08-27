@@ -21,7 +21,6 @@ import cn.he.zhao.bbs.channel.ArticleChannel;
 import cn.he.zhao.bbs.channel.ArticleListChannel;
 import cn.he.zhao.bbs.channel.ChatRoomChannel;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.json.JSONObject;

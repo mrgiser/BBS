@@ -18,8 +18,8 @@
 package cn.he.zhao.bbs.channel;
 
 import cn.he.zhao.bbs.entity.Pointtransfer;
-import cn.he.zhao.bbs.entity.my.Keys;
-import cn.he.zhao.bbs.entity.my.User;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.ActivityMgmtService;
 import cn.he.zhao.bbs.service.UserQueryService;
 import cn.he.zhao.bbs.spring.SpringUtil;

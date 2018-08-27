@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.2.0.0, Jun 12, 2018
  * @since 1.3.0
  */
-public final class Verifycode {
+public class Verifycode {
 
     /**
      * Verifycode.

@@ -18,8 +18,8 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.mapper.CharacterMapper;
-import cn.he.zhao.bbs.entity.my.CollectionUtils;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;

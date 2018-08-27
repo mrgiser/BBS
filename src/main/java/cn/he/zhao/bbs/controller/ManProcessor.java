@@ -20,7 +20,6 @@ package cn.he.zhao.bbs.controller;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

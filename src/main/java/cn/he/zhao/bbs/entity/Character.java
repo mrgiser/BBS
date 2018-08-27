@@ -30,7 +30,7 @@ import java.util.Set;
  * @version 1.0.1.0, Jul 8, 2016
  * @since 1.4.0
  */
-public final class Character {
+public class Character {
 
     /**
      * Character.

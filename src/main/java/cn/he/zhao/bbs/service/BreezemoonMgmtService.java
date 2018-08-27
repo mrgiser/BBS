@@ -19,7 +19,7 @@ package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.Breezemoon;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

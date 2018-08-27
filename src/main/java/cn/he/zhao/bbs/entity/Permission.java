@@ -29,7 +29,7 @@ import java.util.Set;
  * @version 1.12.0.0, Jun 25, 2018
  * @since 1.8.0
  */
-public final class Permission {
+public class Permission {
 
     /**
      * Permission.

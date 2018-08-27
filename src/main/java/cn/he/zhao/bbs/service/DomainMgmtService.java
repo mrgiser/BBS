@@ -23,7 +23,7 @@ import cn.he.zhao.bbs.mapper.DomainTagMapper;
 import cn.he.zhao.bbs.mapper.OptionMapper;
 import cn.he.zhao.bbs.entity.Domain;
 import cn.he.zhao.bbs.entity.Option;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

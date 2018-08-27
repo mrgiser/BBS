@@ -1,4 +1,4 @@
-package cn.he.zhao.bbs.entity.my;
+package cn.he.zhao.bbs.entityUtil.my;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

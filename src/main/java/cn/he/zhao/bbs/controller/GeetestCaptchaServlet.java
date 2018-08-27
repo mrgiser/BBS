@@ -17,7 +17,6 @@
  */
 package cn.he.zhao.bbs.controller;
 
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.util.GeetestLib;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;

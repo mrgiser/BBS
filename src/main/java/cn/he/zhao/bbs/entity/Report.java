@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.2.0.0, Jul 15, 2018
  * @since 3.1.0
  */
-public final class Report {
+public class Report {
 
     /**
      * Report.

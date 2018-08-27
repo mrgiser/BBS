@@ -17,7 +17,7 @@
  */
 package cn.he.zhao.bbs.controller;
 
-import cn.he.zhao.bbs.entity.sitemap.Sitemap;
+import cn.he.zhao.bbs.entityUtil.sitemap.Sitemap;
 import cn.he.zhao.bbs.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

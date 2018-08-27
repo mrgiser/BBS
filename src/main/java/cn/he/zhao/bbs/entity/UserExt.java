@@ -32,7 +32,7 @@ import org.json.JSONObject;
  * @see org.b3log.latke.model.User
  * @since 0.2.0
  */
-public final class UserExt {
+public class UserExt {
 
     /**
      * Key of user guide step.

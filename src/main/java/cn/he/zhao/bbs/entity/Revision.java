@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.1.0.0, Apr 30, 2017
  * @since 1.4.0
  */
-public final class Revision {
+public class Revision {
 
     /**
      * Revision.

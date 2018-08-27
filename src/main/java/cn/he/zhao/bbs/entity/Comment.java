@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.13.0.0, Jun 10, 2018
  * @since 0.2.0
  */
-public final class Comment {
+public class Comment {
 
     /**
      * Comment.

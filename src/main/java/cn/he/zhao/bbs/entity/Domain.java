@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.1.0.0, Mar 30, 2018
  * @since 1.4.0
  */
-public final class Domain {
+public class Domain {
 
     /**
      * Domain.

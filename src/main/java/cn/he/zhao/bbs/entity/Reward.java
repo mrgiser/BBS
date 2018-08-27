@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.3.0.0, Jun 11, 2018
  * @since 0.2.5
  */
-public final class Reward {
+public class Reward {
 
     /**
      * Reward.

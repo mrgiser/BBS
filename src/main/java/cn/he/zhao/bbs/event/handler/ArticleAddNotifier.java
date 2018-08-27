@@ -19,9 +19,9 @@ package cn.he.zhao.bbs.event.handler;
 
 import cn.he.zhao.bbs.event.AddArticleEvent;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.Keys;
-import cn.he.zhao.bbs.entity.my.Pagination;
-import cn.he.zhao.bbs.entity.my.User;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.FollowQueryService;
 import cn.he.zhao.bbs.service.NotificationMgmtService;
 import cn.he.zhao.bbs.service.RoleQueryService;

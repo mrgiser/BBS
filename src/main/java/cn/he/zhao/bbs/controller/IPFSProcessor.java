@@ -20,7 +20,6 @@ package cn.he.zhao.bbs.controller;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
-import cn.he.zhao.bbs.entity.my.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;

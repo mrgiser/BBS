@@ -21,7 +21,6 @@ import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.channel.ChatRoomChannel;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Markdowns;

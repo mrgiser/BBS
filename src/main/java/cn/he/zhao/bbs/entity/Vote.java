@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.0.0.0, Aug 13, 2015
  * @since 1.3.0
  */
-public final class Vote {
+public class Vote {
 
     /**
      * Vote.

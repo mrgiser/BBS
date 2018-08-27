@@ -23,7 +23,6 @@ import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entity.my.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.*;
 import com.vdurmont.emoji.EmojiParser;

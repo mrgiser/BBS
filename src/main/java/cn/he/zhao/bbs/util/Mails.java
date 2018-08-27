@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.util;
 
 import cn.he.zhao.bbs.entity.Common;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;

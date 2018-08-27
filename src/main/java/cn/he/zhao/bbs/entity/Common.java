@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.70.0.0, Jun 11, 2018
  * @since 0.2.0
  */
-public final class Common {
+public class Common {
 
     /**
      * Key of offered.

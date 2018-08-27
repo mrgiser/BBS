@@ -21,7 +21,7 @@ import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.entity.Article;
 import cn.he.zhao.bbs.entity.UserExt;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.ArticleQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.json.JSONObject;

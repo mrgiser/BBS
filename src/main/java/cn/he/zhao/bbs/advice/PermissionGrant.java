@@ -5,7 +5,7 @@ import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.Permission;
 import cn.he.zhao.bbs.entity.Role;
-import cn.he.zhao.bbs.entity.my.User;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.RoleQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.aspectj.lang.JoinPoint;

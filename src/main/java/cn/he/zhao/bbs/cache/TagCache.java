@@ -18,7 +18,7 @@
 package cn.he.zhao.bbs.cache;
 
 import cn.he.zhao.bbs.entity.Tag;
-import cn.he.zhao.bbs.entity.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.TagMapper;
 import cn.he.zhao.bbs.util.JSONs;
 import cn.he.zhao.bbs.util.Symphonys;

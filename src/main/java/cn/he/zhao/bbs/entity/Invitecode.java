@@ -24,7 +24,7 @@ package cn.he.zhao.bbs.entity;
  * @version 1.0.0.1, Aug 26, 2016
  * @since 1.4.0
  */
-public final class Invitecode {
+public class Invitecode {
 
     /**
      * Invitecode.

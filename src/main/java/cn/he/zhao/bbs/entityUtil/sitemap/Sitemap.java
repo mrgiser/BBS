@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.he.zhao.bbs.entity.sitemap;
+package cn.he.zhao.bbs.entityUtil.sitemap;
 
 import org.b3log.latke.util.Strings;
 
