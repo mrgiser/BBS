@@ -7,74 +7,99 @@ public class Verifycode {
     /**
      * Key of user id.
      */
-    public static final String USER_ID = "userId";
+    private String userId;
 
     /**
      * Key of type.
      */
-    public static final String TYPE = "type";
+    private Integer type;
 
     /**
      * Key of business type.
      */
-    public static final String BIZ_TYPE = "bizType";
+    private Integer bizType;
 
     /**
      * Key of receiver.
      */
-    public static final String RECEIVER = "receiver";
+    private String receiver;
 
     /**
      * Key of code.
      */
-    public static final String CODE = "code";
+    private String code;
 
     /**
      * Key of status.
      */
-    public static final String STATUS = "status";
+    private Integer status;
 
     /**
      * Key of expired.
      */
-    public static final String EXPIRED = "expired";
+    private Long expired;
 
-    // Type constants
-    /**
-     * Type - Email.
-     */
-    public static final int TYPE_C_EMAIL = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    // Business type constants
-    /**
-     * Business type - Register.
-     */
-    public static final int BIZ_TYPE_C_REGISTER = 0;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Business type - Reset password.
-     */
-    public static final int BIZ_TYPE_C_RESET_PWD = 1;
+    public String getUserId() {
+        return userId;
+    }
 
-    /**
-     * Business type - Bind email.
-     */
-    public static final int BIZ_TYPE_C_BIND_EMAIL = 3;
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    // Status constants
-    /**
-     * Status - Unsent.
-     */
-    public static final int STATUS_C_UNSENT = 0;
+    public Integer getType() {
+        return type;
+    }
 
-    /**
-     * Status - Sent.
-     */
-    public static final int STATUS_C_SENT = 1;
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
-    /**
-     * Private constructor.
-     */
-    private Verifycode() {
+    public Integer getBizType() {
+        return bizType;
+    }
+
+    public void setBizType(Integer bizType) {
+        this.bizType = bizType;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Long getExpired() {
+        return expired;
+    }
+
+    public void setExpired(Long expired) {
+        this.expired = expired;
     }
 }
