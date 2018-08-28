@@ -7,47 +7,47 @@ public class Reward {
     /**
      * Key of sender id.
      */
-    public static final String SENDER_ID = "senderId";
+    private String senderId;
 
     /**
      * Key of data id.
      */
-    public static final String DATA_ID = "dataId";
+    private String dataId;
 
     /**
      * Key of type.
      */
-    public static final String TYPE = "type";
+    private Integer type;
 
-    // Reward type constants
-    /**
-     * Reward type - reward article.
-     */
-    public static final int TYPE_C_ARTICLE = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Reward type - comment.
-     */
-    public static final int TYPE_C_COMMENT = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Reward type - user.
-     */
-    public static final int TYPE_C_USER = 2;
+    public String getSenderId() {
+        return senderId;
+    }
 
-    /**
-     * Reward type - thank article.
-     */
-    public static final int TYPE_C_THANK_ARTICLE = 3;
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
 
-    /**
-     * Reward type - accept comment.
-     */
-    public static final int TYPE_C_ACCEPT_COMMENT = 4;
+    public String getDataId() {
+        return dataId;
+    }
 
-    /**
-     * Private constructor.
-     */
-    private Reward() {
+    public void setDataId(String dataId) {
+        this.dataId = dataId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }
