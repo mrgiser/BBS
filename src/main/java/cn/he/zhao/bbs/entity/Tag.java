@@ -5,464 +5,218 @@ public class Tag {
     private String oid;
 
     /**
-     * Key of tag title.
-     */
-    public static final String TAG_TITLE = "tagTitle";
-
-    /**
-     * Key of tag URI.
-     */
-    public static final String TAG_URI = "tagURI";
-
-    /**
-     * Key of tag icon path.
-     */
-    public static final String TAG_ICON_PATH = "tagIconPath";
-
-    /**
-     * Key of tag CSS.
-     */
-    public static final String TAG_CSS = "tagCSS";
-
-    /**
-     * Key of tag description.
-     */
-    public static final String TAG_DESCRIPTION = "tagDescription";
-
-    /**
      * Key of tag reference count.
      */
-    public static final String TAG_REFERENCE_CNT = "tagReferenceCount";
+    private Integer tagReferenceCount;
 
     /**
      * Key of tag comment count.
      */
-    public static final String TAG_COMMENT_CNT = "tagCommentCount";
+    private Integer tagCommentCount;
 
     /**
      * Key of tag follower count.
      */
-    public static final String TAG_FOLLOWER_CNT = "tagFollowerCount";
+    private Integer tagFollowerCount;
 
     /**
      * Key of link count.
      */
-    public static final String TAG_LINK_CNT = "tagLinkCount";
+    private Integer tagLinkCount;
+
+    /**
+     * Key of tag title.
+     */
+    private String tagTitle;
+
+    /**
+     * Key of tag URI.
+     */
+    private String tagURI;
+
+    /**
+     * Key of tag icon path.
+     */
+    private String tagIconPath;
+
+    /**
+     * Key of tag CSS.
+     */
+    private String tagCSS;
+
+    /**
+     * Key of tag description.
+     */
+    private String tagDescription;
 
     /**
      * Key of tag status.
      */
-    public static final String TAG_STATUS = "tagStatus";
+    private Integer tagStatus;
 
     /**
      * Key of tag good count.
      */
-    public static final String TAG_GOOD_CNT = "tagGoodCnt";
+    private Integer tagGoodCnt;
 
     /**
      * Key of tag bad count.
      */
-    public static final String TAG_BAD_CNT = "tagBadCnt";
+    private Integer tagBadCnt;
 
     /**
      * Key of tag seo title.
      */
-    public static final String TAG_SEO_TITLE = "tagSeoTitle";
+    private String tagSeoTitle;
 
     /**
      * Key of tag seo keywords.
      */
-    public static final String TAG_SEO_KEYWORDS = "tagSeoKeywords";
+    private String tagSeoKeywords;
 
     /**
      * Key of tag seo description.
      */
-    public static final String TAG_SEO_DESC = "tagSeoDesc";
+    private String tagSeoDesc;
 
     /**
      * Key of tag random double value.
      */
-    public static final String TAG_RANDOM_DOUBLE = "tagRandomDouble";
+    private Double tagRandomDouble;
 
-    //// Transient ////
-    /**
-     * Key of tag domains.
-     */
-    public static final String TAG_T_DOMAINS = "tagDomains";
-
-    /**
-     * Key of tag count.
-     */
-    public static final String TAG_T_COUNT = "tagCnt";
-
-    /**
-     * Key of tag id.
-     */
-    public static final String TAG_T_ID = "tagId";
-
-    /**
-     * Key of tag description text.
-     */
-    public static final String TAG_T_DESCRIPTION_TEXT = "tagDescriptionText";
-
-    /**
-     * Key of tag create time.
-     */
-    public static final String TAG_T_CREATE_TIME = "tagCreateTime";
-
-    /**
-     * Key of tag creator thumbnail URL.
-     */
-    public static final String TAG_T_CREATOR_THUMBNAIL_URL = "tagCreatorThumbnailURL";
-
-    /**
-     * Key of tag creator thumbnail update time.
-     */
-    public static final String TAG_T_CREATOR_THUMBNAIL_UPDATE_TIME = "tagCreatorThumbnailUpdateTime";
-
-    /**
-     * Key of tag creator name.
-     */
-    public static final String TAG_T_CREATOR_NAME = "tagCreatorName";
-
-    /**
-     * Key of tag participants.
-     */
-    public static final String TAG_T_PARTICIPANTS = "tagParticipants";
-
-    /**
-     * Key of tag participant name.
-     */
-    public static final String TAG_T_PARTICIPANT_NAME = "tagParticipantName";
-
-    /**
-     * Key of tag participant thumbnail URL.
-     */
-    public static final String TAG_T_PARTICIPANT_THUMBNAIL_URL = "tagParticipantThumbnailURL";
-
-    /**
-     * Key of tag participant thumbnail update time.
-     */
-    public static final String TAG_T_PARTICIPANT_THUMBNAIL_UPDATE_TIME = "tagParticipantThumbnailUpdateTime";
-
-    /**
-     * Key of tag participant URL.
-     */
-    public static final String TAG_T_PPARTICIPANT_URL = "tagParticipantURL";
-
-    /**
-     * Key of related tags.
-     */
-    public static final String TAG_T_RELATED_TAGS = "tagRelatedTags";
-
-    /**
-     * Key of tag title lower case.
-     */
-    public static final String TAG_T_TITLE_LOWER_CASE = "tagTitleLowerCase";
-
-    /**
-     * Key of tag links.
-     */
-    public static final String TAG_T_LINKS = "tagLinks";
-
-    /**
-     * Key of tag links count.
-     */
-    public static final String TAG_T_LINKS_CNT = "tagLinksCnt";
-
-    //// Tag type constants
-    /**
-     * Tag type - creator.
-     */
-    public static final int TAG_TYPE_C_CREATOR = 0;
-
-    /**
-     * Tag type - article.
-     */
-    public static final int TAG_TYPE_C_ARTICLE = 1;
-
-    /**
-     * Tag type - user self.
-     */
-    public static final int TAG_TYPE_C_USER_SELF = 2;
-
-    // Status constants
-    /**
-     * Tag status - valid.
-     */
-    public static final int TAG_STATUS_C_VALID = 0;
-
-    /**
-     * Tag status - invalid.
-     */
-    public static final int TAG_STATUS_C_INVALID = 1;
-
-    // Tag title constants
-    /**
-     * Title - Sandbox.
-     */
-    public static final String TAG_TITLE_C_SANDBOX = "Sandbox";
-
-    // Validation
-    /**
-     * Max tag title length.
-     */
-    public static final int MAX_TAG_TITLE_LENGTH = (null == Symphonys.getInt("tag.maxTagTitleLength"))
-            ? 9 : Symphonys.getInt("tag.maxTagTitleLength");
-
-    /**
-     * Max tag count.
-     */
-    public static final int MAX_TAG_COUNT = 4;
-
-    /**
-     * Tag title pattern string.
-     */
-    public static final String TAG_TITLE_PATTERN_STR = "[\\u4e00-\\u9fa5,\\w,&,\\+,\\-,\\.]+";
-
-    /**
-     * Tag title pattern.
-     */
-    public static final Pattern TAG_TITLE_PATTERN = Pattern.compile(TAG_TITLE_PATTERN_STR);
-
-    /**
-     * Normalized tag title mappings.
-     */
-    private static final Map<String, Set<String>> NORMALIZE_MAPPINGS = new HashMap<>();
-
-    static {
-        NORMALIZE_MAPPINGS.put("JavaScript", new HashSet<>(Arrays.asList("JS")));
-        NORMALIZE_MAPPINGS.put("Elasticsearch", new HashSet<>(Arrays.asList("ES搜索引擎", "ES搜索", "ES")));
-        NORMALIZE_MAPPINGS.put("golang", new HashSet<>(Arrays.asList("Go", "Go语言")));
-        NORMALIZE_MAPPINGS.put("线程", new HashSet<>(Arrays.asList("多线程", "Thread")));
-        NORMALIZE_MAPPINGS.put("Vue.js", new HashSet<>(Arrays.asList("Vue")));
-        NORMALIZE_MAPPINGS.put("Node.js", new HashSet<>(Arrays.asList("NodeJS")));
+    public String getOid() {
+        return oid;
     }
 
-    /**
-     * Private constructor.
-     */
-    private Tag() {
+    public void setOid(String oid) {
+        this.oid = oid;
     }
 
-    /**
-     * Uses the head tags.
-     *
-     * @param tagStr the specified tags
-     * @param num    the specified used number
-     * @return head tags
-     */
-    public static String useHead(final String tagStr, final int num) {
-        final String[] tags = tagStr.split(",");
-        if (tags.length <= num) {
-            return tagStr;
-        }
-
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < num; i++) {
-            sb.append(tags[i]).append(",");
-        }
-        sb.deleteCharAt(sb.length() - 1);
-
-        return sb.toString();
+    public Integer getTagReferenceCount() {
+        return tagReferenceCount;
     }
 
-    /**
-     * Formats the specified tags.
-     * <ul>
-     * <li>Trims every tag</li>
-     * <li>Deduplication</li>
-     * </ul>
-     *
-     * @param tagStr the specified tags
-     * @return formatted tags string
-     */
-    public static String formatTags(final String tagStr) {
-        final String tagStr1 = tagStr.replaceAll("\\s+", "").replaceAll("，", ",").replaceAll("、", ",").
-                replaceAll("；", ",").replaceAll(";", ",");
-        String[] tagTitles = tagStr1.split(",");
-
-        tagTitles = Strings.trimAll(tagTitles);
-
-        // deduplication
-        final Set<String> titles = new LinkedHashSet<>();
-        for (final String tagTitle : tagTitles) {
-            if (!exists(titles, tagTitle)) {
-                titles.add(tagTitle);
-            }
-        }
-
-        tagTitles = titles.toArray(new String[0]);
-
-        int count = 0;
-        final StringBuilder tagsBuilder = new StringBuilder();
-        for (final String tagTitle : tagTitles) {
-            String title = tagTitle.trim();
-            if (StringUtils.isBlank(title)) {
-                continue;
-            }
-
-            if (containsWhiteListTags(title)) {
-                tagsBuilder.append(title).append(",");
-                count++;
-
-                if (count >= MAX_TAG_COUNT) {
-                    break;
-                }
-
-                continue;
-            }
-
-            if (StringUtils.length(title) > MAX_TAG_TITLE_LENGTH) {
-                continue;
-            }
-
-            if (!TAG_TITLE_PATTERN.matcher(title).matches()) {
-                continue;
-            }
-
-            title = normalize(title);
-            tagsBuilder.append(title).append(",");
-            count++;
-
-            if (count >= MAX_TAG_COUNT) {
-                break;
-            }
-        }
-        if (tagsBuilder.length() > 0) {
-            tagsBuilder.deleteCharAt(tagsBuilder.length() - 1);
-        }
-
-        return tagsBuilder.toString();
+    public void setTagReferenceCount(Integer tagReferenceCount) {
+        this.tagReferenceCount = tagReferenceCount;
     }
 
-    /**
-     * Checks the specified tag string whether contains the reserved tags.
-     *
-     * @param tagStr the specified tag string
-     * @return {@code true} if it contains, returns {@code false} otherwise
-     */
-    public static boolean containsReservedTags(final String tagStr) {
-        for (final String reservedTag : Symphonys.RESERVED_TAGS) {
-            if (StringUtils.containsIgnoreCase(tagStr, reservedTag)) {
-                return true;
-            }
-        }
-
-        return false;
+    public Integer getTagCommentCount() {
+        return tagCommentCount;
     }
 
-    /**
-     * Checks the specified tag string whether contains the white list tags.
-     *
-     * @param tagStr the specified tag string
-     * @return {@code true} if it contains, returns {@code false} otherwise
-     */
-    public static boolean containsWhiteListTags(final String tagStr) {
-        for (final String whiteListTag : Symphonys.WHITE_LIST_TAGS) {
-            if (StringUtils.equalsIgnoreCase(tagStr, whiteListTag)) {
-                return true;
-            }
-        }
-
-        return false;
+    public void setTagCommentCount(Integer tagCommentCount) {
+        this.tagCommentCount = tagCommentCount;
     }
 
-    /**
-     * Checks the specified title exists in the specified title set.
-     *
-     * @param titles the specified title set
-     * @param title  the specified title to check
-     * @return {@code true} if exists, returns {@code false} otherwise
-     */
-    private static boolean exists(final Set<String> titles, final String title) {
-        for (final String setTitle : titles) {
-            if (setTitle.equalsIgnoreCase(title)) {
-                return true;
-            }
-        }
-
-        return false;
+    public Integer getTagFollowerCount() {
+        return tagFollowerCount;
     }
 
-    /**
-     * Normalizes the specified title. For example, Normalizes "JS" to "JavaScript.
-     *
-     * @param title the specified title
-     * @return normalized title
-     */
-    private static String normalize(final String title) {
-        final TagCache cache = LatkeBeanManagerImpl.getInstance().getReference(TagCache.class);
-        final List<JSONObject> iconTags = cache.getIconTags(Integer.MAX_VALUE);
-        Collections.sort(iconTags, (t1, t2) -> {
-            final String u1Title = t1.optString(Tag.TAG_T_TITLE_LOWER_CASE);
-            final String u2Title = t2.optString(Tag.TAG_T_TITLE_LOWER_CASE);
-
-            return u2Title.length() - u1Title.length();
-        });
-
-        for (final JSONObject iconTag : iconTags) {
-            final String iconTagTitle = iconTag.optString(Tag.TAG_TITLE);
-            if (iconTagTitle.length() < 2) {
-                break;
-            }
-
-            if (StringUtils.containsIgnoreCase(title, iconTagTitle)) {
-                return iconTagTitle;
-            }
-        }
-
-        final List<JSONObject> allTags = cache.getTags();
-        Collections.sort(allTags, (t1, t2) -> {
-            final String u1Title = t1.optString(Tag.TAG_T_TITLE_LOWER_CASE);
-            final String u2Title = t2.optString(Tag.TAG_T_TITLE_LOWER_CASE);
-
-            return u2Title.length() - u1Title.length();
-        });
-
-        for (final JSONObject tag : allTags) {
-            final String tagURI = tag.optString(Tag.TAG_URI);
-            final String tagTitle = tag.optString(Tag.TAG_TITLE);
-            if (tagURI.equals(tagTitle)) {
-                continue;
-            }
-
-            if (StringUtils.equals(title, tagURI)) {
-                return tag.optString(Tag.TAG_TITLE);
-            }
-        }
-
-        for (final Map.Entry<String, Set<String>> entry : NORMALIZE_MAPPINGS.entrySet()) {
-            final Set<String> oddTitles = entry.getValue();
-            for (final String oddTitle : oddTitles) {
-                if (StringUtils.equalsIgnoreCase(title, oddTitle)) {
-                    return entry.getKey();
-                }
-            }
-        }
-
-        return title;
+    public void setTagFollowerCount(Integer tagFollowerCount) {
+        this.tagFollowerCount = tagFollowerCount;
     }
 
-    /**
-     * Fills the description for the specified tag.
-     *
-     * @param tag the specified tag
-     */
-    public static void fillDescription(final JSONObject tag) {
-        String description = tag.optString(Tag.TAG_DESCRIPTION);
-        String descriptionText = tag.optString(Tag.TAG_TITLE);
-        if (StringUtils.isNotBlank(description)) {
-            final LatkeBeanManager beanManager = Lifecycle.getBeanManager();
-            final ShortLinkQueryService shortLinkQueryService = beanManager.getReference(ShortLinkQueryService.class);
+    public Integer getTagLinkCount() {
+        return tagLinkCount;
+    }
 
-            description = shortLinkQueryService.linkTag(description);
-            description = Emotions.convert(description);
-            description = Markdowns.toHTML(description);
+    public void setTagLinkCount(Integer tagLinkCount) {
+        this.tagLinkCount = tagLinkCount;
+    }
 
-            tag.put(Tag.TAG_DESCRIPTION, description);
-            descriptionText = Jsoup.parse(description).text();
-        }
-        tag.put(Tag.TAG_T_DESCRIPTION_TEXT, descriptionText);
+    public String getTagTitle() {
+        return tagTitle;
+    }
+
+    public void setTagTitle(String tagTitle) {
+        this.tagTitle = tagTitle;
+    }
+
+    public String getTagURI() {
+        return tagURI;
+    }
+
+    public void setTagURI(String tagURI) {
+        this.tagURI = tagURI;
+    }
+
+    public String getTagIconPath() {
+        return tagIconPath;
+    }
+
+    public void setTagIconPath(String tagIconPath) {
+        this.tagIconPath = tagIconPath;
+    }
+
+    public String getTagCSS() {
+        return tagCSS;
+    }
+
+    public void setTagCSS(String tagCSS) {
+        this.tagCSS = tagCSS;
+    }
+
+    public String getTagDescription() {
+        return tagDescription;
+    }
+
+    public void setTagDescription(String tagDescription) {
+        this.tagDescription = tagDescription;
+    }
+
+    public Integer getTagStatus() {
+        return tagStatus;
+    }
+
+    public void setTagStatus(Integer tagStatus) {
+        this.tagStatus = tagStatus;
+    }
+
+    public Integer getTagGoodCnt() {
+        return tagGoodCnt;
+    }
+
+    public void setTagGoodCnt(Integer tagGoodCnt) {
+        this.tagGoodCnt = tagGoodCnt;
+    }
+
+    public Integer getTagBadCnt() {
+        return tagBadCnt;
+    }
+
+    public void setTagBadCnt(Integer tagBadCnt) {
+        this.tagBadCnt = tagBadCnt;
+    }
+
+    public String getTagSeoTitle() {
+        return tagSeoTitle;
+    }
+
+    public void setTagSeoTitle(String tagSeoTitle) {
+        this.tagSeoTitle = tagSeoTitle;
+    }
+
+    public String getTagSeoKeywords() {
+        return tagSeoKeywords;
+    }
+
+    public void setTagSeoKeywords(String tagSeoKeywords) {
+        this.tagSeoKeywords = tagSeoKeywords;
+    }
+
+    public String getTagSeoDesc() {
+        return tagSeoDesc;
+    }
+
+    public void setTagSeoDesc(String tagSeoDesc) {
+        this.tagSeoDesc = tagSeoDesc;
+    }
+
+    public Double getTagRandomDouble() {
+        return tagRandomDouble;
+    }
+
+    public void setTagRandomDouble(Double tagRandomDouble) {
+        this.tagRandomDouble = tagRandomDouble;
     }
 }
