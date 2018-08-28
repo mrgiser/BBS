@@ -7,140 +7,86 @@ public class Report {
     /**
      * Key of report user id.
      */
-    public static final String REPORT_USER_ID = "reportUserId";
+    private String reportUserId;
 
     /**
      * Key of report data id.
      */
-    public static final String REPORT_DATA_ID = "reportDataId";
+    private String reportDataId;
 
     /**
      * Key of report data type.
      */
-    public static final String REPORT_DATA_TYPE = "reportDataType";
+    private Integer reportDataType;
 
     /**
      * Key of report type.
      */
-    public static final String REPORT_TYPE = "reportType";
+    private Integer reportType;
 
     /**
      * Key of report memo.
      */
-    public static final String REPORT_MEMO = "reportMemo";
+    private String reportMemo;
 
     /**
      * Key of report handled.
      */
-    public static final String REPORT_HANDLED = "reportHandled";
+    private Integer reportHandled;
 
-    // Report data type constants
-    /**
-     * Report data type - Article.
-     */
-    public static final int REPORT_DATA_TYPE_C_ARTICLE = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Report data type - comment.
-     */
-    public static final int REPORT_DATA_TYPE_C_COMMENT = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Report data type - user.
-     */
-    public static final int REPORT_DATA_TYPE_C_USER = 2;
+    public String getReportUserId() {
+        return reportUserId;
+    }
 
-    // Report type constants
-    /**
-     * Report type - Spam AD.
-     */
-    public static final int REPORT_TYPE_C_SPAM_AD = 0;
+    public void setReportUserId(String reportUserId) {
+        this.reportUserId = reportUserId;
+    }
 
-    /**
-     * Report type - Pornographic.
-     */
-    public static final int REPORT_TYPE_C_PORNOGRAPHIC = 1;
+    public String getReportDataId() {
+        return reportDataId;
+    }
 
-    /**
-     * Report type - Violation of regulations.
-     */
-    public static final int REPORT_TYPE_C_VIOLATION_OF_REGULATIONS = 2;
+    public void setReportDataId(String reportDataId) {
+        this.reportDataId = reportDataId;
+    }
 
-    /**
-     * Report type - Allegedly infringing.
-     */
-    public static final int REPORT_TYPE_C_ALLEGEDLY_INFRINGING = 3;
+    public Integer getReportDataType() {
+        return reportDataType;
+    }
 
-    /**
-     * Report type - Personal attacks.
-     */
-    public static final int REPORT_TYPE_C_PERSONAL_ATTACKS = 4;
+    public void setReportDataType(Integer reportDataType) {
+        this.reportDataType = reportDataType;
+    }
 
-    /**
-     * Report type - Posing account.
-     */
-    public static final int REPORT_TYPE_C_POSING_ACCOUNT = 5;
+    public Integer getReportType() {
+        return reportType;
+    }
 
-    /**
-     * Report type - Spam AD account.
-     */
-    public static final int REPORT_TYPE_C_SPAM_AD_ACCOUNT = 6;
+    public void setReportType(Integer reportType) {
+        this.reportType = reportType;
+    }
 
-    /**
-     * Report type - Personal Information Violation.
-     */
-    public static final int REPORT_TYPE_C_PERSONAL_INFO_VIOLATION = 7;
+    public String getReportMemo() {
+        return reportMemo;
+    }
 
-    /**
-     * Report type - Other.
-     */
-    public static final int REPORT_TYPE_C_OTHER = 49;
+    public void setReportMemo(String reportMemo) {
+        this.reportMemo = reportMemo;
+    }
 
-    // Report handled constants
-    /**
-     * Report handled - not yet.
-     */
-    public static final int REPORT_HANDLED_C_NOT = 0;
+    public Integer getReportHandled() {
+        return reportHandled;
+    }
 
-    /**
-     * Report handled - yes.
-     */
-    public static final int REPORT_HANDLED_C_YES = 1;
-
-    /**
-     * Report handled - ignored.
-     */
-    public static final int REPORT_HANDLED_C_IGNORED = 2;
-
-    //// Transient ////
-    /**
-     * Key of report user name.
-     */
-    public static final String REPORT_T_USERNAME = "reportUserName";
-
-    /**
-     * Key of report data.
-     */
-    public static final String REPORT_T_DATA = "reportData";
-
-    /**
-     * Key of report data type display string.
-     */
-    public static final String REPORT_T_DATA_TYPE_STR = "reportDataTypeStr";
-
-    /**
-     * Key of report type display string.
-     */
-    public static final String REPORT_T_TYPE_STR = "reportTypeStr";
-
-    /**
-     * Key of report time.
-     */
-    public static final String REPORT_T_TIME = "reportTime";
-
-    /**
-     * Private constructor.
-     */
-    private Report() {
+    public void setReportHandled(Integer reportHandled) {
+        this.reportHandled = reportHandled;
     }
 }
