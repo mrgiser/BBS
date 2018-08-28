@@ -37,56 +37,47 @@ public class Character {
     /**
      * Key of character user id.
      */
-    public static final String CHARACTER_USER_ID = "characterUserId";
+    private String characterUserId;
 
     /**
      * Key of character image.
      */
-    public static final String CHARACTER_IMG = "characterImg";
+    private String characterImg;
 
     /**
      * Key of character content.
      */
-    public static final String CHARACTER_CONTENT = "characterContent";
+    private String characterContent;
 
-    /**
-     * Character font.
-     */
-    private static final Font FONT = new Font("宋体", Font.PLAIN, 40);
-
-    /**
-     * Gets a character by the specified character content in the specified characters.
-     *
-     * @param content the specified character content
-     * @param characters the specified characters
-     * @return character, returns {@code null} if not found
-     */
-    public static JSONObject getCharacter(final String content, final Set<JSONObject> characters) {
-        for (final JSONObject character : characters) {
-            if (character.optString(CHARACTER_CONTENT).equals(content)) {
-                return character;
-            }
-        }
-
-        return null;
+    public String getOid() {
+        return oid;
     }
 
-    /**
-     * Creates an image with the specified content (a character).
-     *
-     * @param content the specified content
-     * @return image
-     */
-    public static BufferedImage createImage(final String content) {
-        final BufferedImage ret = new BufferedImage(500, 500, Transparency.TRANSLUCENT);
-        final Graphics g = ret.getGraphics();
-        g.setClip(0, 0, 50, 50);
-        g.fillRect(0, 0, 50, 50);
-        g.setFont(new Font(null, Font.PLAIN, 40));
-        g.setColor(Color.BLACK);
-        g.drawString(content, 5, 40);
-        g.dispose();
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-        return ret;
+    public String getCharacterUserId() {
+        return characterUserId;
+    }
+
+    public void setCharacterUserId(String characterUserId) {
+        this.characterUserId = characterUserId;
+    }
+
+    public String getCharacterImg() {
+        return characterImg;
+    }
+
+    public void setCharacterImg(String characterImg) {
+        this.characterImg = characterImg;
+    }
+
+    public String getCharacterContent() {
+        return characterContent;
+    }
+
+    public void setCharacterContent(String characterContent) {
+        this.characterContent = characterContent;
     }
 }
