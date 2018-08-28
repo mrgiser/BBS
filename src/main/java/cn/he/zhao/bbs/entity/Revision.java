@@ -7,31 +7,60 @@ public class Revision {
     /**
      * Key of revision data type.
      */
-    public static final String REVISION_DATA_TYPE = "revisionDataType";
+    private Integer revisionDataType;
 
     /**
      * Key of revision data id.
      */
-    public static final String REVISION_DATA_ID = "revisionDataId";
+    private String revisionDataId;
 
     /**
      * Key of revision data.
      */
-    public static final String REVISION_DATA = "revisionData";
+    private String revisionData;
 
     /**
      * Key of revision author id.
      */
-    public static final String REVISION_AUTHOR_ID = "revisionAuthorId";
+    private String revisionAuthorId;
 
-    // Data type constants
-    /**
-     * Data type - article.
-     */
-    public static final int DATA_TYPE_C_ARTICLE = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Data type - comment.
-     */
-    public static final int DATA_TYPE_C_COMMENT = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
+
+    public Integer getRevisionDataType() {
+        return revisionDataType;
+    }
+
+    public void setRevisionDataType(Integer revisionDataType) {
+        this.revisionDataType = revisionDataType;
+    }
+
+    public String getRevisionDataId() {
+        return revisionDataId;
+    }
+
+    public void setRevisionDataId(String revisionDataId) {
+        this.revisionDataId = revisionDataId;
+    }
+
+    public String getRevisionData() {
+        return revisionData;
+    }
+
+    public void setRevisionData(String revisionData) {
+        this.revisionData = revisionData;
+    }
+
+    public String getRevisionAuthorId() {
+        return revisionAuthorId;
+    }
+
+    public void setRevisionAuthorId(String revisionAuthorId) {
+        this.revisionAuthorId = revisionAuthorId;
+    }
 }
