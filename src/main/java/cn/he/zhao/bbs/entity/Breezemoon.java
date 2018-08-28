@@ -1,95 +1,106 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
-/**
- * This class defines all breezemoon entity relevant keys. https://github.com/b3log/symphony/issues/507
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.0, May 24, 2018
- * @since 2.8.0
- */
 public class Breezemoon {
-
 
     private String oid;
 
     /**
      * Key of breezemoon content.
      */
-    public static final String BREEZEMOON_CONTENT = "breezemoonContent";
+    private String breezemoonContent;
 
     /**
      * Key of breezemoon author id.
      */
-    public static final String BREEZEMOON_AUTHOR_ID = "breezemoonAuthorId";
+    private String breezemoonAuthorId;
 
     /**
      * Key of breezemoon created at.
      */
-    public static final String BREEZEMOON_CREATED = "breezemoonCreated";
+    private Long breezemoonCreated;
 
     /**
      * Key of breezemoon updated at.
      */
-    public static final String BREEZEMOON_UPDATED = "breezemoonUpdated";
+    private Long breezemoonUpdated;
 
     /**
      * Key of breezemoon IP.
      */
-    public static final String BREEZEMOON_IP = "breezemoonIP";
+    private String breezemoonIP;
 
     /**
      * Key of breezemoon UA.
      */
-    public static final String BREEZEMOON_UA = "breezemoonUA";
+    private String breezemoonUA;
 
     /**
      * Key of breezemoon status.
      */
-    public static final String BREEZEMOON_STATUS = "breezemoonStatus";
+    private Integer breezemoonStatus;
 
-    // Status constants
-    /**
-     * Breezemoon status - valid.
-     */
-    public static final int BREEZEMOON_STATUS_C_VALID = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Breezemoon status - invalid.
-     */
-    public static final int BREEZEMOON_STATUS_C_INVALID = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    //// Transient ////
+    public String getBreezemoonContent() {
+        return breezemoonContent;
+    }
 
-    /**
-     * Key of breezemoon author name.
-     */
-    public static final String BREEZEMOON_T_AUTHOR_NAME = "breezemoonAuthorName";
+    public void setBreezemoonContent(String breezemoonContent) {
+        this.breezemoonContent = breezemoonContent;
+    }
 
-    /**
-     * Key of breezemoon author thumbnail URL.
-     */
-    public static final String BREEZEMOON_T_AUTHOR_THUMBNAIL_URL = "breezemoonAuthorThumbnailURL";
+    public String getBreezemoonAuthorId() {
+        return breezemoonAuthorId;
+    }
 
-    /**
-     * Key of breezemoon create time.
-     */
-    public static final String BREEZEMOON_T_CREATE_TIME = "breezemoonCreateTime";
+    public void setBreezemoonAuthorId(String breezemoonAuthorId) {
+        this.breezemoonAuthorId = breezemoonAuthorId;
+    }
+
+    public Long getBreezemoonCreated() {
+        return breezemoonCreated;
+    }
+
+    public void setBreezemoonCreated(Long breezemoonCreated) {
+        this.breezemoonCreated = breezemoonCreated;
+    }
+
+    public Long getBreezemoonUpdated() {
+        return breezemoonUpdated;
+    }
+
+    public void setBreezemoonUpdated(Long breezemoonUpdated) {
+        this.breezemoonUpdated = breezemoonUpdated;
+    }
+
+    public String getBreezemoonIP() {
+        return breezemoonIP;
+    }
+
+    public void setBreezemoonIP(String breezemoonIP) {
+        this.breezemoonIP = breezemoonIP;
+    }
+
+    public String getBreezemoonUA() {
+        return breezemoonUA;
+    }
+
+    public void setBreezemoonUA(String breezemoonUA) {
+        this.breezemoonUA = breezemoonUA;
+    }
+
+    public Integer getBreezemoonStatus() {
+        return breezemoonStatus;
+    }
+
+    public void setBreezemoonStatus(Integer breezemoonStatus) {
+        this.breezemoonStatus = breezemoonStatus;
+    }
 }
 
