@@ -17,7 +17,7 @@
  */
 package cn.he.zhao.bbs.entityUtil.sitemap;
 
-import org.b3log.latke.util.Strings;
+import cn.he.zhao.bbs.spring.Strings;
 
 import java.util.ArrayList;
 import java.util.List;

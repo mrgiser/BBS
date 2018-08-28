@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.he.zhao.bbs.entity;
+package cn.he.zhao.bbs.entityUtil;
 
-import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
+import org.b3log.latke.model.User;
+import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 
 /**
@@ -31,332 +32,332 @@ import org.json.JSONObject;
  * @version 2.13.0.0, May 23, 2018
  * @since 0.2.0
  */
-public class UserExt {
-
-    /**
-     * Key of user guide step.
-     */
-    public static final String USER_GUIDE_STEP = "userGuideStep";
-
-    /**
-     * Key of user language.
-     */
-    public static final String USER_LANGUAGE = "userLanguage";
-
-    /**
-     * Key of user timezone.
-     */
-    public static final String USER_TIMEZONE = "userTimezone";
-
-    /**
-     * Key of user keyboard shortcuts status.
-     */
-    public static final String USER_KEYBOARD_SHORTCUTS_STATUS = "userKeyboardShortcutsStatus";
-
-    /**
-     * Key of user subscription mail status.
-     */
-    public static final String USER_SUB_MAIL_STATUS = "userSubMailStatus";
-
-    /**
-     * Key of user auto watch article after reply status.
-     */
-    public static final String USER_REPLY_WATCH_ARTICLE_STATUS = "userReplyWatchArticleStatus";
-
-    /**
-     * Key of user subscription mail send time.
-     */
-    public static final String USER_SUB_MAIL_SEND_TIME = "userSubMailSendTime";
-
-    /**
-     * Key of user avatar view mode.
-     */
-    public static final String USER_AVATAR_VIEW_MODE = "userAvatarViewMode";
-
-    /**
-     * Key of user list page size.
-     */
-    public static final String USER_LIST_PAGE_SIZE = "userListPageSize";
-
-    /**
-     * Key of user list view mode.
-     */
-    public static final String USER_LIST_VIEW_MODE = "userListViewMode";
-
-    /**
-     * Key of forge link status.
-     */
-    public static final String USER_FORGE_LINK_STATUS = "userForgeLinkStatus";
-
-    /**
-     * Key of user breezemoons status
-     */
-    public static final String USER_BREEZEMOON_STATUS = "userBreezemoonStatus";
-
-    /**
-     * Key of user point status.
-     */
-    public static final String USER_POINT_STATUS = "userPointStatus";
-
-    /**
-     * Key of user follower status.
-     */
-    public static final String USER_FOLLOWER_STATUS = "userFollowerStatus";
-
-    /**
-     * Key of user following article status.
-     */
-    public static final String USER_FOLLOWING_ARTICLE_STATUS = "userFollowingArticleStatus";
-
-    /**
-     * Key of user watching article status.
-     */
-    public static final String USER_WATCHING_ARTICLE_STATUS = "userWatchingArticleStatus";
-
-    /**
-     * Key of user following tag status.
-     */
-    public static final String USER_FOLLOWING_TAG_STATUS = "userFollowingTagStatus";
-
-    /**
-     * Key of user following user status.
-     */
-    public static final String USER_FOLLOWING_USER_STATUS = "userFollowingUserStatus";
-
-    /**
-     * Key of user comment status.
-     */
-    public static final String USER_COMMENT_STATUS = "userCommentStatus";
-
-    /**
-     * Key of user article status.
-     */
-    public static final String USER_ARTICLE_STATUS = "userArticleStatus";
-
-    /**
-     * Key of user online status.
-     */
-    public static final String USER_ONLINE_STATUS = "userOnlineStatus";
-
-    /**
-     * Key of user timeline status.
-     */
-    public static final String USER_TIMELINE_STATUS = "userTimelineStatus";
-
-    /**
-     * Key of user User-Agent status.
-     */
-    public static final String USER_UA_STATUS = "userUAStatus";
-
-    /**
-     * Key of user notify status.
-     */
-    public static final String USER_NOTIFY_STATUS = "userNotifyStatus";
-
-    /**
-     * Key of user nickname.
-     */
-    public static final String USER_NICKNAME = "userNickname";
-
-    /**
-     * Key of user comment view mode.
-     */
-    public static final String USER_COMMENT_VIEW_MODE = "userCommentViewMode";
-
-    /**
-     * Key of sync to client.
-     */
-    public static final String SYNC_TO_CLIENT = "syncWithSymphonyClient";
-
-    /**
-     * Key of user geo status.
-     */
-    public static final String USER_GEO_STATUS = "userGeoStatus";
-
-    /**
-     * Key of user update time.
-     */
-    public static final String USER_UPDATE_TIME = "userUpdateTime";
-
-    /**
-     * Key of user city.
-     */
-    public static final String USER_CITY = "userCity";
-
-    /**
-     * Key of user country.
-     */
-    public static final String USER_COUNTRY = "userCountry";
-
-    /**
-     * Key of user province.
-     */
-    public static final String USER_PROVINCE = "userProvince";
-
-    /**
-     * Key of user skin.
-     */
-    public static final String USER_SKIN = "userSkin";
-
-    /**
-     * Key of mobile user skin.
-     */
-    public static final String USER_MOBILE_SKIN = "userMobileSkin";
-
-    /**
-     * Key of user checkin time.
-     */
-    public static final String USER_CHECKIN_TIME = "userCheckinTime";
-
-    /**
-     * Key of user longest checkin streak start.
-     */
-    public static final String USER_LONGEST_CHECKIN_STREAK_START = "userLongestCheckinStreakStart";
-
-    /**
-     * Key of user longest checkin streak end.
-     */
-    public static final String USER_LONGEST_CHECKIN_STREAK_END = "userLongestCheckinStreakEnd";
-
-    /**
-     * Key of user current checkin streak start.
-     */
-    public static final String USER_CURRENT_CHECKIN_STREAK_START = "userCurrentCheckinStreakStart";
-
-    /**
-     * Key of user current checkin streak start end.
-     */
-    public static final String USER_CURRENT_CHECKIN_STREAK_END = "userCurrentCheckinStreakEnd";
-
-    /**
-     * Key of user longest checkin streak.
-     */
-    public static final String USER_LONGEST_CHECKIN_STREAK = "userLongestCheckinStreak";
-
-    /**
-     * Key of user current checkin streak.
-     */
-    public static final String USER_CURRENT_CHECKIN_STREAK = "userCurrentCheckinStreak";
-
-    /**
-     * Key of user article count.
-     */
-    public static final String USER_ARTICLE_COUNT = "userArticleCount";
-
-    /**
-     * Key of user comment count.
-     */
-    public static final String USER_COMMENT_COUNT = "userCommentCount";
-
-    /**
-     * Key of new tag count.
-     */
-    public static final String USER_TAG_COUNT = "userTagCount";
-
-    /**
-     * Key of user status.
-     */
-    public static final String USER_STATUS = "userStatus";
-
-    /**
-     * Key of user point.
-     */
-    public static final String USER_POINT = "userPoint";
-
-    /**
-     * Key of user used point.
-     */
-    public static final String USER_USED_POINT = "userUsedPoint";
-
-    /**
-     * Key of user join point rank.
-     */
-    public static final String USER_JOIN_POINT_RANK = "userJoinPointRank";
-
-    /**
-     * Key of user join used point rank.
-     */
-    public static final String USER_JOIN_USED_POINT_RANK = "userJoinUsedPointRank";
-
-    /**
-     * Key of user tags.
-     */
-    public static final String USER_TAGS = "userTags";
-
-    /**
-     * Key of user QQ.
-     */
-    public static final String USER_QQ = "userQQ";
-
-    /**
-     * Key of user number.
-     */
-    public static final String USER_NO = "userNo";
-
-    /**
-     * Key of user intro.
-     */
-    public static final String USER_INTRO = "userIntro";
-
-    /**
-     * Key of user avatar type.
-     */
-    public static final String USER_AVATAR_TYPE = "userAvatarType";
-
-    /**
-     * Key of user avatar URL.
-     */
-    public static final String USER_AVATAR_URL = "userAvatarURL";
-
-    /**
-     * Key of user B3log key.
-     */
-    public static final String USER_B3_KEY = "userB3Key";
-
-    /**
-     * Key of user B3log client add article URL.
-     */
-    public static final String USER_B3_CLIENT_ADD_ARTICLE_URL = "userB3ClientAddArticleURL";
-
-    /**
-     * Key of user B3log client update article URL.
-     */
-    public static final String USER_B3_CLIENT_UPDATE_ARTICLE_URL = "userB3ClientUpdateArticleURL";
-
-    /**
-     * Key of user B3log client add comment URL.
-     */
-    public static final String USER_B3_CLIENT_ADD_COMMENT_URL = "userB3ClientAddCommentURL";
-
-    /**
-     * Key of online flag.
-     */
-    public static final String USER_ONLINE_FLAG = "userOnlineFlag";
-
-    /**
-     * Key of latest post article time.
-     */
-    public static final String USER_LATEST_ARTICLE_TIME = "userLatestArticleTime";
-
-    /**
-     * Key of latest comment time.
-     */
-    public static final String USER_LATEST_CMT_TIME = "userLatestCmtTime";
-
-    /**
-     * Key of latest login time.
-     */
-    public static final String USER_LATEST_LOGIN_TIME = "userLatestLoginTime";
-
-    /**
-     * Key of latest login IP.
-     */
-    public static final String USER_LATEST_LOGIN_IP = "userLatestLoginIP";
-
-    /**
-     * Key of app role.
-     */
-    public static final String USER_APP_ROLE = "userAppRole";
+public class UserExtUtil {
+
+//    /**
+//     * Key of user guide step.
+//     */
+//    public static final String USER_GUIDE_STEP = "userGuideStep";
+//
+//    /**
+//     * Key of user language.
+//     */
+//    public static final String USER_LANGUAGE = "userLanguage";
+//
+//    /**
+//     * Key of user timezone.
+//     */
+//    public static final String USER_TIMEZONE = "userTimezone";
+//
+//    /**
+//     * Key of user keyboard shortcuts status.
+//     */
+//    public static final String USER_KEYBOARD_SHORTCUTS_STATUS = "userKeyboardShortcutsStatus";
+//
+//    /**
+//     * Key of user subscription mail status.
+//     */
+//    public static final String USER_SUB_MAIL_STATUS = "userSubMailStatus";
+//
+//    /**
+//     * Key of user auto watch article after reply status.
+//     */
+//    public static final String USER_REPLY_WATCH_ARTICLE_STATUS = "userReplyWatchArticleStatus";
+//
+//    /**
+//     * Key of user subscription mail send time.
+//     */
+//    public static final String USER_SUB_MAIL_SEND_TIME = "userSubMailSendTime";
+//
+//    /**
+//     * Key of user avatar view mode.
+//     */
+//    public static final String USER_AVATAR_VIEW_MODE = "userAvatarViewMode";
+//
+//    /**
+//     * Key of user list page size.
+//     */
+//    public static final String USER_LIST_PAGE_SIZE = "userListPageSize";
+//
+//    /**
+//     * Key of user list view mode.
+//     */
+//    public static final String USER_LIST_VIEW_MODE = "userListViewMode";
+//
+//    /**
+//     * Key of forge link status.
+//     */
+//    public static final String USER_FORGE_LINK_STATUS = "userForgeLinkStatus";
+//
+//    /**
+//     * Key of user breezemoons status
+//     */
+//    public static final String USER_BREEZEMOON_STATUS = "userBreezemoonStatus";
+//
+//    /**
+//     * Key of user point status.
+//     */
+//    public static final String USER_POINT_STATUS = "userPointStatus";
+//
+//    /**
+//     * Key of user follower status.
+//     */
+//    public static final String USER_FOLLOWER_STATUS = "userFollowerStatus";
+//
+//    /**
+//     * Key of user following article status.
+//     */
+//    public static final String USER_FOLLOWING_ARTICLE_STATUS = "userFollowingArticleStatus";
+//
+//    /**
+//     * Key of user watching article status.
+//     */
+//    public static final String USER_WATCHING_ARTICLE_STATUS = "userWatchingArticleStatus";
+//
+//    /**
+//     * Key of user following tag status.
+//     */
+//    public static final String USER_FOLLOWING_TAG_STATUS = "userFollowingTagStatus";
+//
+//    /**
+//     * Key of user following user status.
+//     */
+//    public static final String USER_FOLLOWING_USER_STATUS = "userFollowingUserStatus";
+//
+//    /**
+//     * Key of user comment status.
+//     */
+//    public static final String USER_COMMENT_STATUS = "userCommentStatus";
+//
+//    /**
+//     * Key of user article status.
+//     */
+//    public static final String USER_ARTICLE_STATUS = "userArticleStatus";
+//
+//    /**
+//     * Key of user online status.
+//     */
+//    public static final String USER_ONLINE_STATUS = "userOnlineStatus";
+//
+//    /**
+//     * Key of user timeline status.
+//     */
+//    public static final String USER_TIMELINE_STATUS = "userTimelineStatus";
+//
+//    /**
+//     * Key of user User-Agent status.
+//     */
+//    public static final String USER_UA_STATUS = "userUAStatus";
+//
+//    /**
+//     * Key of user notify status.
+//     */
+//    public static final String USER_NOTIFY_STATUS = "userNotifyStatus";
+//
+//    /**
+//     * Key of user nickname.
+//     */
+//    public static final String USER_NICKNAME = "userNickname";
+//
+//    /**
+//     * Key of user comment view mode.
+//     */
+//    public static final String USER_COMMENT_VIEW_MODE = "userCommentViewMode";
+//
+//    /**
+//     * Key of sync to client.
+//     */
+//    public static final String SYNC_TO_CLIENT = "syncWithSymphonyClient";
+//
+//    /**
+//     * Key of user geo status.
+//     */
+//    public static final String USER_GEO_STATUS = "userGeoStatus";
+//
+//    /**
+//     * Key of user update time.
+//     */
+//    public static final String USER_UPDATE_TIME = "userUpdateTime";
+//
+//    /**
+//     * Key of user city.
+//     */
+//    public static final String USER_CITY = "userCity";
+//
+//    /**
+//     * Key of user country.
+//     */
+//    public static final String USER_COUNTRY = "userCountry";
+//
+//    /**
+//     * Key of user province.
+//     */
+//    public static final String USER_PROVINCE = "userProvince";
+//
+//    /**
+//     * Key of user skin.
+//     */
+//    public static final String USER_SKIN = "userSkin";
+//
+//    /**
+//     * Key of mobile user skin.
+//     */
+//    public static final String USER_MOBILE_SKIN = "userMobileSkin";
+//
+//    /**
+//     * Key of user checkin time.
+//     */
+//    public static final String USER_CHECKIN_TIME = "userCheckinTime";
+//
+//    /**
+//     * Key of user longest checkin streak start.
+//     */
+//    public static final String USER_LONGEST_CHECKIN_STREAK_START = "userLongestCheckinStreakStart";
+//
+//    /**
+//     * Key of user longest checkin streak end.
+//     */
+//    public static final String USER_LONGEST_CHECKIN_STREAK_END = "userLongestCheckinStreakEnd";
+//
+//    /**
+//     * Key of user current checkin streak start.
+//     */
+//    public static final String USER_CURRENT_CHECKIN_STREAK_START = "userCurrentCheckinStreakStart";
+//
+//    /**
+//     * Key of user current checkin streak start end.
+//     */
+//    public static final String USER_CURRENT_CHECKIN_STREAK_END = "userCurrentCheckinStreakEnd";
+//
+//    /**
+//     * Key of user longest checkin streak.
+//     */
+//    public static final String USER_LONGEST_CHECKIN_STREAK = "userLongestCheckinStreak";
+//
+//    /**
+//     * Key of user current checkin streak.
+//     */
+//    public static final String USER_CURRENT_CHECKIN_STREAK = "userCurrentCheckinStreak";
+//
+//    /**
+//     * Key of user article count.
+//     */
+//    public static final String USER_ARTICLE_COUNT = "userArticleCount";
+//
+//    /**
+//     * Key of user comment count.
+//     */
+//    public static final String USER_COMMENT_COUNT = "userCommentCount";
+//
+//    /**
+//     * Key of new tag count.
+//     */
+//    public static final String USER_TAG_COUNT = "userTagCount";
+//
+//    /**
+//     * Key of user status.
+//     */
+//    public static final String USER_STATUS = "userStatus";
+//
+//    /**
+//     * Key of user point.
+//     */
+//    public static final String USER_POINT = "userPoint";
+//
+//    /**
+//     * Key of user used point.
+//     */
+//    public static final String USER_USED_POINT = "userUsedPoint";
+//
+//    /**
+//     * Key of user join point rank.
+//     */
+//    public static final String USER_JOIN_POINT_RANK = "userJoinPointRank";
+//
+//    /**
+//     * Key of user join used point rank.
+//     */
+//    public static final String USER_JOIN_USED_POINT_RANK = "userJoinUsedPointRank";
+//
+//    /**
+//     * Key of user tags.
+//     */
+//    public static final String USER_TAGS = "userTags";
+//
+//    /**
+//     * Key of user QQ.
+//     */
+//    public static final String USER_QQ = "userQQ";
+//
+//    /**
+//     * Key of user number.
+//     */
+//    public static final String USER_NO = "userNo";
+//
+//    /**
+//     * Key of user intro.
+//     */
+//    public static final String USER_INTRO = "userIntro";
+//
+//    /**
+//     * Key of user avatar type.
+//     */
+//    public static final String USER_AVATAR_TYPE = "userAvatarType";
+//
+//    /**
+//     * Key of user avatar URL.
+//     */
+//    public static final String USER_AVATAR_URL = "userAvatarURL";
+//
+//    /**
+//     * Key of user B3log key.
+//     */
+//    public static final String USER_B3_KEY = "userB3Key";
+//
+//    /**
+//     * Key of user B3log client add article URL.
+//     */
+//    public static final String USER_B3_CLIENT_ADD_ARTICLE_URL = "userB3ClientAddArticleURL";
+//
+//    /**
+//     * Key of user B3log client update article URL.
+//     */
+//    public static final String USER_B3_CLIENT_UPDATE_ARTICLE_URL = "userB3ClientUpdateArticleURL";
+//
+//    /**
+//     * Key of user B3log client add comment URL.
+//     */
+//    public static final String USER_B3_CLIENT_ADD_COMMENT_URL = "userB3ClientAddCommentURL";
+//
+//    /**
+//     * Key of online flag.
+//     */
+//    public static final String USER_ONLINE_FLAG = "userOnlineFlag";
+//
+//    /**
+//     * Key of latest post article time.
+//     */
+//    public static final String USER_LATEST_ARTICLE_TIME = "userLatestArticleTime";
+//
+//    /**
+//     * Key of latest comment time.
+//     */
+//    public static final String USER_LATEST_CMT_TIME = "userLatestCmtTime";
+//
+//    /**
+//     * Key of latest login time.
+//     */
+//    public static final String USER_LATEST_LOGIN_TIME = "userLatestLoginTime";
+//
+//    /**
+//     * Key of latest login IP.
+//     */
+//    public static final String USER_LATEST_LOGIN_IP = "userLatestLoginIP";
+//
+//    /**
+//     * Key of app role.
+//     */
+//    public static final String USER_APP_ROLE = "userAppRole";
 
     //// Transient ////
     /**
@@ -601,7 +602,7 @@ public class UserExt {
     /**
      * Private constructor.
      */
-    private UserExt() {
+    private UserExtUtil() {
     }
 
     /**
@@ -681,7 +682,7 @@ public class UserExt {
      * @return {@code true} if the specified user updated avatar, returns {@code false} otherwise
      */
     public static boolean updatedAvatar(final JSONObject user) {
-        return user.optString(UserExt.USER_AVATAR_URL).contains("_");
+        return user.optString(UserExtUtil.USER_AVATAR_URL).contains("_");
     }
 
     /**
@@ -691,7 +692,7 @@ public class UserExt {
      * @return {@code true} if the specified user finshed guide, returns {@code false} otherwise
      */
     public static boolean finshedGuide(final JSONObject user) {
-        return UserExt.USER_GUIDE_STEP_FIN == user.optInt(UserExt.USER_GUIDE_STEP);
+        return UserExtUtil.USER_GUIDE_STEP_FIN == user.optInt(UserExtUtil.USER_GUIDE_STEP);
     }
 
     /**
