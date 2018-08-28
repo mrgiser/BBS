@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Report {
 
-    /**
-     * Report.
-     */
-    public static final String REPORT = "report";
-
-    /**
-     * Reports.
-     */
-    public static final String REPORTS = "reports";
+    private String oid;
 
     /**
      * Key of report user id.

@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Invitecode {
 
-    /**
-     * Invitecode.
-     */
-    public static final String INVITECODE = "invitecode";
-
-    /**
-     * Invitecodes.
-     */
-    public static final String INVITECODES = "invitecodes";
+    private String oid;
 
     /**
      * Key of code.

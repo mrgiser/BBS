@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Follow {
 
-    /**
-     * Follow.
-     */
-    public static final String FOLLOW = "follow";
-
-    /**
-     * Follows.
-     */
-    public static final String FOLLOWS = "follows";
+    private String oid;
 
     /**
      * Key of follower id.

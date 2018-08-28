@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Emotion {
 
-    /**
-     * Emotion.
-     */
-    public static final String EMOTION = "emotion";
-
-    /**
-     * Emotions.
-     */
-    public static final String EMOTIONS = "emotions";
+    private String oid;
 
     /**
      * Key of emotion user id.

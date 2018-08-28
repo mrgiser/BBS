@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Verifycode {
 
-    /**
-     * Verifycode.
-     */
-    public static final String VERIFYCODE = "verifycode";
-
-    /**
-     * Verifycodes.
-     */
-    public static final String VERIFYCODES = "verifycodes";
+    private String oid;
 
     /**
      * Key of user id.

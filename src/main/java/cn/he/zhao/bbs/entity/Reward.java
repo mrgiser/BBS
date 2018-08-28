@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Reward {
 
-    /**
-     * Reward.
-     */
-    public static final String REWARD = "reward";
-
-    /**
-     * Rewards.
-     */
-    public static final String REWARDS = "rewards";
+    private String oid;
 
     /**
      * Key of sender id.

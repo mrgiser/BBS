@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Comment {
 
-    /**
-     * Comment.
-     */
-    public static final String COMMENT = "comment";
-
-    /**
-     * Comments.
-     */
-    public static final String COMMENTS = "comments";
+    private String oid;
 
     /**
      * Key of comment content.

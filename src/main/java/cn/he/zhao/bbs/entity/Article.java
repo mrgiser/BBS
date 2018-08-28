@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Article {
 
-    /**
-     * Article.
-     */
-    public static final String ARTICLE = "article";
-
-    /**
-     * Articles.
-     */
-    public static final String ARTICLES = "articles";
+    private String oid;
 
     /**
      * Key of article title.

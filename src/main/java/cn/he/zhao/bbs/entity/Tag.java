@@ -44,15 +44,7 @@ import java.util.regex.Pattern;
  */
 public class Tag {
 
-    /**
-     * Tag.
-     */
-    public static final String TAG = "tag";
-
-    /**
-     * Tags.
-     */
-    public static final String TAGS = "tags";
+    private String oid;
 
     /**
      * Key of tag title.

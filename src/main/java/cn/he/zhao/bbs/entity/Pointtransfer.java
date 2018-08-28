@@ -29,15 +29,7 @@ import org.b3log.symphony.util.Symphonys;
  */
 public class Pointtransfer {
 
-    /**
-     * Pointtransfer.
-     */
-    public static final String POINTTRANSFER = "pointtransfer";
-
-    /**
-     * Pointtransfers.
-     */
-    public static final String POINTTRANSFERS = "pointtransfers";
+    private String oid;
 
     /**
      * Key of from user id.

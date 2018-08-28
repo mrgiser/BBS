@@ -32,15 +32,7 @@ import java.util.Set;
  */
 public class Character {
 
-    /**
-     * Character.
-     */
-    public static final String CHARACTER = "character";
-
-    /**
-     * Characters.
-     */
-    public static final String CHARACTERS = "characters";
+    private String oid;
 
     /**
      * Key of character user id.

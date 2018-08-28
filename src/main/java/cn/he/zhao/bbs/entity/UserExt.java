@@ -33,6 +33,8 @@ import org.json.JSONObject;
  */
 public class UserExt {
 
+    private String oid;
+
     /**
      * Key of user guide step.
      */

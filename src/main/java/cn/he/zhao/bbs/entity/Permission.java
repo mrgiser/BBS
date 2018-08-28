@@ -31,15 +31,7 @@ import java.util.Set;
  */
 public class Permission {
 
-    /**
-     * Permission.
-     */
-    public static final String PERMISSION = "permission";
-
-    /**
-     * Permissions.
-     */
-    public static final String PERMISSIONS = "permissions";
+    private String oid;
 
     /**
      * Key of permission category.

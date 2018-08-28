@@ -25,15 +25,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Skin {
 
-    /**
-     * Skin.
-     */
-    public static final String SKIN = "skin";
-
-    /**
-     * Skins.
-     */
-    public static final String SKINS = "skins";
+    private String oid;
 
     /**
      * Key of skin name, current selected skin name.

@@ -26,15 +26,8 @@ package cn.he.zhao.bbs.entity;
  */
 public class Breezemoon {
 
-    /**
-     * Breezemoon.
-     */
-    public static final String BREEZEMOON = "breezemoon";
 
-    /**
-     * Breezemoons.
-     */
-    public static final String BREEZEMOONS = "breezemoons";
+    private String oid;
 
     /**
      * Key of breezemoon content.

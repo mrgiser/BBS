@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Option {
 
-    /**
-     * Option.
-     */
-    public static final String OPTION = "option";
-
-    /**
-     * Options.
-     */
-    public static final String OPTIONS = "options";
+    private String oid;
 
     /**
      * Key of option value.

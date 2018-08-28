@@ -32,15 +32,7 @@ import java.util.Set;
  */
 public class Link {
 
-    /**
-     * Link.
-     */
-    public static final String LINK = "link";
-
-    /**
-     * Links.
-     */
-    public static final String LINKS = "links";
+    private String oid;
 
     /**
      * Key of link address.

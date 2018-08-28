@@ -29,10 +29,7 @@ import org.json.JSONObject;
  */
 public class Liveness {
 
-    /**
-     * Liveness.
-     */
-    public static final String LIVENESS = "liveness";
+    private String oid;
 
     /**
      * Key of user id.

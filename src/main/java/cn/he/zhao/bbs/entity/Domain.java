@@ -26,16 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Domain {
 
-    /**
-     * Domain.
-     */
-    public static final String DOMAIN = "domain";
-
-    /**
-     * Domains.
-     */
-    public static final String DOMAINS = "domains";
-
+    private String oid;
     /**
      * Key of domain title.
      */

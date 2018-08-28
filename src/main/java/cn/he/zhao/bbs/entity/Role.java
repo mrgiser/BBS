@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Role {
 
-    /**
-     * Role.
-     */
-    public static final String ROLE = "role";
-
-    /**
-     * Roles.
-     */
-    public static final String ROLES = "roles";
+    private String oid;
 
     /**
      * Key of role name.

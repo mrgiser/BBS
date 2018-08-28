@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Vote {
 
-    /**
-     * Vote.
-     */
-    public static final String VOTE = "vote";
-
-    /**
-     * Votes.
-     */
-    public static final String VOTES = "votes";
+    private String oid;
 
     /**
      * Key of user id.

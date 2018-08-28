@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Revision {
 
-    /**
-     * Revision.
-     */
-    public static final String REVISION = "revision";
-
-    /**
-     * Revisions.
-     */
-    public static final String REVISIONS = "revisions";
+    private String oid;
 
     /**
      * Key of revision data type.

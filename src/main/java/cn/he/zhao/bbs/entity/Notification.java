@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Notification {
 
-    /**
-     * Notification.
-     */
-    public static final String NOTIFICATION = "notification";
-
-    /**
-     * Notifications.
-     */
-    public static final String NOTIFICATIONS = "notifications";
+    private String oid;
 
     /**
      * Key of user id.

@@ -26,15 +26,7 @@ package cn.he.zhao.bbs.entity;
  */
 public class Referral {
 
-    /**
-     * Referral.
-     */
-    public static final String REFERRAL = "referral";
-
-    /**
-     * Referrals.
-     */
-    public static final String REFERRALS = "referrals";
+    private String oid;
 
     /**
      * Key of referral user.
