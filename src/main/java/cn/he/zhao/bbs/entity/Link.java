@@ -1,35 +1,5 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
-import org.apache.commons.lang.StringUtils;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-/**
- * This class defines all link entity relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.3.0.5, Jun 28, 2017
- * @since 1.6.0
- */
 public class Link {
 
     private String oid;
@@ -37,116 +7,151 @@ public class Link {
     /**
      * Key of link address.
      */
-    public static final String LINK_ADDR = "linkAddr";
+    private String linkAddr;
 
     /**
      * Key of link title.
      */
-    public static final String LINK_TITLE = "linkTitle";
+    private String linkTitle;
 
     /**
      * Key of link type.
      */
-    public static final String LINK_TYPE = "linkType";
+    private Integer linkType;
 
     /**
      * Key of link submit count.
      */
-    public static final String LINK_SUBMIT_CNT = "linkSubmitCnt";
+    private Integer linkSubmitCnt;
 
     /**
      * Key of link click count.
      */
-    public static final String LINK_CLICK_CNT = "linkClickCnt";
+    private Integer linkClickCnt;
 
     /**
      * Key of link good count.
      */
-    public static final String LINK_GOOD_CNT = "linkGoodCnt";
+    private Integer linkGoodCnt;
 
     /**
      * Key of link bad count.
      */
-    public static final String LINK_BAD_CNT = "linkBadCnt";
+    private Integer linkBadCnt;
 
     /**
      * Key of link Baidu reference count.
      */
-    public static final String LINK_BAIDU_REF_CNT = "linkBaiduRefCnt";
+    private Integer linkBaiduRefCnt;
 
     /**
      * Key of link score.
      */
-    public static final String LINK_SCORE = "linkScore";
+    private Double linkScore;
 
     /**
      * Key of link ping count.
      */
-    public static final String LINK_PING_CNT = "linkPingCnt";
+    private Integer linkPingCnt;
 
     /**
      * Key of link ping error count.
      */
-    public static final String LINK_PING_ERR_CNT = "linkPingErrCnt";
+    private Integer linkPingErrCnt;
 
-    //// Transient ////
-    /**
-     * Key of link id.
-     */
-    public static final String LINK_T_ID = "linkId";
-
-    /**
-     * Key of link keywords.
-     */
-    public static final String LINK_T_KEYWORDS = "linkKeywords";
-
-    /**
-     * Key of link HTML.
-     */
-    public static final String LINK_T_HTML = "linkHTML";
-
-    /**
-     * Key of link text.
-     */
-    public static final String LINK_T_TEXT = "linkText";
-
-    /**
-     * Key of link count.
-     */
-    public static final String LINK_T_COUNT = "linkCnt";
-
-    // Type constants
-    /**
-     * Link type - forge.
-     */
-    public static final int LINK_TYPE_C_FORGE = 0;
-
-    // Address constants
-    /**
-     * Link blacklist.
-     */
-    public static final Set<String> LINK_ADDR_C_BLACKLIST = new HashSet<>(Arrays.asList(
-            "hacpai"));
-
-    /**
-     * Private constructor.
-     */
-    private Link() {
+    public String getOid() {
+        return oid;
     }
 
-    /**
-     * Checks whether the specified link address in blacklist.
-     *
-     * @param linkAddr the specified link address
-     * @return {@code true} if it in blacklist, otherwise returns {@code false}
-     */
-    public static final boolean inAddrBlacklist(final String linkAddr) {
-        for (final String site : LINK_ADDR_C_BLACKLIST) {
-            if (StringUtils.containsIgnoreCase(linkAddr, site)) {
-                return true;
-            }
-        }
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-        return false;
+    public String getLinkAddr() {
+        return linkAddr;
+    }
+
+    public void setLinkAddr(String linkAddr) {
+        this.linkAddr = linkAddr;
+    }
+
+    public String getLinkTitle() {
+        return linkTitle;
+    }
+
+    public void setLinkTitle(String linkTitle) {
+        this.linkTitle = linkTitle;
+    }
+
+    public Integer getLinkType() {
+        return linkType;
+    }
+
+    public void setLinkType(Integer linkType) {
+        this.linkType = linkType;
+    }
+
+    public Integer getLinkSubmitCnt() {
+        return linkSubmitCnt;
+    }
+
+    public void setLinkSubmitCnt(Integer linkSubmitCnt) {
+        this.linkSubmitCnt = linkSubmitCnt;
+    }
+
+    public Integer getLinkClickCnt() {
+        return linkClickCnt;
+    }
+
+    public void setLinkClickCnt(Integer linkClickCnt) {
+        this.linkClickCnt = linkClickCnt;
+    }
+
+    public Integer getLinkGoodCnt() {
+        return linkGoodCnt;
+    }
+
+    public void setLinkGoodCnt(Integer linkGoodCnt) {
+        this.linkGoodCnt = linkGoodCnt;
+    }
+
+    public Integer getLinkBadCnt() {
+        return linkBadCnt;
+    }
+
+    public void setLinkBadCnt(Integer linkBadCnt) {
+        this.linkBadCnt = linkBadCnt;
+    }
+
+    public Integer getLinkBaiduRefCnt() {
+        return linkBaiduRefCnt;
+    }
+
+    public void setLinkBaiduRefCnt(Integer linkBaiduRefCnt) {
+        this.linkBaiduRefCnt = linkBaiduRefCnt;
+    }
+
+    public Double getLinkScore() {
+        return linkScore;
+    }
+
+    public void setLinkScore(Double linkScore) {
+        this.linkScore = linkScore;
+    }
+
+    public Integer getLinkPingCnt() {
+        return linkPingCnt;
+    }
+
+    public void setLinkPingCnt(Integer linkPingCnt) {
+        this.linkPingCnt = linkPingCnt;
+    }
+
+    public Integer getLinkPingErrCnt() {
+        return linkPingErrCnt;
+    }
+
+    public void setLinkPingErrCnt(Integer linkPingErrCnt) {
+        this.linkPingErrCnt = linkPingErrCnt;
     }
 }
