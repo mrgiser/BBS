@@ -1,265 +1,235 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
-/**
- * This class defines all comment entity relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.13.0.0, Jun 10, 2018
- * @since 0.2.0
- */
 public class Comment {
 
     private String oid;
 
     /**
+     * Key of client comment id.
+     */
+    private String clientCommentId;
+
+    /**
      * Key of comment content.
      */
-    public static final String COMMENT_CONTENT = "commentContent";
+    private String commentContent;
 
     /**
      * Key of comment create time.
      */
-    public static final String COMMENT_CREATE_TIME = "commentCreateTime";
-
-    /**
-     * Key of comment create time str.
-     */
-    public static final String COMMENT_CREATE_TIME_STR = "commentCreateTimeStr";
+    private Long commentCreateTime;
 
     /**
      * Key of comment author id.
      */
-    public static final String COMMENT_AUTHOR_ID = "commentAuthorId";
+    private String commentAuthorId;
 
     /**
      * Key of comment on article id.
      */
-    public static final String COMMENT_ON_ARTICLE_ID = "commentOnArticleId";
-
-    /**
-     * Key of client comment id.
-     */
-    public static final String COMMENT_CLIENT_COMMENT_ID = "clientCommentId";
+    private String commentOnArticleId;
 
     /**
      * Key of comment sharp URL.
      */
-    public static final String COMMENT_SHARP_URL = "commentSharpURL";
+    private String commentSharpURL;
 
     /**
      * Key of original comment id.
      */
-    public static final String COMMENT_ORIGINAL_COMMENT_ID = "commentOriginalCommentId";
+    private String commentOriginalCommentId;
 
     /**
      * Key of comment status.
      */
-    public static final String COMMENT_STATUS = "commentStatus";
+    private Integer commentStatus;
 
     /**
      * Key of comment IP.
      */
-    public static final String COMMENT_IP = "commentIP";
+    private String commentIP;
 
     /**
      * Key of comment UA.
      */
-    public static final String COMMENT_UA = "commentUA";
+    private String commentUA;
 
     /**
      * Key of comment anonymous.
      */
-    public static final String COMMENT_ANONYMOUS = "commentAnonymous";
+    private Integer commentAnonymous;
 
     /**
      * Key of comment good count.
      */
-    public static final String COMMENT_GOOD_CNT = "commentGoodCnt";
+    private Integer commentGoodCnt;
 
     /**
      * Key of comment bad count.
      */
-    public static final String COMMENT_BAD_CNT = "commentBadCnt";
+    private Integer commentBadCnt;
 
     /**
      * Key of comment score.
      */
-    public static final String COMMENT_SCORE = "commentScore";
+    private Double commentScore;
 
     /**
      * Key of comment reply count.
      */
-    public static final String COMMENT_REPLY_CNT = "commentReplyCnt";
+    private Integer commentReplyCnt;
 
     /**
      * Key of comment audio URL.
      */
-    public static final String COMMENT_AUDIO_URL = "commentAudioURL";
+    private String commentAudioURL;
 
     /**
      * Key of comment offered. https://github.com/b3log/symphony/issues/486
      */
-    public static final String COMMENT_QNA_OFFERED = "commentQnAOffered";
+    private Integer commentQnAOffered;
 
-    //// Transient ////
-    /**
-     * Key of comment revision count.
-     */
-    public static final String COMMENT_REVISION_COUNT = "commentRevisionCount";
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Key of comment vote.
-     */
-    public static final String COMMENT_T_VOTE = "commentVote";
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Key of commenter.
-     */
-    public static final String COMMENT_T_COMMENTER = "commenter";
+    public String getClientCommentId() {
+        return clientCommentId;
+    }
 
-    /**
-     * Key of comment author email.
-     */
-    public static final String COMMENT_T_AUTHOR_EMAIL = "commentAuthorEmail";
+    public void setClientCommentId(String clientCommentId) {
+        this.clientCommentId = clientCommentId;
+    }
 
-    /**
-     * Key of comment id.
-     */
-    public static final String COMMENT_T_ID = "commentId";
+    public String getCommentContent() {
+        return commentContent;
+    }
 
-    /**
-     * Key of comment ids.
-     */
-    public static final String COMMENT_T_IDS = "commentIds";
+    public void setCommentContent(String commentContent) {
+        this.commentContent = commentContent;
+    }
 
-    /**
-     * Key of comment on symphony article id.
-     */
-    public static final String COMMENT_T_SYMPHONY_ID = "commentSymphonyArticleId";
+    public Long getCommentCreateTime() {
+        return commentCreateTime;
+    }
 
-    /**
-     * Key of comment author thumbnail URL.
-     */
-    public static final String COMMENT_T_AUTHOR_THUMBNAIL_URL = "commentAuthorThumbnailURL";
+    public void setCommentCreateTime(Long commentCreateTime) {
+        this.commentCreateTime = commentCreateTime;
+    }
 
-    /**
-     * Key of comment author name.
-     */
-    public static final String COMMENT_T_AUTHOR_NAME = "commentAuthorName";
+    public String getCommentAuthorId() {
+        return commentAuthorId;
+    }
 
-    /**
-     * Key of comment author URL.
-     */
-    public static final String COMMENT_T_AUTHOR_URL = "commentAuthorURL";
+    public void setCommentAuthorId(String commentAuthorId) {
+        this.commentAuthorId = commentAuthorId;
+    }
 
-    /**
-     * Key of comment article title.
-     */
-    public static final String COMMENT_T_ARTICLE_TITLE = "commentArticleTitle";
+    public String getCommentOnArticleId() {
+        return commentOnArticleId;
+    }
 
-    /**
-     * Key of comment article type.
-     */
-    public static final String COMMENT_T_ARTICLE_TYPE = "commentArticleType";
+    public void setCommentOnArticleId(String commentOnArticleId) {
+        this.commentOnArticleId = commentOnArticleId;
+    }
 
-    /**
-     * Key of comment article perfect.
-     */
-    public static final String COMMENT_T_ARTICLE_PERFECT = "commentArticlePerfect";
+    public String getCommentSharpURL() {
+        return commentSharpURL;
+    }
 
-    /**
-     * Key of comment article author name.
-     */
-    public static final String COMMENT_T_ARTICLE_AUTHOR_NAME = "commentArticleAuthorName";
+    public void setCommentSharpURL(String commentSharpURL) {
+        this.commentSharpURL = commentSharpURL;
+    }
 
-    /**
-     * Key of comment article author URL.
-     */
-    public static final String COMMENT_T_ARTICLE_AUTHOR_URL = "commentArticleAuthorURL";
+    public String getCommentOriginalCommentId() {
+        return commentOriginalCommentId;
+    }
 
-    /**
-     * Key of comment article author thumbnail URL.
-     */
-    public static final String COMMENT_T_ARTICLE_AUTHOR_THUMBNAIL_URL = "commentArticleAuthorThumbnailURL";
+    public void setCommentOriginalCommentId(String commentOriginalCommentId) {
+        this.commentOriginalCommentId = commentOriginalCommentId;
+    }
 
-    /**
-     * Key of comment article permalink.
-     */
-    public static final String COMMENT_T_ARTICLE_PERMALINK = "commentArticlePermalink";
+    public Integer getCommentStatus() {
+        return commentStatus;
+    }
 
-    /**
-     * Key of comment thank label.
-     */
-    public static final String COMMENT_T_THANK_LABEL = "commentThankLabel";
+    public void setCommentStatus(Integer commentStatus) {
+        this.commentStatus = commentStatus;
+    }
 
-    /**
-     * Key of comment nice.
-     */
-    public static final String COMMENT_T_NICE = "commentNice";
+    public String getCommentIP() {
+        return commentIP;
+    }
 
-    /**
-     * Key of comment replies.
-     */
-    public static final String COMMENT_T_REPLIES = "commentReplies";
+    public void setCommentIP(String commentIP) {
+        this.commentIP = commentIP;
+    }
 
-    /**
-     * Key of comment original author thumbnail URL.
-     */
-    public static final String COMMENT_T_ORIGINAL_AUTHOR_THUMBNAIL_URL = "commentOriginalAuthorThumbnailURL";
+    public String getCommentUA() {
+        return commentUA;
+    }
 
-    //// Status constants
-    /**
-     * Comment status - valid.
-     */
-    public static final int COMMENT_STATUS_C_VALID = 0;
+    public void setCommentUA(String commentUA) {
+        this.commentUA = commentUA;
+    }
 
-    /**
-     * Comment status - invalid.
-     */
-    public static final int COMMENT_STATUS_C_INVALID = 1;
+    public Integer getCommentAnonymous() {
+        return commentAnonymous;
+    }
 
-    // Anonymous constants
-    /**
-     * Comment anonymous - public.
-     */
-    public static final int COMMENT_ANONYMOUS_C_PUBLIC = 0;
+    public void setCommentAnonymous(Integer commentAnonymous) {
+        this.commentAnonymous = commentAnonymous;
+    }
 
-    /**
-     * Comment anonymous - anonymous.
-     */
-    public static final int COMMENT_ANONYMOUS_C_ANONYMOUS = 1;
+    public Integer getCommentGoodCnt() {
+        return commentGoodCnt;
+    }
 
-    // QnA offered constants
-    /**
-     * Comment offered - not yet.
-     */
-    public static final int COMMENT_QNA_OFFERED_C_NOT = 0;
+    public void setCommentGoodCnt(Integer commentGoodCnt) {
+        this.commentGoodCnt = commentGoodCnt;
+    }
 
-    /**
-     * Comment offered - yes.
-     */
-    public static final int COMMENT_QNA_OFFERED_C_YES = 1;
+    public Integer getCommentBadCnt() {
+        return commentBadCnt;
+    }
 
-    /**
-     * Private constructor.
-     */
-    private Comment() {
+    public void setCommentBadCnt(Integer commentBadCnt) {
+        this.commentBadCnt = commentBadCnt;
+    }
+
+    public Double getCommentScore() {
+        return commentScore;
+    }
+
+    public void setCommentScore(Double commentScore) {
+        this.commentScore = commentScore;
+    }
+
+    public Integer getCommentReplyCnt() {
+        return commentReplyCnt;
+    }
+
+    public void setCommentReplyCnt(Integer commentReplyCnt) {
+        this.commentReplyCnt = commentReplyCnt;
+    }
+
+    public String getCommentAudioURL() {
+        return commentAudioURL;
+    }
+
+    public void setCommentAudioURL(String commentAudioURL) {
+        this.commentAudioURL = commentAudioURL;
+    }
+
+    public Integer getCommentQnAOffered() {
+        return commentQnAOffered;
+    }
+
+    public void setCommentQnAOffered(Integer commentQnAOffered) {
+        this.commentQnAOffered = commentQnAOffered;
     }
 }
