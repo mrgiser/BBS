@@ -7,58 +7,34 @@ public class Role {
     /**
      * Key of role name.
      */
-    public static final String ROLE_NAME = "roleName";
+    private String roleName;
 
     /**
      * Key of role description.
      */
-    public static final String ROLE_DESCRIPTION = "roleDescription";
+    private String roleDescription;
 
-    /**
-     * Key of role id.
-     */
-    public static final String ROLE_ID = "roleId";
+    public String getOid() {
+        return oid;
+    }
 
-    //// Transient ////
-    /**
-     * Key of user count.
-     */
-    public static final String ROLE_T_USER_COUNT = "roleUserCount";
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    // Role name constants
-    /**
-     * Role name - default.
-     */
-    public static final String ROLE_ID_C_DEFAULT = "defaultRole";
+    public String getRoleName() {
+        return roleName;
+    }
 
-    /**
-     * Role name - admin.
-     */
-    public static final String ROLE_ID_C_ADMIN = "adminRole";
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 
-    /**
-     * Role name - leader.
-     */
-    public static final String ROLE_ID_C_LEADER = "leaderRole";
+    public String getRoleDescription() {
+        return roleDescription;
+    }
 
-    /**
-     * Role name - regular.
-     */
-    public static final String ROLE_ID_C_REGULAR = "regularRole";
-
-    /**
-     * Role name - member.
-     */
-    public static final String ROLE_ID_C_MEMBER = "memberRole";
-
-    /**
-     * Role name - visitor.
-     */
-    public static final String ROLE_ID_C_VISITOR = "visitorRole";
-
-    /**
-     * Private constructor.
-     */
-    private Role() {
+    public void setRoleDescription(String roleDescription) {
+        this.roleDescription = roleDescription;
     }
 }
