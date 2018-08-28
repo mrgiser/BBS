@@ -1,29 +1,5 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
-/**
- * This class defines all follow entity relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.0, Jun 3, 2015
- * @since 0.2.5
- */
 public class Follow {
 
     private String oid;
@@ -31,42 +7,47 @@ public class Follow {
     /**
      * Key of follower id.
      */
-    public static final String FOLLOWER_ID = "followerId";
+    private String followerId;
 
     /**
      * Key of following id.
      */
-    public static final String FOLLOWING_ID = "followingId";
+    private String followingId;
 
     /**
      * Key of following type.
      */
-    public static final String FOLLOWING_TYPE = "followingType";
+    private Integer followingType;
 
-    // Following type constants
-    /**
-     * Following type - user.
-     */
-    public static final int FOLLOWING_TYPE_C_USER = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Following type - tag.
-     */
-    public static final int FOLLOWING_TYPE_C_TAG = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Following type - article collect.
-     */
-    public static final int FOLLOWING_TYPE_C_ARTICLE = 2;
+    public String getFollowerId() {
+        return followerId;
+    }
 
-    /**
-     * Following type - article watch.
-     */
-    public static final int FOLLOWING_TYPE_C_ARTICLE_WATCH = 3;
+    public void setFollowerId(String followerId) {
+        this.followerId = followerId;
+    }
 
-    /**
-     * Private constructor.
-     */
-    private Follow() {
+    public String getFollowingId() {
+        return followingId;
+    }
+
+    public void setFollowingId(String followingId) {
+        this.followingId = followingId;
+    }
+
+    public Integer getFollowingType() {
+        return followingType;
+    }
+
+    public void setFollowingType(Integer followingType) {
+        this.followingType = followingType;
     }
 }
