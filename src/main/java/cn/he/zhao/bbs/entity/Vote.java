@@ -7,58 +7,60 @@ public class Vote {
     /**
      * Key of user id.
      */
-    public static final String USER_ID = "userId";
+    private String userId;
 
     /**
      * Key of type.
      */
-    public static final String TYPE = "type";
+    private Integer type;
 
     /**
      * Key of data type.
      */
-    public static final String DATA_TYPE = "dataType";
+    private Integer dataType;
 
     /**
      * Key of data id.
      */
-    public static final String DATA_ID = "dataId";
+    private String dataId;
 
-    // Type constants
-    /**
-     * Type - Up.
-     */
-    public static final int TYPE_C_UP = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Type - Down.
-     */
-    public static final int TYPE_C_DOWN = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    // Data Type constants
-    /**
-     * Data Type - Article.
-     */
-    public static final int DATA_TYPE_C_ARTICLE = 0;
+    public String getUserId() {
+        return userId;
+    }
 
-    /**
-     * Data Type - Comment.
-     */
-    public static final int DATA_TYPE_C_COMMENT = 1;
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    /**
-     * Data Type - User.
-     */
-    public static final int DATA_TYPE_C_USER = 2;
+    public Integer getType() {
+        return type;
+    }
 
-    /**
-     * Data Type - Tag.
-     */
-    public static final int DATA_TYPE_C_TAG = 3;
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
-    /**
-     * Private constructor.
-     */
-    private Vote() {
+    public Integer getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(Integer dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getDataId() {
+        return dataId;
+    }
+
+    public void setDataId(String dataId) {
+        this.dataId = dataId;
     }
 }
