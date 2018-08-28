@@ -19,7 +19,6 @@ package cn.he.zhao.bbs.event.handler;
 
 import cn.he.zhao.bbs.event.AddArticleEvent;
 import cn.he.zhao.bbs.entity.Article;
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.Tag;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;

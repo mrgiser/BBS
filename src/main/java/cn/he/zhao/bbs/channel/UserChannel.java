@@ -18,7 +18,6 @@
 package cn.he.zhao.bbs.channel;
 
 import cn.he.zhao.bbs.mapper.UserMapper;
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;

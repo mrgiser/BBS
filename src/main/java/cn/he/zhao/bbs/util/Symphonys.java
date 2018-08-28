@@ -17,7 +17,6 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.Option;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;

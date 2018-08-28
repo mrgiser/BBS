@@ -1,6 +1,5 @@
 package cn.he.zhao.bbs.advice;
 
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import org.aspectj.lang.JoinPoint;

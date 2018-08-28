@@ -1,138 +1,182 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
-/**
- * This class defines domain entity relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.0, Mar 30, 2018
- * @since 1.4.0
- */
 public class Domain {
 
     private String oid;
     /**
      * Key of domain title.
      */
-    public static final String DOMAIN_TITLE = "domainTitle";
+    private String domainTitle;
 
     /**
      * Key of domain URI.
      */
-    public static final String DOMAIN_URI = "domainURI";
+    private String domainURI;
 
     /**
      * Key of domain description.
      */
-    public static final String DOMAIN_DESCRIPTION = "domainDescription";
+    private String domainDescription;
 
     /**
      * Key of domain type.
      */
-    public static final String DOMAIN_TYPE = "domainType";
+    private String domainType;
 
     /**
      * Key of domain sort.
      */
-    public static final String DOMAIN_SORT = "domainSort";
+    private Integer domainSort;
 
     /**
      * Key of domain navigation.
      */
-    public static final String DOMAIN_NAV = "domainNav";
+    private Integer domainNav;
 
     /**
      * Key of domain tag count.
      */
-    public static final String DOMAIN_TAG_COUNT = "domainTagCnt";
+    private Integer domainTagCnt;
 
     /**
      * Key of domain icon path.
      */
-    public static final String DOMAIN_ICON_PATH = "domainIconPath";
+    private String domainIconPath;
 
     /**
      * Key of domain CSS.
      */
-    public static final String DOMAIN_CSS = "domainCSS";
+    private String domainCSS;
 
     /**
      * Key of domain status.
      */
-    public static final String DOMAIN_STATUS = "domainStatus";
+    private Integer domainStatus;
 
     /**
      * Key of domain seo title.
      */
-    public static final String DOMAIN_SEO_TITLE = "domainSeoTitle";
+    private String domainSeoTitle;
 
     /**
      * Key of domain seo keywords.
      */
-    public static final String DOMAIN_SEO_KEYWORDS = "domainSeoKeywords";
+    private String domainSeoKeywords;
 
     /**
      * Key of domain seo description.
      */
-    public static final String DOMAIN_SEO_DESC = "domainSeoDesc";
+    private String domainSeoDesc;
 
-    //// Transient ////
-    /**
-     * Key of domain count.
-     */
-    public static final String DOMAIN_T_COUNT = "domainCnt";
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Key of domain tags.
-     */
-    public static final String DOMAIN_T_TAGS = "domainTags";
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Key of domain id.
-     */
-    public static final String DOMAIN_T_ID = "domainId";
+    public String getDomainTitle() {
+        return domainTitle;
+    }
 
-    //// Status constants
-    /**
-     * Domain status - valid.
-     */
-    public static final int DOMAIN_STATUS_C_VALID = 0;
+    public void setDomainTitle(String domainTitle) {
+        this.domainTitle = domainTitle;
+    }
 
-    /**
-     * Domain status - invalid.
-     */
-    public static final int DOMAIN_STATUS_C_INVALID = 1;
+    public String getDomainURI() {
+        return domainURI;
+    }
 
-    //// Navigation constants
-    /**
-     * Domain navigation - enabled.
-     */
-    public static final int DOMAIN_NAV_C_ENABLED = 0;
+    public void setDomainURI(String domainURI) {
+        this.domainURI = domainURI;
+    }
 
-    /**
-     * Domain navigation - disabled.
-     */
-    public static final int DOMAIN_NAV_C_DISABLED = 1;
+    public String getDomainDescription() {
+        return domainDescription;
+    }
 
-    /**
-     * Private constructor.
-     */
-    private Domain() {
+    public void setDomainDescription(String domainDescription) {
+        this.domainDescription = domainDescription;
+    }
+
+    public String getDomainType() {
+        return domainType;
+    }
+
+    public void setDomainType(String domainType) {
+        this.domainType = domainType;
+    }
+
+    public Integer getDomainSort() {
+        return domainSort;
+    }
+
+    public void setDomainSort(Integer domainSort) {
+        this.domainSort = domainSort;
+    }
+
+    public Integer getDomainNav() {
+        return domainNav;
+    }
+
+    public void setDomainNav(Integer domainNav) {
+        this.domainNav = domainNav;
+    }
+
+    public Integer getDomainTagCnt() {
+        return domainTagCnt;
+    }
+
+    public void setDomainTagCnt(Integer domainTagCnt) {
+        this.domainTagCnt = domainTagCnt;
+    }
+
+    public String getDomainIconPath() {
+        return domainIconPath;
+    }
+
+    public void setDomainIconPath(String domainIconPath) {
+        this.domainIconPath = domainIconPath;
+    }
+
+    public String getDomainCSS() {
+        return domainCSS;
+    }
+
+    public void setDomainCSS(String domainCSS) {
+        this.domainCSS = domainCSS;
+    }
+
+    public Integer getDomainStatus() {
+        return domainStatus;
+    }
+
+    public void setDomainStatus(Integer domainStatus) {
+        this.domainStatus = domainStatus;
+    }
+
+    public String getDomainSeoTitle() {
+        return domainSeoTitle;
+    }
+
+    public void setDomainSeoTitle(String domainSeoTitle) {
+        this.domainSeoTitle = domainSeoTitle;
+    }
+
+    public String getDomainSeoKeywords() {
+        return domainSeoKeywords;
+    }
+
+    public void setDomainSeoKeywords(String domainSeoKeywords) {
+        this.domainSeoKeywords = domainSeoKeywords;
+    }
+
+    public String getDomainSeoDesc() {
+        return domainSeoDesc;
+    }
+
+    public void setDomainSeoDesc(String domainSeoDesc) {
+        this.domainSeoDesc = domainSeoDesc;
     }
 }

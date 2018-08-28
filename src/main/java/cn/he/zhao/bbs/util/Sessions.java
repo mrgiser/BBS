@@ -17,7 +17,6 @@
  */
 package cn.he.zhao.bbs.util;
 
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import org.apache.commons.lang.RandomStringUtils;

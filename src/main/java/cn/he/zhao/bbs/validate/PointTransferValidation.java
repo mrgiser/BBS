@@ -21,7 +21,6 @@ import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;

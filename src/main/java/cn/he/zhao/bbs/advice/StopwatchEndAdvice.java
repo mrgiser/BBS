@@ -3,7 +3,6 @@ package cn.he.zhao.bbs.advice;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.entity.Common;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;

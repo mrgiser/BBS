@@ -23,7 +23,6 @@ import cn.he.zhao.bbs.mapper.CommentMapper;
 import cn.he.zhao.bbs.mapper.UserMapper;
 import cn.he.zhao.bbs.entity.Article;
 import cn.he.zhao.bbs.entity.Comment;
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;

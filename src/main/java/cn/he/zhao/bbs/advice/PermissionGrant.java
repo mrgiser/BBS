@@ -2,7 +2,6 @@ package cn.he.zhao.bbs.advice;
 
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
-import cn.he.zhao.bbs.entity.Common;
 import cn.he.zhao.bbs.entity.Permission;
 import cn.he.zhao.bbs.entity.Role;
 import cn.he.zhao.bbs.entityUtil.my.User;
