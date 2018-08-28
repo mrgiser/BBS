@@ -1,29 +1,5 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
-/**
- * This class defines all invitecode entity relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.1, Aug 26, 2016
- * @since 1.4.0
- */
 public class Invitecode {
 
     private String oid;
@@ -31,46 +7,86 @@ public class Invitecode {
     /**
      * Key of code.
      */
-    public static final String CODE = "code";
+    private String code;
 
     /**
      * Key of generator id.
      */
-    public static final String GENERATOR_ID = "generatorId";
+    private String generatorId;
 
     /**
      * Key of user id.
      */
-    public static final String USER_ID = "userId";
+    private String userId;
 
     /**
      * Key of use time.
      */
-    public static final String USE_TIME = "useTime";
+    private Long useTime;
 
     /**
      * Key of status.
      */
-    public static final String STATUS = "status";
+    private Integer status;
 
     /**
      * Key of memo.
      */
-    public static final String MEMO = "memo";
+    private String memo;
 
-    // Status constants
-    /**
-     * Status - Used.
-     */
-    public static final int STATUS_C_USED = 0;
+    public String getOid() {
+        return oid;
+    }
 
-    /**
-     * Status - Unused.
-     */
-    public static final int STATUS_C_UNUSED = 1;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
 
-    /**
-     * Status - Stop use.
-     */
-    public static final int STATUS_C_STOPUSE = 2;
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getGeneratorId() {
+        return generatorId;
+    }
+
+    public void setGeneratorId(String generatorId) {
+        this.generatorId = generatorId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Long getUseTime() {
+        return useTime;
+    }
+
+    public void setUseTime(Long useTime) {
+        this.useTime = useTime;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
 }
