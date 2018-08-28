@@ -1,28 +1,8 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entity;
 
 /**
  * This class defines all article entity relevant keys.
  *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.32.0.0, Jun 19, 2018
- * @since 0.2.0
  */
 public class Article {
 
@@ -31,447 +11,477 @@ public class Article {
     /**
      * Key of article title.
      */
-    public static final String ARTICLE_TITLE = "articleTitle";
-
-    /**
-     * Key of article content.
-     */
-    public static final String ARTICLE_CONTENT = "articleContent";
-
-    /**
-     * Key of article reward content.
-     */
-    public static final String ARTICLE_REWARD_CONTENT = "articleRewardContent";
-
-    /**
-     * Key of article reward point.
-     */
-    public static final String ARTICLE_REWARD_POINT = "articleRewardPoint";
+    private String articleTitle;
 
     /**
      * Key of article tags.
      */
-    public static final String ARTICLE_TAGS = "articleTags";
+    private String articleTags;
 
     /**
      * Key of article author id.
      */
-    public static final String ARTICLE_AUTHOR_ID = "articleAuthorId";
+    private String articleAuthorId;
 
     /**
      * Key of article comment count.
      */
-    public static final String ARTICLE_COMMENT_CNT = "articleCommentCount";
+    private Integer articleCommentCount;
 
     /**
      * Key of article view count.
      */
-    public static final String ARTICLE_VIEW_CNT = "articleViewCount";
+    private Integer articleViewCount;
+
+    /**
+     * Key of article content.
+     */
+    private String articleContent;
+
+    /**
+     * Key of article reward content.
+     */
+    private String articleRewardContent;
+
+    /**
+     * Key of article reward point.
+     */
+    private Integer articleRewardPoint;
 
     /**
      * Key of article permalink.
      */
-    public static final String ARTICLE_PERMALINK = "articlePermalink";
+    private String articlePermalink;
 
     /**
      * Key of article create time.
      */
-    public static final String ARTICLE_CREATE_TIME = "articleCreateTime";
+    private Long articleCreateTime;
 
-    /**
-     * Key of article create time str.
-     */
-    public static final String ARTICLE_CREATE_TIME_STR = "articleCreateTimeStr";
 
     /**
      * Key of article update time.
      */
-    public static final String ARTICLE_UPDATE_TIME = "articleUpdateTime";
-
-    /**
-     * Key of article update time str.
-     */
-    public static final String ARTICLE_UPDATE_TIME_STR = "articleUpdateTimeStr";
+    private Long articleUpdateTime;
 
     /**
      * Key of article latest comment time.
      */
-    public static final String ARTICLE_LATEST_CMT_TIME = "articleLatestCmtTime";
-
-    /**
-     * Key of article latest comment time str.
-     */
-    public static final String ARTICLE_LATEST_CMT_TIME_STR = "articleLatestCmtTimeStr";
+    private Long articleLatestCmtTime;
 
     /**
      * Key of article latest commenter name.
      */
-    public static final String ARTICLE_LATEST_CMTER_NAME = "articleLatestCmterName";
+    private String articleLatestCmterName;
 
     /**
      * Key of article random double value.
      */
-    public static final String ARTICLE_RANDOM_DOUBLE = "articleRandomDouble";
+    private Double articleRandomDouble;
 
     /**
      * Key of article commentable.
      */
-    public static final String ARTICLE_COMMENTABLE = "articleCommentable";
+    private String articleCommentable;
 
     /**
      * Key of article sync to client.
      */
-    public static final String ARTICLE_SYNC_TO_CLIENT = "syncWithSymphonyClient";
+    private String syncWithSymphonyClient;
 
     /**
      * Key of client article id.
      */
-    public static final String ARTICLE_CLIENT_ARTICLE_ID = "clientArticleId";
+    private String clientArticleId;
 
     /**
      * Key of client article permalink.
      */
-    public static final String ARTICLE_CLIENT_ARTICLE_PERMALINK = "clientArticlePermalink";
+    private String clientArticlePermalink;
 
     /**
      * Key of article editor type.
      */
-    public static final String ARTICLE_EDITOR_TYPE = "articleEditorType";
+    private Integer articleEditorType;
 
     /**
      * Key of article status.
      */
-    public static final String ARTICLE_STATUS = "articleStatus";
+    private Integer articleStatus;
 
     /**
      * Key of article type.
      */
-    public static final String ARTICLE_TYPE = "articleType";
+    private Integer articleType;
 
     /**
      * Key of article good count.
      */
-    public static final String ARTICLE_GOOD_CNT = "articleGoodCnt";
+    private Integer articleGoodCnt;
 
     /**
      * Key of article bad count.
      */
-    public static final String ARTICLE_BAD_CNT = "articleBadCnt";
+    private Integer articleBadCnt;
 
     /**
      * Key of article collection count.
      */
-    public static final String ARTICLE_COLLECT_CNT = "articleCollectCnt";
+    private Integer articleCollectCnt;
 
     /**
      * Key of article watch count.
      */
-    public static final String ARTICLE_WATCH_CNT = "articleWatchCnt";
+    private Integer articleWatchCnt;
 
     /**
      * Key of reddit score.
      */
-    public static final String REDDIT_SCORE = "redditScore";
+    private Double redditScore;
 
     /**
      * Key of article city.
      */
-    public static final String ARTICLE_CITY = "articleCity";
+    private String articleCity;
 
     /**
      * Key of article IP.
      */
-    public static final String ARTICLE_IP = "articleIP";
+    private String articleIP;
 
     /**
      * Key of article UA.
      */
-    public static final String ARTICLE_UA = "articleUA";
+    private String articleUA;
 
     /**
      * Key of article stick.
      */
-    public static final String ARTICLE_STICK = "articleStick";
+    private Long articleStick;
 
     /**
      * Key of article anonymous.
      */
-    public static final String ARTICLE_ANONYMOUS = "articleAnonymous";
+    private Integer articleAnonymous;
 
     /**
      * Key of article perfect.
      */
-    public static final String ARTICLE_PERFECT = "articlePerfect";
+    private Integer articlePerfect;
 
     /**
      * Key of article anonymous view.
      */
-    public static final String ARTICLE_ANONYMOUS_VIEW = "articleAnonymousView";
+    private Integer articleAnonymousView;
 
     /**
      * Key of article audio URL.
      */
-    public static final String ARTICLE_AUDIO_URL = "articleAudioURL";
+    private String articleAudioURL;
 
     /**
      * Key of article qna offer point. https://github.com/b3log/symphony/issues/486
      */
-    public static final String ARTICLE_QNA_OFFER_POINT = "articleQnAOfferPoint";
+    private Integer articleQnAOfferPoint;
 
     /**
      * Key of article push order. https://github.com/b3log/symphony/issues/537
      */
-    public static final String ARTICLE_PUSH_ORDER = "articlePushOrder";
+    private Integer articlePushOrder;
 
-    //// Transient ////
-    /**
-     * Key of article revision count.
-     */
-    public static final String ARTICLE_REVISION_COUNT = "articleRevisionCount";
-
-    /**
-     * Key of article latest comment.
-     */
-    public static final String ARTICLE_T_LATEST_CMT = "articleLatestCmt";
-
-    /**
-     * Key of previous article.
-     */
-    public static final String ARTICLE_T_PREVIOUS = "articlePrevious";
-
-    /**
-     * Key of next article.
-     */
-    public static final String ARTICLE_T_NEXT = "articleNext";
-
-    /**
-     * Key of article tag objects.
-     */
-    public static final String ARTICLE_T_TAG_OBJS = "articleTagObjs";
-
-    /**
-     * Key of article vote.
-     */
-    public static final String ARTICLE_T_VOTE = "articleVote";
-
-    /**
-     * Key of article stick flag.
-     */
-    public static final String ARTICLE_T_IS_STICK = "articleIsStick";
-
-    /**
-     * Key of article stick remains.
-     */
-    public static final String ARTICLE_T_STICK_REMAINS = "articleStickRemains";
-
-    /**
-     * Key of article preview content.
-     */
-    public static final String ARTICLE_T_PREVIEW_CONTENT = "articlePreviewContent";
-
-    /**
-     * Key of article thumbnail URL.
-     */
-    public static final String ARTICLE_T_THUMBNAIL_URL = "articleThumbnailURL";
-
-    /**
-     * Key of article view count display format.
-     */
-    public static final String ARTICLE_T_VIEW_CNT_DISPLAY_FORMAT = "articleViewCntDisplayFormat";
-
-    /**
-     * Key of article id.
-     */
-    public static final String ARTICLE_T_ID = "articleId";
-
-    /**
-     * Key of article ids.
-     */
-    public static final String ARTICLE_T_IDS = "articleIds";
-
-    /**
-     * Key of article author.
-     */
-    public static final String ARTICLE_T_AUTHOR = "articleAuthor";
-
-    /**
-     * Key of article author thumbnail URL.
-     */
-    public static final String ARTICLE_T_AUTHOR_THUMBNAIL_URL = "articleAuthorThumbnailURL";
-
-    /**
-     * Key of article author name.
-     */
-    public static final String ARTICLE_T_AUTHOR_NAME = "articleAuthorName";
-
-    /**
-     * Key of article author URL.
-     */
-    public static final String ARTICLE_T_AUTHOR_URL = "articleAuthorURL";
-
-    /**
-     * Key of article author intro.
-     */
-    public static final String ARTICLE_T_AUTHOR_INTRO = "articleAuthorIntro";
-
-    /**
-     * Key of article comments.
-     */
-    public static final String ARTICLE_T_COMMENTS = "articleComments";
-
-    /**
-     * Key of article nice comments.
-     */
-    public static final String ARTICLE_T_NICE_COMMENTS = "articleNiceComments";
-
-    /**
-     * Key of article offered (accepted) comment(answer).
-     */
-    public static final String ARTICLE_T_OFFERED_COMMENT = "articleOfferedComment";
-
-    /**
-     * Key of article participants.
-     */
-    public static final String ARTICLE_T_PARTICIPANTS = "articleParticipants";
-
-    /**
-     * Key of article participant name.
-     */
-    public static final String ARTICLE_T_PARTICIPANT_NAME = "articleParticipantName";
-
-    /**
-     * Key of article participant thumbnail URL.
-     */
-    public static final String ARTICLE_T_PARTICIPANT_THUMBNAIL_URL = "articleParticipantThumbnailURL";
-
-    /**
-     * Key of article participant thumbnail update time.
-     */
-    public static final String ARTICLE_T_PARTICIPANT_THUMBNAIL_UPDATE_TIME = "articleParticipantThumbnailUpdateTime";
-
-    /**
-     * Key of article participant URL.
-     */
-    public static final String ARTICLE_T_PARTICIPANT_URL = "articleParticipantURL";
-
-    /**
-     * Key of article title with Emoj.
-     */
-    public static final String ARTICLE_T_TITLE_EMOJI = "articleTitleEmoj";
-
-    /**
-     * Key of article title with Emoji unicode.
-     */
-    public static final String ARTICLE_T_TITLE_EMOJI_UNICODE = "articleTitleEmojUnicode";
-
-    /**
-     * Key of article heat.
-     */
-    public static final String ARTICLE_T_HEAT = "articleHeat";
-
-    /**
-     * Key of article ToC.
-     */
-    public static final String ARTICLE_T_TOC = "articleToC";
-
-    /**
-     * Key of article original content.
-     */
-    public static final String ARTICLE_T_ORIGINAL_CONTENT = "articleOriginalContent";
-
-    // Anonymous constants
-    /**
-     * Article anonymous - public.
-     */
-    public static final int ARTICLE_ANONYMOUS_C_PUBLIC = 0;
-
-    /**
-     * Article anonymous - anonymous.
-     */
-    public static final int ARTICLE_ANONYMOUS_C_ANONYMOUS = 1;
-
-    // Perfect constants
-    /**
-     * Article perfect - not perfect.
-     */
-    public static final int ARTICLE_PERFECT_C_NOT_PERFECT = 0;
-
-    /**
-     * Article perfect - perfect.
-     */
-    public static final int ARTICLE_PERFECT_C_PERFECT = 1;
-
-    // Anonymous view constants
-    /**
-     * Article anonymous view - use global.
-     */
-    public static final int ARTICLE_ANONYMOUS_VIEW_C_USE_GLOBAL = 0;
-
-    /**
-     * Article anonymous view - not allow.
-     */
-    public static final int ARTICLE_ANONYMOUS_VIEW_C_NOT_ALLOW = 1;
-
-    /**
-     * Article anonymous view - allow.
-     */
-    public static final int ARTICLE_ANONYMOUS_VIEW_C_ALLOW = 2;
-
-    // Status constants
-    /**
-     * Article status - valid.
-     */
-    public static final int ARTICLE_STATUS_C_VALID = 0;
-
-    /**
-     * Article status - invalid.
-     */
-    public static final int ARTICLE_STATUS_C_INVALID = 1;
-
-    /**
-     * Article status - locked.
-     */
-    public static final int ARTICLE_STATUS_C_LOCKED = 2;
-
-    // Type constants
-    /**
-     * Article type - normal.
-     */
-    public static final int ARTICLE_TYPE_C_NORMAL = 0;
-
-    /**
-     * Article type - discussion.
-     */
-    public static final int ARTICLE_TYPE_C_DISCUSSION = 1;
-
-    /**
-     * Article type - city broadcast.
-     */
-    public static final int ARTICLE_TYPE_C_CITY_BROADCAST = 2;
-
-    /**
-     * Article type - <a href="https://hacpai.com/article/1441942422856">thought</a>.
-     */
-    public static final int ARTICLE_TYPE_C_THOUGHT = 3;
-
-    /**
-     * Article type - <a href="https://github.com/b3log/symphony/issues/486">QnA</a>.
-     */
-    public static final int ARTICLE_TYPE_C_QNA = 5;
-
-    /**
-     * Private constructor.
-     */
-    private Article() {
+    public String getOid() {
+        return oid;
     }
 
-    /**
-     * Checks the specified article type is whether invalid.
-     *
-     * @param articleType the specified article type
-     * @return {@code true} if it is invalid, otherwise returns {@code false}
-     */
-    public static boolean isInvalidArticleType(final int articleType) {
-        return articleType < 0 || articleType > Article.ARTICLE_TYPE_C_QNA;
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
+
+    public String getArticleTitle() {
+        return articleTitle;
+    }
+
+    public void setArticleTitle(String articleTitle) {
+        this.articleTitle = articleTitle;
+    }
+
+    public String getArticleTags() {
+        return articleTags;
+    }
+
+    public void setArticleTags(String articleTags) {
+        this.articleTags = articleTags;
+    }
+
+    public String getArticleAuthorId() {
+        return articleAuthorId;
+    }
+
+    public void setArticleAuthorId(String articleAuthorId) {
+        this.articleAuthorId = articleAuthorId;
+    }
+
+    public Integer getArticleCommentCount() {
+        return articleCommentCount;
+    }
+
+    public void setArticleCommentCount(Integer articleCommentCount) {
+        this.articleCommentCount = articleCommentCount;
+    }
+
+    public Integer getArticleViewCount() {
+        return articleViewCount;
+    }
+
+    public void setArticleViewCount(Integer articleViewCount) {
+        this.articleViewCount = articleViewCount;
+    }
+
+    public String getArticleContent() {
+        return articleContent;
+    }
+
+    public void setArticleContent(String articleContent) {
+        this.articleContent = articleContent;
+    }
+
+    public String getArticleRewardContent() {
+        return articleRewardContent;
+    }
+
+    public void setArticleRewardContent(String articleRewardContent) {
+        this.articleRewardContent = articleRewardContent;
+    }
+
+    public Integer getArticleRewardPoint() {
+        return articleRewardPoint;
+    }
+
+    public void setArticleRewardPoint(Integer articleRewardPoint) {
+        this.articleRewardPoint = articleRewardPoint;
+    }
+
+    public String getArticlePermalink() {
+        return articlePermalink;
+    }
+
+    public void setArticlePermalink(String articlePermalink) {
+        this.articlePermalink = articlePermalink;
+    }
+
+    public Long getArticleCreateTime() {
+        return articleCreateTime;
+    }
+
+    public void setArticleCreateTime(Long articleCreateTime) {
+        this.articleCreateTime = articleCreateTime;
+    }
+
+    public Long getArticleUpdateTime() {
+        return articleUpdateTime;
+    }
+
+    public void setArticleUpdateTime(Long articleUpdateTime) {
+        this.articleUpdateTime = articleUpdateTime;
+    }
+
+    public Long getArticleLatestCmtTime() {
+        return articleLatestCmtTime;
+    }
+
+    public void setArticleLatestCmtTime(Long articleLatestCmtTime) {
+        this.articleLatestCmtTime = articleLatestCmtTime;
+    }
+
+    public String getArticleLatestCmterName() {
+        return articleLatestCmterName;
+    }
+
+    public void setArticleLatestCmterName(String articleLatestCmterName) {
+        this.articleLatestCmterName = articleLatestCmterName;
+    }
+
+    public Double getArticleRandomDouble() {
+        return articleRandomDouble;
+    }
+
+    public void setArticleRandomDouble(Double articleRandomDouble) {
+        this.articleRandomDouble = articleRandomDouble;
+    }
+
+    public String getArticleCommentable() {
+        return articleCommentable;
+    }
+
+    public void setArticleCommentable(String articleCommentable) {
+        this.articleCommentable = articleCommentable;
+    }
+
+    public String getSyncWithSymphonyClient() {
+        return syncWithSymphonyClient;
+    }
+
+    public void setSyncWithSymphonyClient(String syncWithSymphonyClient) {
+        this.syncWithSymphonyClient = syncWithSymphonyClient;
+    }
+
+    public String getClientArticleId() {
+        return clientArticleId;
+    }
+
+    public void setClientArticleId(String clientArticleId) {
+        this.clientArticleId = clientArticleId;
+    }
+
+    public String getClientArticlePermalink() {
+        return clientArticlePermalink;
+    }
+
+    public void setClientArticlePermalink(String clientArticlePermalink) {
+        this.clientArticlePermalink = clientArticlePermalink;
+    }
+
+    public Integer getArticleEditorType() {
+        return articleEditorType;
+    }
+
+    public void setArticleEditorType(Integer articleEditorType) {
+        this.articleEditorType = articleEditorType;
+    }
+
+    public Integer getArticleStatus() {
+        return articleStatus;
+    }
+
+    public void setArticleStatus(Integer articleStatus) {
+        this.articleStatus = articleStatus;
+    }
+
+    public Integer getArticleType() {
+        return articleType;
+    }
+
+    public void setArticleType(Integer articleType) {
+        this.articleType = articleType;
+    }
+
+    public Integer getArticleGoodCnt() {
+        return articleGoodCnt;
+    }
+
+    public void setArticleGoodCnt(Integer articleGoodCnt) {
+        this.articleGoodCnt = articleGoodCnt;
+    }
+
+    public Integer getArticleBadCnt() {
+        return articleBadCnt;
+    }
+
+    public void setArticleBadCnt(Integer articleBadCnt) {
+        this.articleBadCnt = articleBadCnt;
+    }
+
+    public Integer getArticleCollectCnt() {
+        return articleCollectCnt;
+    }
+
+    public void setArticleCollectCnt(Integer articleCollectCnt) {
+        this.articleCollectCnt = articleCollectCnt;
+    }
+
+    public Integer getArticleWatchCnt() {
+        return articleWatchCnt;
+    }
+
+    public void setArticleWatchCnt(Integer articleWatchCnt) {
+        this.articleWatchCnt = articleWatchCnt;
+    }
+
+    public Double getRedditScore() {
+        return redditScore;
+    }
+
+    public void setRedditScore(Double redditScore) {
+        this.redditScore = redditScore;
+    }
+
+    public String getArticleCity() {
+        return articleCity;
+    }
+
+    public void setArticleCity(String articleCity) {
+        this.articleCity = articleCity;
+    }
+
+    public String getArticleIP() {
+        return articleIP;
+    }
+
+    public void setArticleIP(String articleIP) {
+        this.articleIP = articleIP;
+    }
+
+    public String getArticleUA() {
+        return articleUA;
+    }
+
+    public void setArticleUA(String articleUA) {
+        this.articleUA = articleUA;
+    }
+
+    public Long getArticleStick() {
+        return articleStick;
+    }
+
+    public void setArticleStick(Long articleStick) {
+        this.articleStick = articleStick;
+    }
+
+    public Integer getArticleAnonymous() {
+        return articleAnonymous;
+    }
+
+    public void setArticleAnonymous(Integer articleAnonymous) {
+        this.articleAnonymous = articleAnonymous;
+    }
+
+    public Integer getArticlePerfect() {
+        return articlePerfect;
+    }
+
+    public void setArticlePerfect(Integer articlePerfect) {
+        this.articlePerfect = articlePerfect;
+    }
+
+    public Integer getArticleAnonymousView() {
+        return articleAnonymousView;
+    }
+
+    public void setArticleAnonymousView(Integer articleAnonymousView) {
+        this.articleAnonymousView = articleAnonymousView;
+    }
+
+    public String getArticleAudioURL() {
+        return articleAudioURL;
+    }
+
+    public void setArticleAudioURL(String articleAudioURL) {
+        this.articleAudioURL = articleAudioURL;
+    }
+
+    public Integer getArticleQnAOfferPoint() {
+        return articleQnAOfferPoint;
+    }
+
+    public void setArticleQnAOfferPoint(Integer articleQnAOfferPoint) {
+        this.articleQnAOfferPoint = articleQnAOfferPoint;
+    }
+
+    public Integer getArticlePushOrder() {
+        return articlePushOrder;
+    }
+
+    public void setArticlePushOrder(Integer articlePushOrder) {
+        this.articlePushOrder = articlePushOrder;
     }
 }
