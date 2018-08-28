@@ -7,41 +7,99 @@ public class Referral {
     /**
      * Key of referral user.
      */
-    public static final String REFERRAL_USER = "referralUser";
+    private String referralUser;
 
     /**
      * Key of referral data id.
      */
-    public static final String REFERRAL_DATA_ID = "referralDataId";
+    private String referralDataId;
 
     /**
      * Key of referral type.
      */
-    public static final String REFERRAL_TYPE = "referralType";
+    private Integer referralType;
 
     /**
      * Key of source IP.
      */
-    public static final String REFERRAL_IP = "referralIP";
+    private String referralIP;
 
     /**
      * Key of click.
      */
-    public static final String REFERRAL_CLICK = "referralClick";
+    private Integer referralClick;
 
     /**
      * Key of referral user has point.
      */
-    public static final String REFERRAL_USER_HAS_POINT = "referralUserHasPoint";
+    private String referralUserHasPoint;
 
     /**
      * Key of referral author has point.
      */
-    public static final String REFERRAL_AUTHOR_HAS_POINT = "referralAuthorHasPoint";
+    private String referralAuthorHasPoint;
 
-    // Type constants
-    /**
-     * Type - Article.
-     */
-    public static final int REFERRAL_TYPE_C_ARTICLE = 0;
+    public String getOid() {
+        return oid;
+    }
+
+    public void setOid(String oid) {
+        this.oid = oid;
+    }
+
+    public String getReferralUser() {
+        return referralUser;
+    }
+
+    public void setReferralUser(String referralUser) {
+        this.referralUser = referralUser;
+    }
+
+    public String getReferralDataId() {
+        return referralDataId;
+    }
+
+    public void setReferralDataId(String referralDataId) {
+        this.referralDataId = referralDataId;
+    }
+
+    public Integer getReferralType() {
+        return referralType;
+    }
+
+    public void setReferralType(Integer referralType) {
+        this.referralType = referralType;
+    }
+
+    public String getReferralIP() {
+        return referralIP;
+    }
+
+    public void setReferralIP(String referralIP) {
+        this.referralIP = referralIP;
+    }
+
+    public Integer getReferralClick() {
+        return referralClick;
+    }
+
+    public void setReferralClick(Integer referralClick) {
+        this.referralClick = referralClick;
+    }
+
+    public String getReferralUserHasPoint() {
+        return referralUserHasPoint;
+    }
+
+    public void setReferralUserHasPoint(String referralUserHasPoint) {
+        this.referralUserHasPoint = referralUserHasPoint;
+    }
+
+    public String getReferralAuthorHasPoint() {
+        return referralAuthorHasPoint;
+    }
+
+    public void setReferralAuthorHasPoint(String referralAuthorHasPoint) {
+        this.referralAuthorHasPoint = referralAuthorHasPoint;
+    }
 }
