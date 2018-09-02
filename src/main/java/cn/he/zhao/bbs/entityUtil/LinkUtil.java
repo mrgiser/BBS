@@ -24,23 +24,114 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class defines all link entity relevant keys.
+ * This class defines all link model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.3.0.5, Jun 28, 2017
  * @since 1.6.0
  */
-public class LinkUtil {
+public final class LinkUtil {
+
+    /**
+     * LinkUtil.
+     */
+    public static final String LINK = "link";
+
+    /**
+     * Links.
+     */
+    public static final String LINKS = "links";
+
+    /**
+     * Key of link address.
+     */
+    public static final String LINK_ADDR = "linkAddr";
+
+    /**
+     * Key of link title.
+     */
+    public static final String LINK_TITLE = "linkTitle";
+
+    /**
+     * Key of link type.
+     */
+    public static final String LINK_TYPE = "linkType";
+
+    /**
+     * Key of link submit count.
+     */
+    public static final String LINK_SUBMIT_CNT = "linkSubmitCnt";
+
+    /**
+     * Key of link click count.
+     */
+    public static final String LINK_CLICK_CNT = "linkClickCnt";
+
+    /**
+     * Key of link good count.
+     */
+    public static final String LINK_GOOD_CNT = "linkGoodCnt";
+
+    /**
+     * Key of link bad count.
+     */
+    public static final String LINK_BAD_CNT = "linkBadCnt";
+
+    /**
+     * Key of link Baidu reference count.
+     */
+    public static final String LINK_BAIDU_REF_CNT = "linkBaiduRefCnt";
+
+    /**
+     * Key of link score.
+     */
+    public static final String LINK_SCORE = "linkScore";
+
+    /**
+     * Key of link ping count.
+     */
+    public static final String LINK_PING_CNT = "linkPingCnt";
+
+    /**
+     * Key of link ping error count.
+     */
+    public static final String LINK_PING_ERR_CNT = "linkPingErrCnt";
+
+    //// Transient ////
+    /**
+     * Key of link id.
+     */
+    public static final String LINK_T_ID = "linkId";
+
+    /**
+     * Key of link keywords.
+     */
+    public static final String LINK_T_KEYWORDS = "linkKeywords";
+
+    /**
+     * Key of link HTML.
+     */
+    public static final String LINK_T_HTML = "linkHTML";
+
+    /**
+     * Key of link text.
+     */
+    public static final String LINK_T_TEXT = "linkText";
+
+    /**
+     * Key of link count.
+     */
+    public static final String LINK_T_COUNT = "linkCnt";
 
     // Type constants
     /**
-     * Link type - forge.
+     * LinkUtil type - forge.
      */
     public static final int LINK_TYPE_C_FORGE = 0;
 
     // Address constants
     /**
-     * Link blacklist.
+     * LinkUtil blacklist.
      */
     public static final Set<String> LINK_ADDR_C_BLACKLIST = new HashSet<>(Arrays.asList(
             "hacpai"));

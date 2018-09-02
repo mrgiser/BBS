@@ -110,19 +110,19 @@ public class UserProcessor {
     private LangPropsService langPropsService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
 
     /**
-     * Emotion query service.
+     * EmotionUtil query service.
      */
     @Autowired
     private EmotionQueryService emotionQueryService;
 
     /**
-     * Emotion management service.
+     * EmotionUtil management service.
      */
     @Autowired
     private EmotionMgmtService emotionMgmtService;
@@ -140,19 +140,19 @@ public class UserProcessor {
     private AvatarQueryService avatarQueryService;
 
     /**
-     * Pointtransfer query service.
+     * PointtransferUtil query service.
      */
     @Autowired
     private PointtransferQueryService pointtransferQueryService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
@@ -164,31 +164,31 @@ public class UserProcessor {
     private PostExportService postExportService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;
 
     /**
-     * Invitecode management service.
+     * InvitecodeUtil management service.
      */
     @Autowired
     private InvitecodeMgmtService invitecodeMgmtService;
 
     /**
-     * Link forge query service.
+     * LinkUtil forge query service.
      */
     @Autowired
     private LinkForgeQueryService linkForgeQueryService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;
 
     /**
-     * Invitecode query service.
+     * InvitecodeUtil query service.
      */
     @Autowired
     private InvitecodeQueryService invitecodeQueryService;

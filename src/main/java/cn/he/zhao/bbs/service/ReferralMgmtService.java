@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 /**
- * Referral management service.
+ * ReferralUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.0, Apr 28, 2016
@@ -25,7 +25,7 @@ public class ReferralMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferralMgmtService.class);
 
     /**
-     * Referral Mapper.
+     * ReferralUtil Mapper.
      */
     @Autowired
     private ReferralMapper referralMapper;

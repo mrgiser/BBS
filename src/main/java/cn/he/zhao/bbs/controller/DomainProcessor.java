@@ -61,7 +61,7 @@ public class DomainProcessor {
     private DomainQueryService domainQueryService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

@@ -74,7 +74,7 @@ public class CommentProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommentProcessor.class);
 
     /**
-     * Revision query service.
+     * RevisionUtil query service.
      */
     @Autowired
     private RevisionQueryService revisionQueryService;
@@ -110,7 +110,7 @@ public class CommentProcessor {
     private LangPropsService langPropsService;
 
     /**
-     * Reward query service.
+     * RewardUtil query service.
      */
     @Autowired
     private RewardQueryService rewardQueryService;
@@ -122,7 +122,7 @@ public class CommentProcessor {
     private ShortLinkQueryService shortLinkQueryService;
 
     /**
-     * Follow management service.
+     * FollowUtil management service.
      */
     @Autowired
     private FollowMgmtService followMgmtService;

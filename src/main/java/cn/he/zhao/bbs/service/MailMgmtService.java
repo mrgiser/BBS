@@ -58,7 +58,7 @@ public class MailMgmtService {
     private ArticleMapper articleMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;

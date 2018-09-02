@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
- * Report processor.
+ * ReportUtil processor.
  * <ul>
  * <li>Reports content or users (/report), POST</li>
  * </ul>
@@ -53,7 +53,7 @@ public class ReportProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportProcessor.class);
 
     /**
-     * Report management service.
+     * ReportUtil management service.
      */
     @Autowired
     private ReportMgmtService reportMgmtService;

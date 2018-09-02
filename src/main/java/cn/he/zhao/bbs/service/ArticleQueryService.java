@@ -130,7 +130,7 @@ public class ArticleQueryService {
     private ShortLinkQueryService shortLinkQueryService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;

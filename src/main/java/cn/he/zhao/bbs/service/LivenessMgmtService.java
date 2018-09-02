@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 /**
- * Liveness management service.
+ * LivenessUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.1, Jun 12, 2018
@@ -43,7 +43,7 @@ public class LivenessMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LivenessMgmtService.class);
 
     /**
-     * Liveness Mapper.
+     * LivenessUtil Mapper.
      */
     @Autowired
     private LivenessMapper livenessMapper;

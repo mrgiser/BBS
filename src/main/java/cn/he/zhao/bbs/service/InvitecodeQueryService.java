@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Invitecode query service.
+ * InvitecodeUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.3, Sep 20, 2016
@@ -46,7 +46,7 @@ public class InvitecodeQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvitecodeQueryService.class);
 
     /**
-     * Invitecode Mapper.
+     * InvitecodeUtil Mapper.
      */
     @Autowired
     private InvitecodeMapper invitecodeMapper;

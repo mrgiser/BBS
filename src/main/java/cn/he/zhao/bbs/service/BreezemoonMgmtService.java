@@ -56,7 +56,7 @@ public class BreezemoonMgmtService {
     private UserMapper userMapper;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

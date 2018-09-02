@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 /**
- * Pointtransfer management service.
+ * PointtransferUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.2.1.5, Jan 29, 2018
@@ -43,7 +43,7 @@ public class PointtransferMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PointtransferMgmtService.class);
 
     /**
-     * Pointtransfer Mapper.
+     * PointtransferUtil Mapper.
      */
     @Autowired
     private PointtransferMapper pointtransferMapper;

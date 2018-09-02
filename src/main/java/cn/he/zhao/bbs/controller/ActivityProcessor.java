@@ -93,7 +93,7 @@ public class ActivityProcessor {
     private CharacterQueryService characterQueryService;
 
     /**
-     * Pointtransfer query service.
+     * PointtransferUtil query service.
      */
     @Autowired
     private PointtransferQueryService pointtransferQueryService;

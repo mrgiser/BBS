@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Link forge query service.
+ * LinkUtil forge query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.1.4, Apr 21, 2017
@@ -62,13 +62,13 @@ public class LinkForgeQueryService {
     private static final int TAG_REF_COUNT = Symphonys.getInt("forge.link.tagRefCnt");
 
     /**
-     * Tag-User-Link Mapper.
+     * Tag-User-LinkUtil Mapper.
      */
     @Autowired
     private TagUserLinkMapper tagUserLinkMapper;
 
     /**
-     * Link Mapper.
+     * LinkUtil Mapper.
      */
     @Autowired
     private LinkMapper linkMapper;

@@ -127,7 +127,7 @@ public final class RSSChannel {
     private String title;
 
     /**
-     * Link.
+     * LinkUtil.
      */
     private String link;
 

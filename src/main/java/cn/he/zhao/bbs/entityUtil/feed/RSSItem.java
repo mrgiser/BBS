@@ -120,7 +120,7 @@ public final class RSSItem {
     private String description;
 
     /**
-     * Link.
+     * LinkUtil.
      */
     private String link;
 

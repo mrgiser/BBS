@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 /**
- * Option management service.
+ * OptionUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, Apr 5, 2016
@@ -41,7 +41,7 @@ public class OptionMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OptionMgmtService.class);
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;

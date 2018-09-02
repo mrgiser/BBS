@@ -49,13 +49,13 @@ public class ArticleAddNotifier implements ApplicationListener<AddArticleEvent> 
     public static final Logger LOGGER = LoggerFactory.getLogger(ArticleAddNotifier.class);
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
@@ -68,7 +68,7 @@ public class ArticleAddNotifier implements ApplicationListener<AddArticleEvent> 
 
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;
@@ -92,7 +92,7 @@ public class ArticleAddNotifier implements ApplicationListener<AddArticleEvent> 
             final Set<String> atedUserIds = new HashSet<>();
 
             if (hasAtUserPerm) {
-                // 'At' Notification
+                // 'At' NotificationUtil
                 final String articleContent = originalArticle.optString(Article.ARTICLE_CONTENT);
                 final Set<String> atUserNames = userQueryService.getUserNames(articleContent);
                 atUserNames.remove(articleAuthorName); // Do not notify the author itself
@@ -119,7 +119,7 @@ public class ArticleAddNotifier implements ApplicationListener<AddArticleEvent> 
 
             final String tags = originalArticle.optString(Article.ARTICLE_TAGS);
 
-            // 'following - user' Notification
+            // 'following - user' NotificationUtil
             if (Article.ARTICLE_TYPE_C_DISCUSSION != originalArticle.optInt(Article.ARTICLE_TYPE)
                     && Article.ARTICLE_ANONYMOUS_C_PUBLIC == originalArticle.optInt(Article.ARTICLE_ANONYMOUS)
                     && !Tag.TAG_TITLE_C_SANDBOX.equals(tags)
@@ -145,7 +145,7 @@ public class ArticleAddNotifier implements ApplicationListener<AddArticleEvent> 
 
             final String articleTitle = Escapes.escapeHTML(originalArticle.optString(Article.ARTICLE_TITLE));
 
-            // 'Broadcast' Notification
+            // 'Broadcast' NotificationUtil
             if (Article.ARTICLE_TYPE_C_CITY_BROADCAST == originalArticle.optInt(Article.ARTICLE_TYPE)) {
                 final String city = originalArticle.optString(Article.ARTICLE_CITY);
 
@@ -180,7 +180,7 @@ public class ArticleAddNotifier implements ApplicationListener<AddArticleEvent> 
                 }
             }
 
-            // 'Sys Announce' Notification
+            // 'Sys Announce' NotificationUtil
             if (StringUtils.containsIgnoreCase(tags, Symphonys.get("systemAnnounce"))) {
                 final long latestLoginTime = DateUtils.addDays(new Date(), -15).getTime();
 

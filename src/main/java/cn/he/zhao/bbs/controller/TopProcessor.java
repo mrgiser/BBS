@@ -54,7 +54,7 @@ public class TopProcessor {
     private DataModelService dataModelService;
 
     /**
-     * Pointtransfer query service.
+     * PointtransferUtil query service.
      */
     @Autowired
     private PointtransferQueryService pointtransferQueryService;

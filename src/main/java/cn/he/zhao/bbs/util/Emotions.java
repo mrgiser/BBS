@@ -39,7 +39,7 @@ public final class Emotions {
      */
     public static final Pattern EMOJI_PATTERN = Pattern.compile(":.+:");
     /**
-     * Emotion count.
+     * EmotionUtil count.
      */
     private static final int EMOTION_CNT = 15;
     /**

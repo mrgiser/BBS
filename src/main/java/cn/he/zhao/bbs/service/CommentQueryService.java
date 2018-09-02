@@ -59,7 +59,7 @@ public class CommentQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommentQueryService.class);
 
     /**
-     * Revision query service.
+     * RevisionUtil query service.
      */
     @Autowired
     private RevisionQueryService revisionQueryService;
@@ -682,7 +682,7 @@ public class CommentQueryService {
 
             organizeComments(avatarViewMode, ret);
 
-            Stopwatchs.start("Revision, paging, original");
+            Stopwatchs.start("RevisionUtil, paging, original");
             try {
                 for (final JSONObject comment : ret) {
                     final String commentId = comment.optString(Keys.OBJECT_ID);

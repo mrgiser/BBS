@@ -18,43 +18,43 @@
 package cn.he.zhao.bbs.entityUtil;
 
 /**
- * This class defines all vote entity relevant keys.
+ * This class defines all vote model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.0, Aug 13, 2015
  * @since 1.3.0
  */
-public class VoteUtil {
+public final class VoteUtil {
 
-//    /**
-//     * Vote.
-//     */
-//    public static final String VOTE = "vote";
-//
-//    /**
-//     * Votes.
-//     */
-//    public static final String VOTES = "votes";
-//
-//    /**
-//     * Key of user id.
-//     */
-//    public static final String USER_ID = "userId";
-//
-//    /**
-//     * Key of type.
-//     */
-//    public static final String TYPE = "type";
-//
-//    /**
-//     * Key of data type.
-//     */
-//    public static final String DATA_TYPE = "dataType";
-//
-//    /**
-//     * Key of data id.
-//     */
-//    public static final String DATA_ID = "dataId";
+    /**
+     * Vote.
+     */
+    public static final String VOTE = "vote";
+
+    /**
+     * Votes.
+     */
+    public static final String VOTES = "votes";
+
+    /**
+     * Key of user id.
+     */
+    public static final String USER_ID = "userId";
+
+    /**
+     * Key of type.
+     */
+    public static final String TYPE = "type";
+
+    /**
+     * Key of data type.
+     */
+    public static final String DATA_TYPE = "dataType";
+
+    /**
+     * Key of data id.
+     */
+    public static final String DATA_ID = "dataId";
 
     // Type constants
     /**

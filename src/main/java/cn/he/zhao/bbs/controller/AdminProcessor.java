@@ -173,13 +173,13 @@ public class AdminProcessor {
     private CommentMgmtService commentMgmtService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;
 
     /**
-     * Option management service.
+     * OptionUtil management service.
      */
     @Autowired
     private OptionMgmtService optionMgmtService;
@@ -209,19 +209,19 @@ public class AdminProcessor {
     private TagMgmtService tagMgmtService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
 
     /**
-     * Pointtransfer query service.
+     * PointtransferUtil query service.
      */
     @Autowired
     private PointtransferQueryService pointtransferQueryService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
@@ -233,25 +233,25 @@ public class AdminProcessor {
     private SearchMgmtService searchMgmtService;
 
     /**
-     * Invitecode query service.
+     * InvitecodeUtil query service.
      */
     @Autowired
     private InvitecodeQueryService invitecodeQueryService;
 
     /**
-     * Invitecode management service.
+     * InvitecodeUtil management service.
      */
     @Autowired
     private InvitecodeMgmtService invitecodeMgmtService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;
 
     /**
-     * Role management service.
+     * RoleUtil management service.
      */
     @Autowired
     private RoleMgmtService roleMgmtService;
@@ -275,13 +275,13 @@ public class AdminProcessor {
     private BreezemoonMgmtService breezemoonMgmtService;
 
     /**
-     * Report management service.
+     * ReportUtil management service.
      */
     @Autowired
     private ReportMgmtService reportMgmtService;
 
     /**
-     * Report query service.
+     * ReportUtil query service.
      */
     @Autowired
     private ReportQueryService reportQueryService;

@@ -24,38 +24,38 @@ import java.awt.image.BufferedImage;
 import java.util.Set;
 
 /**
- * This class defines all character entity relevant keys.
+ * This class defines all character model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.1.0, Jul 8, 2016
  * @since 1.4.0
  */
-public class CharacterUtil {
+public final class CharacterUtil {
 
-//    /**
-//     * Character.
-//     */
-//    public static final String CHARACTER = "character";
-//
-//    /**
-//     * Characters.
-//     */
-//    public static final String CHARACTERS = "characters";
-//
-//    /**
-//     * Key of character user id.
-//     */
-//    public static final String CHARACTER_USER_ID = "characterUserId";
-//
-//    /**
-//     * Key of character image.
-//     */
-//    public static final String CHARACTER_IMG = "characterImg";
-//
-//    /**
-//     * Key of character content.
-//     */
-//    public static final String CHARACTER_CONTENT = "characterContent";
+    /**
+     * Character.
+     */
+    public static final String CHARACTER = "character";
+
+    /**
+     * Characters.
+     */
+    public static final String CHARACTERS = "characters";
+
+    /**
+     * Key of character user id.
+     */
+    public static final String CHARACTER_USER_ID = "characterUserId";
+
+    /**
+     * Key of character image.
+     */
+    public static final String CHARACTER_IMG = "characterImg";
+
+    /**
+     * Key of character content.
+     */
+    public static final String CHARACTER_CONTENT = "characterContent";
 
     /**
      * Character font.

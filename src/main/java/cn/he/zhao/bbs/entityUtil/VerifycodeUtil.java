@@ -18,58 +18,58 @@
 package cn.he.zhao.bbs.entityUtil;
 
 /**
- * This class defines all verifycode entity relevant keys.
+ * This class defines all verifycode model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.2.0.0, Jun 12, 2018
  * @since 1.3.0
  */
-public class VerifycodeUtil {
+public final class VerifycodeUtil {
 
-//    /**
-//     * Verifycode.
-//     */
-//    public static final String VERIFYCODE = "verifycode";
-//
-//    /**
-//     * Verifycodes.
-//     */
-//    public static final String VERIFYCODES = "verifycodes";
-//
-//    /**
-//     * Key of user id.
-//     */
-//    public static final String USER_ID = "userId";
-//
-//    /**
-//     * Key of type.
-//     */
-//    public static final String TYPE = "type";
-//
-//    /**
-//     * Key of business type.
-//     */
-//    public static final String BIZ_TYPE = "bizType";
-//
-//    /**
-//     * Key of receiver.
-//     */
-//    public static final String RECEIVER = "receiver";
-//
-//    /**
-//     * Key of code.
-//     */
-//    public static final String CODE = "code";
-//
-//    /**
-//     * Key of status.
-//     */
-//    public static final String STATUS = "status";
-//
-//    /**
-//     * Key of expired.
-//     */
-//    public static final String EXPIRED = "expired";
+    /**
+     * Verifycode.
+     */
+    public static final String VERIFYCODE = "verifycode";
+
+    /**
+     * Verifycodes.
+     */
+    public static final String VERIFYCODES = "verifycodes";
+
+    /**
+     * Key of user id.
+     */
+    public static final String USER_ID = "userId";
+
+    /**
+     * Key of type.
+     */
+    public static final String TYPE = "type";
+
+    /**
+     * Key of business type.
+     */
+    public static final String BIZ_TYPE = "bizType";
+
+    /**
+     * Key of receiver.
+     */
+    public static final String RECEIVER = "receiver";
+
+    /**
+     * Key of code.
+     */
+    public static final String CODE = "code";
+
+    /**
+     * Key of status.
+     */
+    public static final String STATUS = "status";
+
+    /**
+     * Key of expired.
+     */
+    public static final String EXPIRED = "expired";
 
     // Type constants
     /**

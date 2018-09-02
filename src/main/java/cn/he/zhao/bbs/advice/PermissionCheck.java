@@ -53,7 +53,7 @@ public class PermissionCheck {
     @Autowired
     private LangPropsService langPropsService;
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

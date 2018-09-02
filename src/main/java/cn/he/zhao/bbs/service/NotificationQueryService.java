@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Notification query service.
+ * NotificationUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.14.0.2, Jul 15, 2018
@@ -48,7 +48,7 @@ public class NotificationQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationQueryService.class);
 
     /**
-     * Notification Mapper.
+     * NotificationUtil Mapper.
      */
     @Autowired
     private NotificationMapper notificationMapper;
@@ -78,7 +78,7 @@ public class NotificationQueryService {
     private CommentMapper commentMapper;
 
     /**
-     * Reward Mapper.
+     * RewardUtil Mapper.
      */
     @Autowired
     private RewardMapper rewardMapper;
@@ -90,7 +90,7 @@ public class NotificationQueryService {
     private TagMapper tagMapper;
 
     /**
-     * Pointtransfer Mapper.
+     * PointtransferUtil Mapper.
      */
     @Autowired
     private PointtransferMapper pointtransferMapper;
@@ -108,7 +108,7 @@ public class NotificationQueryService {
     private LangPropsService langPropsService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

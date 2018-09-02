@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Follow query service.
+ * FollowUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.4.0.7, May 23, 2018
@@ -51,7 +51,7 @@ public class FollowQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FollowQueryService.class);
 
     /**
-     * Follow Mapper.
+     * FollowUtil Mapper.
      */
     @Autowired
     private FollowMapper followMapper;

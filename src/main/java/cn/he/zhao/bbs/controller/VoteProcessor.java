@@ -86,7 +86,7 @@ public class VoteProcessor {
     private ArticleQueryService articleQueryService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
@@ -204,8 +204,8 @@ public class VoteProcessor {
 //
 //            if (!VOTES.contains(userId + dataId) && !userId.equals(commenterId)) {
 //                final JSONObject notification = new JSONObject();
-//                notification.put(Notification.NOTIFICATION_USER_ID, commenterId);
-//                notification.put(Notification.NOTIFICATION_DATA_ID, dataId + "-" + userId);
+//                notification.put(NotificationUtil.NOTIFICATION_USER_ID, commenterId);
+//                notification.put(NotificationUtil.NOTIFICATION_DATA_ID, dataId + "-" + userId);
 //
 //                notificationMgmtService.addCommentVoteDownNotification(notification);
 //            }
@@ -333,8 +333,8 @@ public class VoteProcessor {
 //
 //            if (!VOTES.contains(userId + dataId) && !userId.equals(articleAuthorId)) {
 //                final JSONObject notification = new JSONObject();
-//                notification.put(Notification.NOTIFICATION_USER_ID, articleAuthorId);
-//                notification.put(Notification.NOTIFICATION_DATA_ID, dataId + "-" + userId);
+//                notification.put(NotificationUtil.NOTIFICATION_USER_ID, articleAuthorId);
+//                notification.put(NotificationUtil.NOTIFICATION_DATA_ID, dataId + "-" + userId);
 //
 //                notificationMgmtService.addArticleVoteDownNotification(notification);
 //            }

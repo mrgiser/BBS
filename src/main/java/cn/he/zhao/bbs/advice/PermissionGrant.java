@@ -41,7 +41,7 @@ public class PermissionGrant {
     @Autowired
     private LangPropsService langPropsService;
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

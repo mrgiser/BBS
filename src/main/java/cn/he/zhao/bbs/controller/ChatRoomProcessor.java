@@ -94,13 +94,13 @@ public class ChatRoomProcessor {
     private ShortLinkQueryService shortLinkQueryService;
 
     /**
-     * Notification query service.
+     * NotificationUtil query service.
      */
     @Autowired
     private NotificationQueryService notificationQueryService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;

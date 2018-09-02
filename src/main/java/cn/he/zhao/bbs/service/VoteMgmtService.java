@@ -51,7 +51,7 @@ public class VoteMgmtService {
     private CommentMapper commentMapper;
 
     /**
-     * Liveness management service.
+     * LivenessUtil management service.
      */
     @Autowired
     private LivenessMgmtService livenessMgmtService;

@@ -45,13 +45,13 @@ public class ArticleUpdateNotifier implements ApplicationListener<UpdateArticleE
     public static final Logger LOGGER = LoggerFactory.getLogger(ArticleUpdateNotifier.class);
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
@@ -82,7 +82,7 @@ public class ArticleUpdateNotifier implements ApplicationListener<UpdateArticleE
 
             final String tags = originalArticle.optString(Article.ARTICLE_TAGS);
 
-            // 'following - article update' Notification
+            // 'following - article update' NotificationUtil
             final JSONObject followerUsersResult =
                     followQueryService.getArticleWatchers(UserExt.USER_AVATAR_VIEW_MODE_C_ORIGINAL,
                             articleId, 1, Integer.MAX_VALUE);

@@ -75,7 +75,7 @@ public class FeedProcessor {
     private LangPropsService langPropsService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

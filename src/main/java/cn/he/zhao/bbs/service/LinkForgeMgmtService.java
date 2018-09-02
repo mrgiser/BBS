@@ -38,7 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Link forge management service.
+ * LinkUtil forge management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.2.0, Nov 30, 2017
@@ -53,7 +53,7 @@ public class LinkForgeMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkForgeMgmtService.class);
 
     /**
-     * Link Mapper.
+     * LinkUtil Mapper.
      */
     @Autowired
     private LinkMapper linkMapper;
@@ -65,13 +65,13 @@ public class LinkForgeMgmtService {
     private TagMapper tagMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;
 
     /**
-     * Tag-User-Link Mapper.
+     * Tag-User-LinkUtil Mapper.
      */
     @Autowired
     private TagUserLinkMapper tagUserLinkMapper;
@@ -287,7 +287,7 @@ public class LinkForgeMgmtService {
     }
 
     /**
-     * Link accessibility check task.
+     * LinkUtil accessibility check task.
      *
      * @author <a href="http://88250.b3log.org">Liang Ding</a>
      * @version 1.0.0.0, Jun 14, 2017
@@ -296,7 +296,7 @@ public class LinkForgeMgmtService {
     private class CheckTask implements Runnable {
 
         /**
-         * Link to check.
+         * LinkUtil to check.
          */
         private final JSONObject link;
 
@@ -335,7 +335,7 @@ public class LinkForgeMgmtService {
 
                 LOGGER.debug( "Accesses link [url=" + linkAddr + "] response [code={0}]", responseCode);
             } catch (final Exception e) {
-                LOGGER.warn("Link [url=" + linkAddr + "] accessibility check failed [msg=" + e.getMessage() + "]");
+                LOGGER.warn("LinkUtil [url=" + linkAddr + "] accessibility check failed [msg=" + e.getMessage() + "]");
             } finally {
                 countDownLatch.countDown();
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 /**
- * Report management service.
+ * ReportUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.2.0.0, Jul 15, 2018
@@ -25,7 +25,7 @@ public class ReportMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportMgmtService.class);
 
     /**
-     * Report Mapper.
+     * ReportUtil Mapper.
      */
     @Autowired
     private ReportMapper reportMapper;
@@ -37,13 +37,13 @@ public class ReportMgmtService {
     private LangPropsService langPropsService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;

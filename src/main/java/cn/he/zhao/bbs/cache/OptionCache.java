@@ -23,7 +23,7 @@ import cn.he.zhao.bbs.util.JSONs;
 import org.json.JSONObject;
 
 /**
- * Option cache.
+ * OptionUtil cache.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.1, Oct 25, 2016
@@ -34,7 +34,7 @@ import org.json.JSONObject;
 public class OptionCache {
 
     /**
-     * Option cache.
+     * OptionUtil cache.
      */
     private static final Cache CACHE = CacheFactory.getCache(Option.OPTIONS);
 

@@ -18,13 +18,69 @@
 package cn.he.zhao.bbs.entityUtil;
 
 /**
- * This class defines all breezemoon entity relevant keys. https://github.com/b3log/symphony/issues/507
+ * This class defines all breezemoon model relevant keys. https://github.com/b3log/symphony/issues/507
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, May 24, 2018
  * @since 2.8.0
  */
-public class BreezemoonUtil {
+public final class BreezemoonUtil {
+
+    /**
+     * Breezemoon.
+     */
+    public static final String BREEZEMOON = "breezemoon";
+
+    /**
+     * Breezemoons.
+     */
+    public static final String BREEZEMOONS = "breezemoons";
+
+    /**
+     * Key of breezemoon content.
+     */
+    public static final String BREEZEMOON_CONTENT = "breezemoonContent";
+
+    /**
+     * Key of breezemoon author id.
+     */
+    public static final String BREEZEMOON_AUTHOR_ID = "breezemoonAuthorId";
+
+    /**
+     * Key of breezemoon created at.
+     */
+    public static final String BREEZEMOON_CREATED = "breezemoonCreated";
+
+    /**
+     * Key of breezemoon updated at.
+     */
+    public static final String BREEZEMOON_UPDATED = "breezemoonUpdated";
+
+    /**
+     * Key of breezemoon IP.
+     */
+    public static final String BREEZEMOON_IP = "breezemoonIP";
+
+    /**
+     * Key of breezemoon UA.
+     */
+    public static final String BREEZEMOON_UA = "breezemoonUA";
+
+    /**
+     * Key of breezemoon status.
+     */
+    public static final String BREEZEMOON_STATUS = "breezemoonStatus";
+
+    // Status constants
+    /**
+     * Breezemoon status - valid.
+     */
+    public static final int BREEZEMOON_STATUS_C_VALID = 0;
+
+    /**
+     * Breezemoon status - invalid.
+     */
+    public static final int BREEZEMOON_STATUS_C_INVALID = 1;
 
     //// Transient ////
 

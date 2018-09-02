@@ -51,7 +51,7 @@ public class ActivityQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ActivityQueryService.class);
 
     /**
-     * Pointtransfer Mapper.
+     * PointtransferUtil Mapper.
      */
     @Autowired
     private PointtransferMapper pointtransferMapper;
@@ -63,7 +63,7 @@ public class ActivityQueryService {
     private UserMapper userMapper;
 
     /**
-     * Pointtransfer query service.
+     * PointtransferUtil query service.
      */
     @Autowired
     private PointtransferQueryService pointtransferQueryService;

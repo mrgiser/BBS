@@ -64,7 +64,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
     private UserMapper userMapper;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
@@ -100,7 +100,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
     private LangPropsService langPropsService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
@@ -112,13 +112,13 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
     private CommentQueryService commentQueryService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;
@@ -254,7 +254,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
             final boolean hasAtParticipantPerm = roleQueryService.userHasPermissions(commenterId, requisiteAtParticipantsPermissions);
 
             if (hasAtParticipantPerm) {
-                // 1. '@participants' Notification
+                // 1. '@participants' NotificationUtil
                 if (commentContent.contains("@participants ")) {
                     final List<JSONObject> participants = articleQueryService.getArticleLatestParticipants(
                             UserExt.USER_AVATAR_VIEW_MODE_C_ORIGINAL, articleId, Integer.MAX_VALUE);
@@ -309,7 +309,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
                 return;
             }
 
-            // 2. 'Commented' Notification
+            // 2. 'Commented' NotificationUtil
             if (!commenterIsArticleAuthor) {
                 final JSONObject requestJSONObject = new JSONObject();
                 requestJSONObject.put(Notification.NOTIFICATION_USER_ID, articleAuthorId);
@@ -318,7 +318,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
                 notificationMgmtService.addCommentedNotification(requestJSONObject);
             }
 
-            // 3. 'Reply' Notification
+            // 3. 'Reply' NotificationUtil
             final Set<String> repliedIds = new HashSet<>();
             if (StringUtils.isNotBlank(originalCmtId)) {
                 if (!articleAuthorId.equals(originalCmtAuthorId)) {
@@ -341,7 +341,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
 
             final Set<String> atIds = new HashSet<>();
             if (hasAtUserPerm) {
-                // 4. 'At' Notification
+                // 4. 'At' NotificationUtil
                 for (final String userName : atUserNames) {
                     if (isDiscussion && !articleContentAtUserNames.contains(userName)) {
                         continue;
@@ -374,7 +374,7 @@ public class CommentNotifier implements ApplicationListener<AddCommentEvent> {
                 }
             }
 
-            // 5. 'following - article comment' Notification
+            // 5. 'following - article comment' NotificationUtil
             for (final String userId : watcherIds) {
                 final JSONObject watcher = userMapper.get(userId);
                 final String watcherName = watcher.optString(User.USER_NAME);

@@ -14,6 +14,9 @@ BBS:
     RuntimeMode: dev
     staticResourceVersion: 201304262200
 
+mybatis:
+    type-aliases-package: cn.he.zhao.bbs.entity
+
 #    messages:
 #        basename: lang
 #        cache-seconds: 3600

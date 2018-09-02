@@ -110,7 +110,7 @@ public class StatisticProcessor {
     private CommentQueryService commentQueryService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

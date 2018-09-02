@@ -155,25 +155,25 @@ public class InitMgmtService {
     }
 
     /**
-     * Permission Mapper.
+     * PermissionUtil Mapper.
      */
     @Autowired
     private PermissionMapper permissionMapper;
 
     /**
-     * Role Mapper.
+     * RoleUtil Mapper.
      */
     @Autowired
     private RoleMapper roleMapper;
 
     /**
-     * Role-permission Mapper.
+     * RoleUtil-permission Mapper.
      */
     @Autowired
     private RolePermissionMapper rolePermissionMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;
@@ -544,7 +544,7 @@ public class InitMgmtService {
             role.put(Role.ROLE_DESCRIPTION, "");
             roleMapper.add(role);
 
-            // Init Role-Permission
+            // Init RoleUtil-PermissionUtil
             final JSONObject rolePermission = new JSONObject();
 
             // [Default] role's permissions

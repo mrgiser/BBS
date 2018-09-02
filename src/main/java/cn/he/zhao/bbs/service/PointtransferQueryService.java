@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Pointtransfer query service.
+ * PointtransferUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.21.2.4, Jun 15, 2017
@@ -48,7 +48,7 @@ public class PointtransferQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PointtransferQueryService.class);
 
     /**
-     * Pointtransfer Mapper.
+     * PointtransferUtil Mapper.
      */
     @Autowired
     private PointtransferMapper pointtransferMapper;
@@ -72,7 +72,7 @@ public class PointtransferQueryService {
     private CommentMapper commentMapper;
 
     /**
-     * Reward Mapper.
+     * RewardUtil Mapper.
      */
     @Autowired
     private RewardMapper rewardMapper;
@@ -212,7 +212,7 @@ public class PointtransferQueryService {
      * {
      *     "paginationRecordCount": int,
      *     "rslts": java.util.List[{
-     *         Pointtransfer
+     *         PointtransferUtil
      *     }, ....]
      * }
      * </pre>

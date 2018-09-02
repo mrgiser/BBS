@@ -20,7 +20,7 @@ package cn.he.zhao.bbs.entityUtil;
 import java.util.Set;
 
 /**
- * This class defines all permission entity relevant keys.
+ * This class defines all permission model relevant keys.
  * <p>
  * See <a href="https://github.com/b3log/symphony/issues/337">#337</a> for more details.
  * </p>
@@ -29,43 +29,43 @@ import java.util.Set;
  * @version 1.12.0.0, Jun 25, 2018
  * @since 1.8.0
  */
-public class PermissionUtil {
+public final class PermissionUtil {
 
-//    /**
-//     * Permission.
-//     */
-//    public static final String PERMISSION = "permission";
-//
-//    /**
-//     * Permissions.
-//     */
-//    public static final String PERMISSIONS = "permissions";
-//
-//    /**
-//     * Key of permission category.
-//     */
-//    public static final String PERMISSION_CATEGORY = "permissionCategory";
-//
-//    /**
-//     * Key of permission id.
-//     */
-//    public static final String PERMISSION_ID = "permissionId";
-//
-//    //// Transient ////
-//    /**
-//     * Key of permission categories.
-//     */
-//    public static final String PERMISSION_T_CATEGORIES = "permissionCategories";
-//
-//    /**
-//     * Key of permission label.
-//     */
-//    public static final String PERMISSION_T_LABEL = "permissionLabel";
-//
-//    /**
-//     * Key of permission grant.
-//     */
-//    public static final String PERMISSION_T_GRANT = "permissionGrant";
+    /**
+     * PermissionUtil.
+     */
+    public static final String PERMISSION = "permission";
+
+    /**
+     * Permissions.
+     */
+    public static final String PERMISSIONS = "permissions";
+
+    /**
+     * Key of permission category.
+     */
+    public static final String PERMISSION_CATEGORY = "permissionCategory";
+
+    /**
+     * Key of permission id.
+     */
+    public static final String PERMISSION_ID = "permissionId";
+
+    //// Transient ////
+    /**
+     * Key of permission categories.
+     */
+    public static final String PERMISSION_T_CATEGORIES = "permissionCategories";
+
+    /**
+     * Key of permission label.
+     */
+    public static final String PERMISSION_T_LABEL = "permissionLabel";
+
+    /**
+     * Key of permission grant.
+     */
+    public static final String PERMISSION_T_GRANT = "permissionGrant";
 
     // oId constants
     /**

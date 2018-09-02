@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Revision query service.
+ * RevisionUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.1.0, Nov 14, 2017
@@ -30,7 +30,7 @@ public class RevisionQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RevisionQueryService.class);
 
     /**
-     * Revision Mapper.
+     * RevisionUtil Mapper.
      */
     @Autowired
     private RevisionMapper revisionMapper;
@@ -118,7 +118,7 @@ public class RevisionQueryService {
                 new PropertyFilter(Revision.REVISION_DATA_TYPE, FilterOperator.EQUAL, dataType)
         ));
 
-        Stopwatchs.start("Revision count");
+        Stopwatchs.start("RevisionUtil count");
         try {
             return (int) revisionMapper.count(query);
         } catch (final Exception e) {

@@ -32,7 +32,7 @@ import org.json.JSONObject;
 import java.util.Date;
 
 /**
- * Liveness query service.
+ * LivenessUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, Mar 23, 2016
@@ -47,7 +47,7 @@ public class LivenessQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LivenessQueryService.class);
 
     /**
-     * Liveness Mapper.
+     * LivenessUtil Mapper.
      */
     @Autowired
     private LivenessMapper livenessMapper;

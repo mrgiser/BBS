@@ -60,7 +60,7 @@ public class DomainMgmtService {
     private DomainTagMapper domainTagMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;

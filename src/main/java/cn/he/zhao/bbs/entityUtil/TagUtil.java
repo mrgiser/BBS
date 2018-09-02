@@ -17,8 +17,6 @@
  */
 package cn.he.zhao.bbs.entityUtil;
 
-import cn.he.zhao.bbs.spring.Strings;
-import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.ioc.LatkeBeanManager;
 import org.b3log.latke.ioc.LatkeBeanManagerImpl;
@@ -36,7 +34,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * This class defines tag entity relevant keys.
+ * This class defines tag model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @author Bill Ho
@@ -44,97 +42,97 @@ import java.util.regex.Pattern;
  * @version 1.17.0.1, Jun 22, 2017
  * @since 0.2.0
  */
-public class TagUtil {
+public final class TagUtil {
 
-//    /**
-//     * Tag.
-//     */
-//    public static final String TAG = "tag";
-//
-//    /**
-//     * Tags.
-//     */
-//    public static final String TAGS = "tags";
-//
-//    /**
-//     * Key of tag title.
-//     */
-//    public static final String TAG_TITLE = "tagTitle";
-//
-//    /**
-//     * Key of tag URI.
-//     */
-//    public static final String TAG_URI = "tagURI";
-//
-//    /**
-//     * Key of tag icon path.
-//     */
-//    public static final String TAG_ICON_PATH = "tagIconPath";
-//
-//    /**
-//     * Key of tag CSS.
-//     */
-//    public static final String TAG_CSS = "tagCSS";
-//
-//    /**
-//     * Key of tag description.
-//     */
-//    public static final String TAG_DESCRIPTION = "tagDescription";
-//
-//    /**
-//     * Key of tag reference count.
-//     */
-//    public static final String TAG_REFERENCE_CNT = "tagReferenceCount";
-//
-//    /**
-//     * Key of tag comment count.
-//     */
-//    public static final String TAG_COMMENT_CNT = "tagCommentCount";
-//
-//    /**
-//     * Key of tag follower count.
-//     */
-//    public static final String TAG_FOLLOWER_CNT = "tagFollowerCount";
-//
-//    /**
-//     * Key of link count.
-//     */
-//    public static final String TAG_LINK_CNT = "tagLinkCount";
-//
-//    /**
-//     * Key of tag status.
-//     */
-//    public static final String TAG_STATUS = "tagStatus";
-//
-//    /**
-//     * Key of tag good count.
-//     */
-//    public static final String TAG_GOOD_CNT = "tagGoodCnt";
-//
-//    /**
-//     * Key of tag bad count.
-//     */
-//    public static final String TAG_BAD_CNT = "tagBadCnt";
-//
-//    /**
-//     * Key of tag seo title.
-//     */
-//    public static final String TAG_SEO_TITLE = "tagSeoTitle";
-//
-//    /**
-//     * Key of tag seo keywords.
-//     */
-//    public static final String TAG_SEO_KEYWORDS = "tagSeoKeywords";
-//
-//    /**
-//     * Key of tag seo description.
-//     */
-//    public static final String TAG_SEO_DESC = "tagSeoDesc";
-//
-//    /**
-//     * Key of tag random double value.
-//     */
-//    public static final String TAG_RANDOM_DOUBLE = "tagRandomDouble";
+    /**
+     * Tag.
+     */
+    public static final String TAG = "tag";
+
+    /**
+     * Tags.
+     */
+    public static final String TAGS = "tags";
+
+    /**
+     * Key of tag title.
+     */
+    public static final String TAG_TITLE = "tagTitle";
+
+    /**
+     * Key of tag URI.
+     */
+    public static final String TAG_URI = "tagURI";
+
+    /**
+     * Key of tag icon path.
+     */
+    public static final String TAG_ICON_PATH = "tagIconPath";
+
+    /**
+     * Key of tag CSS.
+     */
+    public static final String TAG_CSS = "tagCSS";
+
+    /**
+     * Key of tag description.
+     */
+    public static final String TAG_DESCRIPTION = "tagDescription";
+
+    /**
+     * Key of tag reference count.
+     */
+    public static final String TAG_REFERENCE_CNT = "tagReferenceCount";
+
+    /**
+     * Key of tag comment count.
+     */
+    public static final String TAG_COMMENT_CNT = "tagCommentCount";
+
+    /**
+     * Key of tag follower count.
+     */
+    public static final String TAG_FOLLOWER_CNT = "tagFollowerCount";
+
+    /**
+     * Key of link count.
+     */
+    public static final String TAG_LINK_CNT = "tagLinkCount";
+
+    /**
+     * Key of tag status.
+     */
+    public static final String TAG_STATUS = "tagStatus";
+
+    /**
+     * Key of tag good count.
+     */
+    public static final String TAG_GOOD_CNT = "tagGoodCnt";
+
+    /**
+     * Key of tag bad count.
+     */
+    public static final String TAG_BAD_CNT = "tagBadCnt";
+
+    /**
+     * Key of tag seo title.
+     */
+    public static final String TAG_SEO_TITLE = "tagSeoTitle";
+
+    /**
+     * Key of tag seo keywords.
+     */
+    public static final String TAG_SEO_KEYWORDS = "tagSeoKeywords";
+
+    /**
+     * Key of tag seo description.
+     */
+    public static final String TAG_SEO_DESC = "tagSeoDesc";
+
+    /**
+     * Key of tag random double value.
+     */
+    public static final String TAG_RANDOM_DOUBLE = "tagRandomDouble";
 
     //// Transient ////
     /**

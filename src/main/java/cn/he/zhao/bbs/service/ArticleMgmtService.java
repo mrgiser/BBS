@@ -1,20 +1,3 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.spring.Strings;
@@ -50,14 +33,6 @@ import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Article management service.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @author <a href="http://zephyr.b3log.org">Zephyr</a>
- * @version 2.18.2.8, Jul 8, 2018
- * @since 0.2.0
- */
 @Service
 public class ArticleMgmtService {
 
@@ -108,19 +83,19 @@ public class ArticleMgmtService {
     private UserTagMapper userTagMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;
 
     /**
-     * Notification Mapper.
+     * NotificationUtil Mapper.
      */
     @Autowired
     private NotificationMapper notificationMapper;
 
     /**
-     * Revision Mapper.
+     * RevisionUtil Mapper.
      */
     @Autowired
     private RevisionMapper revisionMapper;
@@ -144,25 +119,25 @@ public class ArticleMgmtService {
     private LangPropsService langPropsService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
 
     /**
-     * Reward management service.
+     * RewardUtil management service.
      */
     @Autowired
     private RewardMgmtService rewardMgmtService;
 
     /**
-     * Reward query service.
+     * RewardUtil query service.
      */
     @Autowired
     private RewardQueryService rewardQueryService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
@@ -173,13 +148,13 @@ public class ArticleMgmtService {
     @Autowired
     private TagQueryService tagQueryService;
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
 
     /**
-     * Liveness management service.
+     * LivenessUtil management service.
      */
     @Autowired
     private LivenessMgmtService livenessMgmtService;
@@ -206,7 +181,7 @@ public class ArticleMgmtService {
      */
     private static boolean tagExists(final String tagTitle, final List<JSONObject> tags) throws JSONException {
         for (final JSONObject tag : tags) {
-            if (tag.getString(Tag.TAG_TITLE).equals(tagTitle)) {
+            if (tag.getString(TagUtil.TAG_TITLE).equals(tagTitle)) {
                 return true;
             }
         }
@@ -229,7 +204,7 @@ public class ArticleMgmtService {
      * @throws ServiceException service exception
      */
     public void removeArticle(final String articleId) throws ServiceException {
-        JSONObject article = null;
+        Article article = null;
 
         try {
             article = articleMapper.get(articleId);
@@ -241,7 +216,7 @@ public class ArticleMgmtService {
             return;
         }
 
-        if (Article.ARTICLE_STATUS_C_VALID != article.optInt(Article.ARTICLE_STATUS)) {
+        if (ArticleUtil.ARTICLE_STATUS_C_VALID != article.optInt(ArticleUtil.ARTICLE_STATUS)) {
             throw new ServiceException(langPropsService.get("articleLockedLabel"));
         }
 
@@ -590,7 +565,7 @@ public class ArticleMgmtService {
             final JSONObject article = new JSONObject();
             article.put(Keys.OBJECT_ID, ret);
 
-            final String clientArticleId = requestJSONObject.optString(Article.ARTICLE_CLIENT_ARTICLE_ID, ret);
+            final String clientArticleId = requestJSONObject.optString(ArticleUtil.ARTICLE_CLIENT_ARTICLE_ID, ret);
             final String clientArticlePermalink = requestJSONObject.optString(Article.ARTICLE_CLIENT_ARTICLE_PERMALINK);
 
             article.put(Article.ARTICLE_TITLE, articleTitle);
@@ -722,7 +697,7 @@ public class ArticleMgmtService {
             final String articleId = articleMapper.add(article);
 
             if (Article.ARTICLE_TYPE_C_THOUGHT != articleType) {
-                // Revision
+                // RevisionUtil
                 final JSONObject revision = new JSONObject();
                 revision.put(Revision.REVISION_AUTHOR_ID, authorId);
 
@@ -768,7 +743,7 @@ public class ArticleMgmtService {
                             Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST, articleId, System.currentTimeMillis());
                 }
 
-                // Liveness
+                // LivenessUtil
                 livenessMgmtService.incLiveness(authorId, Liveness.LIVENESS_ARTICLE);
             }
 
@@ -946,7 +921,7 @@ public class ArticleMgmtService {
 
             if (Article.ARTICLE_TYPE_C_THOUGHT != articleType
                     && (!oldContent.equals(articleContent) || !oldTitle.equals(articleTitle))) {
-                // Revision
+                // RevisionUtil
                 final JSONObject revision = new JSONObject();
                 revision.put(Revision.REVISION_AUTHOR_ID, authorId);
 
@@ -1842,7 +1817,7 @@ public class ArticleMgmtService {
 
             final String articleId = articleMapper.add(article);
 
-            // Revision
+            // RevisionUtil
             final JSONObject revision = new JSONObject();
             revision.put(Revision.REVISION_AUTHOR_ID, author.optString(Keys.OBJECT_ID));
             final JSONObject revisionData = new JSONObject();

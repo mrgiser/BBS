@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Follow processor.
+ * FollowUtil processor.
  * <ul>
  * <li>Follows a user (/follow/user), POST</li>
  * <li>Unfollows a user (/follow/user), DELETE</li>
@@ -64,12 +64,12 @@ public class FollowProcessor {
      */
     private static final Set<String> FOLLOWS = new HashSet<>();
     /**
-     * Follow management service.
+     * FollowUtil management service.
      */
     @Autowired
     private FollowMgmtService followMgmtService;
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * Role query service.
+ * RoleUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.6.0.0, Jun 23, 2018
@@ -28,19 +28,19 @@ public class RoleQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleQueryService.class);
 
     /**
-     * Role Mapper.
+     * RoleUtil Mapper.
      */
     @Autowired
     private RoleMapper roleMapper;
 
     /**
-     * Role-Permission Mapper.
+     * RoleUtil-PermissionUtil Mapper.
      */
     @Autowired
     private RolePermissionMapper rolePermissionMapper;
 
     /**
-     * Permission Mapper.
+     * PermissionUtil Mapper.
      */
     @Autowired
     private PermissionMapper permissionMapper;

@@ -74,7 +74,7 @@ public class PostExportService {
     private CommentMapper commentMapper;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;

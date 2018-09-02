@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * Running status processor.
  * <ul>
- * <li>Report running status (/cron/status), GET</li>
+ * <li>ReportUtil running status (/cron/status), GET</li>
  * </ul>
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
@@ -54,7 +54,7 @@ public class StatusProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusProcessor.class);
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

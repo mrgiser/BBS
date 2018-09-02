@@ -52,7 +52,7 @@ public class CommentMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommentMgmtService.class);
 
     /**
-     * Revision Mapper.
+     * RevisionUtil Mapper.
      */
     @Autowired
     private RevisionMapper revisionMapper;
@@ -70,7 +70,7 @@ public class CommentMgmtService {
     private ArticleMapper articleMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;
@@ -94,7 +94,7 @@ public class CommentMgmtService {
     private UserMapper userMapper;
 
     /**
-     * Notification Mapper.
+     * NotificationUtil Mapper.
      */
     @Autowired
     private NotificationMapper notificationMapper;
@@ -112,31 +112,31 @@ public class CommentMgmtService {
     private LangPropsService langPropsService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
 
     /**
-     * Reward management service.
+     * RewardUtil management service.
      */
     @Autowired
     private RewardMgmtService rewardMgmtService;
 
     /**
-     * Reward query service.
+     * RewardUtil query service.
      */
     @Autowired
     private RewardQueryService rewardQueryService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
 
     /**
-     * Liveness management service.
+     * LivenessUtil management service.
      */
     @Autowired
     private LivenessMgmtService livenessMgmtService;
@@ -537,7 +537,7 @@ public class CommentMgmtService {
                 tagArticleMapper.update(tagArticleRel.optString(Keys.OBJECT_ID), tagArticleRel);
             }
 
-            // Revision
+            // RevisionUtil
             final JSONObject revision = new JSONObject();
             revision.put(Revision.REVISION_AUTHOR_ID, comment.optString(Comment.COMMENT_AUTHOR_ID));
 
@@ -620,7 +620,7 @@ public class CommentMgmtService {
 
             final String commentAuthorId = comment.optString(Comment.COMMENT_AUTHOR_ID);
             if (!oldContent.equals(content)) {
-                // Revision
+                // RevisionUtil
                 final JSONObject revision = new JSONObject();
                 revision.put(Revision.REVISION_AUTHOR_ID, commentAuthorId);
 

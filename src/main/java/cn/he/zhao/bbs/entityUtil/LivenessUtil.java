@@ -21,73 +21,73 @@ import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 
 /**
- * This class defines all liveness entity relevant keys.
+ * This class defines all liveness model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, Jun 12, 2018
  * @since 1.4.0
  */
-public class Livenessutil {
+public final class LivenessUtil {
 
-//    /**
-//     * Liveness.
-//     */
-//    public static final String LIVENESS = "liveness";
-//
-//    /**
-//     * Key of user id.
-//     */
-//    public static final String LIVENESS_USER_ID = "livenessUserId";
-//
-//    /**
-//     * Key of liveness date.
-//     */
-//    public static final String LIVENESS_DATE = "livenessDate";
-//
-//    /**
-//     * Key of liveness point.
-//     */
-//    public static final String LIVENESS_POINT = "livenessPoint";
-//
-//    /**
-//     * Key of liveness article.
-//     */
-//    public static final String LIVENESS_ARTICLE = "livenessArticle";
-//
-//    /**
-//     * Key of liveness comment.
-//     */
-//    public static final String LIVENESS_COMMENT = "livenessComment";
-//
-//    /**
-//     * Key of liveness activity.
-//     */
-//    public static final String LIVENESS_ACTIVITY = "livenessActivity";
-//
-//    /**
-//     * Key of liveness thank.
-//     */
-//    public static final String LIVENESS_THANK = "livenessThank";
-//
-//    /**
-//     * Key of liveness vote.
-//     */
-//    public static final String LIVENESS_VOTE = "livenessVote";
-//
-//    /**
-//     * Key of liveness reward.
-//     */
-//    public static final String LIVENESS_REWARD = "livenessReward";
-//
-//    /**
-//     * Key of liveness PV.
-//     */
-//    public static final String LIVENESS_PV = "livenessPV";
-//
-//    /**
-//     * Key of liveness accept answer.
-//     */
-//    public static final String LIVENESS_ACCEPT_ANSWER = "livenessAcceptAnswer";
+    /**
+     * LivenessUtil.
+     */
+    public static final String LIVENESS = "liveness";
+
+    /**
+     * Key of user id.
+     */
+    public static final String LIVENESS_USER_ID = "livenessUserId";
+
+    /**
+     * Key of liveness date.
+     */
+    public static final String LIVENESS_DATE = "livenessDate";
+
+    /**
+     * Key of liveness point.
+     */
+    public static final String LIVENESS_POINT = "livenessPoint";
+
+    /**
+     * Key of liveness article.
+     */
+    public static final String LIVENESS_ARTICLE = "livenessArticle";
+
+    /**
+     * Key of liveness comment.
+     */
+    public static final String LIVENESS_COMMENT = "livenessComment";
+
+    /**
+     * Key of liveness activity.
+     */
+    public static final String LIVENESS_ACTIVITY = "livenessActivity";
+
+    /**
+     * Key of liveness thank.
+     */
+    public static final String LIVENESS_THANK = "livenessThank";
+
+    /**
+     * Key of liveness vote.
+     */
+    public static final String LIVENESS_VOTE = "livenessVote";
+
+    /**
+     * Key of liveness reward.
+     */
+    public static final String LIVENESS_REWARD = "livenessReward";
+
+    /**
+     * Key of liveness PV.
+     */
+    public static final String LIVENESS_PV = "livenessPV";
+
+    /**
+     * Key of liveness accept answer.
+     */
+    public static final String LIVENESS_ACCEPT_ANSWER = "livenessAcceptAnswer";
 
     /**
      * Calculates point of the specified liveness.
@@ -105,20 +105,20 @@ public class Livenessutil {
         final float votePer = Symphonys.getFloat("activitYesterdayLivenessReward.vote.perPoint");
         final float acceptAnswerPer = Symphonys.getFloat("activitYesterdayLivenessReward.acceptAnswer.perPoint");
 
-        final int activity = liveness.optInt(Livenessutil.LIVENESS_ACTIVITY);
-        final int article = liveness.optInt(Livenessutil.LIVENESS_ARTICLE);
-        final int comment = liveness.optInt(Livenessutil.LIVENESS_COMMENT);
-        int pv = liveness.optInt(Livenessutil.LIVENESS_PV);
+        final int activity = liveness.optInt(LivenessUtil.LIVENESS_ACTIVITY);
+        final int article = liveness.optInt(LivenessUtil.LIVENESS_ARTICLE);
+        final int comment = liveness.optInt(LivenessUtil.LIVENESS_COMMENT);
+        int pv = liveness.optInt(LivenessUtil.LIVENESS_PV);
         if (pv > 50) {
             pv = 50;
         }
-        final int reward = liveness.optInt(Livenessutil.LIVENESS_REWARD);
-        final int thank = liveness.optInt(Livenessutil.LIVENESS_THANK);
-        int vote = liveness.optInt(Livenessutil.LIVENESS_VOTE);
+        final int reward = liveness.optInt(LivenessUtil.LIVENESS_REWARD);
+        final int thank = liveness.optInt(LivenessUtil.LIVENESS_THANK);
+        int vote = liveness.optInt(LivenessUtil.LIVENESS_VOTE);
         if (vote > 10) {
             vote = 10;
         }
-        final int acceptAnswer = liveness.optInt(Livenessutil.LIVENESS_ACCEPT_ANSWER);
+        final int acceptAnswer = liveness.optInt(LivenessUtil.LIVENESS_ACCEPT_ANSWER);
 
         final int activityPoint = (int) (activity * activityPer);
         final int articlePoint = (int) (article * articlePer);
@@ -142,6 +142,6 @@ public class Livenessutil {
     /**
      * Private constructor.
      */
-    private Livenessutil() {
+    private LivenessUtil() {
     }
 }

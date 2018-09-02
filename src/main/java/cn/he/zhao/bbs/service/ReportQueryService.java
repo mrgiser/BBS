@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Report management service.
+ * ReportUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.0.0.2, Jun 27, 2018
@@ -32,7 +32,7 @@ public class ReportQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportQueryService.class);
 
     /**
-     * Report Mapper.
+     * ReportUtil Mapper.
      */
     @Autowired
     private ReportMapper reportMapper;

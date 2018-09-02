@@ -64,7 +64,7 @@ public class UserMgmtService {
     private ArticleMapper articleMapper;
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;
@@ -88,7 +88,7 @@ public class UserMgmtService {
     private LangPropsService langPropsService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
@@ -100,7 +100,7 @@ public class UserMgmtService {
     private AvatarQueryService avatarQueryService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;

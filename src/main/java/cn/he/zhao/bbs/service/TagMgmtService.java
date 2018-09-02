@@ -29,7 +29,7 @@ public class TagMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TagMgmtService.class);
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;
@@ -65,7 +65,7 @@ public class TagMgmtService {
     private DomainTagMapper domainTagMapper;
 
     /**
-     * Tag-User-Link Mapper.
+     * Tag-User-LinkUtil Mapper.
      */
     @Autowired
     private TagUserLinkMapper tagUserLinkMapper;

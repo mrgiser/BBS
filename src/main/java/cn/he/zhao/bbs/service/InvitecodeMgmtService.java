@@ -29,7 +29,7 @@ import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 /**
- * Invitecode management service.
+ * InvitecodeUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.2.0.3, Aug 30, 2016
@@ -44,7 +44,7 @@ public class InvitecodeMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvitecodeMgmtService.class);
 
     /**
-     * Invitecode Mapper.
+     * InvitecodeUtil Mapper.
      */
     @Autowired
     private InvitecodeMapper invitecodeMapper;

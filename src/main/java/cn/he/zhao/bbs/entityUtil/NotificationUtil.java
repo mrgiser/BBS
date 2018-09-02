@@ -18,43 +18,43 @@
 package cn.he.zhao.bbs.entityUtil;
 
 /**
- * This class defines all notification entity relevant keys.
+ * This class defines all notification model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.17.0.0, Jul 15, 2017
  * @since 0.2.5
  */
-public class Notificationutil {
+public final class NotificationUtil {
 
-//    /**
-//     * Notification.
-//     */
-//    public static final String NOTIFICATION = "notification";
-//
-//    /**
-//     * Notifications.
-//     */
-//    public static final String NOTIFICATIONS = "notifications";
-//
-//    /**
-//     * Key of user id.
-//     */
-//    public static final String NOTIFICATION_USER_ID = "userId";
-//
-//    /**
-//     * Key of data id.
-//     */
-//    public static final String NOTIFICATION_DATA_ID = "dataId";
-//
-//    /**
-//     * Key of data type.
-//     */
-//    public static final String NOTIFICATION_DATA_TYPE = "dataType";
-//
-//    /**
-//     * Key of has read.
-//     */
-//    public static final String NOTIFICATION_HAS_READ = "hasRead";
+    /**
+     * NotificationUtil.
+     */
+    public static final String NOTIFICATION = "notification";
+
+    /**
+     * Notifications.
+     */
+    public static final String NOTIFICATIONS = "notifications";
+
+    /**
+     * Key of user id.
+     */
+    public static final String NOTIFICATION_USER_ID = "userId";
+
+    /**
+     * Key of data id.
+     */
+    public static final String NOTIFICATION_DATA_ID = "dataId";
+
+    /**
+     * Key of data type.
+     */
+    public static final String NOTIFICATION_DATA_TYPE = "dataType";
+
+    /**
+     * Key of has read.
+     */
+    public static final String NOTIFICATION_HAS_READ = "hasRead";
 
     // Data type constants
     /**
@@ -231,6 +231,6 @@ public class Notificationutil {
     /**
      * Private constructor.
      */
-    private Notificationutil() {
+    private NotificationUtil() {
     }
 }

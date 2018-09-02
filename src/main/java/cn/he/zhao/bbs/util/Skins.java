@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Skin utilities.
+ * SkinUtil utilities.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.1, May 14, 2018

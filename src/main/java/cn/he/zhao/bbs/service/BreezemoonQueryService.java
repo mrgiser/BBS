@@ -66,7 +66,7 @@ public class BreezemoonQueryService {
     private UserMapper userMapper;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;

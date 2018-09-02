@@ -65,7 +65,7 @@ public class ShortLinkQueryService {
      * @return processed content
      */
     public String linkArticle(final String content) {
-        Stopwatchs.start("Link article");
+        Stopwatchs.start("LinkUtil article");
 
         StringBuffer contentBuilder = new StringBuffer();
         try {
@@ -153,7 +153,7 @@ public class ShortLinkQueryService {
      * @return processed content
      */
     public String linkTag(final String content) {
-        Stopwatchs.start("Link tag");
+        Stopwatchs.start("LinkUtil tag");
 
         try {
             final Matcher matcher = TAG_PATTERN.matcher(content);

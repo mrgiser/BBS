@@ -98,7 +98,7 @@ public class LoginProcessor {
     private LangPropsService langPropsService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
@@ -122,31 +122,31 @@ public class LoginProcessor {
     private VerifycodeQueryService verifycodeQueryService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;
 
     /**
-     * Invitecode query service.
+     * InvitecodeUtil query service.
      */
     @Autowired
     private InvitecodeQueryService invitecodeQueryService;
 
     /**
-     * Invitecode management service.
+     * InvitecodeUtil management service.
      */
     @Autowired
     private InvitecodeMgmtService invitecodeMgmtService;
 
     /**
-     * Invitecode management service.
+     * InvitecodeUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

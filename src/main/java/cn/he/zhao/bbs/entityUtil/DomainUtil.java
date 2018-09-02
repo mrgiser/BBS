@@ -18,13 +18,88 @@
 package cn.he.zhao.bbs.entityUtil;
 
 /**
- * This class defines domain entity relevant keys.
+ * This class defines domain model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, Mar 30, 2018
  * @since 1.4.0
  */
-public class DomainUtil {
+public final class DomainUtil {
+
+    /**
+     * Domain.
+     */
+    public static final String DOMAIN = "domain";
+
+    /**
+     * Domains.
+     */
+    public static final String DOMAINS = "domains";
+
+    /**
+     * Key of domain title.
+     */
+    public static final String DOMAIN_TITLE = "domainTitle";
+
+    /**
+     * Key of domain URI.
+     */
+    public static final String DOMAIN_URI = "domainURI";
+
+    /**
+     * Key of domain description.
+     */
+    public static final String DOMAIN_DESCRIPTION = "domainDescription";
+
+    /**
+     * Key of domain type.
+     */
+    public static final String DOMAIN_TYPE = "domainType";
+
+    /**
+     * Key of domain sort.
+     */
+    public static final String DOMAIN_SORT = "domainSort";
+
+    /**
+     * Key of domain navigation.
+     */
+    public static final String DOMAIN_NAV = "domainNav";
+
+    /**
+     * Key of domain tag count.
+     */
+    public static final String DOMAIN_TAG_COUNT = "domainTagCnt";
+
+    /**
+     * Key of domain icon path.
+     */
+    public static final String DOMAIN_ICON_PATH = "domainIconPath";
+
+    /**
+     * Key of domain CSS.
+     */
+    public static final String DOMAIN_CSS = "domainCSS";
+
+    /**
+     * Key of domain status.
+     */
+    public static final String DOMAIN_STATUS = "domainStatus";
+
+    /**
+     * Key of domain seo title.
+     */
+    public static final String DOMAIN_SEO_TITLE = "domainSeoTitle";
+
+    /**
+     * Key of domain seo keywords.
+     */
+    public static final String DOMAIN_SEO_KEYWORDS = "domainSeoKeywords";
+
+    /**
+     * Key of domain seo description.
+     */
+    public static final String DOMAIN_SEO_DESC = "domainSeoDesc";
 
     //// Transient ////
     /**

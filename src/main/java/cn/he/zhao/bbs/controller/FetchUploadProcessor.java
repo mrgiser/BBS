@@ -67,7 +67,7 @@ public class FetchUploadProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(FetchUploadProcessor.class);
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

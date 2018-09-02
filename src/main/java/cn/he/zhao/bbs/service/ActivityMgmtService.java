@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,19 +72,19 @@ public class ActivityMgmtService {
     private CharacterMapper characterMapper;
 
     /**
-     * Pointtransfer Mapper.
+     * PointtransferUtil Mapper.
      */
     @Autowired
     private PointtransferMapper pointtransferMapper;
 
     /**
-     * Pointtransfer query service.
+     * PointtransferUtil query service.
      */
     @Autowired
     private PointtransferQueryService pointtransferQueryService;
 
     /**
-     * Pointtransfer management service.
+     * PointtransferUtil management service.
      */
     @Autowired
     private PointtransferMgmtService pointtransferMgmtService;
@@ -113,13 +114,13 @@ public class ActivityMgmtService {
     private LangPropsService langPropsService;
 
     /**
-     * Liveness management service.
+     * LivenessUtil management service.
      */
     @Autowired
     private LivenessMgmtService livenessMgmtService;
 
     /**
-     * Liveness query service.
+     * LivenessUtil query service.
      */
     @Autowired
     private LivenessQueryService livenessQueryService;
@@ -135,8 +136,8 @@ public class ActivityMgmtService {
 
         final int startPoint = pointtransferMapper.getActivityEatingSnakeAvg(userId);
 
-        final boolean succ = null != pointtransferMgmtService.transfer(userId, Pointtransfer.ID_C_SYS,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE,
+        final boolean succ = null != pointtransferMgmtService.transfer(userId, PointtransferUtil.ID_C_SYS,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE,
                 startPoint, "", System.currentTimeMillis());
 
         ret.put(Keys.STATUS_CODE, succ);
@@ -144,7 +145,7 @@ public class ActivityMgmtService {
         final String msg = succ ? "started" : langPropsService.get("activityStartEatingSnakeFailLabel");
         ret.put(Keys.MSG, msg);
 
-        livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_ACTIVITY);
+        livenessMgmtService.incLiveness(userId, Livenessutil.LIVENESS_ACTIVITY);
 
         return ret;
     }
@@ -168,8 +169,8 @@ public class ActivityMgmtService {
         final int max = Symphonys.getInt("pointActivityEatingSnakeCollectMax");
         final int amout = score > max ? max : score;
 
-        final boolean succ = null != pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE_COLLECT, amout,
+        final boolean succ = null != pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE_COLLECT, amout,
                 "", System.currentTimeMillis());
 
         if (!succ) {
@@ -189,6 +190,7 @@ public class ActivityMgmtService {
      * @param character    the specified character
      * @return recognition result
      */
+    @Transactional
     public synchronized JSONObject submitCharacter(final String userId, final String characterImg, final String character) {
         String recongnizeFailedMsg = langPropsService.get("activityCharacterRecognizeFailedLabel");
 
@@ -233,43 +235,43 @@ public class ActivityMgmtService {
         if (StringUtils.equals(character, recognizedCharacter)) {
             final Query query = new Query();
             query.setFilter(CompositeFilterOperator.and(
-                    new PropertyFilter(cn.he.zhao.bbs.entity.Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
-                    new PropertyFilter(cn.he.zhao.bbs.entity.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, character)
+                    new PropertyFilter(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
+                    new PropertyFilter(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_CONTENT, FilterOperator.EQUAL, character)
             ));
 
             try {
                 if (characterMapper.count(query) > 0) {
                     return ret;
                 }
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Count characters failed [userId=" + userId + ", character=" + character + "]", e);
 
                 return ret;
             }
 
             final JSONObject record = new JSONObject();
-            record.put(cn.he.zhao.bbs.entity.Character.CHARACTER_CONTENT, character);
-            record.put(cn.he.zhao.bbs.entity.Character.CHARACTER_IMG, characterImg);
-            record.put(cn.he.zhao.bbs.entity.Character.CHARACTER_USER_ID, userId);
+            record.put(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_CONTENT, character);
+            record.put(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_IMG, characterImg);
+            record.put(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_USER_ID, userId);
 
             String characterId = "";
-            final Transaction transaction = characterMapper.beginTransaction();
-            try {
+//            final Transaction transaction = characterMapper.beginTransaction();
+//            try {
                 characterId = characterMapper.add(record);
 
-                transaction.commit();
-            } catch (final MapperException e) {
-                LOGGER.error( "Submits character failed", e);
+//                transaction.commit();
+//            } catch (final MapperException e) {
+//                LOGGER.error( "Submits character failed", e);
 
-                if (null != transaction) {
-                    transaction.rollback();
-                }
+//                if (null != transaction) {
+//                    transaction.rollback();
+//                }
 
                 return ret;
-            }
+//            }
 
-            pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                    Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_CHARACTER, Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHARACTER,
+            pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                    PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHARACTER, PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHARACTER,
                     characterId, System.currentTimeMillis());
 
             ret.put(Keys.STATUS_CODE, true);
@@ -295,11 +297,11 @@ public class ActivityMgmtService {
         }
 
         final Random random = new Random();
-        final int sum = random.nextInt(Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MAX)
-                % (Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MAX - Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MIN + 1)
-                + Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MIN;
-        final boolean succ = null != pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_CHECKIN, sum, userId, System.currentTimeMillis());
+        final int sum = random.nextInt(PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MAX)
+                % (PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MAX - PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MIN + 1)
+                + PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MIN;
+        final boolean succ = null != pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHECKIN, sum, userId, System.currentTimeMillis());
         if (!succ) {
             return Integer.MIN_VALUE;
         }
@@ -307,8 +309,8 @@ public class ActivityMgmtService {
         try {
             final JSONObject user = userQueryService.getUser(userId);
 
-            int currentStreakStart = user.optInt(UserExt.USER_CURRENT_CHECKIN_STREAK_START);
-            int currentStreakEnd = user.optInt(UserExt.USER_CURRENT_CHECKIN_STREAK_END);
+            int currentStreakStart = user.optInt(UserExtUtil.USER_CURRENT_CHECKIN_STREAK_START);
+            int currentStreakEnd = user.optInt(UserExtUtil.USER_CURRENT_CHECKIN_STREAK_END);
 
             final Date today = new Date();
             user.put(UserExt.USER_CHECKIN_TIME, today.getTime());

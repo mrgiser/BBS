@@ -70,7 +70,7 @@ public class UserRegisterValidation {
      */
     private static final int CAPTCHA_LENGTH = 4;
     /**
-     * Invitecode length.
+     * InvitecodeUtil length.
      */
     private static final int INVITECODE_LENGHT = 16;
     /**
@@ -79,12 +79,12 @@ public class UserRegisterValidation {
     @Autowired
     private static LangPropsService langPropsService;
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private static  OptionQueryService optionQueryService;
     /**
-     * Invitecode query service.
+     * InvitecodeUtil query service.
      */
     @Autowired
     private static InvitecodeQueryService invitecodeQueryService;
@@ -94,7 +94,7 @@ public class UserRegisterValidation {
     @Autowired
     private static UserQueryService userQueryService;
     /**
-     * Role query servicce.
+     * RoleUtil query servicce.
      */
     @Autowired
     private static RoleQueryService roleQueryService;

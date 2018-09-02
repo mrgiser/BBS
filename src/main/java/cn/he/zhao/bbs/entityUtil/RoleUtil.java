@@ -18,38 +18,38 @@
 package cn.he.zhao.bbs.entityUtil;
 
 /**
- * This class defines all role entity relevant keys.
+ * This class defines all role model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.2, Dec 14, 2016
  * @since 1.8.0
  */
-public class RoleUtil {
+public final class RoleUtil {
 
-//    /**
-//     * Role.
-//     */
-//    public static final String ROLE = "role";
-//
-//    /**
-//     * Roles.
-//     */
-//    public static final String ROLES = "roles";
-//
-//    /**
-//     * Key of role name.
-//     */
-//    public static final String ROLE_NAME = "roleName";
-//
-//    /**
-//     * Key of role description.
-//     */
-//    public static final String ROLE_DESCRIPTION = "roleDescription";
-//
-//    /**
-//     * Key of role id.
-//     */
-//    public static final String ROLE_ID = "roleId";
+    /**
+     * RoleUtil.
+     */
+    public static final String ROLE = "role";
+
+    /**
+     * Roles.
+     */
+    public static final String ROLES = "roles";
+
+    /**
+     * Key of role name.
+     */
+    public static final String ROLE_NAME = "roleName";
+
+    /**
+     * Key of role description.
+     */
+    public static final String ROLE_DESCRIPTION = "roleDescription";
+
+    /**
+     * Key of role id.
+     */
+    public static final String ROLE_ID = "roleId";
 
     //// Transient ////
     /**
@@ -57,34 +57,34 @@ public class RoleUtil {
      */
     public static final String ROLE_T_USER_COUNT = "roleUserCount";
 
-    // Role name constants
+    // RoleUtil name constants
     /**
-     * Role name - default.
+     * RoleUtil name - default.
      */
     public static final String ROLE_ID_C_DEFAULT = "defaultRole";
 
     /**
-     * Role name - admin.
+     * RoleUtil name - admin.
      */
     public static final String ROLE_ID_C_ADMIN = "adminRole";
 
     /**
-     * Role name - leader.
+     * RoleUtil name - leader.
      */
     public static final String ROLE_ID_C_LEADER = "leaderRole";
 
     /**
-     * Role name - regular.
+     * RoleUtil name - regular.
      */
     public static final String ROLE_ID_C_REGULAR = "regularRole";
 
     /**
-     * Role name - member.
+     * RoleUtil name - member.
      */
     public static final String ROLE_ID_C_MEMBER = "memberRole";
 
     /**
-     * Role name - visitor.
+     * RoleUtil name - visitor.
      */
     public static final String ROLE_ID_C_VISITOR = "visitorRole";
 

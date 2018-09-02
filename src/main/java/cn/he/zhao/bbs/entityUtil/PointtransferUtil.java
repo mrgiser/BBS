@@ -17,67 +17,67 @@
  */
 package cn.he.zhao.bbs.entityUtil;
 
-import cn.he.zhao.bbs.util.Symphonys;
+import org.b3log.symphony.util.Symphonys;
 
 /**
- * This class defines all pointtransfer entity relevant keys.
+ * This class defines all pointtransfer model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @author <a href="http://zephyr.b3log.org">Zephyr</a>
  * @version 1.25.0.0, Jul 15, 2018
  * @since 1.3.0
  */
-public class PointtransferUtil {
+public final class PointtransferUtil {
 
-//    /**
-//     * Pointtransfer.
-//     */
-//    public static final String POINTTRANSFER = "pointtransfer";
-//
-//    /**
-//     * Pointtransfers.
-//     */
-//    public static final String POINTTRANSFERS = "pointtransfers";
-//
-//    /**
-//     * Key of from user id.
-//     */
-//    public static final String FROM_ID = "fromId";
-//
-//    /**
-//     * Key of to user id.
-//     */
-//    public static final String TO_ID = "toId";
-//
-//    /**
-//     * Key of sum.
-//     */
-//    public static final String SUM = "sum";
-//
-//    /**
-//     * Key of from balance.
-//     */
-//    public static final String FROM_BALANCE = "fromBalance";
-//
-//    /**
-//     * Key of to balance.
-//     */
-//    public static final String TO_BALANCE = "toBalance";
-//
-//    /**
-//     * Key of time.
-//     */
-//    public static final String TIME = "time";
-//
-//    /**
-//     * Key of transfer type.
-//     */
-//    public static final String TYPE = "type";
-//
-//    /**
-//     * Key of data id.
-//     */
-//    public static final String DATA_ID = "dataId";
+    /**
+     * PointtransferUtil.
+     */
+    public static final String POINTTRANSFER = "pointtransfer";
+
+    /**
+     * Pointtransfers.
+     */
+    public static final String POINTTRANSFERS = "pointtransfers";
+
+    /**
+     * Key of from user id.
+     */
+    public static final String FROM_ID = "fromId";
+
+    /**
+     * Key of to user id.
+     */
+    public static final String TO_ID = "toId";
+
+    /**
+     * Key of sum.
+     */
+    public static final String SUM = "sum";
+
+    /**
+     * Key of from balance.
+     */
+    public static final String FROM_BALANCE = "fromBalance";
+
+    /**
+     * Key of to balance.
+     */
+    public static final String TO_BALANCE = "toBalance";
+
+    /**
+     * Key of time.
+     */
+    public static final String TIME = "time";
+
+    /**
+     * Key of transfer type.
+     */
+    public static final String TYPE = "type";
+
+    /**
+     * Key of data id.
+     */
+    public static final String DATA_ID = "dataId";
 
     // Id constants
     /**
@@ -132,17 +132,17 @@ public class PointtransferUtil {
     public static final int TRANSFER_SUM_C_ADD_SELF_ARTICLE_COMMENT = Symphonys.getInt("pointAddSelfArticleComment");
 
     /**
-     * Transfer type - Add Article Reward Outcome.
+     * Transfer type - Add Article RewardUtil Outcome.
      */
     public static final int TRANSFER_TYPE_C_ADD_ARTICLE_REWARD = 4;
 
     /**
-     * Transfer sum - Add Article Reward.
+     * Transfer sum - Add Article RewardUtil.
      */
     public static final int TRANSFER_SUM_C_ADD_ARTICLE_REWARD = Symphonys.getInt("pointAddArticleReward");
 
     /**
-     * Transfer type - Article Reward Income/Outcome.
+     * Transfer type - Article RewardUtil Income/Outcome.
      */
     public static final int TRANSFER_TYPE_C_ARTICLE_REWARD = 5;
 
@@ -207,7 +207,7 @@ public class PointtransferUtil {
     public static final int TRANSFER_TYPE_C_CHARGE = 13;
 
     /**
-     * Transfer type - Comment Reward (Thank) Income/Outcome.
+     * Transfer type - Comment RewardUtil (Thank) Income/Outcome.
      */
     public static final int TRANSFER_TYPE_C_COMMENT_REWARD = 14;
 
@@ -232,7 +232,7 @@ public class PointtransferUtil {
     public static final int TRANSFER_TYPE_C_ABUSE_DEDUCT = 17;
 
     /**
-     * Transfer type - Activity - Yesterday Liveness Reward Income.
+     * Transfer type - Activity - Yesterday LivenessUtil RewardUtil Income.
      */
     public static final int TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD = 18;
 
@@ -287,22 +287,22 @@ public class PointtransferUtil {
     public static final int TRANSFER_SUM_C_DATA_EXPORT = Symphonys.getInt("pointDataExport");
 
     /**
-     * Transfer type - Buy Invitecode.
+     * Transfer type - Buy InvitecodeUtil.
      */
     public static final int TRANSFER_TYPE_C_BUY_INVITECODE = 24;
 
     /**
-     * Transfer sum - Buy Invitecode.
+     * Transfer sum - Buy InvitecodeUtil.
      */
     public static final int TRANSFER_SUM_C_BUY_INVITECODE = Symphonys.getInt("pointInvitecode");
 
     /**
-     * Transfer type - Invitecode Used.
+     * Transfer type - InvitecodeUtil Used.
      */
     public static final int TRANSFER_TYPE_C_INVITECODE_USED = 25;
 
     /**
-     * Transfer sum - Invitecode Used.
+     * Transfer sum - InvitecodeUtil Used.
      */
     public static final int TRANSFER_SUM_C_INVITECODE_USED = Symphonys.getInt("pointInvitecodeUsed");
 
@@ -367,12 +367,12 @@ public class PointtransferUtil {
     public static final int TRANSFER_TYPE_C_QNA_OFFER = 34;
 
     /**
-     * Transfer type - Report Handled.
+     * Transfer type - ReportUtil Handled.
      */
     public static final int TRANSFER_TYPE_C_REPORT_HANDLED = 35;
 
     /**
-     * Transfer sum - Report Handled.
+     * Transfer sum - ReportUtil Handled.
      */
     public static final int TRANSFER_SUM_C_REPORT_HANDLED = Symphonys.getInt("pointReportHandled");
 

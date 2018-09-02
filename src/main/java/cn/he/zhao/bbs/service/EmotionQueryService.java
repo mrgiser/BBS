@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Emotion query service.
+ * EmotionUtil query service.
  *
  * @author <a href="http://zephyr.b3log.org">Zephyr</a>
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
@@ -46,7 +46,7 @@ public class EmotionQueryService {
     private static final String COMMON_USED = "smile,flushed,joy,sob,yum,trollface,tada,heart,+1,ok_hand,pray";
 
     /**
-     * Emotion Mapper.
+     * EmotionUtil Mapper.
      */
     @Autowired
     private EmotionMapper emotionMapper;

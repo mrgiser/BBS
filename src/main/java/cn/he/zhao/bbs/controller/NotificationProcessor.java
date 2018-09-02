@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
- * Notification processor.
+ * NotificationUtil processor.
  * <ul>
  * <li>Shows [commented] notifications (/notifications/commented), GET</li>
  * <li>Shows [reply] notifications (/notifications/reply), GET</li>
@@ -74,13 +74,13 @@ public class NotificationProcessor {
     private UserQueryService userQueryService;
 
     /**
-     * Notification query service.
+     * NotificationUtil query service.
      */
     @Autowired
     private NotificationQueryService notificationQueryService;
 
     /**
-     * Notification management service.
+     * NotificationUtil management service.
      */
     @Autowired
     private NotificationMgmtService notificationMgmtService;

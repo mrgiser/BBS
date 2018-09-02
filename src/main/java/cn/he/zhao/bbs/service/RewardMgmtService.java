@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 
 /**
- * Reward management service.
+ * RewardUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, Jun 30, 2015
@@ -24,7 +24,7 @@ public class RewardMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RewardMgmtService.class);
 
     /**
-     * Reward Mapper.
+     * RewardUtil Mapper.
      */
     @Autowired
     private RewardMapper rewardMapper;

@@ -91,13 +91,13 @@ public class SettingsProcessor {
     private UserQueryService userQueryService;
 
     /**
-     * Invitecode query service.
+     * InvitecodeUtil query service.
      */
     @Autowired
     private InvitecodeQueryService invitecodeQueryService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;
@@ -109,13 +109,13 @@ public class SettingsProcessor {
     private LangPropsService langPropsService;
 
     /**
-     * Emotion query service.
+     * EmotionUtil query service.
      */
     @Autowired
     private EmotionQueryService emotionQueryService;
 
     /**
-     * Emotion management service.
+     * EmotionUtil management service.
      */
     @Autowired
     private EmotionMgmtService emotionMgmtService;
@@ -133,7 +133,7 @@ public class SettingsProcessor {
     private AvatarQueryService avatarQueryService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

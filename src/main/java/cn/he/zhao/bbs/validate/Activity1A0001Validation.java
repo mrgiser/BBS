@@ -59,7 +59,7 @@ public class Activity1A0001Validation {
     private static ActivityQueryService activityQueryService;
 
     /**
-     * Liveness query service.
+     * LivenessUtil query service.
      */
     @Autowired
     private static LivenessQueryService livenessQueryService;

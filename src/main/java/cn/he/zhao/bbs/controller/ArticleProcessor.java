@@ -89,7 +89,7 @@ public class ArticleProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
-     * Revision query service.
+     * RevisionUtil query service.
      */
     @Autowired
     private RevisionQueryService revisionQueryService;
@@ -137,13 +137,13 @@ public class ArticleProcessor {
     private LangPropsService langPropsService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
 
     /**
-     * Reward query service.
+     * RewardUtil query service.
      */
     @Autowired
     private RewardQueryService rewardQueryService;
@@ -155,13 +155,13 @@ public class ArticleProcessor {
     private VoteQueryService voteQueryService;
 
     /**
-     * Liveness management service.
+     * LivenessUtil management service.
      */
     @Autowired
     private LivenessMgmtService livenessMgmtService;
 
     /**
-     * Referral management service.
+     * ReferralUtil management service.
      */
     @Autowired
     private ReferralMgmtService referralMgmtService;
@@ -874,7 +874,7 @@ public class ArticleProcessor {
             Stopwatchs.end();
         }
 
-        // Referral statistic
+        // ReferralUtil statistic
         final String referralUserName = request.getParameter("r");
         if (!UserRegisterValidation.invalidUserName(referralUserName)) {
             final JSONObject referralUser = userQueryService.getUserByName(referralUserName);

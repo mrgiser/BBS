@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Link forge processor.
+ * LinkUtil forge processor.
  * <ul>
  * <li>Shows link forge (/link-forge), GET</li>
  * <li>Submits a link into forge (/forge/link), POST</li>
@@ -59,19 +59,19 @@ public class LinkForgeProcessor {
     private static final ExecutorService FORGE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
 
     /**
-     * Link forget management service.
+     * LinkUtil forget management service.
      */
     @Autowired
     private LinkForgeMgmtService linkForgeMgmtService;
 
     /**
-     * Link forge query service.
+     * LinkUtil forge query service.
      */
     @Autowired
     private LinkForgeQueryService linkForgeQueryService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

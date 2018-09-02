@@ -45,7 +45,7 @@ public class UserQueryService {
     private UserMapper userMapper;
 
     /**
-     * Follow Mapper.
+     * FollowUtil Mapper.
      */
     @Autowired
     private FollowMapper followMapper;
@@ -57,13 +57,13 @@ public class UserQueryService {
     private AvatarQueryService avatarQueryService;
 
     /**
-     * Pointtransfer Mapper.
+     * PointtransferUtil Mapper.
      */
     @Autowired
     private PointtransferMapper pointtransferMapper;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

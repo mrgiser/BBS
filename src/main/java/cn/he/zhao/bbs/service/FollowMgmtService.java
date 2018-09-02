@@ -31,7 +31,7 @@ import org.json.JSONObject;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Follow management service.
+ * FollowUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.3.1.2, Jan 18, 2017
@@ -46,7 +46,7 @@ public class FollowMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FollowMgmtService.class);
 
     /**
-     * Follow Mapper.
+     * FollowUtil Mapper.
      */
     @Autowired
     private FollowMapper followMapper;

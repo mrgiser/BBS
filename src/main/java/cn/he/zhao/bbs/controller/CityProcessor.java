@@ -67,7 +67,7 @@ public class CityProcessor {
     private DataModelService dataModelService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;

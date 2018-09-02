@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Option query service.
+ * OptionUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.4.0.12, Jan 30, 2018
@@ -48,7 +48,7 @@ public class OptionQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OptionQueryService.class);
 
     /**
-     * Option Mapper.
+     * OptionUtil Mapper.
      */
     @Autowired
     private OptionMapper optionMapper;

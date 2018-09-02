@@ -49,7 +49,7 @@ public class CommentUpdateValidation {
     private static LangPropsService langPropsService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private static OptionQueryService optionQueryService;

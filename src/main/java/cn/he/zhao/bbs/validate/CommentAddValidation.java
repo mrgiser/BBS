@@ -61,7 +61,7 @@ public class CommentAddValidation {
     @Autowired
     private static ArticleQueryService articleQueryService;
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private static OptionQueryService optionQueryService;

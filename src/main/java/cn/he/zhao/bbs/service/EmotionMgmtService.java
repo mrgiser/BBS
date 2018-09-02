@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Emotion management service.
+ * EmotionUtil management service.
  *
  * @author Zephyr
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
@@ -46,7 +46,7 @@ public class EmotionMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmotionMgmtService.class);
 
     /**
-     * Emotion Mapper.
+     * EmotionUtil Mapper.
      */
     @Autowired
     private EmotionMapper emotionMapper;

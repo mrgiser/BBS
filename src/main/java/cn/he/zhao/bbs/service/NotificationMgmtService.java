@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Notification management service.
+ * NotificationUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.20.0.0, Jul 15, 2018
@@ -48,7 +48,7 @@ public class NotificationMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationMgmtService.class);
 
     /**
-     * Notification Mapper.
+     * NotificationUtil Mapper.
      */
     @Autowired
     private NotificationMapper notificationMapper;

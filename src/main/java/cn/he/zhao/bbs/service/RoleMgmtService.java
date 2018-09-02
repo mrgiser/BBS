@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import java.util.Set;
 
 /**
- * Role management service.
+ * RoleUtil management service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.0, Jun 23, 2018
@@ -27,13 +27,13 @@ public class RoleMgmtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleMgmtService.class);
 
     /**
-     * Role Mapper.
+     * RoleUtil Mapper.
      */
     @Autowired
     private RoleMapper roleMapper;
 
     /**
-     * Role-Permission Mapper.
+     * RoleUtil-PermissionUtil Mapper.
      */
     @Autowired
     private RolePermissionMapper rolePermissionMapper;

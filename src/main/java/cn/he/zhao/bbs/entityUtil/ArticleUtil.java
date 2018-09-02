@@ -1,30 +1,211 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.entityUtil;
 
-/**
- * This class defines all article entity relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.32.0.0, Jun 19, 2018
- * @since 0.2.0
- */
-public class ArticleUtil {
+public final class ArticleUtil {
+
+    /**
+     * Article.
+     */
+    public static final String ARTICLE = "article";
+
+    /**
+     * Articles.
+     */
+    public static final String ARTICLES = "articles";
+
+    /**
+     * Key of article title.
+     */
+    public static final String ARTICLE_TITLE = "articleTitle";
+
+    /**
+     * Key of article content.
+     */
+    public static final String ARTICLE_CONTENT = "articleContent";
+
+    /**
+     * Key of article reward content.
+     */
+    public static final String ARTICLE_REWARD_CONTENT = "articleRewardContent";
+
+    /**
+     * Key of article reward point.
+     */
+    public static final String ARTICLE_REWARD_POINT = "articleRewardPoint";
+
+    /**
+     * Key of article tags.
+     */
+    public static final String ARTICLE_TAGS = "articleTags";
+
+    /**
+     * Key of article author id.
+     */
+    public static final String ARTICLE_AUTHOR_ID = "articleAuthorId";
+
+    /**
+     * Key of article comment count.
+     */
+    public static final String ARTICLE_COMMENT_CNT = "articleCommentCount";
+
+    /**
+     * Key of article view count.
+     */
+    public static final String ARTICLE_VIEW_CNT = "articleViewCount";
+
+    /**
+     * Key of article permalink.
+     */
+    public static final String ARTICLE_PERMALINK = "articlePermalink";
+
+    /**
+     * Key of article create time.
+     */
+    public static final String ARTICLE_CREATE_TIME = "articleCreateTime";
+
+    /**
+     * Key of article create time str.
+     */
+    public static final String ARTICLE_CREATE_TIME_STR = "articleCreateTimeStr";
+
+    /**
+     * Key of article update time.
+     */
+    public static final String ARTICLE_UPDATE_TIME = "articleUpdateTime";
+
+    /**
+     * Key of article update time str.
+     */
+    public static final String ARTICLE_UPDATE_TIME_STR = "articleUpdateTimeStr";
+
+    /**
+     * Key of article latest comment time.
+     */
+    public static final String ARTICLE_LATEST_CMT_TIME = "articleLatestCmtTime";
+
+    /**
+     * Key of article latest comment time str.
+     */
+    public static final String ARTICLE_LATEST_CMT_TIME_STR = "articleLatestCmtTimeStr";
+
+    /**
+     * Key of article latest commenter name.
+     */
+    public static final String ARTICLE_LATEST_CMTER_NAME = "articleLatestCmterName";
+
+    /**
+     * Key of article random double value.
+     */
+    public static final String ARTICLE_RANDOM_DOUBLE = "articleRandomDouble";
+
+    /**
+     * Key of article commentable.
+     */
+    public static final String ARTICLE_COMMENTABLE = "articleCommentable";
+
+    /**
+     * Key of article sync to client.
+     */
+    public static final String ARTICLE_SYNC_TO_CLIENT = "syncWithSymphonyClient";
+
+    /**
+     * Key of client article id.
+     */
+    public static final String ARTICLE_CLIENT_ARTICLE_ID = "clientArticleId";
+
+    /**
+     * Key of client article permalink.
+     */
+    public static final String ARTICLE_CLIENT_ARTICLE_PERMALINK = "clientArticlePermalink";
+
+    /**
+     * Key of article editor type.
+     */
+    public static final String ARTICLE_EDITOR_TYPE = "articleEditorType";
+
+    /**
+     * Key of article status.
+     */
+    public static final String ARTICLE_STATUS = "articleStatus";
+
+    /**
+     * Key of article type.
+     */
+    public static final String ARTICLE_TYPE = "articleType";
+
+    /**
+     * Key of article good count.
+     */
+    public static final String ARTICLE_GOOD_CNT = "articleGoodCnt";
+
+    /**
+     * Key of article bad count.
+     */
+    public static final String ARTICLE_BAD_CNT = "articleBadCnt";
+
+    /**
+     * Key of article collection count.
+     */
+    public static final String ARTICLE_COLLECT_CNT = "articleCollectCnt";
+
+    /**
+     * Key of article watch count.
+     */
+    public static final String ARTICLE_WATCH_CNT = "articleWatchCnt";
+
+    /**
+     * Key of reddit score.
+     */
+    public static final String REDDIT_SCORE = "redditScore";
+
+    /**
+     * Key of article city.
+     */
+    public static final String ARTICLE_CITY = "articleCity";
+
+    /**
+     * Key of article IP.
+     */
+    public static final String ARTICLE_IP = "articleIP";
+
+    /**
+     * Key of article UA.
+     */
+    public static final String ARTICLE_UA = "articleUA";
+
+    /**
+     * Key of article stick.
+     */
+    public static final String ARTICLE_STICK = "articleStick";
+
+    /**
+     * Key of article anonymous.
+     */
+    public static final String ARTICLE_ANONYMOUS = "articleAnonymous";
+
+    /**
+     * Key of article perfect.
+     */
+    public static final String ARTICLE_PERFECT = "articlePerfect";
+
+    /**
+     * Key of article anonymous view.
+     */
+    public static final String ARTICLE_ANONYMOUS_VIEW = "articleAnonymousView";
+
+    /**
+     * Key of article audio URL.
+     */
+    public static final String ARTICLE_AUDIO_URL = "articleAudioURL";
+
+    /**
+     * Key of article qna offer point. https://github.com/b3log/symphony/issues/486
+     */
+    public static final String ARTICLE_QNA_OFFER_POINT = "articleQnAOfferPoint";
+
+    /**
+     * Key of article push order. https://github.com/b3log/symphony/issues/537
+     */
+    public static final String ARTICLE_PUSH_ORDER = "articlePushOrder";
 
     //// Transient ////
     /**

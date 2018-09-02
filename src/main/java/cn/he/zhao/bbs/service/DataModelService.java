@@ -60,7 +60,7 @@ public class DataModelService {
     private LangPropsService langPropsService;
 
     /**
-     * Follow query service.
+     * FollowUtil query service.
      */
     @Autowired
     private FollowQueryService followQueryService;
@@ -78,7 +78,7 @@ public class DataModelService {
     private TagQueryService tagQueryService;
 
     /**
-     * Option query service.
+     * OptionUtil query service.
      */
     @Autowired
     private OptionQueryService optionQueryService;
@@ -108,13 +108,13 @@ public class DataModelService {
     private ActivityQueryService activityQueryService;
 
     /**
-     * Liveness query service.
+     * LivenessUtil query service.
      */
     @Autowired
     private LivenessQueryService livenessQueryService;
 
     /**
-     * Role query service.
+     * RoleUtil query service.
      */
     @Autowired
     private RoleQueryService roleQueryService;

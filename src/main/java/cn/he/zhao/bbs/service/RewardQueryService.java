@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Reward query service.
+ * RewardUtil query service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @version 1.1.0.1, Oct 17, 2015
@@ -27,7 +27,7 @@ public class RewardQueryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RewardQueryService.class);
 
     /**
-     * Reward Mapper.
+     * RewardUtil Mapper.
      */
     @Autowired
     private RewardMapper rewardMapper;
