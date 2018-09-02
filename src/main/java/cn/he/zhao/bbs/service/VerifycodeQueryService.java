@@ -1,5 +1,6 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Verifycode query service.
@@ -39,7 +42,7 @@ public class VerifycodeQueryService {
      * @param userId  the specified user id
      * @return verifycode, returns {@code null} if not found
      */
-    public JSONObject getVerifycodeByUserId(final int type, final int bizType, final String userId) {
+    public Verifycode getVerifycodeByUserId(final int type, final int bizType, final String userId) {
         final Query query = new Query().setFilter(CompositeFilterOperator.and(
                 new PropertyFilter(Verifycode.TYPE, FilterOperator.EQUAL, type),
                 new PropertyFilter(Verifycode.BIZ_TYPE, FilterOperator.EQUAL, bizType),
@@ -47,13 +50,12 @@ public class VerifycodeQueryService {
         ).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
 
         try {
-            final JSONObject result = verifycodeMapper.get(query);
-            final JSONArray codes = result.optJSONArray(Keys.RESULTS);
-            if (0 == codes.length()) {
+            final List<Verifycode> results = verifycodeMapper.get(query);
+            if (0 == results.size()) {
                 return null;
             }
 
-            return codes.optJSONObject(0);
+            return results.get(0);
         } catch (final Exception e) {
             LOGGER.error( "Gets verifycode failed", e);
 
@@ -67,17 +69,16 @@ public class VerifycodeQueryService {
      * @param code the specified code
      * @return verifycode, returns {@code null} if not found
      */
-    public JSONObject getVerifycode(final String code) {
+    public Verifycode getVerifycode(final String code) {
         final Query query = new Query().setFilter(new PropertyFilter(Verifycode.CODE, FilterOperator.EQUAL, code));
 
         try {
-            final JSONObject result = verifycodeMapper.get(query);
-            final JSONArray codes = result.optJSONArray(Keys.RESULTS);
-            if (0 == codes.length()) {
+            final List<Verifycode> result = verifycodeMapper.get(query);
+            if (0 == result.size()) {
                 return null;
             }
 
-            return codes.optJSONObject(0);
+            return result.get(0);
         } catch (final Exception e) {
             LOGGER.error( "Gets verifycode error", e);
 

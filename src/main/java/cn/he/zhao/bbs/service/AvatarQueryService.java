@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -56,9 +57,9 @@ public class AvatarQueryService {
      * @param user     the specified user
      */
     public void fillUserAvatarURL(final int viewMode, final JSONObject user) {
-        user.put(UserExt.USER_AVATAR_URL + "210", getAvatarURLByUser(viewMode, user, "210"));
-        user.put(UserExt.USER_AVATAR_URL + "48", getAvatarURLByUser(viewMode, user, "48"));
-        user.put(UserExt.USER_AVATAR_URL + "20", getAvatarURLByUser(viewMode, user, "20"));
+        user.put(UserExtUtil.USER_AVATAR_URL + "210", getAvatarURLByUser(viewMode, user, "210"));
+        user.put(UserExtUtil.USER_AVATAR_URL + "48", getAvatarURLByUser(viewMode, user, "48"));
+        user.put(UserExtUtil.USER_AVATAR_URL + "20", getAvatarURLByUser(viewMode, user, "20"));
     }
 
     /**
@@ -91,7 +92,7 @@ public class AvatarQueryService {
             return DEFAULT_AVATAR_URL;
         }
 
-        String originalURL = user.optString(UserExt.USER_AVATAR_URL);
+        String originalURL = user.optString(UserExtUtil.USER_AVATAR_URL);
         if (StringUtils.isBlank(originalURL)) {
             originalURL = DEFAULT_AVATAR_URL;
         }
@@ -102,7 +103,7 @@ public class AvatarQueryService {
         final String finerSize = String.valueOf(Integer.valueOf(size) + 32);
         String avatarURL = StringUtils.substringBeforeLast(originalURL, "?");
         final boolean qiniuEnabled = Symphonys.getBoolean("qiniu.enabled");
-        if (UserExt.USER_AVATAR_VIEW_MODE_C_ORIGINAL == viewMode) {
+        if (UserExtUtil.USER_AVATAR_VIEW_MODE_C_ORIGINAL == viewMode) {
             if (qiniuEnabled) {
                 final String qiniuDomain = Symphonys.get("qiniu.domain");
 

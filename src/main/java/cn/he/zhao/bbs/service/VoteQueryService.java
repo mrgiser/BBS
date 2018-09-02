@@ -1,6 +1,10 @@
 
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.CommentUtil;
+import cn.he.zhao.bbs.entityUtil.VoteUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
@@ -62,17 +66,16 @@ public class VoteQueryService {
 
             final Query query = new Query().setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
 
-            final JSONObject result = voteMapper.get(query);
-            final JSONArray array = result.optJSONArray(Keys.RESULTS);
+            final List<Vote> results = voteMapper.get(query);
 
-            if (0 == array.length()) {
+            if (0 == results.size()) {
                 return -1;
             }
 
-            final JSONObject vote = array.optJSONObject(0);
+            final Vote vote = results.get(0);
 
-            return vote.optInt(Vote.TYPE);
-        } catch (final MapperException e) {
+            return vote.getType();
+        } catch (final Exception e) {
             LOGGER.error( e.getMessage());
 
             return -1;
@@ -89,16 +92,16 @@ public class VoteQueryService {
      */
     public boolean isOwn(final String userId, final String dataId, final int dataType) {
         try {
-            if (Vote.DATA_TYPE_C_ARTICLE == dataType) {
-                final JSONObject article = articleMapper.get(dataId);
+            if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
+                final Article article = articleMapper.get(dataId);
                 if (null == article) {
                     LOGGER.error( "Not found article [id={0}]", dataId);
 
                     return false;
                 }
 
-                return article.optString(Article.ARTICLE_AUTHOR_ID).equals(userId);
-            } else if (Vote.DATA_TYPE_C_COMMENT == dataType) {
+                return article.getArticleAuthorId().equals(userId);
+            } else if (VoteUtil.DATA_TYPE_C_COMMENT == dataType) {
                 final JSONObject comment = commentMapper.get(dataId);
                 if (null == comment) {
                     LOGGER.error( "Not found comment [id={0}]", dataId);
@@ -106,11 +109,11 @@ public class VoteQueryService {
                     return false;
                 }
 
-                return comment.optString(Comment.COMMENT_AUTHOR_ID).equals(userId);
+                return comment.optString(CommentUtil.COMMENT_AUTHOR_ID).equals(userId);
             }
 
             return false;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( e.getMessage());
 
             return false;

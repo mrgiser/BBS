@@ -661,7 +661,7 @@ public class UserMgmtService {
      * @param user   the specified user
      * @throws ServiceException service exception
      */
-    public void updateUser(final String userId, final JSONObject user) throws ServiceException {
+    public void updateUser(final String userId, final UserExt user) throws ServiceException {
         final Transaction transaction = userMapper.beginTransaction();
 
         try {

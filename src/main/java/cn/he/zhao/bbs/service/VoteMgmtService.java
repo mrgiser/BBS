@@ -1,5 +1,6 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
@@ -339,12 +340,13 @@ public class VoteMgmtService {
         voteMapper.add(vote);
     }
 
-    private void updateTagArticleScore(final JSONObject article) throws MapperException {
-        final List<JSONObject> tagArticleRels = tagArticleMapper.getByArticleId(article.optString(Keys.OBJECT_ID));
-        for (final JSONObject tagArticleRel : tagArticleRels) {
-            tagArticleRel.put(Article.REDDIT_SCORE, article.optDouble(Article.REDDIT_SCORE, 0D));
+    private void updateTagArticleScore(final Article article) throws Exception {
+        final List<TagArticle> tagArticleRels = tagArticleMapper.getByArticleId(article.getOid());
+        for (final TagArticle tagArticleRel : tagArticleRels) {
+            // TODO: 2018/9/2  默认为 0
+            tagArticleRel.setRedditScore( article.getRedditScore( ));
 
-            tagArticleMapper.update(tagArticleRel.optString(Keys.OBJECT_ID), tagArticleRel);
+            tagArticleMapper.update(tagArticleRel.getOid(), tagArticleRel);
         }
     }
 }

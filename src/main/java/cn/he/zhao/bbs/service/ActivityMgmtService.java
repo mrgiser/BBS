@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.LivenessUtil;
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.mapper.CharacterMapper;
 import cn.he.zhao.bbs.mapper.PointtransferMapper;
@@ -145,7 +148,7 @@ public class ActivityMgmtService {
         final String msg = succ ? "started" : langPropsService.get("activityStartEatingSnakeFailLabel");
         ret.put(Keys.MSG, msg);
 
-        livenessMgmtService.incLiveness(userId, Livenessutil.LIVENESS_ACTIVITY);
+        livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_ACTIVITY);
 
         return ret;
     }
@@ -307,24 +310,24 @@ public class ActivityMgmtService {
         }
 
         try {
-            final JSONObject user = userQueryService.getUser(userId);
+            final UserExt user = userQueryService.getUser(userId);
 
-            int currentStreakStart = user.optInt(UserExtUtil.USER_CURRENT_CHECKIN_STREAK_START);
-            int currentStreakEnd = user.optInt(UserExtUtil.USER_CURRENT_CHECKIN_STREAK_END);
+            int currentStreakStart = user.getUserCurrentCheckinStreakStart();
+            int currentStreakEnd = user.getUserCurrentCheckinStreakEnd();
 
             final Date today = new Date();
-            user.put(UserExt.USER_CHECKIN_TIME, today.getTime());
+            user.setUserCheckinTime( today.getTime());
 
             final String todayStr = DateFormatUtils.format(today, "yyyyMMdd");
             final int todayInt = Integer.valueOf(todayStr);
 
             if (0 == currentStreakStart) {
-                user.put(UserExt.USER_CURRENT_CHECKIN_STREAK_START, todayInt);
-                user.put(UserExt.USER_CURRENT_CHECKIN_STREAK_END, todayInt);
-                user.put(UserExt.USER_LONGEST_CHECKIN_STREAK_START, todayInt);
-                user.put(UserExt.USER_LONGEST_CHECKIN_STREAK_END, todayInt);
-                user.put(UserExt.USER_CURRENT_CHECKIN_STREAK, 1);
-                user.put(UserExt.USER_LONGEST_CHECKIN_STREAK, 1);
+                user.setUserCurrentCheckinStreakStart( todayInt);
+                user.setUserCurrentCheckinStreakEnd( todayInt);
+                user.setUserLongestCheckinStreakStart( todayInt);
+                user.setUserLongestCheckinStreakEnd( todayInt);
+                user.setUserCurrentCheckinStreak( 1);
+                user.setUserLongestCheckinStreak( 1);
 
                 userMgmtService.updateUser(userId, user);
 
@@ -335,16 +338,16 @@ public class ActivityMgmtService {
             final Date nextDate = DateUtils.addDays(endDate, 1);
 
             if (DateUtils.isSameDay(nextDate, today)) {
-                user.put(UserExt.USER_CURRENT_CHECKIN_STREAK_END, todayInt);
+                user.setUserLongestCheckinStreakEnd( todayInt);
             } else {
-                user.put(UserExt.USER_CURRENT_CHECKIN_STREAK_START, todayInt);
-                user.put(UserExt.USER_CURRENT_CHECKIN_STREAK_END, todayInt);
+                user.setUserCurrentCheckinStreakStart( todayInt);
+                user.setUserCurrentCheckinStreakEnd( todayInt);
             }
 
-            currentStreakStart = user.optInt(UserExt.USER_CURRENT_CHECKIN_STREAK_START);
-            currentStreakEnd = user.optInt(UserExt.USER_CURRENT_CHECKIN_STREAK_END);
-            final int longestStreakStart = user.optInt(UserExt.USER_LONGEST_CHECKIN_STREAK_START);
-            final int longestStreakEnd = user.optInt(UserExt.USER_LONGEST_CHECKIN_STREAK_END);
+            currentStreakStart = user.getUserCurrentCheckinStreakStart();
+            currentStreakEnd = user.getUserCurrentCheckinStreakEnd();
+            final int longestStreakStart = user.getUserLongestCheckinStreakStart();
+            final int longestStreakEnd = user.getUserLongestCheckinStreakEnd();
 
             final Date currentStreakStartDate
                     = DateUtils.parseDate(String.valueOf(currentStreakStart), new String[]{"yyyyMMdd"});
@@ -360,26 +363,26 @@ public class ActivityMgmtService {
             final int longestStreakDays
                     = (int) ((longestStreakEndDate.getTime() - longestStreakStartDate.getTime()) / 86400000) + 1;
 
-            user.put(UserExt.USER_CURRENT_CHECKIN_STREAK, currentStreakDays);
-            user.put(UserExt.USER_LONGEST_CHECKIN_STREAK, longestStreakDays);
+            user.setUserCurrentCheckinStreak( currentStreakDays);
+            user.setUserLongestCheckinStreak( longestStreakDays);
 
             if (longestStreakDays < currentStreakDays) {
-                user.put(UserExt.USER_LONGEST_CHECKIN_STREAK_START, currentStreakStart);
-                user.put(UserExt.USER_LONGEST_CHECKIN_STREAK_END, currentStreakEnd);
+                user.setUserLongestCheckinStreakStart( currentStreakStart);
+                user.setUserLongestCheckinStreakEnd( currentStreakEnd);
 
-                user.put(UserExt.USER_LONGEST_CHECKIN_STREAK, currentStreakDays);
+                user.setUserLongestCheckinStreak( currentStreakDays);
             }
 
             userMgmtService.updateUser(userId, user);
 
             if (currentStreakDays > 0 && 0 == currentStreakDays % 10) {
                 // Additional Point
-                pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                        Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_CHECKIN_STREAK,
-                        Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK, userId, System.currentTimeMillis());
+                pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                        PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHECKIN_STREAK,
+                        PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK, userId, System.currentTimeMillis());
             }
 
-            livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_ACTIVITY);
+            livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_ACTIVITY);
 
             return sum;
         } catch (final Exception e) {
@@ -408,8 +411,8 @@ public class ActivityMgmtService {
 
         final String date = DateFormatUtils.format(new Date(), "yyyyMMdd");
 
-        final boolean succ = null != pointtransferMgmtService.transfer(userId, Pointtransfer.ID_C_SYS,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001, amount, date + "-" + smallOrLarge, System.currentTimeMillis());
+        final boolean succ = null != pointtransferMgmtService.transfer(userId, PointtransferUtil.ID_C_SYS,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001, amount, date + "-" + smallOrLarge, System.currentTimeMillis());
 
         ret.put(Keys.STATUS_CODE, succ);
 
@@ -417,7 +420,7 @@ public class ActivityMgmtService {
                 ? langPropsService.get("activityBetSuccLabel") : langPropsService.get("activityBetFailLabel");
         ret.put(Keys.MSG, msg);
 
-        livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_ACTIVITY);
+        livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_ACTIVITY);
 
         return ret;
     }
@@ -444,11 +447,11 @@ public class ActivityMgmtService {
         }
 
         final List<JSONObject> records = pointtransferQueryService.getLatestPointtransfers(userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
         final JSONObject pointtransfer = records.get(0);
-        final String data = pointtransfer.optString(Pointtransfer.DATA_ID);
+        final String data = pointtransfer.optString(PointtransferUtil.DATA_ID);
         final String smallOrLarge = data.split("-")[1];
-        final int sum = pointtransfer.optInt(Pointtransfer.SUM);
+        final int sum = pointtransfer.optInt(PointtransferUtil.SUM);
 
         String smallOrLargeResult = null;
         try {
@@ -491,8 +494,8 @@ public class ActivityMgmtService {
         if (StringUtils.equals(smallOrLarge, smallOrLargeResult)) {
             final int amount = sum * 2;
 
-            final boolean succ = null != pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                    Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001_COLLECT, amount,
+            final boolean succ = null != pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                    PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001_COLLECT, amount,
                     DateFormatUtils.format(new Date(), "yyyyMMdd") + "-" + smallOrLargeResult, System.currentTimeMillis());
 
             if (succ) {
@@ -525,20 +528,20 @@ public class ActivityMgmtService {
             return;
         }
 
-        final int sum = Liveness.calcPoint(yesterdayLiveness);
+        final int sum = LivenessUtil.calcPoint(yesterdayLiveness);
 
         if (0 == sum) {
             return;
         }
 
-        boolean succ = null != pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD, sum, userId, System.currentTimeMillis());
+        boolean succ = null != pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD, sum, userId, System.currentTimeMillis());
         if (!succ) {
             return;
         }
 
         // Today liveness (activity)
-        livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_ACTIVITY);
+        livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_ACTIVITY);
     }
 
     /**
@@ -550,10 +553,10 @@ public class ActivityMgmtService {
     public synchronized JSONObject startGobang(final String userId) {
         final JSONObject ret = Results.falseResult();
 
-        final int startPoint = Pointtransfer.TRANSFER_SUM_C_ACTIVITY_GOBANG_START;
+        final int startPoint = PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_GOBANG_START;
 
-        final boolean succ = null != pointtransferMgmtService.transfer(userId, Pointtransfer.ID_C_SYS,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_GOBANG,
+        final boolean succ = null != pointtransferMgmtService.transfer(userId, PointtransferUtil.ID_C_SYS,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_GOBANG,
                 startPoint, "", System.currentTimeMillis());
 
         ret.put(Keys.STATUS_CODE, succ);
@@ -561,7 +564,7 @@ public class ActivityMgmtService {
         final String msg = succ ? "started" : langPropsService.get("activityStartGobangFailLabel");
         ret.put(Keys.MSG, msg);
 
-        livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_ACTIVITY);
+        livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_ACTIVITY);
 
         return ret;
     }
@@ -576,8 +579,8 @@ public class ActivityMgmtService {
     public synchronized JSONObject collectGobang(final String userId, final int score) {
         final JSONObject ret = Results.falseResult();
 
-        final boolean succ = null != pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_GOBANG_COLLECT, score,
+        final boolean succ = null != pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_GOBANG_COLLECT, score,
                 "", System.currentTimeMillis());
 
         if (!succ) {

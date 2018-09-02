@@ -1,6 +1,8 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
+import cn.he.zhao.bbs.entityUtil.DomainUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.sitemap.Sitemap;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.mapper.*;
@@ -67,7 +69,7 @@ public class SitemapQueryService {
         final List<JSONObject> domains = domainCache.getDomains(Integer.MAX_VALUE);
 
         for (final JSONObject domain : domains) {
-            final String permalink =  SpringUtil.getServerPath() + "/domain/" + domain.optString(Domain.DOMAIN_URI);
+            final String permalink =  SpringUtil.getServerPath() + "/domain/" + domain.optString(DomainUtil.DOMAIN_URI);
 
             final Sitemap.URL url = new Sitemap.URL();
             url.setLoc(permalink);

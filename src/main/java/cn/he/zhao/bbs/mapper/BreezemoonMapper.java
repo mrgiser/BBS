@@ -17,7 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
-import org.springframework.data.jpa.Mapper.JpaMapper;
+import cn.he.zhao.bbs.entity.Breezemoon;
 
 /**
  * Breezemoon Mapper.
@@ -28,4 +28,11 @@ import org.springframework.data.jpa.Mapper.JpaMapper;
  */
 public interface BreezemoonMapper {
 
+    void remove(String id);
+
+    void update(String id, Breezemoon old);
+
+    Breezemoon get(String id);
+
+    void add(Breezemoon bm);
 }

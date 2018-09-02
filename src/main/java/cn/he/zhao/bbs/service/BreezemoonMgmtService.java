@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.BreezemoonUtil;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.Breezemoon;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
@@ -75,30 +76,30 @@ public class BreezemoonMgmtService {
      *                          "breezemoonAuthorId": "",
      *                          "breezemoonIP": "",
      *                          "breezemoonUA": ""
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addBreezemoon(final JSONObject requestJSONObject) throws ServiceException {
-        final String content = requestJSONObject.optString(Breezemoon.BREEZEMOON_CONTENT);
+    public void addBreezemoon(final JSONObject requestJSONObject) throws Exception {
+        final String content = requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_CONTENT);
         if (optionQueryService.containReservedWord(content)) {
-            throw new ServiceException(langPropsService.get("contentContainReservedWordLabel"));
+            throw new Exception(langPropsService.get("contentContainReservedWordLabel"));
         }
-        final JSONObject bm = new JSONObject();
-        bm.put(Breezemoon.BREEZEMOON_CONTENT, content);
-        bm.put(Breezemoon.BREEZEMOON_AUTHOR_ID, requestJSONObject.optString(Breezemoon.BREEZEMOON_AUTHOR_ID));
-        bm.put(Breezemoon.BREEZEMOON_IP, requestJSONObject.optString(Breezemoon.BREEZEMOON_IP));
-        bm.put(Breezemoon.BREEZEMOON_UA, requestJSONObject.optString(Breezemoon.BREEZEMOON_UA));
+        final Breezemoon bm = new Breezemoon();
+        bm.setBreezemoonContent( content);
+        bm.setBreezemoonAuthorId( requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_AUTHOR_ID));
+        bm.setBreezemoonIP( requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_IP));
+        bm.setBreezemoonUA( requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_UA));
         final long now = System.currentTimeMillis();
-        bm.put(Breezemoon.BREEZEMOON_CREATED, now);
-        bm.put(Breezemoon.BREEZEMOON_UPDATED, now);
-        bm.put(Breezemoon.BREEZEMOON_STATUS, Breezemoon.BREEZEMOON_STATUS_C_VALID);
+        bm.setBreezemoonCreated( now);
+        bm.setBreezemoonUpdated( now);
+        bm.setBreezemoonStatus( BreezemoonUtil.BREEZEMOON_STATUS_C_VALID);
 
         try {
             breezemoonMapper.add(bm);
         } catch (final Exception e) {
             LOGGER.error( "Adds a breezemoon failed", e);
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
     }
 
@@ -112,43 +113,43 @@ public class BreezemoonMgmtService {
      *                          "breezemoonIP": "",
      *                          "breezemoonUA": "",
      *                          "breezemoonStatus": "" // optional, 0 as default
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void updateBreezemoon(final JSONObject requestJSONObject) throws ServiceException {
-        final String content = requestJSONObject.optString(Breezemoon.BREEZEMOON_CONTENT);
+    public void updateBreezemoon(final JSONObject requestJSONObject) throws Exception {
+        final String content = requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_CONTENT);
         if (optionQueryService.containReservedWord(content)) {
-            throw new ServiceException(langPropsService.get("contentContainReservedWordLabel"));
+            throw new Exception(langPropsService.get("contentContainReservedWordLabel"));
         }
 
         final String id = requestJSONObject.optString(Keys.OBJECT_ID);
-        JSONObject old;
+        Breezemoon old;
         try {
             old = breezemoonMapper.get(id);
         } catch (final Exception e) {
             LOGGER.error( "Gets a breezemoon [id=" + id + "] failed", e);
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
 
         if (null == old) {
-            throw new ServiceException(langPropsService.get("queryFailedLabel"));
+            throw new Exception(langPropsService.get("queryFailedLabel"));
         }
 
-        old.put(Breezemoon.BREEZEMOON_CONTENT, content);
-        old.put(Breezemoon.BREEZEMOON_AUTHOR_ID, requestJSONObject.optString(Breezemoon.BREEZEMOON_AUTHOR_ID));
-        old.put(Breezemoon.BREEZEMOON_IP, requestJSONObject.optString(Breezemoon.BREEZEMOON_IP));
-        old.put(Breezemoon.BREEZEMOON_UA, requestJSONObject.optString(Breezemoon.BREEZEMOON_UA));
-        old.put(Breezemoon.BREEZEMOON_STATUS, requestJSONObject.optInt(Breezemoon.BREEZEMOON_STATUS, Breezemoon.BREEZEMOON_STATUS_C_VALID));
+        old.setBreezemoonContent( content);
+        old.setBreezemoonAuthorId( requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_AUTHOR_ID));
+        old.setBreezemoonIP( requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_IP));
+        old.setBreezemoonUA( requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_UA));
+        old.setBreezemoonStatus( requestJSONObject.optInt(BreezemoonUtil.BREEZEMOON_STATUS, BreezemoonUtil.BREEZEMOON_STATUS_C_VALID));
         final long now = System.currentTimeMillis();
-        old.put(Breezemoon.BREEZEMOON_UPDATED, now);
+        old.setBreezemoonUpdated( now);
 
         try {
             breezemoonMapper.update(id, old);
         } catch (final Exception e) {
             LOGGER.error( "Updates a breezemoon failed", e);
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
     }
 
@@ -156,16 +157,16 @@ public class BreezemoonMgmtService {
      * Removes a breezemoon with the specified id.
      *
      * @param id the specified id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void removeBreezemoon(final String id) throws ServiceException {
+    public void removeBreezemoon(final String id) throws Exception {
         try {
             breezemoonMapper.remove(id);
         } catch (final Exception e) {
             LOGGER.error( "Removes a breezemoon [id=" + id + "] failed", e);
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
     }
 }

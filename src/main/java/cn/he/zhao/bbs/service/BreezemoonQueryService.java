@@ -97,10 +97,10 @@ public class BreezemoonQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public JSONObject getFollowingUserBreezemoons(final int avatarViewMode, final String userId,
-                                                  final int page, final int pageSize, final int windowSize) throws ServiceException {
+                                                  final int page, final int pageSize, final int windowSize) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final List<JSONObject> users = (List<JSONObject>) followQueryService.getFollowingUsers(
@@ -137,7 +137,7 @@ public class BreezemoonQueryService {
         } catch (final Exception e) {
             LOGGER.error( "Gets following user breezemoons failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         } finally {
             Stopwatchs.end();
         }
@@ -172,11 +172,11 @@ public class BreezemoonQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
     public JSONObject getBreezemoons(final int avatarViewMode, final String currentUserId, final String authorId,
-                                     final int page, final int pageSize, final int windowSize) throws ServiceException {
+                                     final int page, final int pageSize, final int windowSize) throws Exception {
         final JSONObject ret = new JSONObject();
         CompositeFilter filter;
         final Filter statusFilter = new PropertyFilter(Breezemoon.BREEZEMOON_STATUS, FilterOperator.EQUAL, Breezemoon.BREEZEMOON_STATUS_C_VALID);
@@ -192,7 +192,7 @@ public class BreezemoonQueryService {
         } catch (final Exception e) {
             LOGGER.error( "Get breezemoons failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
@@ -208,7 +208,7 @@ public class BreezemoonQueryService {
         } catch (final Exception e) {
             LOGGER.error( "Get breezemoons failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         ret.put(Breezemoon.BREEZEMOONS, (Object) bms);
@@ -240,12 +240,12 @@ public class BreezemoonQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
 
     public JSONObject getBreezemoons(final int avatarViewMode,
-                                     final JSONObject requestJSONObject, final Map<String, Class<?>> fields) throws ServiceException {
+                                     final JSONObject requestJSONObject, final Map<String, Class<?>> fields) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
@@ -263,7 +263,7 @@ public class BreezemoonQueryService {
         } catch (final MapperException e) {
             LOGGER.error( "Get breezemoons failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -281,7 +281,7 @@ public class BreezemoonQueryService {
         } catch (final Exception e) {
             LOGGER.error( "Organize breezemoons failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         ret.put(Breezemoon.BREEZEMOONS, breezemoons);
@@ -294,15 +294,15 @@ public class BreezemoonQueryService {
      *
      * @param breezemoonId the specified id
      * @return breezemoon, return {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getBreezemoon(final String breezemoonId) throws ServiceException {
+    public JSONObject getBreezemoon(final String breezemoonId) throws Exception {
         try {
             return breezemoonMapper.get(breezemoonId);
         } catch (final MapperException e) {
             LOGGER.error( "Gets a breezemoon [id=" + breezemoonId + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 

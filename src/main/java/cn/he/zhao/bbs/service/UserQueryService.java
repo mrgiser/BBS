@@ -680,15 +680,15 @@ public class UserQueryService {
      *     ....
      * }
      * </pre>, returns {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getUser(final String userId) throws ServiceException {
+    public UserExt getUser(final String userId) throws Exception {
         try {
             return userMapper.get(userId);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets a user failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
