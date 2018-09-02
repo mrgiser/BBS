@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Tag;
+import cn.he.zhao.bbs.entity.TagArticle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,7 +28,13 @@ public interface TagArticleMapper {
 
     public void removeByArticleId(final String articleId) ;
 
-    public List<JSONObject> getByArticleId(final String articleId) ;
+    public List<TagArticle> getByArticleId(final String articleId) ;
 
-    public JSONObject getByTagId(final String tagId, final int currentPageNum, final int pageSize);
+    public TagArticle getByTagId(final String tagId, final int currentPageNum, final int pageSize);
+
+    String add(TagArticle tagArticleRelation);
+
+    void remove(String relationId);
+
+    void update(String oid, TagArticle tagArticleRel);
 }

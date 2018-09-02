@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Option;
 import org.json.JSONObject;
 
 public interface OptionMapper  {
@@ -24,7 +25,9 @@ public interface OptionMapper  {
 
     public void remove(final String id) ;
 
-    public JSONObject get(final String id) ;
+    public Option get(final String id) ;
 
-    public void update(final String id, final JSONObject option) ;
+    public void update(final String id, final Option option) ;
+
+    String add(Option cityArticleCntOption);
 }

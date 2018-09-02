@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Reward;
+
 public interface RewardMapper {
 
+    String add(Reward reward);
 }

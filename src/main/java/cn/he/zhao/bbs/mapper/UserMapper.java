@@ -17,21 +17,21 @@
  */
 package cn.he.zhao.bbs.mapper;
 
-import org.json.JSONObject;
+import cn.he.zhao.bbs.entity.UserExt;
 
 import java.util.List;
 
 public interface UserMapper {
 
-    public JSONObject get(final String id) ;
+    public UserExt get(final String id) ;
 
-    public void update(final String id, final JSONObject user) ;
+    public void update(final String id, final UserExt user) ;
 
-    public JSONObject getByName(final String name) ;
+    public UserExt getByName(final String name) ;
 
-    public JSONObject getByEmail(final String email) ;
+    public UserExt getByEmail(final String email) ;
 
-    public List<JSONObject> getAdmins() ;
+    public List<UserExt> getAdmins() ;
 
     public boolean isAdminEmail(final String email) ;
 }

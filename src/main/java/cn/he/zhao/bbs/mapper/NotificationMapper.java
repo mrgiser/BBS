@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Notification;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,4 +26,6 @@ public interface NotificationMapper {
 
 
     public void removeByDataId(final String dataId) ;
+
+    void add(Notification notification);
 }

@@ -1,5 +1,6 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entity.Reward;
 import cn.he.zhao.bbs.mapper.*;
 
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * RewardUtil management service.
@@ -41,17 +43,17 @@ public class RewardMgmtService {
      * </pre>
      *
      * @return reward id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public String addReward(final JSONObject requestJSONObject) throws ServiceException {
+    public String addReward(final Reward reward) throws Exception {
         try {
-            return rewardMapper.add(requestJSONObject);
-        } catch (final MapperException e) {
+            return rewardMapper.add(reward);
+        } catch (final Exception e) {
             final String msg = "Adds reward failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 }

@@ -1,5 +1,7 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.event.EventTypes;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -179,9 +181,9 @@ public class ArticleMgmtService {
      * @return {@code true} if it exists, {@code false} otherwise
      * @throws JSONException json exception
      */
-    private static boolean tagExists(final String tagTitle, final List<JSONObject> tags) throws JSONException {
-        for (final JSONObject tag : tags) {
-            if (tag.getString(TagUtil.TAG_TITLE).equals(tagTitle)) {
+    private static boolean tagExists(final String tagTitle, final List<Tag> tags) throws JSONException {
+        for (final Tag tag : tags) {
+            if (tag.getTagTitle().equals(tagTitle)) {
                 return true;
             }
         }
@@ -201,9 +203,9 @@ public class ArticleMgmtService {
      * Sees https://github.com/b3log/symphony/issues/450 for more details.
      *
      * @param articleId the given article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void removeArticle(final String articleId) throws ServiceException {
+    public void removeArticle(final String articleId) throws Exception {
         Article article = null;
 
         try {
@@ -216,31 +218,31 @@ public class ArticleMgmtService {
             return;
         }
 
-        if (ArticleUtil.ARTICLE_STATUS_C_VALID != article.optInt(ArticleUtil.ARTICLE_STATUS)) {
-            throw new ServiceException(langPropsService.get("articleLockedLabel"));
+        if (ArticleUtil.ARTICLE_STATUS_C_VALID != article.getArticleStatus()) {
+            throw new Exception(langPropsService.get("articleLockedLabel"));
         }
 
-        final int commentCnt = article.optInt(Article.ARTICLE_COMMENT_CNT);
+        final int commentCnt = article.getArticleCommentCount();
         if (commentCnt > 0) {
-            throw new ServiceException(langPropsService.get("removeArticleFoundCmtLabel"));
+            throw new Exception(langPropsService.get("removeArticleFoundCmtLabel"));
         }
 
-        final int watchCnt = article.optInt(Article.ARTICLE_WATCH_CNT);
-        final int collectCnt = article.optInt(Article.ARTICLE_COLLECT_CNT);
-        final int ups = article.optInt(Article.ARTICLE_GOOD_CNT);
-        final int downs = article.optInt(Article.ARTICLE_BAD_CNT);
+        final int watchCnt = article.getArticleWatchCnt();
+        final int collectCnt = article.getArticleCollectCnt();
+        final int ups = article.getArticleGoodCnt();
+        final int downs = article.getArticleBadCnt();
         if (watchCnt > 0 || collectCnt > 0 || ups > 0 || downs > 0) {
-            throw new ServiceException(langPropsService.get("removeArticleFoundWatchEtcLabel"));
+            throw new Exception(langPropsService.get("removeArticleFoundWatchEtcLabel"));
         }
 
-        final int rewardCnt = (int) rewardQueryService.rewardedCount(articleId, Reward.TYPE_C_ARTICLE);
+        final int rewardCnt = (int) rewardQueryService.rewardedCount(articleId, RewardUtil.TYPE_C_ARTICLE);
         if (rewardCnt > 0) {
-            throw new ServiceException(langPropsService.get("removeArticleFoundRewardLabel"));
+            throw new Exception(langPropsService.get("removeArticleFoundRewardLabel"));
         }
 
-        final int thankCnt = (int) rewardQueryService.rewardedCount(articleId, Reward.TYPE_C_THANK_ARTICLE);
+        final int thankCnt = (int) rewardQueryService.rewardedCount(articleId, RewardUtil.TYPE_C_THANK_ARTICLE);
         if (thankCnt > 0) {
-            throw new ServiceException(langPropsService.get("removeArticleFoundThankLabel"));
+            throw new Exception(langPropsService.get("removeArticleFoundThankLabel"));
         }
 
         // Perform removal
@@ -253,19 +255,20 @@ public class ArticleMgmtService {
      * @param article the specified article
      * @param userId  the specified user id
      */
-    public void genArticleAudio(final JSONObject article, final String userId) {
-        if (Article.ARTICLE_TYPE_C_THOUGHT == article.optInt(Article.ARTICLE_TYPE)
-                || Article.ARTICLE_TYPE_C_DISCUSSION == article.optInt(Article.ARTICLE_TYPE)) {
+    @Transactional
+    public void genArticleAudio(final Article article, final String userId) {
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.getArticleType()
+                || ArticleUtil.ARTICLE_TYPE_C_DISCUSSION == article.getArticleType()) {
             return;
         }
 
-        final String tags = article.optString(Article.ARTICLE_TAGS);
-        if (StringUtils.containsIgnoreCase(tags, Tag.TAG_TITLE_C_SANDBOX)) {
+        final String tags = article.getArticleTags();
+        if (StringUtils.containsIgnoreCase(tags, TagUtil.TAG_TITLE_C_SANDBOX)) {
             return;
         }
 
-        final String articleId = article.optString(Keys.OBJECT_ID);
-        String previewContent = article.optString(Article.ARTICLE_CONTENT);
+        final String articleId = article.getOid();
+        String previewContent = article.getArticleContent();
         previewContent = Markdowns.toHTML(previewContent);
         final Document doc = Jsoup.parse(previewContent);
         final Elements elements = doc.select("a, img, iframe, object, video");
@@ -277,38 +280,38 @@ public class ArticleMgmtService {
         final String contentToTTS = previewContent;
 
         new Thread(() -> {
-            final Transaction transaction = articleMapper.beginTransaction();
+//            final Transaction transaction = articleMapper.beginTransaction();
 
             try {
                 String audioURL = "";
                 if (StringUtils.length(contentToTTS) < 96 || Runes.getChinesePercent(contentToTTS) < 40) {
                     LOGGER.trace("Content is too short to TTS [contentToTTS=" + contentToTTS + "]");
                 } else {
-                    audioURL = audioMgmtService.tts(contentToTTS, Article.ARTICLE, articleId, userId);
+                    audioURL = audioMgmtService.tts(contentToTTS, ArticleUtil.ARTICLE, articleId, userId);
                 }
                 if (StringUtils.isBlank(audioURL)) {
                     return;
                 }
 
-                article.put(Article.ARTICLE_AUDIO_URL, audioURL);
+                article.setArticleAudioURL( audioURL);
 
-                final JSONObject toUpdate = articleMapper.get(articleId);
-                toUpdate.put(Article.ARTICLE_AUDIO_URL, audioURL);
+                final Article toUpdate = articleMapper.get(articleId);
+                toUpdate.setArticleAudioURL( audioURL);
 
-                articleMapper.update(articleId, toUpdate);
-                transaction.commit();
+                articleMapper.update( toUpdate);
+//                transaction.commit();
 
                 if (StringUtils.isNotBlank(audioURL)) {
                     LOGGER.debug("Generated article [id=" + articleId + "] audio");
                 }
             } catch (final Exception e) {
-                if (transaction.isActive()) {
-                    transaction.rollback();
-                }
+//                if (transaction.isActive()) {
+//                    transaction.rollback();
+//                }
 
                 LOGGER.error( "Updates article's audio URL failed", e);
             } finally {
-                JdbcMapper.dispose();
+//                JdbcMapper.dispose();
             }
         }).start();
     }
@@ -322,60 +325,68 @@ public class ArticleMgmtService {
     @Transactional
     public void removeArticleByAdmin(final String articleId) {
         try {
-            final JSONObject article = articleMapper.get(articleId);
+            final Article article = articleMapper.get(articleId);
             if (null == article) {
                 return;
             }
 
-            Query query = new Query().setFilter(new PropertyFilter(
-                    Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId)).setPageCount(1);
-            final JSONArray comments = commentMapper.get(query).optJSONArray(Keys.RESULTS);
-            final int commentCnt = comments.length();
-            for (int i = 0; i < commentCnt; i++) {
-                final JSONObject comment = comments.optJSONObject(i);
-                final String commentId = comment.optString(Keys.OBJECT_ID);
+//            Query query = new Query().setFilter(new PropertyFilter(
+//                    CommentUtil.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId)).setPageCount(1);
+//            final JSONArray comments = commentMapper.get(query).optJSONArray(Keys.RESULTS);
+//            final int commentCnt = comments.length();
+//            for (int i = 0; i < commentCnt; i++) {
+//                final JSONObject comment = comments.optJSONObject(i);
+//                final String commentId = comment.optString(Keys.OBJECT_ID);
+//
+//                commentMapper.removeComment(commentId);
+//            }
+            // TODO: 2018/9/2 删除该帖子下的的所有评论
+            commentMapper.removeCommentByArticleId(articleId);
 
-                commentMapper.removeComment(commentId);
-            }
+            //作者帖子数-1
+            final String authorId = article.getArticleAuthorId();
+            final UserExt author = userMapper.get(authorId);
+            author.setUserArticleCount(author.getUserArticleCount() -1);
+            userMapper.update(author.getOid(), author);
 
-            final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            final JSONObject author = userMapper.get(authorId);
-            author.put(UserExt.USER_ARTICLE_COUNT, author.optInt(UserExt.USER_ARTICLE_COUNT) - 1);
-            userMapper.update(author.optString(Keys.OBJECT_ID), author);
-
-            final String city = article.optString(Article.ARTICLE_CITY);
+            //城市帖子数-1
+            final String city = article.getArticleCity();
             final String cityStatId = city + "-ArticleCount";
-            final JSONObject cityArticleCntOption = optionMapper.get(cityStatId);
+            final Option cityArticleCntOption = optionMapper.get(cityStatId);
             if (null != cityArticleCntOption) {
-                cityArticleCntOption.put(Option.OPTION_VALUE, cityArticleCntOption.optInt(Option.OPTION_VALUE) - 1);
+                Long value =  Long.parseLong(cityArticleCntOption.getOptionValue()) - 1;
+                cityArticleCntOption.setOptionValue(value.toString());
                 optionMapper.update(cityStatId, cityArticleCntOption);
             }
 
-            final JSONObject articleCntOption = optionMapper.get(Option.ID_C_STATISTIC_ARTICLE_COUNT);
-            articleCntOption.put(Option.OPTION_VALUE, articleCntOption.optInt(Option.OPTION_VALUE) - 1);
-            optionMapper.update(Option.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
+            final Option articleCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
+            Long value =  Long.parseLong(articleCntOption.getOptionValue()) - 1;
+            articleCntOption.setOptionValue(value.toString());
+            optionMapper.update(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
 
             articleMapper.remove(articleId);
 
             // Remove article revisions
-            query = new Query().setFilter(CompositeFilterOperator.and(
-                    new PropertyFilter(Revision.REVISION_DATA_ID, FilterOperator.EQUAL, articleId),
-                    new PropertyFilter(Revision.REVISION_DATA_TYPE, FilterOperator.EQUAL, Revision.DATA_TYPE_C_ARTICLE)
-            ));
-            final JSONArray articleRevisions = revisionMapper.get(query).optJSONArray(Keys.RESULTS);
-            for (int i = 0; i < articleRevisions.length(); i++) {
-                final JSONObject articleRevision = articleRevisions.optJSONObject(i);
-                revisionMapper.remove(articleRevision.optString(Keys.OBJECT_ID));
-            }
+//            query = new Query().setFilter(CompositeFilterOperator.and(
+//                    new PropertyFilter(RevisionUtil.REVISION_DATA_ID, FilterOperator.EQUAL, articleId),
+//                    new PropertyFilter(RevisionUtil.REVISION_DATA_TYPE, FilterOperator.EQUAL, RevisionUtil.DATA_TYPE_C_ARTICLE)
+//            ));
+//            final JSONArray articleRevisions = revisionMapper.get(articleId, RevisionUtil.DATA_TYPE_C_ARTICLE);
+//            for (int i = 0; i < articleRevisions.length(); i++) {
+//                final JSONObject articleRevision = articleRevisions.optJSONObject(i);
+//                revisionMapper.remove(articleRevision.optString(Keys.OBJECT_ID));
+//            }
+            // Remove article revisions
+            revisionMapper.remove(articleId, RevisionUtil.DATA_TYPE_C_ARTICLE);
 
-            final List<JSONObject> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
-            for (final JSONObject tagArticleRel : tagArticleRels) {
-                final String tagId = tagArticleRel.optString(Tag.TAG + "_" + Keys.OBJECT_ID);
-                final JSONObject tag = tagMapper.get(tagId);
-                int cnt = tag.optInt(Tag.TAG_REFERENCE_CNT) - 1;
+            final List<TagArticle> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
+            for (final TagArticle tagArticleRel : tagArticleRels) {
+                final String tagId = tagArticleRel.getTag_oid();
+                final Tag tag = tagMapper.get(tagId);
+                int cnt = tag.getTagReferenceCount() - 1;
                 cnt = cnt < 0 ? 0 : cnt;
-                tag.put(Tag.TAG_REFERENCE_CNT, cnt);
-                tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+                tag.setTagReferenceCount(cnt);
+                tag.setTagRandomDouble(Math.random());
 
                 tagMapper.update(tagId, tag);
             }
@@ -388,9 +399,9 @@ public class ArticleMgmtService {
             }
 
             if (Symphonys.getBoolean("es.enabled")) {
-                searchMgmtService.removeESDocument(article, Article.ARTICLE);
+                searchMgmtService.removeESDocument(article, ArticleUtil.ARTICLE);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Removes an article error [id=" + articleId + "]", e);
         }
     }
@@ -400,30 +411,31 @@ public class ArticleMgmtService {
      *
      * @param articleId the given article id
      */
+    @Transactional
     public void incArticleViewCount(final String articleId) {
         Symphonys.EXECUTOR_SERVICE.submit(() -> {
-            final Transaction transaction = articleMapper.beginTransaction();
+//            final Transaction transaction = articleMapper.beginTransaction();
             try {
-                final JSONObject article = articleMapper.get(articleId);
+                final Article article = articleMapper.get(articleId);
                 if (null == article) {
-                    if (transaction.isActive()) {
-                        transaction.rollback();
-                    }
+//                    if (transaction.isActive()) {
+//                        transaction.rollback();
+//                    }
 
                     return;
                 }
 
-                final int viewCnt = article.optInt(Article.ARTICLE_VIEW_CNT);
-                article.put(Article.ARTICLE_VIEW_CNT, viewCnt + 1);
-                article.put(Article.ARTICLE_RANDOM_DOUBLE, Math.random());
+                final int viewCnt = article.getArticleViewCount();
+                article.setArticleViewCount(viewCnt + 1);
+                article.setArticleRandomDouble( Math.random());
 
-                articleMapper.update(articleId, article);
+                articleMapper.update( article);
 
-                transaction.commit();
-            } catch (final MapperException e) {
-                if (transaction.isActive()) {
-                    transaction.rollback();
-                }
+//                transaction.commit();
+            } catch (final Exception e) {
+//                if (transaction.isActive()) {
+//                    transaction.rollback();
+//                }
 
                 LOGGER.error( "Incs an article view count failed", e);
             }
@@ -454,190 +466,200 @@ public class ArticleMgmtService {
      *                          "articleAnonymousView": int // optional, default to 0 (use global)
      *                          , see {@link Article} for more details
      * @return generated article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public synchronized String addArticle(final JSONObject requestJSONObject) throws ServiceException {
+    public synchronized String addArticle(final Article article) throws Exception {
         final long currentTimeMillis = System.currentTimeMillis();
-        final boolean fromClient = requestJSONObject.has(Article.ARTICLE_CLIENT_ARTICLE_ID);
-        final String authorId = requestJSONObject.optString(Article.ARTICLE_AUTHOR_ID);
-        JSONObject author = null;
-
-        final int rewardPoint = requestJSONObject.optInt(Article.ARTICLE_REWARD_POINT, 0);
-        if (rewardPoint < 0) {
-            throw new ServiceException(langPropsService.get("invalidRewardPointLabel"));
+        final String  clientArticleId = article.getClientArticleId();
+        boolean fromClient = false;
+        if (clientArticleId != null){
+            fromClient = true;
         }
 
-        final int articleAnonymous = requestJSONObject.optInt(Article.ARTICLE_ANONYMOUS);
+        final String authorId = article.getArticleAuthorId();
+        UserExt author = null;
 
-        final boolean syncWithSymphonyClient = requestJSONObject.optBoolean(Article.ARTICLE_SYNC_TO_CLIENT);
+        final int rewardPoint = article.getArticleRewardPoint();//0
+        if (rewardPoint < 0) {
+            throw new Exception(langPropsService.get("invalidRewardPointLabel"));
+        }
 
-        String articleTitle = requestJSONObject.optString(Article.ARTICLE_TITLE);
+        final int articleAnonymous = article.getArticleAnonymous();
+
+//        final boolean syncWithSymphonyClient = article.optBoolean(Article.ARTICLE_SYNC_TO_CLIENT);
+        final String syncWithSymphonyClient = article.getSyncWithSymphonyClient();
+
+        String articleTitle = article.getArticleTitle();
         articleTitle = Emotions.toAliases(articleTitle);
         articleTitle = Pangu.spacingText(articleTitle);
         articleTitle = StringUtils.trim(articleTitle);
 
-        final int qnaOfferPoint = requestJSONObject.optInt(Article.ARTICLE_QNA_OFFER_POINT, 0);
+        final int qnaOfferPoint = article.getArticleQnAOfferPoint();//0
 
-        final int articleType = requestJSONObject.optInt(Article.ARTICLE_TYPE, Article.ARTICLE_TYPE_C_NORMAL);
-        if (Article.ARTICLE_TYPE_C_QNA == articleType && 20 > qnaOfferPoint) { // https://github.com/b3log/symphony/issues/672
-            throw new ServiceException(langPropsService.get("invalidQnAOfferPointLabel"));
+        final int articleType = article.getArticleType();//0
+        if (ArticleUtil.ARTICLE_TYPE_C_QNA == articleType && 20 > qnaOfferPoint) { // https://github.com/b3log/symphony/issues/672
+            throw new Exception(langPropsService.get("invalidQnAOfferPointLabel"));
         }
 
         try {
             // check if admin allow to add article
-            final JSONObject option = optionMapper.get(Option.ID_C_MISC_ALLOW_ADD_ARTICLE);
+            final Option option = optionMapper.get(OptionUtil.ID_C_MISC_ALLOW_ADD_ARTICLE);
 
-            if (!"0".equals(option.optString(Option.OPTION_VALUE))) {
-                throw new ServiceException(langPropsService.get("notAllowAddArticleLabel"));
+            if (!"0".equals(option.getOptionValue())) {
+                throw new Exception(langPropsService.get("notAllowAddArticleLabel"));
             }
 
             author = userMapper.get(authorId);
 
-            if (currentTimeMillis - author.optLong(Keys.OBJECT_ID) < Symphonys.getLong("newbieFirstArticle")) {
+            if (currentTimeMillis - Long.parseLong(author.getOid()) < Symphonys.getLong("newbieFirstArticle")) {
                 String tip = langPropsService.get("newbieFirstArticleLabel");
-                final long time = author.optLong(Keys.OBJECT_ID) + Symphonys.getLong("newbieFirstArticle");
+                final long time = Long.parseLong(author.getOid()) + Symphonys.getLong("newbieFirstArticle");
                 final String timeStr = DateFormatUtils.format(time, "yyyy-MM-dd HH:mm:ss");
                 tip = tip.replace("${time}", timeStr);
 
-                throw new ServiceException(tip);
+                throw new Exception(tip);
             }
 
-            if (currentTimeMillis - author.optLong(UserExt.USER_LATEST_ARTICLE_TIME) < Symphonys.getLong("minStepArticleTime")
-                    && !Role.ROLE_ID_C_ADMIN.equals(author.optString(User.USER_ROLE))) {
-                LOGGER.warn( "Adds article too frequent [userName={0}]", author.optString(User.USER_NAME));
-                throw new ServiceException(langPropsService.get("tooFrequentArticleLabel"));
+            if (currentTimeMillis - author.getUserLatestArticleTime() < Symphonys.getLong("minStepArticleTime")
+                    && !RoleUtil.ROLE_ID_C_ADMIN.equals(author.getUserRole())) {
+                LOGGER.warn( "Adds article too frequent [userName={0}]", author.getUserName());
+                throw new Exception(langPropsService.get("tooFrequentArticleLabel"));
             }
 
-            final int balance = author.optInt(UserExt.USER_POINT);
-            if (Article.ARTICLE_ANONYMOUS_C_ANONYMOUS == articleAnonymous) {
+            final int balance = author.getUserPoint();
+            if (ArticleUtil.ARTICLE_ANONYMOUS_C_ANONYMOUS == articleAnonymous) {
                 final int anonymousPoint = Symphonys.getInt("anonymous.point");
                 if (balance < anonymousPoint) {
                     String anonymousEnabelPointLabel = langPropsService.get("anonymousEnabelPointLabel");
                     anonymousEnabelPointLabel
                             = anonymousEnabelPointLabel.replace("${point}", String.valueOf(anonymousPoint));
-                    throw new ServiceException(anonymousEnabelPointLabel);
+                    throw new Exception(anonymousEnabelPointLabel);
                 }
             }
 
-            if (!fromClient && Article.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
+            if (!fromClient && ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
                 // Point
-                final long followerCnt = followQueryService.getFollowerCount(authorId, Follow.FOLLOWING_TYPE_C_USER);
+                final long followerCnt = followQueryService.getFollowerCount(authorId, FollowUtil.FOLLOWING_TYPE_C_USER);
                 final int addition = (int) Math.round(Math.sqrt(followerCnt));
-                final int broadcast = Article.ARTICLE_TYPE_C_CITY_BROADCAST == articleType ?
-                        Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST : 0;
+                final int broadcast = ArticleUtil.ARTICLE_TYPE_C_CITY_BROADCAST == articleType ?
+                        PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST : 0;
 
-                final int sum = Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE + addition + rewardPoint + qnaOfferPoint + broadcast;
+                final int sum = PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE + addition + rewardPoint + qnaOfferPoint + broadcast;
 
                 if (balance - sum < 0) {
-                    throw new ServiceException(langPropsService.get("insufficientBalanceLabel"));
+                    throw new Exception(langPropsService.get("insufficientBalanceLabel"));
                 }
             }
 
-            if (Article.ARTICLE_TYPE_C_DISCUSSION != articleType) {
-                final JSONObject maybeExist = articleMapper.getByTitle(articleTitle);
+            if (ArticleUtil.ARTICLE_TYPE_C_DISCUSSION != articleType) {
+                final Article maybeExist = articleMapper.getByTitle(articleTitle);
                 if (null != maybeExist) {
-                    final String existArticleAuthorId = maybeExist.optString(Article.ARTICLE_AUTHOR_ID);
+                    final String existArticleAuthorId = maybeExist.getArticleAuthorId();
                     String msg;
                     if (existArticleAuthorId.equals(authorId)) {
                         msg = langPropsService.get("duplicatedArticleTitleSelfLabel");
-                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.optString(Keys.OBJECT_ID)
+                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.getOid()
                                 + "'>" + articleTitle + "</a>");
                     } else {
-                        final JSONObject existArticleAuthor = userMapper.get(existArticleAuthorId);
-                        final String userName = existArticleAuthor.optString(User.USER_NAME);
+                        final UserExt existArticleAuthor = userMapper.get(existArticleAuthorId);
+                        final String userName = existArticleAuthor.getUserName();
                         msg = langPropsService.get("duplicatedArticleTitleLabel");
                         msg = msg.replace("{user}", "<a target='_blank' href='/member/" + userName + "'>" + userName + "</a>");
-                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.optString(Keys.OBJECT_ID)
+                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.getOid()
                                 + "'>" + articleTitle + "</a>");
                     }
 
-                    throw new ServiceException(msg);
+                    throw new Exception(msg);
                 }
             }
-        } catch (final MapperException e) {
-            throw new ServiceException(e);
+        } catch (final Exception e) {
+            throw new Exception(e);
         }
 
-        final Transaction transaction = articleMapper.beginTransaction();
+//        final Transaction transaction = articleMapper.beginTransaction();
 
         try {
-            final String ret = Ids.genTimeMillisId();
-            final JSONObject article = new JSONObject();
-            article.put(Keys.OBJECT_ID, ret);
+            final String oid = Ids.genTimeMillisId();
+//            final JSONObject article = new JSONObject();
+            article.setOid(oid);
 
-            final String clientArticleId = requestJSONObject.optString(ArticleUtil.ARTICLE_CLIENT_ARTICLE_ID, ret);
-            final String clientArticlePermalink = requestJSONObject.optString(Article.ARTICLE_CLIENT_ARTICLE_PERMALINK);
+//            final String clientArticleId = article.getClientArticleId( );//oid
+            final String clientArticlePermalink = article.getClientArticlePermalink();
 
-            article.put(Article.ARTICLE_TITLE, articleTitle);
-            article.put(Article.ARTICLE_TAGS, requestJSONObject.optString(Article.ARTICLE_TAGS));
+            article.setArticleTitle( articleTitle);
+//            article.put(Article.ARTICLE_TAGS, requestJSONObject.optString(Article.ARTICLE_TAGS));
 
-            String articleContent = requestJSONObject.optString(Article.ARTICLE_CONTENT);
+            String articleContent = article.getArticleContent();
             articleContent = Emotions.toAliases(articleContent);
             //articleContent = StringUtils.trim(articleContent) + " "; https://github.com/b3log/symphony/issues/389
             articleContent = StringUtils.replace(articleContent, langPropsService.get("uploadingLabel", Locale.SIMPLIFIED_CHINESE), "");
             articleContent = StringUtils.replace(articleContent, langPropsService.get("uploadingLabel", Locale.US), "");
-            article.put(Article.ARTICLE_CONTENT, articleContent);
+            article.setArticleContent( articleContent);
 
-            String rewardContent = requestJSONObject.optString(Article.ARTICLE_REWARD_CONTENT);
+            String rewardContent = article.getArticleRewardContent();
             rewardContent = Emotions.toAliases(rewardContent);
-            article.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
+            article.setArticleContent( rewardContent);
 
-            article.put(Article.ARTICLE_EDITOR_TYPE, requestJSONObject.optString(Article.ARTICLE_EDITOR_TYPE));
-            article.put(Article.ARTICLE_SYNC_TO_CLIENT, fromClient ? true : author.optBoolean(UserExt.SYNC_TO_CLIENT));
-            article.put(Article.ARTICLE_AUTHOR_ID, authorId);
-            article.put(Article.ARTICLE_COMMENT_CNT, 0);
-            article.put(Article.ARTICLE_VIEW_CNT, 0);
-            article.put(Article.ARTICLE_GOOD_CNT, 0);
-            article.put(Article.ARTICLE_BAD_CNT, 0);
-            article.put(Article.ARTICLE_COLLECT_CNT, 0);
-            article.put(Article.ARTICLE_WATCH_CNT, 0);
-            article.put(Article.ARTICLE_COMMENTABLE, requestJSONObject.optBoolean(Article.ARTICLE_COMMENTABLE, true));
-            article.put(Article.ARTICLE_CREATE_TIME, currentTimeMillis);
-            article.put(Article.ARTICLE_UPDATE_TIME, currentTimeMillis);
-            article.put(Article.ARTICLE_LATEST_CMT_TIME, 0);
-            article.put(Article.ARTICLE_LATEST_CMTER_NAME, "");
-            article.put(Article.ARTICLE_PERMALINK, "/article/" + ret);
-            article.put(Article.ARTICLE_CLIENT_ARTICLE_ID, clientArticleId);
-            article.put(Article.ARTICLE_CLIENT_ARTICLE_PERMALINK, clientArticlePermalink);
-            article.put(Article.ARTICLE_RANDOM_DOUBLE, Math.random());
-            article.put(Article.REDDIT_SCORE, 0);
-            article.put(Article.ARTICLE_STATUS, Article.ARTICLE_STATUS_C_VALID);
-            article.put(Article.ARTICLE_TYPE, articleType);
-            article.put(Article.ARTICLE_REWARD_POINT, rewardPoint);
-            article.put(Article.ARTICLE_QNA_OFFER_POINT, qnaOfferPoint);
-            article.put(Article.ARTICLE_PUSH_ORDER, 0);
+//            article.put(Article.ARTICLE_EDITOR_TYPE, requestJSONObject.optString(Article.ARTICLE_EDITOR_TYPE));
+
+            article.setSyncWithSymphonyClient(Article.ARTICLE_SYNC_TO_CLIENT, fromClient ? true : author.optBoolean(UserExt.SYNC_TO_CLIENT));
+
+            article.setArticleAuthorId(authorId);
+            article.setArticleCommentCount(0);
+            article.setArticleViewCount(0);
+            article.setArticleGoodCnt(0);
+            article.setArticleBadCnt(0);
+            article.setArticleCollectCnt(0);
+            article.setArticleWatchCnt( 0);
+            article.setArticleCommentable(Article.ARTICLE_COMMENTABLE, requestJSONObject.optBoolean(Article.ARTICLE_COMMENTABLE, true));
+            article.setArticleCreateTime( currentTimeMillis);
+            article.setArticleUpdateTime( currentTimeMillis);
+            article.setArticleLatestCmtTime(0L);
+            article.setArticleLatestCmterName("");
+            article.setArticlePermalink("/article/" + oid);
+            article.setClientArticleId(clientArticleId);
+            article.setClientArticlePermalink(clientArticlePermalink);
+            article.setArticleRandomDouble( Math.random());
+            article.setRedditScore(0D);
+            article.setArticleStatus(ArticleUtil.ARTICLE_STATUS_C_VALID);
+            article.setArticleType(articleType);
+            article.setArticleRewardPoint(rewardPoint);
+            article.setArticleQnAOfferPoint( qnaOfferPoint);
+            article.setArticlePushOrder( 0);
             String city = "";
-            if (UserExt.USER_GEO_STATUS_C_PUBLIC == author.optInt(UserExt.USER_GEO_STATUS)) {
-                city = author.optString(UserExt.USER_CITY);
+            if (UserExtUtil.USER_GEO_STATUS_C_PUBLIC == author.getUserGeoStatus()) {
+                city = author.getUserCity();
             }
-            article.put(Article.ARTICLE_CITY, city);
-            article.put(Article.ARTICLE_ANONYMOUS, articleAnonymous);
-            article.put(Article.ARTICLE_SYNC_TO_CLIENT, syncWithSymphonyClient);
-            article.put(Article.ARTICLE_PERFECT, Article.ARTICLE_PERFECT_C_NOT_PERFECT);
-            article.put(Article.ARTICLE_ANONYMOUS_VIEW,
-                    requestJSONObject.optInt(Article.ARTICLE_ANONYMOUS_VIEW, Article.ARTICLE_ANONYMOUS_VIEW_C_USE_GLOBAL));
-            article.put(Article.ARTICLE_AUDIO_URL, "");
+            article.setArticleCity(city);
+            article.setArticleAnonymous(articleAnonymous);
+            article.setSyncWithSymphonyClient(syncWithSymphonyClient);
+            article.setArticlePerfect(ArticleUtil.ARTICLE_PERFECT_C_NOT_PERFECT);
+            if (article.getArticleAnonymousView() == null){
+                article.setArticleAnonymousView(ArticleUtil.ARTICLE_ANONYMOUS_VIEW_C_USE_GLOBAL);//
+            }
 
-            String articleTags = article.optString(Article.ARTICLE_TAGS);
-            articleTags = Tag.formatTags(articleTags);
+            article.setArticleAudioURL("");
+
+            String articleTags = article.getArticleTags();
+            articleTags = TagUtil.formatTags(articleTags);
             boolean sandboxEnv = false;
-            if (StringUtils.containsIgnoreCase(articleTags, Tag.TAG_TITLE_C_SANDBOX)) {
-                articleTags = Tag.TAG_TITLE_C_SANDBOX;
+            if (StringUtils.containsIgnoreCase(articleTags, TagUtil.TAG_TITLE_C_SANDBOX)) {
+                articleTags = TagUtil.TAG_TITLE_C_SANDBOX;
                 sandboxEnv = true;
             }
 
             String[] tagTitles = articleTags.split(",");
             if (!sandboxEnv && tagTitles.length < TAG_MAX_CNT && tagTitles.length < 3
-                    && Article.ARTICLE_TYPE_C_DISCUSSION != articleType
-                    && Article.ARTICLE_TYPE_C_THOUGHT != articleType && !Tag.containsReservedTags(articleTags)) {
-                final String content = article.optString(Article.ARTICLE_TITLE)
-                        + " " + Jsoup.parse("<p>" + article.optString(Article.ARTICLE_CONTENT) + "</p>").text();
+                    && ArticleUtil.ARTICLE_TYPE_C_DISCUSSION != articleType
+                    && ArticleUtil.ARTICLE_TYPE_C_THOUGHT != articleType && !TagUtil.containsReservedTags(articleTags)) {
+                final String content = article.getArticleTitle()
+                        + " " + Jsoup.parse("<p>" + article.getArticleContent() + "</p>").text();
 
                 final List<String> genTags = tagQueryService.generateTags(content, 1);
                 if (!genTags.isEmpty()) {
                     articleTags = articleTags + "," + StringUtils.join(genTags, ",");
-                    articleTags = Tag.formatTags(articleTags);
-                    articleTags = Tag.useHead(articleTags, TAG_MAX_CNT);
+                    articleTags = TagUtil.formatTags(articleTags);
+                    articleTags = TagUtil.useHead(articleTags, TAG_MAX_CNT);
                 }
             }
 
@@ -645,74 +667,76 @@ public class ArticleMgmtService {
                 articleTags = "B3log";
             }
 
-            articleTags = Tag.formatTags(articleTags);
-            if (Article.ARTICLE_TYPE_C_QNA == articleType && !StringUtils.contains(articleTags, "Q&A")) {
+            articleTags = TagUtil.formatTags(articleTags);
+            if (ArticleUtil.ARTICLE_TYPE_C_QNA == articleType && !StringUtils.contains(articleTags, "Q&A")) {
                 articleTags += ",Q&A";
             }
-            article.put(Article.ARTICLE_TAGS, articleTags);
+            article.setArticleTags( articleTags);
             tagTitles = articleTags.split(",");
 
             tag(tagTitles, article, author);
 
-            final String ip = requestJSONObject.optString(Article.ARTICLE_IP);
-            article.put(Article.ARTICLE_IP, ip);
+//            final String ip = article.getArticleIP();
+//            article.setArticleIP(ip);
 
-            String ua = requestJSONObject.optString(Article.ARTICLE_UA);
-            if (StringUtils.length(ua) > Common.MAX_LENGTH_UA) {
-                ua = StringUtils.substring(ua, 0, Common.MAX_LENGTH_UA);
+            String ua = article.getArticleUA();
+            if (StringUtils.length(ua) > CommonUtil.MAX_LENGTH_UA) {
+                ua = StringUtils.substring(ua, 0, CommonUtil.MAX_LENGTH_UA);
             }
-            article.put(Article.ARTICLE_UA, ua);
+            article.setArticleUA( ua);
 
-            article.put(Article.ARTICLE_STICK, 0L);
+            article.setArticleStick(0L);
 
-            final JSONObject articleCntOption = optionMapper.get(Option.ID_C_STATISTIC_ARTICLE_COUNT);
-            final int articleCnt = articleCntOption.optInt(Option.OPTION_VALUE);
-            articleCntOption.put(Option.OPTION_VALUE, articleCnt + 1);
-            optionMapper.update(Option.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
+            final Option articleCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
+            final int articleCnt = Integer.parseInt(articleCntOption.getOptionValue());
+            int tmp = articleCnt + 1;
+            articleCntOption.setOptionValue(tmp + "");
+            optionMapper.update(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
 
             if (!StringUtils.isBlank(city)) {
                 final String cityStatId = city + "-ArticleCount";
-                JSONObject cityArticleCntOption = optionMapper.get(cityStatId);
+                Option cityArticleCntOption = optionMapper.get(cityStatId);
 
                 if (null == cityArticleCntOption) {
-                    cityArticleCntOption = new JSONObject();
-                    cityArticleCntOption.put(Keys.OBJECT_ID, cityStatId);
-                    cityArticleCntOption.put(Option.OPTION_VALUE, 1);
-                    cityArticleCntOption.put(Option.OPTION_CATEGORY, city + "-statistic");
+                    cityArticleCntOption = new Option();
+                    cityArticleCntOption.setOid( cityStatId);
+                    cityArticleCntOption.setOptionValue( 1+"");
+                    cityArticleCntOption.setOptionCategory( city + "-statistic");
 
                     optionMapper.add(cityArticleCntOption);
                 } else {
-                    final int cityArticleCnt = cityArticleCntOption.optInt(Option.OPTION_VALUE);
-                    cityArticleCntOption.put(Option.OPTION_VALUE, cityArticleCnt + 1);
+                    final int cityArticleCnt = Integer.parseInt(cityArticleCntOption.getOptionValue());
+                    int tmp_val = cityArticleCnt + 1;
+                    cityArticleCntOption.setOptionValue(tmp_val+ "");
 
                     optionMapper.update(cityStatId, cityArticleCntOption);
                 }
             }
 
-            author.put(UserExt.USER_ARTICLE_COUNT, author.optInt(UserExt.USER_ARTICLE_COUNT) + 1);
-            author.put(UserExt.USER_LATEST_ARTICLE_TIME, currentTimeMillis);
+            author.setUserArticleCount(author.getUserArticleCount() + 1);
+            author.setUserLatestArticleTime( currentTimeMillis);
             // Updates user article count (and new tag count), latest article time
-            userMapper.update(author.optString(Keys.OBJECT_ID), author);
+            userMapper.update(author.getOid(), author);
 
             final String articleId = articleMapper.add(article);
 
-            if (Article.ARTICLE_TYPE_C_THOUGHT != articleType) {
+            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT != articleType) {
                 // RevisionUtil
-                final JSONObject revision = new JSONObject();
-                revision.put(Revision.REVISION_AUTHOR_ID, authorId);
+                final Revision revision = new Revision();
+                revision.setRevisionAuthorId(authorId);
 
                 final JSONObject revisionData = new JSONObject();
-                revisionData.put(Article.ARTICLE_TITLE, articleTitle);
-                revisionData.put(Article.ARTICLE_CONTENT, articleContent);
+                revisionData.put(ArticleUtil.ARTICLE_TITLE, articleTitle);
+                revisionData.put(ArticleUtil.ARTICLE_CONTENT, articleContent);
 
-                revision.put(Revision.REVISION_DATA, revisionData.toString());
-                revision.put(Revision.REVISION_DATA_ID, articleId);
-                revision.put(Revision.REVISION_DATA_TYPE, Revision.DATA_TYPE_C_ARTICLE);
+                revision.setRevisionData( revisionData.toString());
+                revision.setRevisionDataId( articleId);
+                revision.setRevisionDataType( RevisionUtil.DATA_TYPE_C_ARTICLE);
 
                 revisionMapper.add(revision);
             }
 
-            transaction.commit();
+//            transaction.commit();
 
             try {
                 Thread.sleep(50); // wait for db write to avoid article duplication
@@ -720,31 +744,31 @@ public class ArticleMgmtService {
             }
 
             // Grows the tag graph
-            tagMgmtService.relateTags(article.optString(Article.ARTICLE_TAGS));
+            tagMgmtService.relateTags(article.getArticleTags());
 
-            if (!fromClient && Article.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
+            if (!fromClient && ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
                 // Point
-                final long followerCnt = followQueryService.getFollowerCount(authorId, Follow.FOLLOWING_TYPE_C_USER);
+                final long followerCnt = followQueryService.getFollowerCount(authorId, FollowUtil.FOLLOWING_TYPE_C_USER);
                 final int addition = (int) Math.round(Math.sqrt(followerCnt));
 
-                pointtransferMgmtService.transfer(authorId, Pointtransfer.ID_C_SYS,
-                        Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE,
-                        Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE + addition, articleId, System.currentTimeMillis());
+                pointtransferMgmtService.transfer(authorId, PointtransferUtil.ID_C_SYS,
+                        PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE,
+                        PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE + addition, articleId, System.currentTimeMillis());
 
                 if (rewardPoint > 0) { // Enable reward
-                    pointtransferMgmtService.transfer(authorId, Pointtransfer.ID_C_SYS,
-                            Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE_REWARD,
-                            Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_REWARD, articleId, System.currentTimeMillis());
+                    pointtransferMgmtService.transfer(authorId, PointtransferUtil.ID_C_SYS,
+                            PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE_REWARD,
+                            PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_REWARD, articleId, System.currentTimeMillis());
                 }
 
-                if (Article.ARTICLE_TYPE_C_CITY_BROADCAST == articleType) {
-                    pointtransferMgmtService.transfer(authorId, Pointtransfer.ID_C_SYS,
-                            Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE_BROADCAST,
-                            Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST, articleId, System.currentTimeMillis());
+                if (ArticleUtil.ARTICLE_TYPE_C_CITY_BROADCAST == articleType) {
+                    pointtransferMgmtService.transfer(authorId, PointtransferUtil.ID_C_SYS,
+                            PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE_BROADCAST,
+                            PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST, articleId, System.currentTimeMillis());
                 }
 
                 // LivenessUtil
-                livenessMgmtService.incLiveness(authorId, Liveness.LIVENESS_ARTICLE);
+                livenessMgmtService.incLiveness(authorId, LivenessUtil.LIVENESS_ARTICLE);
             }
 
             // Event
@@ -753,18 +777,18 @@ public class ArticleMgmtService {
             eventData.put(Article.ARTICLE, article);
             try {
                 eventManager.fireEventAsynchronously(new Event<>(EventTypes.ADD_ARTICLE, eventData));
-            } catch (final EventException e) {
+            } catch (final Exception e) {
                 LOGGER.error( e.getMessage(), e);
             }
 
             return ret;
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Adds an article failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -786,193 +810,202 @@ public class ArticleMgmtService {
      *                          "articleIP": "", // optional, default to ""
      *                          "articleUA": "", // optional default to ""
      *                          , see {@link Article} for more details
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public synchronized void updateArticle(final JSONObject requestJSONObject) throws ServiceException {
-        String articleTitle = requestJSONObject.optString(Article.ARTICLE_TITLE);
-        final boolean fromClient = requestJSONObject.has(Article.ARTICLE_CLIENT_ARTICLE_ID);
+    public synchronized void updateArticle(final Article requestJSONObject) throws Exception {
+        String articleTitle = requestJSONObject.getArticleTitle();
+
+        // TODO: 2018/9/2 判断str何时为真
+        final String fromClientStr = requestJSONObject.getClientArticleId();
+        boolean fromClient = false;
+        if (fromClientStr == "Y"){
+            fromClient = true;
+        }
 
         String articleId;
-        JSONObject oldArticle;
+        Article oldArticle;
         String authorId;
-        JSONObject author;
+        UserExt author;
         int updatePointSum;
         int articleAnonymous = 0;
 
         try {
             // check if admin allow to add article
-            final JSONObject option = optionMapper.get(Option.ID_C_MISC_ALLOW_ADD_ARTICLE);
+            final Option option = optionMapper.get(OptionUtil.ID_C_MISC_ALLOW_ADD_ARTICLE);
 
-            if (!"0".equals(option.optString(Option.OPTION_VALUE))) {
-                throw new ServiceException(langPropsService.get("notAllowAddArticleLabel"));
+            if (!"0".equals(option.getOptionValue())) {
+                throw new Exception(langPropsService.get("notAllowAddArticleLabel"));
             }
 
-            articleId = requestJSONObject.optString(Keys.OBJECT_ID);
+            articleId = requestJSONObject.getOid();
             oldArticle = articleMapper.get(articleId);
-            authorId = oldArticle.optString(Article.ARTICLE_AUTHOR_ID);
+            authorId = oldArticle.getArticleAuthorId();
             author = userMapper.get(authorId);
 
-            final long followerCnt = followQueryService.getFollowerCount(authorId, Follow.FOLLOWING_TYPE_C_USER);
+            final long followerCnt = followQueryService.getFollowerCount(authorId, FollowUtil.FOLLOWING_TYPE_C_USER);
             int addition = (int) Math.round(Math.sqrt(followerCnt));
-            final long collectCnt = followQueryService.getFollowerCount(articleId, Follow.FOLLOWING_TYPE_C_ARTICLE);
-            final long watchCnt = followQueryService.getFollowerCount(articleId, Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH);
+            final long collectCnt = followQueryService.getFollowerCount(articleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE);
+            final long watchCnt = followQueryService.getFollowerCount(articleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH);
             addition += (collectCnt + watchCnt) * 2;
-            updatePointSum = Pointtransfer.TRANSFER_SUM_C_UPDATE_ARTICLE + addition;
+            updatePointSum = PointtransferUtil.TRANSFER_SUM_C_UPDATE_ARTICLE + addition;
 
-            articleAnonymous = oldArticle.optInt(Article.ARTICLE_ANONYMOUS);
+            articleAnonymous = oldArticle.getArticleAnonymous();
 
-            if (!fromClient && Article.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
+            if (!fromClient && ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
                 // Point
-                final int balance = author.optInt(UserExt.USER_POINT);
+                final int balance = author.getUserPoint();
                 if (balance - updatePointSum < 0) {
-                    throw new ServiceException(langPropsService.get("insufficientBalanceLabel"));
+                    throw new Exception(langPropsService.get("insufficientBalanceLabel"));
                 }
             }
 
-            final JSONObject maybeExist = articleMapper.getByTitle(articleTitle);
+            final Article maybeExist = articleMapper.getByTitle(articleTitle);
             if (null != maybeExist) {
-                if (!oldArticle.optString(Article.ARTICLE_TITLE).equals(articleTitle)) {
-                    final String existArticleAuthorId = maybeExist.optString(Article.ARTICLE_AUTHOR_ID);
+                if (!oldArticle.getArticleTitle().equals(articleTitle)) {
+                    final String existArticleAuthorId = maybeExist.getArticleAuthorId();
                     String msg;
                     if (existArticleAuthorId.equals(authorId)) {
                         msg = langPropsService.get("duplicatedArticleTitleSelfLabel");
-                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.optString(Keys.OBJECT_ID)
+                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.getOid()
                                 + "'>" + articleTitle + "</a>");
                     } else {
-                        final JSONObject existArticleAuthor = userMapper.get(existArticleAuthorId);
-                        final String userName = existArticleAuthor.optString(User.USER_NAME);
+                        final UserExt existArticleAuthor = userMapper.get(existArticleAuthorId);
+                        final String userName = existArticleAuthor.getUserName();
                         msg = langPropsService.get("duplicatedArticleTitleLabel");
                         msg = msg.replace("{user}", "<a target='_blank' href='/member/" + userName + "'>" + userName + "</a>");
-                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.optString(Keys.OBJECT_ID)
+                        msg = msg.replace("{article}", "<a target='_blank' href='/article/" + maybeExist.getOid()
                                 + "'>" + articleTitle + "</a>");
                     }
 
-                    throw new ServiceException(msg);
+                    throw new Exception(msg);
                 }
             }
-        } catch (final MapperException e) {
-            throw new ServiceException(e);
+        } catch (final Exception e) {
+            throw new Exception(e);
         }
 
-        final int qnaOfferPoint = requestJSONObject.optInt(Article.ARTICLE_QNA_OFFER_POINT, 0);
-        if (qnaOfferPoint < oldArticle.optInt(Article.ARTICLE_QNA_OFFER_POINT)) { // Increase only to prevent lowering points when adopting answer
-            throw new ServiceException(langPropsService.get("qnaOfferPointMustMoreThanOldLabel"));
+        final int qnaOfferPoint = requestJSONObject.getArticleQnAOfferPoint();//0 todo 
+        if (qnaOfferPoint < oldArticle.getArticleQnAOfferPoint()) { // Increase only to prevent lowering points when adopting answer
+            throw new Exception(langPropsService.get("qnaOfferPointMustMoreThanOldLabel"));
         }
-        oldArticle.put(Article.ARTICLE_QNA_OFFER_POINT, qnaOfferPoint);
+        oldArticle.setArticleQnAOfferPoint(qnaOfferPoint);
 
-        final int articleType = requestJSONObject.optInt(Article.ARTICLE_TYPE, Article.ARTICLE_TYPE_C_NORMAL);
+        // TODO: 2018/9/2 Article.ARTICLE_TYPE_C_NORMAL
+        final int articleType = requestJSONObject.getArticleType();
 
-        final Transaction transaction = articleMapper.beginTransaction();
+//        final Transaction transaction = articleMapper.beginTransaction();
 
         try {
-            requestJSONObject.put(Article.ARTICLE_ANONYMOUS, articleAnonymous);
+            requestJSONObject.setArticleAnonymous( articleAnonymous);
             processTagsForArticleUpdate(oldArticle, requestJSONObject, author);
-            userMapper.update(author.optString(Keys.OBJECT_ID), author);
+            userMapper.update(author.getOid(), author);
 
             articleTitle = Emotions.toAliases(articleTitle);
             articleTitle = Pangu.spacingText(articleTitle);
 
-            final String oldTitle = oldArticle.optString(Article.ARTICLE_TITLE);
-            oldArticle.put(Article.ARTICLE_TITLE, articleTitle);
+            final String oldTitle = oldArticle.getArticleTitle();
+            oldArticle.setArticleTitle( articleTitle);
 
-            oldArticle.put(Article.ARTICLE_TAGS, requestJSONObject.optString(Article.ARTICLE_TAGS));
-            oldArticle.put(Article.ARTICLE_COMMENTABLE, requestJSONObject.optBoolean(Article.ARTICLE_COMMENTABLE, true));
-            oldArticle.put(Article.ARTICLE_TYPE, articleType);
+            oldArticle.setArticleTags( requestJSONObject.getArticleTags());
+            // TODO: 2018/9/2 默认true
+            oldArticle.setArticleCommentable( requestJSONObject.getArticleCommentable());
+            oldArticle.setArticleType( articleType);
 
-            String articleContent = requestJSONObject.optString(Article.ARTICLE_CONTENT);
+            String articleContent = requestJSONObject.getArticleContent();
             articleContent = Emotions.toAliases(articleContent);
             //articleContent = StringUtils.trim(articleContent) + " "; https://github.com/b3log/symphony/issues/389
             articleContent = articleContent.replace(langPropsService.get("uploadingLabel", Locale.SIMPLIFIED_CHINESE), "");
             articleContent = articleContent.replace(langPropsService.get("uploadingLabel", Locale.US), "");
 
-            final String oldContent = oldArticle.optString(Article.ARTICLE_CONTENT);
-            oldArticle.put(Article.ARTICLE_CONTENT, articleContent);
+            final String oldContent = oldArticle.getArticleContent();
+            oldArticle.setArticleContent(, articleContent);
 
             final long currentTimeMillis = System.currentTimeMillis();
-            final long createTime = oldArticle.optLong(Keys.OBJECT_ID);
-            oldArticle.put(Article.ARTICLE_UPDATE_TIME, currentTimeMillis);
+            final long createTime = Long.parseLong(oldArticle.getOid());
+            oldArticle.setArticleUpdateTime( currentTimeMillis);
 
-            final int rewardPoint = requestJSONObject.optInt(Article.ARTICLE_REWARD_POINT, 0);
+            // TODO: 2018/9/2 默认为 0
+            final int rewardPoint = requestJSONObject.getArticleRewardPoint();
             boolean enableReward = false;
             if (0 < rewardPoint) {
-                if (1 > oldArticle.optInt(Article.ARTICLE_REWARD_POINT)) {
+                if (1 > oldArticle.getArticleRewardPoint()) {
                     enableReward = true;
                 }
 
-                String rewardContent = requestJSONObject.optString(Article.ARTICLE_REWARD_CONTENT);
+                String rewardContent = requestJSONObject.getArticleRewardContent();
                 rewardContent = Emotions.toAliases(rewardContent);
-                oldArticle.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
-                oldArticle.put(Article.ARTICLE_REWARD_POINT, rewardPoint);
+                oldArticle.setArticleRewardContent( rewardContent);
+                oldArticle.setArticleRewardPoint( rewardPoint);
             }
 
-            final String ip = requestJSONObject.optString(Article.ARTICLE_IP);
-            oldArticle.put(Article.ARTICLE_IP, ip);
+            final String ip = requestJSONObject.getArticleIP();
+            oldArticle.setArticleIP( ip);
 
-            String ua = requestJSONObject.optString(Article.ARTICLE_UA);
-            if (StringUtils.length(ua) > Common.MAX_LENGTH_UA) {
-                ua = StringUtils.substring(ua, 0, Common.MAX_LENGTH_UA);
+            String ua = requestJSONObject.getArticleUA();
+            if (StringUtils.length(ua) > CommonUtil.MAX_LENGTH_UA) {
+                ua = StringUtils.substring(ua, 0, CommonUtil.MAX_LENGTH_UA);
             }
-            oldArticle.put(Article.ARTICLE_UA, ua);
+            oldArticle.setArticleUA( ua);
 
-            final String clientArticlePermalink = requestJSONObject.optString(Article.ARTICLE_CLIENT_ARTICLE_PERMALINK);
-            oldArticle.put(Article.ARTICLE_CLIENT_ARTICLE_PERMALINK, clientArticlePermalink);
+            final String clientArticlePermalink = requestJSONObject.getClientArticlePermalink();
+            oldArticle.setClientArticlePermalink(clientArticlePermalink);
 
-            articleMapper.update(articleId, oldArticle);
+            articleMapper.update( oldArticle);
 
-            if (Article.ARTICLE_TYPE_C_THOUGHT != articleType
+            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT != articleType
                     && (!oldContent.equals(articleContent) || !oldTitle.equals(articleTitle))) {
                 // RevisionUtil
-                final JSONObject revision = new JSONObject();
-                revision.put(Revision.REVISION_AUTHOR_ID, authorId);
+                final Revision revision = new Revision();
+                revision.setRevisionAuthorId(authorId);
 
                 final JSONObject revisionData = new JSONObject();
-                revisionData.put(Article.ARTICLE_TITLE, articleTitle);
-                revisionData.put(Article.ARTICLE_CONTENT, articleContent);
+                revisionData.put(ArticleUtil.ARTICLE_TITLE, articleTitle);
+                revisionData.put(ArticleUtil.ARTICLE_CONTENT, articleContent);
 
-                revision.put(Revision.REVISION_DATA, revisionData.toString());
-                revision.put(Revision.REVISION_DATA_ID, articleId);
-                revision.put(Revision.REVISION_DATA_TYPE, Revision.DATA_TYPE_C_ARTICLE);
+                revision.setRevisionData( revisionData.toString());
+                revision.setRevisionDataId( articleId);
+                revision.setRevisionDataType( RevisionUtil.DATA_TYPE_C_ARTICLE);
 
                 revisionMapper.add(revision);
             }
 
-            transaction.commit();
+//            transaction.commit();
 
             try {
                 Thread.sleep(50); // wait for db write to avoid artitle duplication
             } catch (final Exception e) {
             }
 
-            if (!fromClient && Article.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
+            if (!fromClient && ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
                 if (currentTimeMillis - createTime > 1000 * 60 * 5) {
-                    pointtransferMgmtService.transfer(authorId, Pointtransfer.ID_C_SYS,
-                            Pointtransfer.TRANSFER_TYPE_C_UPDATE_ARTICLE,
+                    pointtransferMgmtService.transfer(authorId, PointtransferUtil.ID_C_SYS,
+                            PointtransferUtil.TRANSFER_TYPE_C_UPDATE_ARTICLE,
                             updatePointSum, articleId, System.currentTimeMillis());
                 }
 
                 if (enableReward) {
-                    pointtransferMgmtService.transfer(authorId, Pointtransfer.ID_C_SYS,
-                            Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE_REWARD,
-                            Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_REWARD, articleId, System.currentTimeMillis());
+                    pointtransferMgmtService.transfer(authorId, PointtransferUtil.ID_C_SYS,
+                            PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE_REWARD,
+                            PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_REWARD, articleId, System.currentTimeMillis());
                 }
             }
 
             // Event
             final JSONObject eventData = new JSONObject();
-            eventData.put(Common.FROM_CLIENT, fromClient);
-            eventData.put(Article.ARTICLE, oldArticle);
+            eventData.put(CommonUtil.FROM_CLIENT, fromClient);
+            eventData.put(ArticleUtil.ARTICLE, oldArticle);
             try {
                 eventManager.fireEventAsynchronously(new Event<>(EventTypes.UPDATE_ARTICLE, eventData));
             } catch (final EventException e) {
                 LOGGER.error( e.getMessage(), e);
             }
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Updates an article failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -984,86 +1017,87 @@ public class ArticleMgmtService {
      *
      * @param articleId the given article id
      * @param article   the specified article
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void updateArticleByAdmin(final String articleId, final JSONObject article) throws ServiceException {
-        final Transaction transaction = articleMapper.beginTransaction();
+    @Transactional
+    public void updateArticleByAdmin(final String articleId, final Article article) throws Exception {
+//        final Transaction transaction = articleMapper.beginTransaction();
 
         try {
-            final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            final JSONObject author = userMapper.get(authorId);
+            final String authorId = article.getArticleAuthorId();
+            final UserExt author = userMapper.get(authorId);
 
-            article.put(Article.ARTICLE_COMMENTABLE, Boolean.valueOf(article.optBoolean(Article.ARTICLE_COMMENTABLE)));
-            article.put(Article.ARTICLE_SYNC_TO_CLIENT, author.optBoolean(UserExt.SYNC_TO_CLIENT));
+            article.setArticleCommentable( Boolean.valueOf(article.getArticleCommentable()));
+            article.setSyncWithSymphonyClient( author.getSyncWithSymphonyClient());
 
-            final JSONObject oldArticle = articleMapper.get(articleId);
+            final Article oldArticle = articleMapper.get(articleId);
 
-            if (Article.ARTICLE_STATUS_C_INVALID == article.optInt(Article.ARTICLE_STATUS)) {
-                article.put(Article.ARTICLE_TAGS, "回收站");
+            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
+                article.setArticleTags( "回收站");
             }
 
             processTagsForArticleUpdate(oldArticle, article, author);
 
-            String articleTitle = article.optString(Article.ARTICLE_TITLE);
+            String articleTitle = article.getArticleTitle();
             articleTitle = Emotions.toAliases(articleTitle);
-            article.put(Article.ARTICLE_TITLE, articleTitle);
+            article.setArticleTitle(articleTitle);
 
-            if (Article.ARTICLE_TYPE_C_THOUGHT == article.optInt(Article.ARTICLE_TYPE)) {
-                article.put(Article.ARTICLE_CONTENT, oldArticle.optString(Article.ARTICLE_CONTENT));
+            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.getArticleType()) {
+                article.setArticleContent( oldArticle.getArticleContent());
             } else {
-                String articleContent = article.optString(Article.ARTICLE_CONTENT);
+                String articleContent = article.getArticleContent();
                 articleContent = Emotions.toAliases(articleContent);
-                article.put(Article.ARTICLE_CONTENT, articleContent);
+                article.setArticleContent( articleContent);
             }
 
-            final int perfect = article.optInt(Article.ARTICLE_PERFECT);
-            if (Article.ARTICLE_PERFECT_C_PERFECT == perfect) {
+            final int perfect = article.getArticlePerfect();
+            if (ArticleUtil.ARTICLE_PERFECT_C_PERFECT == perfect) {
                 // if it is perfect, allow anonymous view
-                article.put(Article.ARTICLE_ANONYMOUS_VIEW, Article.ARTICLE_ANONYMOUS_VIEW_C_ALLOW);
+                article.setArticleAnonymousView( ArticleUtil.ARTICLE_ANONYMOUS_VIEW_C_ALLOW);
 
                 // updates tag-article perfect
-                final List<JSONObject> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
-                for (final JSONObject tagArticleRel : tagArticleRels) {
-                    tagArticleRel.put(Article.ARTICLE_PERFECT, Article.ARTICLE_PERFECT_C_PERFECT);
+                final List<TagArticle> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
+                for (final TagArticle tagArticleRel : tagArticleRels) {
+                    tagArticleRel.setArticlePerfect( ArticleUtil.ARTICLE_PERFECT_C_PERFECT);
 
-                    tagArticleMapper.update(tagArticleRel.optString(Keys.OBJECT_ID), tagArticleRel);
+                    tagArticleMapper.update(tagArticleRel.getOid(), tagArticleRel);
                 }
             }
 
             userMapper.update(authorId, author);
-            articleMapper.update(articleId, article);
+            articleMapper.update( article);
 
-            transaction.commit();
+//            transaction.commit();
 
-            if (Article.ARTICLE_PERFECT_C_NOT_PERFECT == oldArticle.optInt(Article.ARTICLE_PERFECT)
-                    && Article.ARTICLE_PERFECT_C_PERFECT == perfect) {
-                final JSONObject notification = new JSONObject();
-                notification.put(Notification.NOTIFICATION_USER_ID, authorId);
-                notification.put(Notification.NOTIFICATION_DATA_ID, articleId);
+            if (ArticleUtil.ARTICLE_PERFECT_C_NOT_PERFECT == oldArticle.getArticlePerfect()
+                    && ArticleUtil.ARTICLE_PERFECT_C_PERFECT == perfect) {
+                final Notification notification = new Notification();
+                notification.setUserId( authorId);
+                notification.setDataId( articleId);
 
                 notificationMgmtService.addPerfectArticleNotification(notification);
 
-                pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, authorId,
-                        Pointtransfer.TRANSFER_TYPE_C_PERFECT_ARTICLE, Pointtransfer.TRANSFER_SUM_C_PERFECT_ARTICLE,
+                pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, authorId,
+                        PointtransferUtil.TRANSFER_TYPE_C_PERFECT_ARTICLE, PointtransferUtil.TRANSFER_SUM_C_PERFECT_ARTICLE,
                         articleId, System.currentTimeMillis());
             }
 
-            if (Article.ARTICLE_STATUS_C_INVALID == article.optInt(Article.ARTICLE_STATUS)) {
+            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
                 if (Symphonys.getBoolean("algolia.enabled")) {
                     searchMgmtService.removeAlgoliaDocument(article);
                 }
 
                 if (Symphonys.getBoolean("es.enabled")) {
-                    searchMgmtService.removeESDocument(article, Article.ARTICLE);
+                    searchMgmtService.removeESDocument(article, ArticleUtil.ARTICLE);
                 }
             }
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Updates an article[id=" + articleId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1072,36 +1106,36 @@ public class ArticleMgmtService {
      *
      * @param articleId the given article id
      * @param senderId  the given sender id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void reward(final String articleId, final String senderId) throws ServiceException {
+    public void reward(final String articleId, final String senderId) throws Exception {
         try {
-            final JSONObject article = articleMapper.get(articleId);
+            final Article article = articleMapper.get(articleId);
 
             if (null == article) {
                 return;
             }
 
-            if (Article.ARTICLE_STATUS_C_INVALID == article.optInt(Article.ARTICLE_STATUS)) {
+            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
                 return;
             }
 
-            final JSONObject sender = userMapper.get(senderId);
+            final UserExt sender = userMapper.get(senderId);
             if (null == sender) {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_VALID != sender.optInt(UserExt.USER_STATUS)) {
+            if (UserExtUtil.USER_STATUS_C_VALID != sender.getUserStatus()) {
                 return;
             }
 
-            final String receiverId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            final JSONObject receiver = userMapper.get(receiverId);
+            final String receiverId = article.getArticleAuthorId();
+            final UserExt receiver = userMapper.get(receiverId);
             if (null == receiver) {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_VALID != receiver.optInt(UserExt.USER_STATUS)) {
+            if (UserExtUtil.USER_STATUS_C_VALID != receiver.getUserStatus()) {
                 return;
             }
 
@@ -1109,44 +1143,44 @@ public class ArticleMgmtService {
                 return;
             }
 
-            final int rewardPoint = article.optInt(Article.ARTICLE_REWARD_POINT);
+            final int rewardPoint = article.getArticleRewardPoint();
             if (rewardPoint < 1) {
                 return;
             }
 
-            if (rewardQueryService.isRewarded(senderId, articleId, Reward.TYPE_C_ARTICLE)) {
+            if (rewardQueryService.isRewarded(senderId, articleId, RewardUtil.TYPE_C_ARTICLE)) {
                 return;
             }
 
             final String rewardId = Ids.genTimeMillisId();
 
-            if (Article.ARTICLE_ANONYMOUS_C_PUBLIC == article.optInt(Article.ARTICLE_ANONYMOUS)) {
+            if (ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == article.getArticleAnonymous()) {
                 final boolean succ = null != pointtransferMgmtService.transfer(senderId, receiverId,
-                        Pointtransfer.TRANSFER_TYPE_C_ARTICLE_REWARD, rewardPoint, rewardId, System.currentTimeMillis());
+                        PointtransferUtil.TRANSFER_TYPE_C_ARTICLE_REWARD, rewardPoint, rewardId, System.currentTimeMillis());
 
                 if (!succ) {
-                    throw new ServiceException();
+                    throw new Exception();
                 }
             }
 
-            final JSONObject reward = new JSONObject();
-            reward.put(Keys.OBJECT_ID, rewardId);
-            reward.put(Reward.SENDER_ID, senderId);
-            reward.put(Reward.DATA_ID, articleId);
-            reward.put(Reward.TYPE, Reward.TYPE_C_ARTICLE);
+            final Reward reward = new Reward();
+            reward.setOid( rewardId);
+            reward.setSenderId(senderId);
+            reward.setDataId( articleId);
+            reward.setType( RewardUtil.TYPE_C_ARTICLE);
 
             rewardMgmtService.addReward(reward);
 
-            final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, receiverId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, rewardId);
+            final Notification notification = new Notification();
+            notification.setUserId(receiverId);
+            notification.setDataId( rewardId);
 
             notificationMgmtService.addArticleRewardNotification(notification);
 
-            livenessMgmtService.incLiveness(senderId, Liveness.LIVENESS_REWARD);
-        } catch (final MapperException e) {
+            livenessMgmtService.incLiveness(senderId, LivenessUtil.LIVENESS_REWARD);
+        } catch (final Exception e) {
             LOGGER.error( "Rewards an article[id=" + articleId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1155,36 +1189,36 @@ public class ArticleMgmtService {
      *
      * @param articleId the given article id
      * @param senderId  the given sender id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void thank(final String articleId, final String senderId) throws ServiceException {
+    public void thank(final String articleId, final String senderId) throws Exception {
         try {
-            final JSONObject article = articleMapper.get(articleId);
+            final Article article = articleMapper.get(articleId);
 
             if (null == article) {
                 return;
             }
 
-            if (Article.ARTICLE_STATUS_C_INVALID == article.optInt(Article.ARTICLE_STATUS)) {
+            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
                 return;
             }
 
-            final JSONObject sender = userMapper.get(senderId);
+            final UserExt sender = userMapper.get(senderId);
             if (null == sender) {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_VALID != sender.optInt(UserExt.USER_STATUS)) {
+            if (UserExtUtil.USER_STATUS_C_VALID != sender.getUserStatus()) {
                 return;
             }
 
-            final String receiverId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            final JSONObject receiver = userMapper.get(receiverId);
+            final String receiverId = article.getArticleAuthorId();
+            final UserExt receiver = userMapper.get(receiverId);
             if (null == receiver) {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_VALID != receiver.optInt(UserExt.USER_STATUS)) {
+            if (UserExtUtil.USER_STATUS_C_VALID != receiver.getUserStatus()) {
                 return;
             }
 
@@ -1192,40 +1226,40 @@ public class ArticleMgmtService {
                 return;
             }
 
-            if (rewardQueryService.isRewarded(senderId, articleId, Reward.TYPE_C_THANK_ARTICLE)) {
+            if (rewardQueryService.isRewarded(senderId, articleId, RewardUtil.TYPE_C_THANK_ARTICLE)) {
                 return;
             }
 
             final String thankId = Ids.genTimeMillisId();
 
-            if (Article.ARTICLE_ANONYMOUS_C_PUBLIC == article.optInt(Article.ARTICLE_ANONYMOUS)) {
+            if (ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == article.getArticleAnonymous()) {
                 final boolean succ = null != pointtransferMgmtService.transfer(senderId, receiverId,
-                        Pointtransfer.TRANSFER_TYPE_C_ARTICLE_THANK,
-                        Pointtransfer.TRANSFER_SUM_C_ARTICLE_THANK, thankId, System.currentTimeMillis());
+                        PointtransferUtil.TRANSFER_TYPE_C_ARTICLE_THANK,
+                        PointtransferUtil.TRANSFER_SUM_C_ARTICLE_THANK, thankId, System.currentTimeMillis());
 
                 if (!succ) {
-                    throw new ServiceException();
+                    throw new Exception();
                 }
             }
 
-            final JSONObject reward = new JSONObject();
-            reward.put(Keys.OBJECT_ID, thankId);
-            reward.put(Reward.SENDER_ID, senderId);
-            reward.put(Reward.DATA_ID, articleId);
-            reward.put(Reward.TYPE, Reward.TYPE_C_THANK_ARTICLE);
+            final Reward reward = new Reward();
+            reward.setOid( thankId);
+            reward.setSenderId( senderId);
+            reward.setDataId( articleId);
+            reward.setType( RewardUtil.TYPE_C_THANK_ARTICLE);
 
             rewardMgmtService.addReward(reward);
 
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, receiverId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, thankId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, receiverId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, thankId);
 
             notificationMgmtService.addArticleThankNotification(notification);
 
-            livenessMgmtService.incLiveness(senderId, Liveness.LIVENESS_REWARD);
-        } catch (final MapperException e) {
+            livenessMgmtService.incLiveness(senderId, LivenessUtil.LIVENESS_REWARD);
+        } catch (final Exception e) {
             LOGGER.error( "Thanks an article[id=" + articleId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1233,59 +1267,60 @@ public class ArticleMgmtService {
      * Sticks an article specified by the given article id.
      *
      * @param articleId the given article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public synchronized void stick(final String articleId) throws ServiceException {
-        final Transaction transaction = articleMapper.beginTransaction();
+    @Transactional
+    public synchronized void stick(final String articleId) throws Exception {
+//        final Transaction transaction = articleMapper.beginTransaction();
 
         try {
-            final JSONObject article = articleMapper.get(articleId);
+            final Article article = articleMapper.get(articleId);
             if (null == article) {
                 return;
             }
 
-            final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            final JSONObject author = userMapper.get(authorId);
-            final int balance = author.optInt(UserExt.USER_POINT);
+            final String authorId = article.getArticleAuthorId();
+            final UserExt author = userMapper.get(authorId);
+            final int balance = author.getUserPoint();
 
-            if (balance - Pointtransfer.TRANSFER_SUM_C_STICK_ARTICLE < 0) {
-                throw new ServiceException(langPropsService.get("insufficientBalanceLabel"));
+            if (balance - PointtransferUtil.TRANSFER_SUM_C_STICK_ARTICLE < 0) {
+                throw new Exception(langPropsService.get("insufficientBalanceLabel"));
             }
 
             final Query query = new Query().
                     setFilter(new PropertyFilter(Article.ARTICLE_STICK, FilterOperator.GREATER_THAN, 0L));
-            final JSONArray articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
-            if (articles.length() > 1) {
+            final List<Article> articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
+            if (articles.size() > 1) {
                 final Set<String> ids = new HashSet<>();
-                for (int i = 0; i < articles.length(); i++) {
-                    ids.add(articles.optJSONObject(i).optString(Keys.OBJECT_ID));
+                for (int i = 0; i < articles.size(); i++) {
+                    ids.add(articles.get(i).getOid());
                 }
 
                 if (!ids.contains(articleId)) {
-                    throw new ServiceException(langPropsService.get("stickExistLabel"));
+                    throw new Exception(langPropsService.get("stickExistLabel"));
                 }
             }
 
-            article.put(Article.ARTICLE_STICK, System.currentTimeMillis());
+            article.setArticleStick( System.currentTimeMillis());
 
-            articleMapper.update(articleId, article);
+            articleMapper.update( article);
 
-            transaction.commit();
+//            transaction.commit();
 
-            final boolean succ = null != pointtransferMgmtService.transfer(article.optString(Article.ARTICLE_AUTHOR_ID),
-                    Pointtransfer.ID_C_SYS, Pointtransfer.TRANSFER_TYPE_C_STICK_ARTICLE,
-                    Pointtransfer.TRANSFER_SUM_C_STICK_ARTICLE, articleId, System.currentTimeMillis());
+            final boolean succ = null != pointtransferMgmtService.transfer(article.getArticleAuthorId(),
+                    PointtransferUtil.ID_C_SYS, PointtransferUtil.TRANSFER_TYPE_C_STICK_ARTICLE,
+                    PointtransferUtil.TRANSFER_SUM_C_STICK_ARTICLE, articleId, System.currentTimeMillis());
             if (!succ) {
-                throw new ServiceException(langPropsService.get("stickFailedLabel"));
+                throw new Exception(langPropsService.get("stickFailedLabel"));
             }
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Sticks an article[id=" + articleId + "] failed", e);
 
-            throw new ServiceException(langPropsService.get("stickFailedLabel"));
+            throw new Exception(langPropsService.get("stickFailedLabel"));
         }
     }
 
@@ -1293,23 +1328,23 @@ public class ArticleMgmtService {
      * Admin sticks an article specified by the given article id.
      *
      * @param articleId the given article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public synchronized void adminStick(final String articleId) throws ServiceException {
+    public synchronized void adminStick(final String articleId) throws Exception {
         try {
-            final JSONObject article = articleMapper.get(articleId);
+            final Article article = articleMapper.get(articleId);
             if (null == article) {
                 return;
             }
 
-            article.put(Article.ARTICLE_STICK, Long.MAX_VALUE);
+            article.setArticleStick( Long.MAX_VALUE);
 
-            articleMapper.update(articleId, article);
-        } catch (final MapperException e) {
+            articleMapper.update( article);
+        } catch (final Exception e) {
             LOGGER.error( "Admin sticks an article[id=" + articleId + "] failed", e);
 
-            throw new ServiceException(langPropsService.get("stickFailedLabel"));
+            throw new Exception(langPropsService.get("stickFailedLabel"));
         }
     }
 
@@ -1317,47 +1352,47 @@ public class ArticleMgmtService {
      * Admin cancels stick an article specified by the given article id.
      *
      * @param articleId the given article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public synchronized void adminCancelStick(final String articleId) throws ServiceException {
+    public synchronized void adminCancelStick(final String articleId) throws Exception {
         try {
-            final JSONObject article = articleMapper.get(articleId);
+            final Article article = articleMapper.get(articleId);
             if (null == article) {
                 return;
             }
 
-            article.put(Article.ARTICLE_STICK, 0L);
+            article.setArticleStick( 0L);
 
-            articleMapper.update(articleId, article);
-        } catch (final MapperException e) {
+            articleMapper.update( article);
+        } catch (final Exception e) {
             LOGGER.error( "Admin cancel sticks an article[id=" + articleId + "] failed", e);
 
-            throw new ServiceException(langPropsService.get("operationFailedLabel"));
+            throw new Exception(langPropsService.get("operationFailedLabel"));
         }
     }
 
     /**
      * Expires sticked articles.
      *
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void expireStick() throws ServiceException {
+    public void expireStick() throws Exception {
         try {
             final Query query = new Query().
                     setFilter(new PropertyFilter(Article.ARTICLE_STICK, FilterOperator.GREATER_THAN, 0L));
-            final JSONArray articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
-            if (articles.length() < 1) {
+            final List<Article> articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
+            if (articles.size() < 1) {
                 return;
             }
 
             final long stepTime = Symphonys.getLong("stickArticleTime");
             final long now = System.currentTimeMillis();
 
-            for (int i = 0; i < articles.length(); i++) {
-                final JSONObject article = articles.optJSONObject(i);
-                final long stick = article.optLong(Article.ARTICLE_STICK);
+            for (int i = 0; i < articles.size(); i++) {
+                final Article article = articles.get(i);
+                final long stick = article.getArticleStick();
                 if (stick >= Long.MAX_VALUE) {
                     continue; // Skip admin stick
                 }
@@ -1365,14 +1400,14 @@ public class ArticleMgmtService {
                 final long expired = stick + stepTime;
 
                 if (expired < now) {
-                    article.put(Article.ARTICLE_STICK, 0L);
-                    articleMapper.update(article.optString(Keys.OBJECT_ID), article);
+                    article.setArticleStick( 0L);
+                    articleMapper.update( article);
                 }
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Expires sticked articles failed", e);
 
-            throw new ServiceException();
+            throw new Exception();
         }
     }
 
@@ -1391,30 +1426,30 @@ public class ArticleMgmtService {
      * @param author     the specified author
      * @throws Exception exception
      */
-    private synchronized void processTagsForArticleUpdate(final JSONObject oldArticle, final JSONObject newArticle,
-                                                          final JSONObject author) throws Exception {
-        final String oldArticleId = oldArticle.getString(Keys.OBJECT_ID);
-        final List<JSONObject> oldTags = tagMapper.getByArticleId(oldArticleId);
-        String tagsString = newArticle.getString(Article.ARTICLE_TAGS);
-        tagsString = Tag.formatTags(tagsString);
+    private synchronized void processTagsForArticleUpdate(final Article oldArticle, final Article newArticle,
+                                                          final UserExt author) throws Exception {
+        final String oldArticleId = oldArticle.getOid();
+        final List<Tag> oldTags = tagMapper.getByArticleId(oldArticleId);
+        String tagsString = newArticle.getArticleTags();
+        tagsString = TagUtil.formatTags(tagsString);
         boolean sandboxEnv = false;
-        if (StringUtils.containsIgnoreCase(tagsString, Tag.TAG_TITLE_C_SANDBOX)) {
-            tagsString = Tag.TAG_TITLE_C_SANDBOX;
+        if (StringUtils.containsIgnoreCase(tagsString, TagUtil.TAG_TITLE_C_SANDBOX)) {
+            tagsString = TagUtil.TAG_TITLE_C_SANDBOX;
             sandboxEnv = true;
         }
 
         String[] tagStrings = tagsString.split(",");
-        final int articleType = newArticle.optInt(Article.ARTICLE_TYPE);
+        final int articleType = newArticle.getArticleType();
         if (!sandboxEnv && tagStrings.length < TAG_MAX_CNT && tagStrings.length < 3
-                && Article.ARTICLE_TYPE_C_DISCUSSION != articleType
-                && Article.ARTICLE_TYPE_C_THOUGHT != articleType && !Tag.containsReservedTags(tagsString)) {
-            final String content = newArticle.optString(Article.ARTICLE_TITLE)
-                    + " " + Jsoup.parse("<p>" + newArticle.optString(Article.ARTICLE_CONTENT) + "</p>").text();
+                && ArticleUtil.ARTICLE_TYPE_C_DISCUSSION != articleType
+                && ArticleUtil.ARTICLE_TYPE_C_THOUGHT != articleType && !TagUtil.containsReservedTags(tagsString)) {
+            final String content = newArticle.getArticleTitle()
+                    + " " + Jsoup.parse("<p>" + newArticle.getArticleContent() + "</p>").text();
             final List<String> genTags = tagQueryService.generateTags(content, 1);
             if (!genTags.isEmpty()) {
                 tagsString = tagsString + "," + StringUtils.join(genTags, ",");
-                tagsString = Tag.formatTags(tagsString);
-                tagsString = Tag.useHead(tagsString, TAG_MAX_CNT);
+                tagsString = TagUtil.formatTags(tagsString);
+                tagsString = TagUtil.useHead(tagsString, TAG_MAX_CNT);
             }
         }
 
@@ -1422,39 +1457,39 @@ public class ArticleMgmtService {
             tagsString = "B3log";
         }
 
-        tagsString = Tag.formatTags(tagsString);
-        if (Article.ARTICLE_TYPE_C_QNA == articleType && !StringUtils.contains(tagsString, "Q&A")) {
+        tagsString = TagUtil.formatTags(tagsString);
+        if (ArticleUtil.ARTICLE_TYPE_C_QNA == articleType && !StringUtils.contains(tagsString, "Q&A")) {
             tagsString += ",Q&A";
         }
-        newArticle.put(Article.ARTICLE_TAGS, tagsString);
+        newArticle.setArticleTags( tagsString);
         tagStrings = tagsString.split(",");
 
-        final List<JSONObject> newTags = new ArrayList<>();
+        final List<Tag> newTags = new ArrayList<>();
 
         for (final String tagString : tagStrings) {
             final String tagTitle = tagString.trim();
-            JSONObject newTag = tagMapper.getByTitle(tagTitle);
+            Tag newTag = tagMapper.getByTitle(tagTitle);
             if (null == newTag) {
-                newTag = new JSONObject();
-                newTag.put(Tag.TAG_TITLE, tagTitle);
+                newTag = new Tag();
+                newTag.setTagTitle( tagTitle);
             }
 
             newTags.add(newTag);
         }
 
-        final List<JSONObject> tagsDropped = new ArrayList<>();
-        final List<JSONObject> tagsNeedToAdd = new ArrayList<>();
+        final List<Tag> tagsDropped = new ArrayList<>();
+        final List<Tag> tagsNeedToAdd = new ArrayList<>();
 
-        for (final JSONObject newTag : newTags) {
-            final String newTagTitle = newTag.getString(Tag.TAG_TITLE);
+        for (final Tag newTag : newTags) {
+            final String newTagTitle = newTag.getTagTitle();
 
             if (!tagExists(newTagTitle, oldTags)) {
                 LOGGER.debug("Tag need to add[title={0}]", newTagTitle);
                 tagsNeedToAdd.add(newTag);
             }
         }
-        for (final JSONObject oldTag : oldTags) {
-            final String oldTagTitle = oldTag.getString(Tag.TAG_TITLE);
+        for (final Tag oldTag : oldTags) {
+            final String oldTagTitle = oldTag.getTagTitle();
 
             if (!tagExists(oldTagTitle, newTags)) {
                 LOGGER.debug("Tag dropped[title={0}]", oldTag);
@@ -1462,16 +1497,16 @@ public class ArticleMgmtService {
             }
         }
 
-        final int articleCmtCnt = oldArticle.getInt(Article.ARTICLE_COMMENT_CNT);
+        final int articleCmtCnt = oldArticle.getArticleCommentCount();
 
-        for (final JSONObject tagDropped : tagsDropped) {
-            final String tagId = tagDropped.getString(Keys.OBJECT_ID);
-            int refCnt = tagDropped.getInt(Tag.TAG_REFERENCE_CNT) - 1;
+        for (final Tag tagDropped : tagsDropped) {
+            final String tagId = tagDropped.getOid();
+            int refCnt = tagDropped.getTagReferenceCount() - 1;
             refCnt = refCnt < 0 ? 0 : refCnt;
-            tagDropped.put(Tag.TAG_REFERENCE_CNT, refCnt);
-            final int tagCmtCnt = tagDropped.getInt(Tag.TAG_COMMENT_CNT);
-            tagDropped.put(Tag.TAG_COMMENT_CNT, tagCmtCnt - articleCmtCnt);
-            tagDropped.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+            tagDropped.setTagReferenceCount( refCnt);
+            final int tagCmtCnt = tagDropped.getTagCommentCount();
+            tagDropped.setTagCommentCount( tagCmtCnt - articleCmtCnt);
+            tagDropped.setTagRandomDouble( Math.random());
 
             tagMapper.update(tagId, tagDropped);
         }
@@ -1479,26 +1514,26 @@ public class ArticleMgmtService {
         final String[] tagIdsDropped = new String[tagsDropped.size()];
 
         for (int i = 0; i < tagIdsDropped.length; i++) {
-            final JSONObject tag = tagsDropped.get(i);
-            final String id = tag.getString(Keys.OBJECT_ID);
+            final Tag tag = tagsDropped.get(i);
+            final String id = tag.getOid();
 
             tagIdsDropped[i] = id;
         }
 
         if (0 != tagIdsDropped.length) {
             removeTagArticleRelations(oldArticleId, tagIdsDropped);
-            removeUserTagRelations(oldArticle.optString(Article.ARTICLE_AUTHOR_ID), Tag.TAG_TYPE_C_ARTICLE, tagIdsDropped);
+            removeUserTagRelations(oldArticle.getArticleAuthorId(), TagUtil.TAG_TYPE_C_ARTICLE, tagIdsDropped);
         }
 
         tagStrings = new String[tagsNeedToAdd.size()];
         for (int i = 0; i < tagStrings.length; i++) {
-            final JSONObject tag = tagsNeedToAdd.get(i);
-            final String tagTitle = tag.getString(Tag.TAG_TITLE);
+            final Tag tag = tagsNeedToAdd.get(i);
+            final String tagTitle = tag.getTagTitle();
 
             tagStrings[i] = tagTitle;
         }
 
-        newArticle.put(Article.ARTICLE_COMMENT_CNT, articleCmtCnt);
+        newArticle.setArticleCommentCount( articleCmtCnt);
         tag(tagStrings, newArticle, author);
     }
 
@@ -1511,22 +1546,22 @@ public class ArticleMgmtService {
      * @param articleId the specified article id
      * @param tagIds    the specified tag ids of the relations to be removed
      * @throws JSONException       json exception
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
     private void removeTagArticleRelations(final String articleId, final String... tagIds)
-            throws JSONException, MapperException {
+            throws JSONException, Exception {
         final List<String> tagIdList = Arrays.asList(tagIds);
-        final List<JSONObject> tagArticleRelations = tagArticleMapper.getByArticleId(articleId);
+        final List<TagArticle> tagArticleRelations = tagArticleMapper.getByArticleId(articleId);
 
         for (int i = 0; i < tagArticleRelations.size(); i++) {
-            final JSONObject tagArticleRelation = tagArticleRelations.get(i);
+            final TagArticle tagArticleRelation = tagArticleRelations.get(i);
             String relationId;
 
             if (tagIdList.isEmpty()) { // Removes all if un-specified
-                relationId = tagArticleRelation.getString(Keys.OBJECT_ID);
+                relationId = tagArticleRelation.getOid();
                 tagArticleMapper.remove(relationId);
-            } else if (tagIdList.contains(tagArticleRelation.getString(Tag.TAG + "_" + Keys.OBJECT_ID))) {
-                relationId = tagArticleRelation.getString(Keys.OBJECT_ID);
+            } else if (tagIdList.contains(tagArticleRelation.getTag_oid())) {
+                relationId = tagArticleRelation.getOid();
                 tagArticleMapper.remove(relationId);
             }
         }
@@ -1538,9 +1573,9 @@ public class ArticleMgmtService {
      * @param userId the specified article id
      * @param type   the specified type
      * @param tagIds the specified tag ids of the relations to be removed
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private void removeUserTagRelations(final String userId, final int type, final String... tagIds) throws MapperException {
+    private void removeUserTagRelations(final String userId, final int type, final String... tagIds) throws Exception {
         for (final String tagId : tagIds) {
             userTagMapper.removeByUserIdAndTagId(userId, tagId, type);
         }
@@ -1552,121 +1587,122 @@ public class ArticleMgmtService {
      * @param tagTitles the specified (new) tag titles
      * @param article   the specified article
      * @param author    the specified author
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private synchronized void tag(final String[] tagTitles, final JSONObject article, final JSONObject author)
-            throws MapperException {
-        String articleTags = article.optString(Article.ARTICLE_TAGS);
+    private synchronized void tag(final String[] tagTitles, final Article article, final UserExt author)
+            throws Exception {
+        String articleTags = article.getArticleTags();
 
         for (final String t : tagTitles) {
             final String tagTitle = t.trim();
-            JSONObject tag = tagMapper.getByTitle(tagTitle);
+            Tag tag = tagMapper.getByTitle(tagTitle);
             String tagId;
             int userTagType;
-            final int articleCmtCnt = article.optInt(Article.ARTICLE_COMMENT_CNT);
+            final int articleCmtCnt = article.getArticleCommentCount();
             if (null == tag) {
                 LOGGER.trace( "Found a new tag [title={0}] in article [title={1}]",
-                        tagTitle, article.optString(Article.ARTICLE_TITLE));
-                tag = new JSONObject();
-                tag.put(Tag.TAG_TITLE, tagTitle);
+                        tagTitle, article.getArticleTitle());
+                tag = new Tag();
+                tag.setTagTitle( tagTitle);
                 String tagURI = tagTitle;
                 tagURI = URLs.encode(tagTitle);
-                tag.put(Tag.TAG_URI, tagURI);
-                tag.put(Tag.TAG_CSS, "");
-                tag.put(Tag.TAG_REFERENCE_CNT, 1);
-                tag.put(Tag.TAG_COMMENT_CNT, articleCmtCnt);
-                tag.put(Tag.TAG_FOLLOWER_CNT, 0);
-                tag.put(Tag.TAG_LINK_CNT, 0);
-                tag.put(Tag.TAG_DESCRIPTION, "");
-                tag.put(Tag.TAG_ICON_PATH, "");
-                tag.put(Tag.TAG_STATUS, 0);
-                tag.put(Tag.TAG_GOOD_CNT, 0);
-                tag.put(Tag.TAG_BAD_CNT, 0);
-                tag.put(Tag.TAG_SEO_TITLE, tagTitle);
-                tag.put(Tag.TAG_SEO_KEYWORDS, tagTitle);
-                tag.put(Tag.TAG_SEO_DESC, "");
-                tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+                tag.setTagURI( tagURI);
+                tag.setTagCSS( "");
+                tag.setTagReferenceCount( 1);
+                tag.setTagCommentCount( articleCmtCnt);
+                tag.setTagFollowerCount( 0);
+                tag.setTagLinkCount( 0);
+                tag.setTagDescription( "");
+                tag.setTagIconPath( "");
+                tag.setTagStatus(0);
+                tag.setTagGoodCnt( 0);
+                tag.setTagBadCnt( 0);
+                tag.setTagSeoTitle( tagTitle);
+                tag.setTagSeoKeywords( tagTitle);
+                tag.setTagSeoDesc( "");
+                tag.setTagRandomDouble( Math.random());
 
                 tagId = tagMapper.add(tag);
-                tag.put(Keys.OBJECT_ID, tagId);
-                userTagType = Tag.TAG_TYPE_C_CREATOR;
+                tag.setOid( tagId);
+                userTagType = TagUtil.TAG_TYPE_C_CREATOR;
 
-                final JSONObject tagCntOption = optionMapper.get(Option.ID_C_STATISTIC_TAG_COUNT);
-                final int tagCnt = tagCntOption.optInt(Option.OPTION_VALUE);
-                tagCntOption.put(Option.OPTION_VALUE, tagCnt + 1);
-                optionMapper.update(Option.ID_C_STATISTIC_TAG_COUNT, tagCntOption);
+                final Option tagCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_TAG_COUNT);
+                final int tagCnt = Integer.parseInt(tagCntOption.getOptionValue());
+                int tmp = tagCnt + 1;
+                tagCntOption.setOptionValue(tmp + "");
+                optionMapper.update(OptionUtil.ID_C_STATISTIC_TAG_COUNT, tagCntOption);
 
-                author.put(UserExt.USER_TAG_COUNT, author.optInt(UserExt.USER_TAG_COUNT) + 1);
+                author.setUserTagCount(author.getUserTagCount() + 1);
             } else {
-                tagId = tag.optString(Keys.OBJECT_ID);
+                tagId = tag.getOid();
                 LOGGER.trace( "Found a existing tag[title={0}, id={1}] in article[title={2}]",
-                        tag.optString(Tag.TAG_TITLE), tag.optString(Keys.OBJECT_ID), article.optString(Article.ARTICLE_TITLE));
-                final JSONObject tagTmp = new JSONObject();
-                tagTmp.put(Keys.OBJECT_ID, tagId);
-                final String title = tag.optString(Tag.TAG_TITLE);
+                        tag.getTagTitle(), tag.getOid(), article.getArticleTitle());
+//                final Tag tagTmp = new Tag();
+//                tagTmp.setOid(Keys.OBJECT_ID, tagId);
+                final String title = tag.getTagTitle();
 
-                tagTmp.put(Tag.TAG_TITLE, title);
-                tagTmp.put(Tag.TAG_COMMENT_CNT, tag.optInt(Tag.TAG_COMMENT_CNT) + articleCmtCnt);
-                tagTmp.put(Tag.TAG_STATUS, tag.optInt(Tag.TAG_STATUS));
-                tagTmp.put(Tag.TAG_REFERENCE_CNT, tag.optInt(Tag.TAG_REFERENCE_CNT) + 1);
-                tagTmp.put(Tag.TAG_FOLLOWER_CNT, tag.optInt(Tag.TAG_FOLLOWER_CNT));
-                tagTmp.put(Tag.TAG_LINK_CNT, tag.optInt(Tag.TAG_LINK_CNT));
-                tagTmp.put(Tag.TAG_DESCRIPTION, tag.optString(Tag.TAG_DESCRIPTION));
-                tagTmp.put(Tag.TAG_ICON_PATH, tag.optString(Tag.TAG_ICON_PATH));
-                tagTmp.put(Tag.TAG_GOOD_CNT, tag.optInt(Tag.TAG_GOOD_CNT));
-                tagTmp.put(Tag.TAG_BAD_CNT, tag.optInt(Tag.TAG_BAD_CNT));
-                tagTmp.put(Tag.TAG_SEO_DESC, tag.optString(Tag.TAG_SEO_DESC));
-                tagTmp.put(Tag.TAG_SEO_KEYWORDS, tag.optString(Tag.TAG_SEO_KEYWORDS));
-                tagTmp.put(Tag.TAG_SEO_TITLE, tag.optString(Tag.TAG_SEO_TITLE));
-                tagTmp.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
-                tagTmp.put(Tag.TAG_URI, tag.optString(Tag.TAG_URI));
-                tagTmp.put(Tag.TAG_CSS, tag.optString(Tag.TAG_CSS));
+//                tagTmp.setTagTitle(Tag.TAG_TITLE, title);
+                tag.setTagCommentCount( tag.getTagCommentCount() + articleCmtCnt);
+//                tagTmp.setTagStatus(Tag.TAG_STATUS, tag.optInt(Tag.TAG_STATUS));
+                tag.setTagReferenceCount( tag.getTagReferenceCount() + 1);
+//                tagTmp.setTagFollowerCount(Tag.TAG_FOLLOWER_CNT, tag.optInt(Tag.TAG_FOLLOWER_CNT));
+//                tagTmp.setTagLinkCount(Tag.TAG_LINK_CNT, tag.optInt(Tag.TAG_LINK_CNT));
+//                tagTmp.setTagDescription(Tag.TAG_DESCRIPTION, tag.optString(Tag.TAG_DESCRIPTION));
+//                tagTmp.setTagIconPath(Tag.TAG_ICON_PATH, tag.optString(Tag.TAG_ICON_PATH));
+//                tagTmp.setTagGoodCnt(Tag.TAG_GOOD_CNT, tag.optInt(Tag.TAG_GOOD_CNT));
+//                tagTmp.setTagBadCnt(Tag.TAG_BAD_CNT, tag.optInt(Tag.TAG_BAD_CNT));
+//                tagTmp.setTagSeoDesc(Tag.TAG_SEO_DESC, tag.optString(Tag.TAG_SEO_DESC));
+//                tagTmp.setTagSeoKeywords(Tag.TAG_SEO_KEYWORDS, tag.optString(Tag.TAG_SEO_KEYWORDS));
+//                tagTmp.setTagSeoTitle(Tag.TAG_SEO_TITLE, tag.optString(Tag.TAG_SEO_TITLE));
+                tag.setTagRandomDouble( Math.random());
+//                tagTmp.setTagURI( tag.optString(Tag.TAG_URI));
+//                tagTmp.setTagCSS( tag.optString(Tag.TAG_CSS));
 
-                tagMapper.update(tagId, tagTmp);
+                tagMapper.update(tagId, tag);
 
-                userTagType = Tag.TAG_TYPE_C_ARTICLE;
+                userTagType = TagUtil.TAG_TYPE_C_ARTICLE;
             }
 
             // Tag-Article relation
-            final JSONObject tagArticleRelation = new JSONObject();
-            tagArticleRelation.put(Tag.TAG + "_" + Keys.OBJECT_ID, tagId);
-            tagArticleRelation.put(Article.ARTICLE + "_" + Keys.OBJECT_ID, article.optString(Keys.OBJECT_ID));
-            tagArticleRelation.put(Article.ARTICLE_LATEST_CMT_TIME, article.optLong(Article.ARTICLE_LATEST_CMT_TIME));
-            tagArticleRelation.put(Article.ARTICLE_COMMENT_CNT, article.optInt(Article.ARTICLE_COMMENT_CNT));
-            tagArticleRelation.put(Article.REDDIT_SCORE, article.optDouble(Article.REDDIT_SCORE, 0D));
-            tagArticleRelation.put(Article.ARTICLE_PERFECT, article.optInt(Article.ARTICLE_PERFECT));
+            final TagArticle tagArticleRelation = new TagArticle();
+            tagArticleRelation.setTag_oid(tagId);
+            tagArticleRelation.setArticle_oid(article.getOid());
+            tagArticleRelation.setArticleLatestCmtTime( article.getArticleLatestCmtTime());
+            tagArticleRelation.setArticleCommentCount(article.getArticleCommentCount());
+            tagArticleRelation.setRedditScore( article.getRedditScore( ));//0D
+            tagArticleRelation.setArticlePerfect(article.getArticlePerfect());
             tagArticleMapper.add(tagArticleRelation);
 
-            final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+            final String authorId = article.getArticleAuthorId();
 
             // User-Tag relation
-            if (Tag.TAG_TYPE_C_ARTICLE == userTagType) {
-                userTagMapper.removeByUserIdAndTagId(authorId, tagId, Tag.TAG_TYPE_C_ARTICLE);
+            if (TagUtil.TAG_TYPE_C_ARTICLE == userTagType) {
+                userTagMapper.removeByUserIdAndTagId(authorId, tagId, TagUtil.TAG_TYPE_C_ARTICLE);
             }
 
-            final JSONObject userTagRelation = new JSONObject();
-            userTagRelation.put(Tag.TAG + '_' + Keys.OBJECT_ID, tagId);
-            if (Article.ARTICLE_ANONYMOUS_C_ANONYMOUS == article.optInt(Article.ARTICLE_ANONYMOUS)) {
-                userTagRelation.put(User.USER + '_' + Keys.OBJECT_ID, "0");
+            final UserTag userTagRelation = new UserTag();
+            userTagRelation.setTag_oId( tagId);
+            if (ArticleUtil.ARTICLE_ANONYMOUS_C_ANONYMOUS == article.getArticleAnonymous()) {
+                userTagRelation.setUser_oId("0");
             } else {
-                userTagRelation.put(User.USER + '_' + Keys.OBJECT_ID, authorId);
+                userTagRelation.setUser_oId(authorId);
             }
-            userTagRelation.put(Common.TYPE, userTagType);
+            userTagRelation.setType( userTagType);
             userTagMapper.add(userTagRelation);
         }
 
         final String[] tags = articleTags.split(",");
         final StringBuilder builder = new StringBuilder();
         for (final String tagTitle : tags) {
-            final JSONObject tag = tagMapper.getByTitle(tagTitle);
+            final Tag tag = tagMapper.getByTitle(tagTitle);
 
-            builder.append(tag.optString(Tag.TAG_TITLE)).append(",");
+            builder.append(tag.getTagTitle()).append(",");
         }
         if (builder.length() > 0) {
             builder.deleteCharAt(builder.length() - 1);
         }
 
-        article.put(Article.ARTICLE_TAGS, builder.toString());
+        article.setArticleTags(builder.toString());
     }
 
     /**
@@ -1708,75 +1744,76 @@ public class ArticleMgmtService {
      *                          "time": long
      *                          , see {@link Article} for more details
      * @return generated article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public synchronized String addArticleByAdmin(final JSONObject requestJSONObject) throws ServiceException {
-        JSONObject author;
+    @Transactional
+    public synchronized String addArticleByAdmin(final JSONObject requestJSONObject) throws Exception {
+        UserExt author;
 
         try {
             author = userMapper.getByName(requestJSONObject.optString(User.USER_NAME));
             if (null == author) {
-                throw new ServiceException(langPropsService.get("notFoundUserLabel"));
+                throw new Exception(langPropsService.get("notFoundUserLabel"));
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.debug( "Admin adds article failed", e);
 
-            throw new ServiceException(e.getMessage());
+            throw new Exception(e.getMessage());
         }
 
-        final Transaction transaction = articleMapper.beginTransaction();
+//        final Transaction transaction = articleMapper.beginTransaction();
 
         try {
-            final long time = requestJSONObject.optLong(Common.TIME);
+            final long time = requestJSONObject.optLong(CommonUtil.TIME);
             final String ret = String.valueOf(time);
-            final JSONObject article = new JSONObject();
-            article.put(Keys.OBJECT_ID, ret);
-            article.put(Article.ARTICLE_CLIENT_ARTICLE_ID, ret);
-            article.put(Article.ARTICLE_CLIENT_ARTICLE_PERMALINK, "");
-            article.put(Article.ARTICLE_AUTHOR_ID, author.optString(Keys.OBJECT_ID));
-            article.put(Article.ARTICLE_TITLE, Emotions.toAliases(requestJSONObject.optString(Article.ARTICLE_TITLE)));
-            article.put(Article.ARTICLE_CONTENT, Emotions.toAliases(requestJSONObject.optString(Article.ARTICLE_CONTENT)));
-            article.put(Article.ARTICLE_REWARD_CONTENT, requestJSONObject.optString(Article.ARTICLE_REWARD_CONTENT));
-            article.put(Article.ARTICLE_EDITOR_TYPE, 0);
-            article.put(Article.ARTICLE_SYNC_TO_CLIENT, false);
-            article.put(Article.ARTICLE_COMMENT_CNT, 0);
-            article.put(Article.ARTICLE_VIEW_CNT, 0);
-            article.put(Article.ARTICLE_GOOD_CNT, 0);
-            article.put(Article.ARTICLE_BAD_CNT, 0);
-            article.put(Article.ARTICLE_COLLECT_CNT, 0);
-            article.put(Article.ARTICLE_WATCH_CNT, 0);
-            article.put(Article.ARTICLE_COMMENTABLE, true);
-            article.put(Article.ARTICLE_CREATE_TIME, time);
-            article.put(Article.ARTICLE_UPDATE_TIME, time);
-            article.put(Article.ARTICLE_LATEST_CMT_TIME, 0);
-            article.put(Article.ARTICLE_LATEST_CMTER_NAME, "");
-            article.put(Article.ARTICLE_PERMALINK, "/article/" + ret);
-            article.put(Article.ARTICLE_RANDOM_DOUBLE, Math.random());
-            article.put(Article.REDDIT_SCORE, 0);
-            article.put(Article.ARTICLE_STATUS, Article.ARTICLE_STATUS_C_VALID);
-            article.put(Article.ARTICLE_TYPE, Article.ARTICLE_TYPE_C_NORMAL);
-            article.put(Article.ARTICLE_REWARD_POINT, requestJSONObject.optInt(Article.ARTICLE_REWARD_POINT));
-            article.put(Article.ARTICLE_QNA_OFFER_POINT, 0);
-            article.put(Article.ARTICLE_PUSH_ORDER, 0);
-            article.put(Article.ARTICLE_CITY, "");
-            String articleTags = requestJSONObject.optString(Article.ARTICLE_TAGS);
-            articleTags = Tag.formatTags(articleTags);
+            final Article article = new Article();
+            article.setOid(ret);
+            article.setClientArticleId(ret);
+            article.setClientArticlePermalink( "");
+            article.setArticleAuthorId(author.getOid());
+            article.setArticleTitle( Emotions.toAliases(requestJSONObject.optString(ArticleUtil.ARTICLE_TITLE)));
+            article.setArticleContent(Emotions.toAliases(requestJSONObject.optString(ArticleUtil.ARTICLE_CONTENT)));
+            article.setArticleRewardContent( requestJSONObject.optString(ArticleUtil.ARTICLE_REWARD_CONTENT));
+            article.setArticleEditorType(0);
+            article.setSyncWithSymphonyClient(false);
+            article.setArticleCommentCount(0);
+            article.setArticleViewCount( 0);
+            article.setArticleGoodCnt( 0);
+            article.setArticleBadCnt( 0);
+            article.setArticleCollectCnt( 0);
+            article.setArticleWatchCnt(0);
+            article.setArticleCommentable(true);
+            article.setArticleCreateTime( time);
+            article.setArticleUpdateTime(time);
+            article.setArticleLatestCmtTime( 0L);
+            article.setArticleLatestCmterName( "");
+            article.setArticlePermalink( "/article/" + ret);
+            article.setArticleRandomDouble( Math.random());
+            article.setRedditScore( 0D);
+            article.setArticleStatus( ArticleUtil.ARTICLE_STATUS_C_VALID);
+            article.setArticleType(ArticleUtil.ARTICLE_TYPE_C_NORMAL);
+            article.setArticleRewardPoint( requestJSONObject.optInt(ArticleUtil.ARTICLE_REWARD_POINT));
+            article.setArticleQnAOfferPoint( 0);
+            article.setArticlePushOrder( 0);
+            article.setArticleCity( "");
+            String articleTags = requestJSONObject.optString(ArticleUtil.ARTICLE_TAGS);
+            articleTags = TagUtil.formatTags(articleTags);
             boolean sandboxEnv = false;
-            if (StringUtils.containsIgnoreCase(articleTags, Tag.TAG_TITLE_C_SANDBOX)) {
-                articleTags = Tag.TAG_TITLE_C_SANDBOX;
+            if (StringUtils.containsIgnoreCase(articleTags, TagUtil.TAG_TITLE_C_SANDBOX)) {
+                articleTags = TagUtil.TAG_TITLE_C_SANDBOX;
                 sandboxEnv = true;
             }
 
             String[] tagTitles = articleTags.split(",");
             if (!sandboxEnv && tagTitles.length < TAG_MAX_CNT && tagTitles.length < 3
-                    && !Tag.containsReservedTags(articleTags)) {
-                final String content = article.optString(Article.ARTICLE_TITLE)
-                        + " " + Jsoup.parse("<p>" + article.optString(Article.ARTICLE_CONTENT) + "</p>").text();
+                    && !TagUtil.containsReservedTags(articleTags)) {
+                final String content = article.getArticleTitle()
+                        + " " + Jsoup.parse("<p>" + article.getArticleContent() + "</p>").text();
                 final List<String> genTags = tagQueryService.generateTags(content, TAG_MAX_CNT);
                 if (!genTags.isEmpty()) {
                     articleTags = articleTags + "," + StringUtils.join(genTags, ",");
-                    articleTags = Tag.formatTags(articleTags);
-                    articleTags = Tag.useHead(articleTags, TAG_MAX_CNT);
+                    articleTags = TagUtil.formatTags(articleTags);
+                    articleTags = TagUtil.useHead(articleTags, TAG_MAX_CNT);
                 }
             }
 
@@ -1784,74 +1821,75 @@ public class ArticleMgmtService {
                 articleTags = "B3log";
             }
 
-            articleTags = Tag.formatTags(articleTags);
-            article.put(Article.ARTICLE_TAGS, articleTags);
+            articleTags = TagUtil.formatTags(articleTags);
+            article.setArticleTags( articleTags);
             tagTitles = articleTags.split(",");
 
             tag(tagTitles, article, author);
 
-            final String ip = requestJSONObject.optString(Article.ARTICLE_IP);
-            article.put(Article.ARTICLE_IP, ip);
+            final String ip = requestJSONObject.optString(ArticleUtil.ARTICLE_IP);
+            article.setArticleIP(ip);
 
-            String ua = requestJSONObject.optString(Article.ARTICLE_UA);
-            if (StringUtils.length(ua) > Common.MAX_LENGTH_UA) {
-                ua = StringUtils.substring(ua, 0, Common.MAX_LENGTH_UA);
+            String ua = requestJSONObject.optString(ArticleUtil.ARTICLE_UA);
+            if (StringUtils.length(ua) > CommonUtil.MAX_LENGTH_UA) {
+                ua = StringUtils.substring(ua, 0, CommonUtil.MAX_LENGTH_UA);
             }
-            article.put(Article.ARTICLE_UA, ua);
+            article.setArticleUA( ua);
 
-            article.put(Article.ARTICLE_STICK, 0L);
-            article.put(Article.ARTICLE_ANONYMOUS, Article.ARTICLE_ANONYMOUS_C_PUBLIC);
-            article.put(Article.ARTICLE_PERFECT, Article.ARTICLE_PERFECT_C_NOT_PERFECT);
-            article.put(Article.ARTICLE_ANONYMOUS_VIEW, Article.ARTICLE_ANONYMOUS_VIEW_C_USE_GLOBAL);
-            article.put(Article.ARTICLE_AUDIO_URL, "");
+            article.setArticleStick(0L);
+            article.setArticleAnonymous( ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC);
+            article.setArticlePerfect( ArticleUtil.ARTICLE_PERFECT_C_NOT_PERFECT);
+            article.setArticleAnonymousView(ArticleUtil.ARTICLE_ANONYMOUS_VIEW_C_USE_GLOBAL);
+            article.setArticleAudioURL( "");
 
-            final JSONObject articleCntOption = optionMapper.get(Option.ID_C_STATISTIC_ARTICLE_COUNT);
-            final int articleCnt = articleCntOption.optInt(Option.OPTION_VALUE);
-            articleCntOption.put(Option.OPTION_VALUE, articleCnt + 1);
-            optionMapper.update(Option.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
+            final Option articleCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
+            final int articleCnt = Integer.parseInt(articleCntOption.getOptionValue());
+            int tmp = articleCnt + 1;
+            articleCntOption.setOptionValue(tmp + "");
+            optionMapper.update(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
 
-            author.put(UserExt.USER_ARTICLE_COUNT, author.optInt(UserExt.USER_ARTICLE_COUNT) + 1);
-            author.put(UserExt.USER_LATEST_ARTICLE_TIME, time);
+            author.setUserArticleCount( author.getUserArticleCount() + 1);
+            author.setUserLatestArticleTime(time);
             // Updates user article count (and new tag count), latest article time
-            userMapper.update(author.optString(Keys.OBJECT_ID), author);
+            userMapper.update(author.getOid(), author);
 
             final String articleId = articleMapper.add(article);
 
             // RevisionUtil
-            final JSONObject revision = new JSONObject();
-            revision.put(Revision.REVISION_AUTHOR_ID, author.optString(Keys.OBJECT_ID));
+            final Revision revision = new Revision();
+            revision.setRevisionAuthorId(author.getOid());
             final JSONObject revisionData = new JSONObject();
-            revisionData.put(Article.ARTICLE_TITLE, article.optString(Article.ARTICLE_TITLE));
-            revisionData.put(Article.ARTICLE_CONTENT, article.optString(Article.ARTICLE_CONTENT));
-            revision.put(Revision.REVISION_DATA, revisionData.toString());
-            revision.put(Revision.REVISION_DATA_ID, articleId);
-            revision.put(Revision.REVISION_DATA_TYPE, Revision.DATA_TYPE_C_ARTICLE);
+            revisionData.put(ArticleUtil.ARTICLE_TITLE, article.getArticleTitle());
+            revisionData.put(ArticleUtil.ARTICLE_CONTENT, article.getArticleContent());
+            revision.setRevisionData( revisionData.toString());
+            revision.setRevisionDataId( articleId);
+            revision.setRevisionDataType( RevisionUtil.DATA_TYPE_C_ARTICLE);
 
             revisionMapper.add(revision);
 
-            transaction.commit();
+//            transaction.commit();
 
             // Grows the tag graph
-            tagMgmtService.relateTags(article.optString(Article.ARTICLE_TAGS));
+            tagMgmtService.relateTags(article.getArticleTags());
 
             // Event
             final JSONObject eventData = new JSONObject();
-            eventData.put(Common.FROM_CLIENT, false);
-            eventData.put(Article.ARTICLE, article);
+            eventData.put(CommonUtil.FROM_CLIENT, false);
+            eventData.put(ArticleUtil.ARTICLE, article);
             try {
                 eventManager.fireEventAsynchronously(new Event<>(EventTypes.ADD_ARTICLE, eventData));
-            } catch (final EventException e) {
+            } catch (final Exception e) {
                 LOGGER.error( e.getMessage(), e);
             }
 
             return ret;
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Admin adds an article failed", e);
-            throw new ServiceException(e.getMessage());
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -1861,8 +1899,8 @@ public class ArticleMgmtService {
      * @param article the specified article
      */
     public void saveMarkdown(final JSONObject article) {
-        if (Article.ARTICLE_TYPE_C_THOUGHT == article.optInt(Article.ARTICLE_TYPE)
-                || Article.ARTICLE_TYPE_C_DISCUSSION == article.optInt(Article.ARTICLE_TYPE)) {
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.optInt(ArticleUtil.ARTICLE_TYPE)
+                || ArticleUtil.ARTICLE_TYPE_C_DISCUSSION == article.optInt(ArticleUtil.ARTICLE_TYPE)) {
             return;
         }
 
@@ -1881,7 +1919,7 @@ public class ArticleMgmtService {
         }
 
         final String id = article.optString(Keys.OBJECT_ID);
-        final String authorName = article.optJSONObject(Article.ARTICLE_T_AUTHOR).optString(User.USER_NAME);
+        final String authorName = article.optJSONObject(ArticleUtil.ARTICLE_T_AUTHOR).optString(User.USER_NAME);
         final Path mdPath = Paths.get(dir, "hacpai", authorName, id + ".md");
         try {
             if (mdPath.toFile().exists()) {
@@ -1898,17 +1936,17 @@ public class ArticleMgmtService {
 
         try {
             final Map<String, Object> hexoFront = new LinkedHashMap<>();
-            hexoFront.put("title", article.optString(Article.ARTICLE_TITLE));
-            hexoFront.put("date", DateFormatUtils.format((Date) article.opt(Article.ARTICLE_CREATE_TIME), "yyyy-MM-dd HH:mm:ss"));
-            hexoFront.put("updated", DateFormatUtils.format((Date) article.opt(Article.ARTICLE_UPDATE_TIME), "yyyy-MM-dd HH:mm:ss"));
-            final List<String> tags = Arrays.stream(article.optString(Article.ARTICLE_TAGS).split(",")).
+            hexoFront.put("title", article.optString(ArticleUtil.ARTICLE_TITLE));
+            hexoFront.put("date", DateFormatUtils.format((Date) article.opt(ArticleUtil.ARTICLE_CREATE_TIME), "yyyy-MM-dd HH:mm:ss"));
+            hexoFront.put("updated", DateFormatUtils.format((Date) article.opt(ArticleUtil.ARTICLE_UPDATE_TIME), "yyyy-MM-dd HH:mm:ss"));
+            final List<String> tags = Arrays.stream(article.optString(ArticleUtil.ARTICLE_TAGS).split(",")).
                     filter(StringUtils::isNotBlank).map(String::trim).collect(Collectors.toList());
             if (tags.isEmpty()) {
                 tags.add("Sym");
             }
             hexoFront.put("tags", tags);
 
-            final String text = new Yaml().dump(hexoFront).replaceAll("\n", Strings.LINE_SEPARATOR) + "---" + Strings.LINE_SEPARATOR + article.optString(Article.ARTICLE_T_ORIGINAL_CONTENT);
+            final String text = new Yaml().dump(hexoFront).replaceAll("\n", Strings.LINE_SEPARATOR) + "---" + Strings.LINE_SEPARATOR + article.optString(ArticleUtil.ARTICLE_T_ORIGINAL_CONTENT);
             FileUtils.writeStringToFile(new File(mdPath.toString()), text, "UTF-8");
         } catch (final Exception e) {
             LOGGER.error( "Writes article to markdown file [" + mdPath.toString() + "] failed", e);

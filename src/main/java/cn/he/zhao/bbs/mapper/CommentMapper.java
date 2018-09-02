@@ -35,4 +35,7 @@ public interface CommentMapper {
     public JSONObject get(final String id) ;
 
     public void update(final String id, final JSONObject comment) ;
+
+
+    public void removeCommentByArticleId(final String commentOnArticleId);
 }

@@ -4,7 +4,7 @@ package cn.he.zhao.bbs.entity;
  * This class defines all article entity relevant keys.
  *
  */
-public class Article {
+public class Article extends BaseEntity{
 
     private String oid;
 
@@ -187,6 +187,7 @@ public class Article {
     /**
      * Key of article push order. https://github.com/b3log/symphony/issues/537
      */
+
     private Integer articlePushOrder;
 
     public String getOid() {

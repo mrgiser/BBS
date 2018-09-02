@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Tag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,21 +26,21 @@ import java.util.List;
 
 public interface TagMapper {
 
-    public String add(final JSONObject tag) ;
+    public String add(final Tag tag) ;
 
     public void remove(final String id) ;
 
-    public void update(final String id, final JSONObject article) ;
+    public void update(final String id, final Tag article) ;
 
-    public JSONObject get(final String id) ;
+    public Tag get(final String id) ;
 
     public String getURIByTitle(final String title) ;
 
-    public JSONObject getByURI(final String tagURI) ;
+    public Tag getByURI(final String tagURI) ;
 
-    public JSONObject getByTitle(final String tagTitle) ;
+    public Tag getByTitle(final String tagTitle) ;
 
-    public List<JSONObject> getMostUsedTags(final int num) ;
+    public List<Tag> getMostUsedTags(final int num) ;
 
-    public List<JSONObject> getByArticleId(final String articleId) ;
+    public List<Tag> getByArticleId(final String articleId) ;
 }

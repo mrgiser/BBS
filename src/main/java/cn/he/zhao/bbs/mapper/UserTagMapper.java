@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.UserTag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,4 +28,6 @@ public interface UserTagMapper {
     public JSONObject getByUserId(final String userId, final int currentPageNum, final int pageSize) ;
 
     public JSONObject getByTagId(final String tagId, final int currentPageNum, final int pageSize) ;
+
+    String add(UserTag userTagRelation);
 }

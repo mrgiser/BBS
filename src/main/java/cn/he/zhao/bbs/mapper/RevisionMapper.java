@@ -18,6 +18,13 @@
 package cn.he.zhao.bbs.mapper;
 
 
+import cn.he.zhao.bbs.entity.Revision;
+
+import java.util.List;
+
 public interface RevisionMapper {
 
+    void remove(final String revisionDataId, int revisionDataType);
+
+    String add(Revision revision);
 }

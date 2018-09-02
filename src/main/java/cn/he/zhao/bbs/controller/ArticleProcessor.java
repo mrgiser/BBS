@@ -20,6 +20,7 @@ package cn.he.zhao.bbs.controller;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.cache.DomainCache;
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Paginator;
@@ -954,7 +955,7 @@ public class ArticleProcessor {
         final boolean isAnonymous = requestJSONObject.optBoolean(Article.ARTICLE_ANONYMOUS, false);
         final int articleAnonymous = isAnonymous
                 ? Article.ARTICLE_ANONYMOUS_C_ANONYMOUS : Article.ARTICLE_ANONYMOUS_C_PUBLIC;
-        final boolean syncWithSymphonyClient = requestJSONObject.optBoolean(Article.ARTICLE_SYNC_TO_CLIENT, false);
+        final boolean syncWithSymphonyClient = requestJSONObject.optBoolean(ArticleUtil.ARTICLE_SYNC_TO_CLIENT, false);
 
         final JSONObject article = new JSONObject();
         article.put(Article.ARTICLE_TITLE, articleTitle);

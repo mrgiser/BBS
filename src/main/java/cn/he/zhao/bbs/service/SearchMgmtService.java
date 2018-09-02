@@ -163,12 +163,12 @@ public class SearchMgmtService {
      * @param doc  the specified document
      * @param type the specified document type
      */
-    public void removeESDocument(final JSONObject doc, final String type) {
+    public void removeESDocument(final BaseEntity doc, final String type) {
         final HTTPRequest request = new HTTPRequest();
         request.setRequestMethod(HTTPRequestMethod.DELETE);
 
         try {
-            request.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.optString(Keys.OBJECT_ID)));
+            request.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.getOid()));
 
             URL_FETCH_SVC.fetchAsync(request);
         } catch (final Exception e) {
@@ -255,7 +255,7 @@ public class SearchMgmtService {
      *
      * @param doc the specified document
      */
-    public void removeAlgoliaDocument(final JSONObject doc) {
+    public void removeAlgoliaDocument(final BaseEntity doc) {
         final int maxRetries = 3;
         int retries = 1;
 
@@ -272,7 +272,7 @@ public class SearchMgmtService {
                 request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
                 request.setRequestMethod(HTTPRequestMethod.DELETE);
 
-                final String id = doc.optString(Keys.OBJECT_ID);
+                final String id = doc.getOid();
                 request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/" + id));
 
                 request.setPayload(doc.toString().getBytes("UTF-8"));

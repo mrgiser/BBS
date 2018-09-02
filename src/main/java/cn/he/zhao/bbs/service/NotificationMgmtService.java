@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.channel.UserChannel;
+import cn.he.zhao.bbs.entityUtil.CommonUtil;
+import cn.he.zhao.bbs.entityUtil.NotificationUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -264,22 +268,22 @@ public class NotificationMgmtService {
     /**
      * Adds a 'point - perfect article' type notification with the specified request json object.
      *
-     * @param requestJSONObject the specified request json object, for example,
+     * @param notification the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addPerfectArticleNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addPerfectArticleNotification(final Notification notification) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_PERFECT_ARTICLE);
+            notification.setDataType( NotificationUtil.DATA_TYPE_C_POINT_PERFECT_ARTICLE);
 
-            addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+            addNotification(notification);
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=perfect_article] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -698,22 +702,22 @@ public class NotificationMgmtService {
     /**
      * Adds a 'article reward' type notification with the specified request json object.
      *
-     * @param requestJSONObject the specified request json object, for example,
+     * @param notification the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // reward id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addArticleRewardNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleRewardNotification(final Notification notification) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_ARTICLE_REWARD);
+            notification.setDataType(NotificationUtil.DATA_TYPE_C_POINT_ARTICLE_REWARD);
 
-            addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+            addNotification(notification);
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article_reward] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -898,26 +902,26 @@ public class NotificationMgmtService {
     /**
      * Adds a notification with the specified request json object.
      *
-     * @param requestJSONObject the specified request json object, for example,
+     * @param notification the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "",
      *                          "dataType": int
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private void addNotification(final JSONObject requestJSONObject) throws MapperException {
-        final JSONObject notification = new JSONObject();
+    private void addNotification(final Notification notification) throws Exception {
+//        final JSONObject notification = new JSONObject();
 
-        notification.put(Notification.NOTIFICATION_HAS_READ, false);
-        notification.put(Notification.NOTIFICATION_USER_ID, requestJSONObject.optString(Notification.NOTIFICATION_USER_ID));
-        notification.put(Notification.NOTIFICATION_DATA_ID, requestJSONObject.optString(Notification.NOTIFICATION_DATA_ID));
-        notification.put(Notification.NOTIFICATION_DATA_TYPE, requestJSONObject.optInt(Notification.NOTIFICATION_DATA_TYPE));
+        notification.setHasRead( false);
+//        notification.put(Notification.NOTIFICATION_USER_ID, requestJSONObject.optString(Notification.NOTIFICATION_USER_ID));
+//        notification.put(Notification.NOTIFICATION_DATA_ID, requestJSONObject.optString(Notification.NOTIFICATION_DATA_ID));
+//        notification.put(Notification.NOTIFICATION_DATA_TYPE, requestJSONObject.optInt(Notification.NOTIFICATION_DATA_TYPE));
 
         notificationMapper.add(notification);
 
         Symphonys.EXECUTOR_SERVICE.submit(() -> {
             final JSONObject cmd = new JSONObject();
-            cmd.put(Common.USER_ID, requestJSONObject.optString(Notification.NOTIFICATION_USER_ID));
-            cmd.put(Common.COMMAND, "refreshNotification");
+            cmd.put(CommonUtil.USER_ID, notification.getUserId());
+            cmd.put(CommonUtil.COMMAND, "refreshNotification");
 
             UserChannel.sendCmd(cmd);
         });
