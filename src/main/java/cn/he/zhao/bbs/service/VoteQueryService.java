@@ -60,13 +60,13 @@ public class VoteQueryService {
      */
     public int isVoted(final String userId, final String dataId) {
         try {
-            final List<Filter> filters = new ArrayList<>();
-            filters.add(new PropertyFilter(Vote.USER_ID, FilterOperator.EQUAL, userId));
-            filters.add(new PropertyFilter(Vote.DATA_ID, FilterOperator.EQUAL, dataId));
+//            final List<Filter> filters = new ArrayList<>();
+//            filters.add(new PropertyFilter(Vote.USER_ID, FilterOperator.EQUAL, userId));
+//            filters.add(new PropertyFilter(Vote.DATA_ID, FilterOperator.EQUAL, dataId));
+//
+//            final Query query = new Query().setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
 
-            final Query query = new Query().setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
-
-            final List<Vote> results = voteMapper.get(query);
+            final List<Vote> results = voteMapper.getByUserIdAndDataId( userId, dataId);
 
             if (0 == results.size()) {
                 return -1;

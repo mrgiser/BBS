@@ -3,6 +3,7 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;

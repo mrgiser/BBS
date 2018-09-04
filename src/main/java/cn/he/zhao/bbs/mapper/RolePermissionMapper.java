@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.RolePermission;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,4 +29,6 @@ public interface RolePermissionMapper {
 
 
     public List<JSONObject> getByRoleId(final String roleId) ;
+
+    void add(RolePermission rel);
 }

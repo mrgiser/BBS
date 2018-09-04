@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Vote;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,4 +29,6 @@ public interface VoteMapper {
 
     public int removeIfExists(final String userId, final String dataId, final int dataType) ;
 
+    @Select("select * from vote where userId = #{userId} AND dataId = #{dataId}")
+    List<Vote> getByUserIdAndDataId(String userId, String dataId);
 }

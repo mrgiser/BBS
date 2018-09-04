@@ -18,6 +18,7 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.UserExt;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -34,4 +35,7 @@ public interface UserMapper {
     public List<UserExt> getAdmins() ;
 
     public boolean isAdminEmail(final String email) ;
+
+    @Select("select count(*) from user where userRole = #{roleId}")
+    Integer countByRoleId(final String roleId);
 }

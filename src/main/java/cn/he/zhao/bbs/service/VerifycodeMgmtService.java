@@ -3,12 +3,14 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -79,17 +81,17 @@ public class VerifycodeMgmtService {
      *                          "expired": long
      *                          }
      * @return verifycode id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public String addVerifycode(final JSONObject requestJSONObject) throws ServiceException {
+    public String addVerifycode(final JSONObject requestJSONObject) throws Exception {
         try {
             return verifycodeMapper.add(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds verifycode failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -109,7 +111,7 @@ public class VerifycodeMgmtService {
                 final String id = verifycodes.optJSONObject(i).optString(Keys.OBJECT_ID);
                 verifycodeMapper.remove(id);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Expires verifycodes failed", e);
         }
     }
@@ -176,7 +178,7 @@ public class VerifycodeMgmtService {
                         + " " + langPropsService.get("verifycodeEmailFromNameLabel", Locales.getLocale());
                 Mails.sendHTML(fromName, subject, toMail, Mails.TEMPLATE_NAME_VERIFYCODE, dataModel);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Sends verifycode failed", e);
         }
     }

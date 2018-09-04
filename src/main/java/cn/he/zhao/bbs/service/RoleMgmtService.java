@@ -53,14 +53,14 @@ public class RoleMgmtService {
     @Transactional
     public void removeRole(final String roleId) {
         try {
-            final Query userCountQuery = new Query().setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, roleId));
-            final int count = (int) userMapper.count(userCountQuery);
+//            final Query userCountQuery = new Query().setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, roleId));
+            final int count = (int) userMapper.countByRoleId(roleId);
             if (0 < count) {
                 return;
             }
 
             rolePermissionMapper.removeByRoleId(roleId);
-            roleMapper.remove(roleId);
+            roleMapper.removeByRoleId(roleId);
         } catch (final Exception e) {
             LOGGER.error( "Removes a role [id=" + roleId + "] failed", e);
         }
@@ -72,18 +72,18 @@ public class RoleMgmtService {
      * @param role the specified role
      */
     @Transactional
-    public void addRole(final JSONObject role) {
+    public void addRole(final Role role) {
         try {
-            final String roleName = role.optString(Role.ROLE_NAME);
+            final String roleName = role.getRoleName();
 
-            final Query query = new Query().
-                    setFilter(new PropertyFilter(Role.ROLE_NAME, FilterOperator.EQUAL, roleName));
-            if (roleMapper.count(query) > 0) {
+//            final Query query = new Query().
+//                    setFilter(new PropertyFilter(Role.ROLE_NAME, FilterOperator.EQUAL, roleName));
+            if (roleMapper.countByRoleName(roleName) > 0) {
                 return;
             }
 
             roleMapper.add(role);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Adds role failed", e);
         }
     }
@@ -99,13 +99,13 @@ public class RoleMgmtService {
             rolePermissionMapper.removeByRoleId(roleId);
 
             for (final String permissionId : permissionIds) {
-                final JSONObject rel = new JSONObject();
-                rel.put(Role.ROLE_ID, roleId);
-                rel.put(Permission.PERMISSION_ID, permissionId);
+                final RolePermission rel = new RolePermission();
+                rel.setRoleId( roleId);
+                rel.setPermissionId( permissionId);
 
                 rolePermissionMapper.add(rel);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Updates role permissions failed", e);
         }
     }

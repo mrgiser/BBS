@@ -18,6 +18,16 @@
 package cn.he.zhao.bbs.mapper;
 
 
+import cn.he.zhao.bbs.entity.Verifycode;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+
 public interface VerifycodeMapper {
 
+    @Select("select * from verifycode where code = #{code}")
+    List<Verifycode> getByCode(String code);
+
+    @Select("select * from verifycode where type = #{type} AND bizType = #{bizType} AND userId = #{userId} ORDER BY oId DESC")
+    List<Verifycode> getByTypeBizTypeUserId(int type, int bizType, String userId);
 }

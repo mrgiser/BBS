@@ -43,14 +43,14 @@ public class VerifycodeQueryService {
      * @return verifycode, returns {@code null} if not found
      */
     public Verifycode getVerifycodeByUserId(final int type, final int bizType, final String userId) {
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Verifycode.TYPE, FilterOperator.EQUAL, type),
-                new PropertyFilter(Verifycode.BIZ_TYPE, FilterOperator.EQUAL, bizType),
-                new PropertyFilter(Verifycode.USER_ID, FilterOperator.EQUAL, userId))
-        ).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(Verifycode.TYPE, FilterOperator.EQUAL, type),
+//                new PropertyFilter(Verifycode.BIZ_TYPE, FilterOperator.EQUAL, bizType),
+//                new PropertyFilter(Verifycode.USER_ID, FilterOperator.EQUAL, userId))
+//        ).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
 
         try {
-            final List<Verifycode> results = verifycodeMapper.get(query);
+            final List<Verifycode> results = verifycodeMapper.getByTypeBizTypeUserId(type,bizType,userId);
             if (0 == results.size()) {
                 return null;
             }
@@ -70,10 +70,10 @@ public class VerifycodeQueryService {
      * @return verifycode, returns {@code null} if not found
      */
     public Verifycode getVerifycode(final String code) {
-        final Query query = new Query().setFilter(new PropertyFilter(Verifycode.CODE, FilterOperator.EQUAL, code));
+//        final Query query = new Query().setFilter(new PropertyFilter(Verifycode.CODE, FilterOperator.EQUAL, code));
 
         try {
-            final List<Verifycode> result = verifycodeMapper.get(query);
+            final List<Verifycode> result = verifycodeMapper.getByCode(code);
             if (0 == result.size()) {
                 return null;
             }
