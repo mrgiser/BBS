@@ -87,7 +87,7 @@ public class AvatarQueryService {
      * @param size     the specified size
      * @return the avatar URL
      */
-    public String getAvatarURLByUser(final int viewMode, final JSONObject user, final String size) {
+    public String getAvatarURLByUser(final int viewMode, final UserExt user, final String size) {
         if (null == user) {
             return DEFAULT_AVATAR_URL;
         }

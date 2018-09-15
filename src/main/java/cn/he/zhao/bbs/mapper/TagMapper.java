@@ -18,6 +18,7 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Tag;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,21 +27,30 @@ import java.util.List;
 
 public interface TagMapper {
 
-    public String add(final Tag tag) ;
+    String add(final Tag tag) ;
 
-    public void remove(final String id) ;
+    void remove(final String id) ;
 
-    public void update(final String id, final Tag article) ;
+    void update(final String id, final Tag article) ;
 
-    public Tag get(final String id) ;
+    Tag get(final String id) ;
 
-    public String getURIByTitle(final String title) ;
+    String getURIByTitle(final String title) ;
 
-    public Tag getByURI(final String tagURI) ;
+    Tag getByURI(final String tagURI) ;
 
-    public Tag getByTitle(final String tagTitle) ;
+    Tag getByTitle(final String tagTitle) ;
 
-    public List<Tag> getMostUsedTags(final int num) ;
+    List<Tag> getMostUsedTags(final int num) ;
 
-    public List<Tag> getByArticleId(final String articleId) ;
+    List<Tag> getByArticleId(final String articleId) ;
+
+    @Select("select * from tag where tagStatus != 0")
+    List<Tag> getInvalidTags();
+
+    @Select("select * from tag ORDER BY tagReferenceCount DESC")
+    List<Tag> getAllDESCByTagReferenceCount();
+
+    @Select("select * from tag ORDER BY tagReferenceCount ASC")
+    List<Tag> getAllASCByTagReferenceCount();
 }

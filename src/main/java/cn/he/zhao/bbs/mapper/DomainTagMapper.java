@@ -17,18 +17,24 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Domain;
+import cn.he.zhao.bbs.entity.DomainTag;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
 
 
 public interface DomainTagMapper {
 
 
-    public JSONObject getByDomainId(final String domainId, final int currentPageNum, final int pageSize) ;
+    JSONObject getByDomainId(final String domainId, final int currentPageNum, final int pageSize) ;
 
 
-    public void removeByDomainId(final String domainId);
+    void removeByDomainId(final String domainId);
 
 
-    public JSONObject getByTagId(final String tagId, final int currentPageNum, final int pageSize);
+    JSONObject getByTagOId(final String tagId, final int currentPageNum, final int pageSize);
+
+    List<DomainTag> getByTagOId(final String tagId);
 }

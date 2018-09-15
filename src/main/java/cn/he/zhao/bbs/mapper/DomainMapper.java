@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Domain;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -30,9 +31,10 @@ import org.json.JSONObject;
 
 public interface DomainMapper {
 
+    Domain getByOId(String oid);
 
-    public JSONObject getByTitle(final String domainTitle) ;
-    
+    Domain getByTitle(final String domainTitle) ;
 
-    public JSONObject getByURI(final String domainURI) ;
+
+    Domain getByURI(final String domainURI) ;
 }

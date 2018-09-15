@@ -84,6 +84,34 @@ public class Tag {
      */
     private Double tagRandomDouble;
 
+    //transient
+    private transient String tagDescriptionText;
+
+    //transient
+    private transient Object tagDomains;
+
+    //transient
+    private transient String tagCreatorThumbnailURL;
+
+    private transient Long tagCreatorThumbnailUpdateTime;
+    private transient String tagCreatorName;
+
+    public String getTagCreatorName() {
+        return tagCreatorName;
+    }
+
+    public void setTagCreatorName(String tagCreatorName) {
+        this.tagCreatorName = tagCreatorName;
+    }
+
+    public Long getTagCreatorThumbnailUpdateTime() {
+        return tagCreatorThumbnailUpdateTime;
+    }
+
+    public void setTagCreatorThumbnailUpdateTime(Long tagCreatorThumbnailUpdateTime) {
+        this.tagCreatorThumbnailUpdateTime = tagCreatorThumbnailUpdateTime;
+    }
+
     public String getOid() {
         return oid;
     }
@@ -218,5 +246,29 @@ public class Tag {
 
     public void setTagRandomDouble(Double tagRandomDouble) {
         this.tagRandomDouble = tagRandomDouble;
+    }
+
+    public String getTagDescriptionText() {
+        return tagDescriptionText;
+    }
+
+    public void setTagDescriptionText(String tagDescriptionText) {
+        this.tagDescriptionText = tagDescriptionText;
+    }
+
+    public Object getTagDomains() {
+        return tagDomains;
+    }
+
+    public void setTagDomains(Object tagDomains) {
+        this.tagDomains = tagDomains;
+    }
+
+    public String getTagCreatorThumbnailURL() {
+        return tagCreatorThumbnailURL;
+    }
+
+    public void setTagCreatorThumbnailURL(String tagCreatorThumbnailURL) {
+        this.tagCreatorThumbnailURL = tagCreatorThumbnailURL;
     }
 }

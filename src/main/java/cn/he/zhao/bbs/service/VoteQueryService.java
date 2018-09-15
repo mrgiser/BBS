@@ -1,30 +1,18 @@
 
 package cn.he.zhao.bbs.service;
 
-import cn.he.zhao.bbs.entityUtil.ArticleUtil;
-import cn.he.zhao.bbs.entityUtil.CommentUtil;
 import cn.he.zhao.bbs.entityUtil.VoteUtil;
-import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Vote query service.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.1, Oct 17, 2016
- * @since 1.3.0
- */
+
 @Service
 public class VoteQueryService {
 

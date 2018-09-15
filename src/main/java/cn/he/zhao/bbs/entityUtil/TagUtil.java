@@ -17,16 +17,15 @@
  */
 package cn.he.zhao.bbs.entityUtil;
 
+import cn.he.zhao.bbs.cache.TagCache;
+import cn.he.zhao.bbs.entity.Tag;
+import cn.he.zhao.bbs.service.ShortLinkQueryService;
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.Markdowns;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
-import org.b3log.latke.ioc.LatkeBeanManager;
-import org.b3log.latke.ioc.LatkeBeanManagerImpl;
-import org.b3log.latke.ioc.Lifecycle;
-import org.b3log.latke.util.Strings;
-import org.b3log.symphony.cache.TagCache;
-import org.b3log.symphony.service.ShortLinkQueryService;
-import org.b3log.symphony.util.Emotions;
-import org.b3log.symphony.util.Markdowns;
-import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
@@ -442,7 +441,7 @@ public final class TagUtil {
      * @return normalized title
      */
     private static String normalize(final String title) {
-        final TagCache cache = LatkeBeanManagerImpl.getInstance().getReference(TagCache.class);
+        final TagCache cache = SpringUtil.getBean(TagCache.class);
         final List<JSONObject> iconTags = cache.getIconTags(Integer.MAX_VALUE);
         Collections.sort(iconTags, (t1, t2) -> {
             final String u1Title = t1.optString(TagUtil.TAG_T_TITLE_LOWER_CASE);
@@ -499,20 +498,19 @@ public final class TagUtil {
      *
      * @param tag the specified tag
      */
-    public static void fillDescription(final JSONObject tag) {
-        String description = tag.optString(TagUtil.TAG_DESCRIPTION);
-        String descriptionText = tag.optString(TagUtil.TAG_TITLE);
+    public static void fillDescription(final Tag tag) {
+        String description = tag.getTagDescription();
+        String descriptionText = tag.getTagTitle();
         if (StringUtils.isNotBlank(description)) {
-            final LatkeBeanManager beanManager = Lifecycle.getBeanManager();
-            final ShortLinkQueryService shortLinkQueryService = beanManager.getReference(ShortLinkQueryService.class);
+            final ShortLinkQueryService shortLinkQueryService = SpringUtil.getBean(ShortLinkQueryService.class);
 
             description = shortLinkQueryService.linkTag(description);
             description = Emotions.convert(description);
             description = Markdowns.toHTML(description);
 
-            tag.put(TagUtil.TAG_DESCRIPTION, description);
+            tag.setTagDescription( description);
             descriptionText = Jsoup.parse(description).text();
         }
-        tag.put(TagUtil.TAG_T_DESCRIPTION_TEXT, descriptionText);
+        tag.setTagDescriptionText(descriptionText);
     }
 }
