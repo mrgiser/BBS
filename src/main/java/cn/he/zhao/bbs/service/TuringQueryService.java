@@ -3,23 +3,25 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Symphonys;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
 
-/**
- * Turing query service.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.2, May 1, 2018
- * @since 1.4.0
- */
 @Service
 public class TuringQueryService {
 
@@ -56,7 +58,10 @@ public class TuringQueryService {
     /**
      * URL fetch service.
      */
-    private static final URLFetchService URL_FETCH_SVC = URLFetchServiceFactory.getURLFetchService();
+//    private static final URLFetchService URL_FETCH_SVC = URLFetchServiceFactory.getURLFetchService();
+
+    private static RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectTimeout(3000)
+            .setConnectionRequestTimeout(1000).setSocketTimeout(10000).build();
 
     /**
      * Language service.
@@ -76,11 +81,16 @@ public class TuringQueryService {
             return null;
         }
 
-        final HTTPRequest request = new HTTPRequest();
-        request.setRequestMethod(HTTPRequestMethod.POST);
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+
+
+//        final HTTPRequest request = new HTTPRequest();
+//        request.setRequestMethod(HTTPRequestMethod.POST);
 
         try {
-            request.setURL(new URL(TURING_API));
+            HttpPost httpPost = new HttpPost(TURING_API);
+//            request.setURL(new URL(TURING_API));
 
             final JSONObject reqData = new JSONObject();
             reqData.put("reqType", 0);
@@ -95,13 +105,22 @@ public class TuringQueryService {
             userInfo.put("userIdName", userName);
             reqData.put("userInfo", userInfo);
 
-            request.setPayload(reqData.toString().getBytes("UTF-8"));
+            httpPost.setConfig(defaultRequestConfig);
 
-            final HTTPResponse response = URL_FETCH_SVC.fetch(request);
-            final JSONObject data = new JSONObject(new String(response.getContent(), "UTF-8"));
-            final JSONObject intent = data.optJSONObject("intent");
-            final int code = intent.optInt("code");
-            final JSONArray results = data.optJSONArray("results");
+            StringEntity strEntity = new StringEntity(reqData.toString(),"UTF-8");
+            httpPost.setEntity(strEntity);
+//            request.setPayload(reqData.toString().getBytes("UTF-8"));
+
+            final CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            StatusLine status = response.getStatusLine();
+            int statusCode = status.getStatusCode();
+            String responseStr = EntityUtils.toString(entity);
+            JSONObject json = JSON.parseObject(responseStr);
+
+            final JSONObject intent = json.getJSONObject("intent");
+            final int code = intent.getInteger("code");
+            final JSONArray results = json.getJSONArray("results");
             switch (code) {
                 case 5000:
                 case 6000:
@@ -130,10 +149,10 @@ public class TuringQueryService {
                 case 10008:
                 case 10011:
                     final StringBuilder builder = new StringBuilder();
-                    for (int i = 0; i < results.length(); i++) {
-                        final JSONObject result = results.optJSONObject(i);
-                        final String resultType = result.optString("resultType");
-                        String values = result.optJSONObject("values").optString(resultType);
+                    for (int i = 0; i < results.size(); i++) {
+                        final JSONObject result = results.getJSONObject(i);
+                        final String resultType = result.getString("resultType");
+                        String values = result.getJSONObject("values").getString(resultType);
                         if (StringUtils.endsWithAny(values, new String[]{"jpg", "png", "gif"})) {
                             values = "![](" + values + ")";
                         }
@@ -145,7 +164,7 @@ public class TuringQueryService {
 
                     return ret;
                 default:
-                    LOGGER.warn( "Turing Robot default return [" + data.toString(4) + "]");
+                    LOGGER.warn( "Turing Robot default return [" + json.toString() + "]");
 
                     return langPropsService.get("turingQuotaExceedLabel");
             }
