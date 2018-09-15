@@ -102,14 +102,14 @@ public class VoteQueryService {
 
                 return article.getArticleAuthorId().equals(userId);
             } else if (VoteUtil.DATA_TYPE_C_COMMENT == dataType) {
-                final JSONObject comment = commentMapper.get(dataId);
+                final Comment comment = commentMapper.get(dataId);
                 if (null == comment) {
                     LOGGER.error( "Not found comment [id={0}]", dataId);
 
                     return false;
                 }
 
-                return comment.optString(CommentUtil.COMMENT_AUTHOR_ID).equals(userId);
+                return comment.getCommentAuthorId().equals(userId);
             }
 
             return false;
