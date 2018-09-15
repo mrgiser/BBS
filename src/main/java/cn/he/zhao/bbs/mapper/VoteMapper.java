@@ -27,8 +27,10 @@ import java.util.List;
 
 public interface VoteMapper {
 
-    public int removeIfExists(final String userId, final String dataId, final int dataType) ;
+    int removeIfExists(final String userId, final String dataId, final int dataType) ;
 
     @Select("select * from vote where userId = #{userId} AND dataId = #{dataId}")
     List<Vote> getByUserIdAndDataId(String userId, String dataId);
+
+    String add(Vote vote);
 }

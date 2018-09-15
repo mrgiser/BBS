@@ -1,5 +1,7 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.LivenessUtil;
+import cn.he.zhao.bbs.entityUtil.VoteUtil;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -102,55 +105,55 @@ public class VoteMgmtService {
         try {
             final int oldType = voteMapper.removeIfExists(userId, dataId, dataType);
 
-            if (Vote.DATA_TYPE_C_ARTICLE == dataType) {
-                final JSONObject article = articleMapper.get(dataId);
+            if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
+                final Article article = articleMapper.get(dataId);
                 if (null == article) {
                     LOGGER.error( "Not found article [id={0}] to vote cancel", dataId);
 
                     return;
                 }
 
-                if (Vote.TYPE_C_UP == oldType) {
-                    article.put(Article.ARTICLE_GOOD_CNT, article.optInt(Article.ARTICLE_GOOD_CNT) - 1);
-                } else if (Vote.TYPE_C_DOWN == oldType) {
-                    article.put(Article.ARTICLE_BAD_CNT, article.optInt(Article.ARTICLE_BAD_CNT) - 1);
+                if (VoteUtil.TYPE_C_UP == oldType) {
+                    article.setArticleGoodCnt( article.getArticleGoodCnt() - 1);
+                } else if (VoteUtil.TYPE_C_DOWN == oldType) {
+                    article.setArticleBadCnt(article.getArticleBadCnt() - 1);
                 }
 
-                final int ups = article.optInt(Article.ARTICLE_GOOD_CNT);
-                final int downs = article.optInt(Article.ARTICLE_BAD_CNT);
-                final long t = article.optLong(Keys.OBJECT_ID) / 1000;
+                final int ups = article.getArticleGoodCnt();
+                final int downs = article.getArticleBadCnt();
+                final long t = Long.parseLong(article.getOid()) / 1000;
 
                 final double redditScore = redditArticleScore(ups, downs, t);
-                article.put(Article.REDDIT_SCORE, redditScore);
+                article.setRedditScore(redditScore);
 
                 updateTagArticleScore(article);
 
-                articleMapper.update(dataId, article);
-            } else if (Vote.DATA_TYPE_C_COMMENT == dataType) {
-                final JSONObject comment = commentMapper.get(dataId);
+                articleMapper.update(article);
+            } else if (VoteUtil.DATA_TYPE_C_COMMENT == dataType) {
+                final Comment comment = commentMapper.get(dataId);
                 if (null == comment) {
                     LOGGER.error( "Not found comment [id={0}] to vote cancel", dataId);
 
                     return;
                 }
 
-                if (Vote.TYPE_C_UP == oldType) {
-                    comment.put(Comment.COMMENT_GOOD_CNT, comment.optInt(Comment.COMMENT_GOOD_CNT) - 1);
-                } else if (Vote.TYPE_C_DOWN == oldType) {
-                    comment.put(Comment.COMMENT_BAD_CNT, comment.optInt(Comment.COMMENT_BAD_CNT) - 1);
+                if (VoteUtil.TYPE_C_UP == oldType) {
+                    comment.setCommentGoodCnt( comment.getCommentGoodCnt() - 1);
+                } else if (VoteUtil.TYPE_C_DOWN == oldType) {
+                    comment.setCommentBadCnt(comment.getCommentBadCnt() - 1);
                 }
 
-                final int ups = comment.optInt(Comment.COMMENT_GOOD_CNT);
-                final int downs = comment.optInt(Comment.COMMENT_BAD_CNT);
+                final int ups = comment.getCommentGoodCnt();
+                final int downs = comment.getCommentBadCnt();
 
                 final double redditScore = redditCommentScore(ups, downs);
-                comment.put(Comment.COMMENT_SCORE, redditScore);
+                comment.setCommentScore( redditScore);
 
                 commentMapper.update(dataId, comment);
             } else {
                 LOGGER.warn("Wrong data type [" + dataType + "]");
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( e.getMessage());
         }
     }
@@ -161,20 +164,20 @@ public class VoteMgmtService {
      * @param userId   the specified user id
      * @param dataId   the specified article/comment id
      * @param dataType the specified data type
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void voteUp(final String userId, final String dataId, final int dataType) throws ServiceException {
+    public void voteUp(final String userId, final String dataId, final int dataType) throws Exception {
         try {
             up(userId, dataId, dataType);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "User[id=" + userId + "] vote up an [" + dataType + "][id=" + dataId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
 
-        livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_VOTE);
+        livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_VOTE);
     }
 
     /**
@@ -182,20 +185,20 @@ public class VoteMgmtService {
      *
      * @param userId the specified user id
      * @param dataId the specified article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void voteDown(final String userId, final String dataId, final int dataType) throws ServiceException {
+    public void voteDown(final String userId, final String dataId, final int dataType) throws Exception {
         try {
             down(userId, dataId, dataType);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "User[id=" + userId + "] vote down an [" + dataType + "][id=" + dataId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
 
-        livenessMgmtService.incLiveness(userId, Liveness.LIVENESS_VOTE);
+        livenessMgmtService.incLiveness(userId, LivenessUtil.LIVENESS_VOTE);
     }
 
     /**
@@ -204,13 +207,13 @@ public class VoteMgmtService {
      * @param userId   the specified user id
      * @param dataId   the specified data entity id
      * @param dataType the specified data type
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private void up(final String userId, final String dataId, final int dataType) throws MapperException {
+    private void up(final String userId, final String dataId, final int dataType) throws Exception {
         final int oldType = voteMapper.removeIfExists(userId, dataId, dataType);
 
-        if (Vote.DATA_TYPE_C_ARTICLE == dataType) {
-            final JSONObject article = articleMapper.get(dataId);
+        if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
+            final Article article = articleMapper.get(dataId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to vote up", dataId);
 
@@ -218,24 +221,24 @@ public class VoteMgmtService {
             }
 
             if (-1 == oldType) {
-                article.put(Article.ARTICLE_GOOD_CNT, article.optInt(Article.ARTICLE_GOOD_CNT) + 1);
-            } else if (Vote.TYPE_C_DOWN == oldType) {
-                article.put(Article.ARTICLE_BAD_CNT, article.optInt(Article.ARTICLE_BAD_CNT) - 1);
-                article.put(Article.ARTICLE_GOOD_CNT, article.optInt(Article.ARTICLE_GOOD_CNT) + 1);
+                article.setArticleGoodCnt( article.getArticleGoodCnt() + 1);
+            } else if (VoteUtil.TYPE_C_DOWN == oldType) {
+                article.setArticleBadCnt( article.getArticleBadCnt() - 1);
+                article.setArticleGoodCnt(article.getArticleGoodCnt() + 1);
             }
 
-            final int ups = article.optInt(Article.ARTICLE_GOOD_CNT);
-            final int downs = article.optInt(Article.ARTICLE_BAD_CNT);
-            final long t = article.optLong(Keys.OBJECT_ID) / 1000;
+            final int ups = article.getArticleGoodCnt();
+            final int downs = article.getArticleBadCnt();
+            final long t = Long.parseLong(article.getOid()) / 1000;
 
             final double redditScore = redditArticleScore(ups, downs, t);
-            article.put(Article.REDDIT_SCORE, redditScore);
+            article.setRedditScore(redditScore);
 
             updateTagArticleScore(article);
 
-            articleMapper.update(dataId, article);
-        } else if (Vote.DATA_TYPE_C_COMMENT == dataType) {
-            final JSONObject comment = commentMapper.get(dataId);
+            articleMapper.update( article);
+        } else if (VoteUtil.DATA_TYPE_C_COMMENT == dataType) {
+            final Comment comment = commentMapper.get(dataId);
             if (null == comment) {
                 LOGGER.error( "Not found comment [id={0}] to vote up", dataId);
 
@@ -243,28 +246,28 @@ public class VoteMgmtService {
             }
 
             if (-1 == oldType) {
-                comment.put(Comment.COMMENT_GOOD_CNT, comment.optInt(Comment.COMMENT_GOOD_CNT) + 1);
-            } else if (Vote.TYPE_C_DOWN == oldType) {
-                comment.put(Comment.COMMENT_BAD_CNT, comment.optInt(Comment.COMMENT_BAD_CNT) - 1);
-                comment.put(Comment.COMMENT_GOOD_CNT, comment.optInt(Comment.COMMENT_GOOD_CNT) + 1);
+                comment.setCommentGoodCnt( comment.getCommentGoodCnt() + 1);
+            } else if (VoteUtil.TYPE_C_DOWN == oldType) {
+                comment.setCommentBadCnt( comment.getCommentBadCnt() - 1);
+                comment.setCommentGoodCnt(comment.getCommentGoodCnt() + 1);
             }
 
-            final int ups = comment.optInt(Comment.COMMENT_GOOD_CNT);
-            final int downs = comment.optInt(Comment.COMMENT_BAD_CNT);
+            final int ups = comment.getCommentGoodCnt();
+            final int downs = comment.getCommentBadCnt();
 
             final double redditScore = redditCommentScore(ups, downs);
-            comment.put(Comment.COMMENT_SCORE, redditScore);
+            comment.setCommentScore(redditScore);
 
             commentMapper.update(dataId, comment);
         } else {
             LOGGER.warn("Wrong data type [" + dataType + "]");
         }
 
-        final JSONObject vote = new JSONObject();
-        vote.put(Vote.USER_ID, userId);
-        vote.put(Vote.DATA_ID, dataId);
-        vote.put(Vote.TYPE, Vote.TYPE_C_UP);
-        vote.put(Vote.DATA_TYPE, dataType);
+        final Vote vote = new Vote();
+        vote.setUserId( userId);
+        vote.setDataId( dataId);
+        vote.setType(VoteUtil.TYPE_C_UP);
+        vote.setDataType(dataType);
 
         voteMapper.add(vote);
     }
@@ -275,13 +278,13 @@ public class VoteMgmtService {
      * @param userId   the specified user id
      * @param dataId   the specified data entity id
      * @param dataType the specified data type
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private void down(final String userId, final String dataId, final int dataType) throws MapperException {
+    private void down(final String userId, final String dataId, final int dataType) throws Exception {
         final int oldType = voteMapper.removeIfExists(userId, dataId, dataType);
 
-        if (Vote.DATA_TYPE_C_ARTICLE == dataType) {
-            final JSONObject article = articleMapper.get(dataId);
+        if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
+            final Article article = articleMapper.get(dataId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to vote down", dataId);
 
@@ -289,24 +292,24 @@ public class VoteMgmtService {
             }
 
             if (-1 == oldType) {
-                article.put(Article.ARTICLE_BAD_CNT, article.optInt(Article.ARTICLE_BAD_CNT) + 1);
-            } else if (Vote.TYPE_C_UP == oldType) {
-                article.put(Article.ARTICLE_GOOD_CNT, article.optInt(Article.ARTICLE_GOOD_CNT) - 1);
-                article.put(Article.ARTICLE_BAD_CNT, article.optInt(Article.ARTICLE_BAD_CNT) + 1);
+                article.setArticleBadCnt( article.getArticleBadCnt() + 1);
+            } else if (VoteUtil.TYPE_C_UP == oldType) {
+                article.setArticleGoodCnt(article.getArticleGoodCnt() - 1);
+                article.setArticleBadCnt( article.getArticleBadCnt() + 1);
             }
 
-            final int ups = article.optInt(Article.ARTICLE_GOOD_CNT);
-            final int downs = article.optInt(Article.ARTICLE_BAD_CNT);
-            final long t = article.optLong(Keys.OBJECT_ID) / 1000;
+            final int ups = article.getArticleGoodCnt();
+            final int downs = article.getArticleBadCnt();
+            final long t = Long.parseLong(article.getOid()) / 1000;
 
             final double redditScore = redditArticleScore(ups, downs, t);
-            article.put(Article.REDDIT_SCORE, redditScore);
+            article.setRedditScore(redditScore);
 
             updateTagArticleScore(article);
 
-            articleMapper.update(dataId, article);
-        } else if (Vote.DATA_TYPE_C_COMMENT == dataType) {
-            final JSONObject comment = commentMapper.get(dataId);
+            articleMapper.update( article);
+        } else if (VoteUtil.DATA_TYPE_C_COMMENT == dataType) {
+            final Comment comment = commentMapper.get(dataId);
             if (null == comment) {
                 LOGGER.error( "Not found comment [id={0}] to vote up", dataId);
 
@@ -314,28 +317,30 @@ public class VoteMgmtService {
             }
 
             if (-1 == oldType) {
-                comment.put(Comment.COMMENT_BAD_CNT, comment.optInt(Comment.COMMENT_BAD_CNT) + 1);
-            } else if (Vote.TYPE_C_UP == oldType) {
-                comment.put(Comment.COMMENT_GOOD_CNT, comment.optInt(Comment.COMMENT_GOOD_CNT) - 1);
-                comment.put(Comment.COMMENT_BAD_CNT, comment.optInt(Comment.COMMENT_BAD_CNT) + 1);
+                comment.setCommentBadCnt( comment.getCommentBadCnt() + 1);
+            } else if (VoteUtil.TYPE_C_UP == oldType) {
+                comment.setCommentGoodCnt( comment.getCommentGoodCnt() - 1);
+                comment.setCommentBadCnt( comment.getCommentBadCnt() + 1);
             }
 
-            final int ups = comment.optInt(Comment.COMMENT_GOOD_CNT);
-            final int downs = comment.optInt(Comment.COMMENT_BAD_CNT);
+            final int ups = comment.getCommentGoodCnt();
+            final int downs = comment.getCommentBadCnt();
 
             final double redditScore = redditCommentScore(ups, downs);
-            comment.put(Comment.COMMENT_SCORE, redditScore);
+            comment.setCommentScore(redditScore);
 
             commentMapper.update(dataId, comment);
         } else {
             LOGGER.warn("Wrong data type [" + dataType + "]");
         }
 
-        final JSONObject vote = new JSONObject();
-        vote.put(Vote.USER_ID, userId);
-        vote.put(Vote.DATA_ID, dataId);
-        vote.put(Vote.TYPE, Vote.TYPE_C_DOWN);
-        vote.put(Vote.DATA_TYPE, dataType);
+        final Vote vote = new Vote();
+        vote.setUserId( userId);
+        vote.setDataId( dataId);
+        vote.setType(VoteUtil.TYPE_C_DOWN);
+        vote.setDataType(dataType);
+
+        voteMapper.add(vote);
 
         voteMapper.add(vote);
     }

@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Comment;
 import org.json.JSONObject;
 
 /**
@@ -32,9 +33,9 @@ public interface CommentMapper {
 
     public void remove(final String id)  ;
 
-    public JSONObject get(final String id) ;
+    public Comment get(final String id) ;
 
-    public void update(final String id, final JSONObject comment) ;
+    public void update(final String id, final Comment comment) ;
 
 
     public void removeCommentByArticleId(final String commentOnArticleId);
