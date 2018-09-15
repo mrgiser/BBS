@@ -1,9 +1,16 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.VerifycodeUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.Mails;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -54,14 +61,14 @@ public class VerifycodeMgmtService {
      */
     @Transactional
     public void removeByCode(final String code) {
-        final Query query = new Query().setFilter(new PropertyFilter(Verifycode.CODE, FilterOperator.EQUAL, code));
+//        final Query query = new Query().setFilter(new PropertyFilter(Verifycode.CODE, FilterOperator.EQUAL, code));
         try {
-            final JSONArray results = verifycodeMapper.get(query).optJSONArray(Keys.RESULTS);
-            if (1 > results.length()) {
+            final List<Verifycode> results = verifycodeMapper.getByCode(code);
+            if (1 > results.size()) {
                 return;
             }
 
-            verifycodeMapper.remove(results.optJSONObject(0).optString(Keys.OBJECT_ID));
+            verifycodeMapper.deleteByPrimaryKey(results.get(0).getOid());
         } catch (final Exception e) {
             LOGGER.error( "Removes by code [" + code + "] failed", e);
         }
@@ -70,7 +77,7 @@ public class VerifycodeMgmtService {
     /**
      * Adds a verifycode with the specified request json object.
      *
-     * @param requestJSONObject the specified request json object, for example,
+     * @param verifycode the specified request json object, for example,
      *                          {
      *                          "userId"; "",
      *                          "type": int,
@@ -84,9 +91,9 @@ public class VerifycodeMgmtService {
      * @throws Exception service exception
      */
     @Transactional
-    public String addVerifycode(final JSONObject requestJSONObject) throws Exception {
+    public String addVerifycode(final Verifycode verifycode) throws Exception {
         try {
-            return verifycodeMapper.add(requestJSONObject);
+            return verifycodeMapper.add(verifycode);
         } catch (final Exception e) {
             final String msg = "Adds verifycode failed";
             LOGGER.error( msg, e);
@@ -100,16 +107,16 @@ public class VerifycodeMgmtService {
      */
     @Transactional
     public void removeExpiredVerifycodes() {
-        final Query query = new Query().setFilter(new PropertyFilter(Verifycode.EXPIRED,
-                FilterOperator.LESS_THAN, new Date().getTime()));
+//        final Query query = new Query().setFilter(new PropertyFilter(Verifycode.EXPIRED,
+//                FilterOperator.LESS_THAN, new Date().getTime()));
 
         try {
-            final JSONObject result = verifycodeMapper.get(query);
-            final JSONArray verifycodes = result.optJSONArray(Keys.RESULTS);
+            final List<Verifycode> results = verifycodeMapper.getExpiredVerifycodes(new Date().getTime());
 
-            for (int i = 0; i < verifycodes.length(); i++) {
-                final String id = verifycodes.optJSONObject(i).optString(Keys.OBJECT_ID);
-                verifycodeMapper.remove(id);
+            int size = results.size();
+            for (int i = 0; i < size; i++) {
+                final String id = results.get(i).getOid();
+                verifycodeMapper.deleteByPrimaryKey(id);
             }
         } catch (final Exception e) {
             LOGGER.error( "Expires verifycodes failed", e);
@@ -121,46 +128,46 @@ public class VerifycodeMgmtService {
      */
     @Transactional
     public void sendEmailVerifycode() {
-        final List<Filter> filters = new ArrayList<>();
-        filters.add(new PropertyFilter(Verifycode.TYPE, FilterOperator.EQUAL, Verifycode.TYPE_C_EMAIL));
-        filters.add(new PropertyFilter(Verifycode.STATUS, FilterOperator.EQUAL, Verifycode.STATUS_C_UNSENT));
-        final Query query = new Query().setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
+//        final List<Filter> filters = new ArrayList<>();
+//        filters.add(new PropertyFilter(Verifycode.TYPE, FilterOperator.EQUAL, VerifycodeUtil.TYPE_C_EMAIL));
+//        filters.add(new PropertyFilter(Verifycode.STATUS, FilterOperator.EQUAL, VerifycodeUtil.STATUS_C_UNSENT));
+//        final Query query = new Query().setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
 
         try {
-            final JSONObject result = verifycodeMapper.get(query);
-            final JSONArray verifycodes = result.optJSONArray(Keys.RESULTS);
+            final List<Verifycode> results = verifycodeMapper.getByTypeAndStatus(VerifycodeUtil.TYPE_C_EMAIL,VerifycodeUtil.STATUS_C_UNSENT);
 
-            for (int i = 0; i < verifycodes.length(); i++) {
-                final JSONObject verifycode = verifycodes.optJSONObject(i);
+            int size = results.size();
+            for (int i = 0; i < size; i++) {
+                final Verifycode verifycode = results.get(i);
 
-                final String userId = verifycode.optString(Verifycode.USER_ID);
-                final JSONObject user = userMapper.get(userId);
+                final String userId = verifycode.getUserId();
+                final UserExt user = userMapper.get(userId);
                 if (null == user) {
                     continue;
                 }
 
                 final Map<String, Object> dataModel = new HashMap<>();
 
-                final String userName = user.optString(User.USER_NAME);
+                final String userName = user.getUserName();
                 dataModel.put(User.USER_NAME, userName);
 
-                final String toMail = verifycode.optString(Verifycode.RECEIVER);
-                final String code = verifycode.optString(Verifycode.CODE);
+                final String toMail = verifycode.getReceiver();
+                final String code = verifycode.getCode();
                 String subject;
 
-                final int bizType = verifycode.optInt(Verifycode.BIZ_TYPE);
+                final int bizType = verifycode.getBizType();
                 switch (bizType) {
-                    case Verifycode.BIZ_TYPE_C_REGISTER:
+                    case VerifycodeUtil.BIZ_TYPE_C_REGISTER:
                         dataModel.put(Common.URL,  SpringUtil.getServerPath() + "/register?code=" + code);
                         subject = langPropsService.get("registerEmailSubjectLabel", Locales.getLocale());
 
                         break;
-                    case Verifycode.BIZ_TYPE_C_RESET_PWD:
+                    case VerifycodeUtil.BIZ_TYPE_C_RESET_PWD:
                         dataModel.put(Common.URL,  SpringUtil.getServerPath() + "/reset-pwd?code=" + code);
                         subject = langPropsService.get("forgetEmailSubjectLabel", Locales.getLocale());
 
                         break;
-                    case Verifycode.BIZ_TYPE_C_BIND_EMAIL:
+                    case VerifycodeUtil.BIZ_TYPE_C_BIND_EMAIL:
                         dataModel.put(Common.CODE, code);
                         subject = langPropsService.get("bindEmailSubjectLabel", Locales.getLocale());
 
@@ -171,8 +178,8 @@ public class VerifycodeMgmtService {
                         continue;
                 }
 
-                verifycode.put(Verifycode.STATUS, Verifycode.STATUS_C_SENT);
-                verifycodeMapper.update(verifycode.optString(Keys.OBJECT_ID), verifycode);
+                verifycode.setStatus(VerifycodeUtil.STATUS_C_SENT);
+                verifycodeMapper.updateByPrimaryKey(verifycode);
 
                 final String fromName = langPropsService.get("symphonyEnLabel")
                         + " " + langPropsService.get("verifycodeEmailFromNameLabel", Locales.getLocale());

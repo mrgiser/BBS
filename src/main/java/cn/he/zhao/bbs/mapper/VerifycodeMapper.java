@@ -25,9 +25,21 @@ import java.util.List;
 
 public interface VerifycodeMapper {
 
+    String add(Verifycode record);
+
     @Select("select * from verifycode where code = #{code}")
     List<Verifycode> getByCode(String code);
 
+    @Select("select * from verifycode where type = #{type} AND status = #{status}")
+    List<Verifycode> getByTypeAndStatus(int type,int status);
+
     @Select("select * from verifycode where type = #{type} AND bizType = #{bizType} AND userId = #{userId} ORDER BY oId DESC")
     List<Verifycode> getByTypeBizTypeUserId(int type, int bizType, String userId);
+
+    int deleteByPrimaryKey(String oId);
+
+    String updateByPrimaryKey(Verifycode record);
+
+    @Select("select * from verifycode where expired < #{time}")
+    List<Verifycode> getExpiredVerifycodes(Long time);
 }
