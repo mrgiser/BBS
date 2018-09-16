@@ -26,6 +26,9 @@ public interface UserMapper {
 
     public UserExt get(final String id) ;
 
+    @Select("select * from user WHERE oId in （ #{oIds}）")
+    List<UserExt> findByOIds(List<String> oIds);
+
     public void update(final String id, final UserExt user) ;
 
     public UserExt getByName(final String name) ;

@@ -33,7 +33,7 @@ public interface TagMapper {
 
     void update(final String id, final Tag article) ;
 
-    Tag get(final String id) ;
+    Tag get(final String oId) ;
 
     String getURIByTitle(final String title) ;
 

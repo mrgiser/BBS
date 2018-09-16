@@ -457,23 +457,24 @@ public class TagQueryService {
      * @throws Exception service exception
      */
     public Tag getCreator(final int avatarViewMode, final String tagId) throws Exception {
-        final List<Filter> filters = new ArrayList<>();
-        filters.add(new PropertyFilter(Tag.TAG + '_' + Keys.OBJECT_ID, FilterOperator.EQUAL, tagId));
+//        final List<Filter> filters = new ArrayList<>();
+//        filters.add(new PropertyFilter(Tag.TAG + '_' + Keys.OBJECT_ID, FilterOperator.EQUAL, tagId));
 
-        final List<Filter> orFilters = new ArrayList<>();
-        orFilters.add(new PropertyFilter(Common.TYPE, FilterOperator.EQUAL, Tag.TAG_TYPE_C_CREATOR));
-        orFilters.add(new PropertyFilter(Common.TYPE, FilterOperator.EQUAL, Tag.TAG_TYPE_C_USER_SELF));
+//        final List<Filter> orFilters = new ArrayList<>();
+//        orFilters.add(new PropertyFilter(Common.TYPE, FilterOperator.EQUAL, TagUtil.TAG_TYPE_C_CREATOR));
+//        orFilters.add(new PropertyFilter(Common.TYPE, FilterOperator.EQUAL, TagUtil.TAG_TYPE_C_USER_SELF));
 
-        filters.add(new CompositeFilter(CompositeFilterOperator.OR, orFilters));
+//        filters.add(new CompositeFilter(CompositeFilterOperator.OR, orFilters));
 
-        final Query query = new Query().setCurrentPageNum(1).setPageSize(1).setPageCount(1).
-                setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters)).
-                addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
+//        final Query query = new Query().setCurrentPageNum(1).setPageSize(1).setPageCount(1).
+//                setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters)).
+//                addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
 
+        PageHelper.startPage(1, 1);
         try {
             final Tag ret = new Tag();
 
-            final List<UserTag> results = userTagMapper.get(query);
+            final List<UserTag> results = userTagMapper.getByTagIdAndCretorType(tagId);
 //            final JSONArray results = result.optJSONArray(Keys.RESULTS);
             final UserTag creatorTagRelation = results.get(0);
             if (null == creatorTagRelation) {
@@ -526,38 +527,39 @@ public class TagQueryService {
      * </pre>, returns an empty list if not found
      * @throws Exception service exception
      */
-    public List<JSONObject> getParticipants(final int avatarViewMode,
+    public List<Tag> getParticipants(final int avatarViewMode,
                                             final String tagId, final int fetchSize) throws Exception {
-        final List<Filter> filters = new ArrayList<>();
-        filters.add(new PropertyFilter(Tag.TAG + '_' + Keys.OBJECT_ID, FilterOperator.EQUAL, tagId));
-        filters.add(new PropertyFilter(Common.TYPE, FilterOperator.EQUAL, 1));
+//        final List<Filter> filters = new ArrayList<>();
+//        filters.add(new PropertyFilter(Tag.TAG + '_' + Keys.OBJECT_ID, FilterOperator.EQUAL, tagId));
+//        filters.add(new PropertyFilter(Common.TYPE, FilterOperator.EQUAL, 1));
+//
+//        Query query = new Query().setCurrentPageNum(1).setPageSize(fetchSize).setPageCount(1).
+//                setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
 
-        Query query = new Query().setCurrentPageNum(1).setPageSize(fetchSize).setPageCount(1).
-                setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
+        final List<Tag> ret = new ArrayList<>();
 
-        final List<JSONObject> ret = new ArrayList<>();
-
+        PageHelper.startPage(1, fetchSize);
         try {
-            JSONObject result = userTagMapper.get(query);
-            final JSONArray userTagRelations = result.optJSONArray(Keys.RESULTS);
+            List<UserTag> userTagRelations = userTagMapper.getByTagIdAndArticleType(tagId);
+//            final JSONArray userTagRelations = result.optJSONArray(Keys.RESULTS);
 
-            final Set<String> userIds = new HashSet<>();
-            for (int i = 0; i < userTagRelations.length(); i++) {
-                userIds.add(userTagRelations.optJSONObject(i).optString(User.USER + '_' + Keys.OBJECT_ID));
+            final List<String> userIds = new ArrayList<>();
+            for (int i = 0; i < userTagRelations.size(); i++) {
+                userIds.add(userTagRelations.get(i).getUser_oId());
             }
 
-            query = new Query().setFilter(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.IN, userIds));
-            result = userMapper.get(query);
+//            query = new Query().setFilter(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.IN, userIds));
+            List<UserExt> users = userMapper.findByOIds(userIds);
 
-            final List<JSONObject> users = CollectionUtils.<JSONObject>jsonArrayToList(result.optJSONArray(Keys.RESULTS));
-            for (final JSONObject user : users) {
-                final JSONObject participant = new JSONObject();
+//            final List<JSONObject> users = CollectionUtils.<JSONObject>jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            for (final UserExt user : users) {
+                final Tag participant = new Tag();
 
-                participant.put(Tag.TAG_T_PARTICIPANT_NAME, user.optString(User.USER_NAME));
+                participant.setTagCreatorName( user.getUserName());
 
                 final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, user, "48");
-                participant.put(Tag.TAG_T_PARTICIPANT_THUMBNAIL_URL, thumbnailURL);
-                participant.put(Tag.TAG_T_PARTICIPANT_THUMBNAIL_UPDATE_TIME, user.optLong(UserExt.USER_UPDATE_TIME));
+                participant.setTagCreatorThumbnailURL( thumbnailURL);
+                participant.setTagCreatorThumbnailUpdateTime( user.getUserUpdateTime());
 
                 ret.add(participant);
             }
@@ -584,19 +586,19 @@ public class TagQueryService {
      * </pre>, returns an empty list if not found
      * @throws Exception service exception
      */
-    public List<JSONObject> getRelatedTags(final String tagId, final int fetchSize) throws Exception {
-        final List<JSONObject> ret = new ArrayList<>();
+    public List<Tag> getRelatedTags(final String tagId, final int fetchSize) throws Exception {
+        final List<Tag> ret = new ArrayList<>();
 
         final Set<String> tagIds = new HashSet<>();
 
+        PageHelper.startPage(1,fetchSize);
         try {
-            JSONObject result = tagTagMapper.getByTag1Id(tagId, 1, fetchSize);
-            JSONArray relations = result.optJSONArray(Keys.RESULTS);
+            List<TagTag> relations = tagTagMapper.getByTag1Id(tagId);
 
             boolean full = false;
 
-            for (int i = 0; i < relations.length(); i++) {
-                tagIds.add(relations.optJSONObject(i).optString(Tag.TAG + "2_" + Keys.OBJECT_ID));
+            for (int i = 0; i < relations.size(); i++) {
+                tagIds.add(relations.get(i).getTag2_oId());
 
                 if (tagIds.size() >= fetchSize) {
                     full = true;
@@ -605,12 +607,12 @@ public class TagQueryService {
                 }
             }
 
+            PageHelper.startPage(1,fetchSize);
             if (!full) {
-                result = tagTagMapper.getByTag2Id(tagId, 1, fetchSize);
-                relations = result.optJSONArray(Keys.RESULTS);
+                relations = tagTagMapper.getByTag2Id(tagId);
 
-                for (int i = 0; i < relations.length(); i++) {
-                    tagIds.add(relations.optJSONObject(i).optString(Tag.TAG + "1_" + Keys.OBJECT_ID));
+                for (int i = 0; i < relations.size(); i++) {
+                    tagIds.add(relations.get(i).getTag1_oId());
 
                     if (tagIds.size() >= fetchSize) {
                         break;
@@ -619,9 +621,9 @@ public class TagQueryService {
             }
 
             for (final String tId : tagIds) {
-                final JSONObject tag = tagMapper.get(tId);
+                final Tag tag = tagMapper.get(tId);
                 if (null != tag) {
-                    Tag.fillDescription(tag);
+                    TagUtil.fillDescription(tag);
                     ret.add(tag);
                 }
             }

@@ -18,16 +18,25 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.UserTag;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public interface UserTagMapper {
 
-    public void removeByUserIdAndTagId(final String userId, final String tagId, final int type) ;
+    void removeByUserIdAndTagId(final String userId, final String tagId, final int type) ;
 
-    public JSONObject getByUserId(final String userId, final int currentPageNum, final int pageSize) ;
+    JSONObject getByUserId(final String userId, final int currentPageNum, final int pageSize) ;
 
-    public JSONObject getByTagId(final String tagId, final int currentPageNum, final int pageSize) ;
+    JSONObject getByTagId(final String tagId, final int currentPageNum, final int pageSize) ;
 
     String add(UserTag userTagRelation);
+
+    @Select("select * from user_tag where user_oid = #{tagId} AND (type = 0 OR type = 2) ORDER BY oId ASC")
+    List<UserTag> getByTagIdAndCretorType(final String tagId);
+
+    @Select("select * from user_tag where user_oid = #{tagId} AND type = 1 ORDER BY oId ASC")
+    List<UserTag> getByTagIdAndArticleType(final String tagId);
 }

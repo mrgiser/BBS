@@ -1,6 +1,7 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
 import cn.he.zhao.bbs.entityUtil.DomainUtil;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.sitemap.Sitemap;
@@ -8,6 +9,7 @@ import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,18 +88,19 @@ public class SitemapQueryService {
      * @param sitemap the specified sitemap
      */
     public void genArticles(final Sitemap sitemap) {
-        final Query query = new Query().setCurrentPageNum(1).setPageCount(Integer.MAX_VALUE).
-                addProjection(Keys.OBJECT_ID, String.class).
-                addProjection(Article.ARTICLE_UPDATE_TIME, Long.class).
-                setFilter(new PropertyFilter(Article.ARTICLE_STATUS, FilterOperator.NOT_EQUAL, Article.ARTICLE_STATUS_C_INVALID)).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        final Query query = new Query().setCurrentPageNum(1).setPageCount(Integer.MAX_VALUE).
+//                addProjection(Keys.OBJECT_ID, String.class).
+//                addProjection(Article.ARTICLE_UPDATE_TIME, Long.class).
+//                setFilter(new PropertyFilter(ArticleUtil.ARTICLE_STATUS, FilterOperator.NOT_EQUAL, ArticleUtil.ARTICLE_STATUS_C_INVALID)).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
 
+        PageHelper.startPage(1,Integer.MAX_VALUE);
         try {
-            final JSONArray articles = articleMapper.get(query).getJSONArray(Keys.RESULTS);
+            final List<Article> articles = articleMapper.findByArticleStatus();
 
-            for (int i = 0; i < articles.length(); i++) {
-                final JSONObject article = articles.getJSONObject(i);
-                final long id = article.getLong(Keys.OBJECT_ID);
+            for (int i = 0; i < articles.size(); i++) {
+                final Article article = articles.get(i);
+                final long id = Long.parseLong(article.getOid());
                 final String permalink =  SpringUtil.getServerPath() + "/article/" + id;
 
                 final Sitemap.URL url = new Sitemap.URL();

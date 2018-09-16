@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.TagTag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,9 +26,9 @@ import java.util.List;
 
 public interface TagTagMapper {
 
-    public JSONObject getByTag1Id(final String tag1Id, final int currentPageNum, final int pageSize);
+    List<TagTag> getByTag1Id(final String tag1Id);
 
-    public JSONObject getByTag2Id(final String tag2Id, final int currentPageNum, final int pageSize);
+    List<TagTag> getByTag2Id(final String tag2Id);
 
     public JSONObject getByTag1IdAndTag2Id(final String tag1Id, final String tag2Id);
 }
