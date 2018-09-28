@@ -35,6 +35,8 @@ public interface TagMapper {
 
     Tag get(final String oId) ;
 
+    List<Tag> getByTagTitle(final String title);
+
     String getURIByTitle(final String title) ;
 
     Tag getByURI(final String tagURI) ;

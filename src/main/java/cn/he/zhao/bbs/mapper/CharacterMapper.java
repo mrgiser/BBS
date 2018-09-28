@@ -18,7 +18,6 @@
 package cn.he.zhao.bbs.mapper;
 
 
-import org.springframework.data.jpa.Mapper.JpaMapper;
 
 /**
  * Character Mapper.

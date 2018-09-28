@@ -1,8 +1,13 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.spring.Stopwatchs;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +50,7 @@ public class ShortLinkQueryService {
     /**
      * Tag title pattern.
      */
-    private static final Pattern TAG_PATTERN = Pattern.compile(" \\[" + Tag.TAG_TITLE_PATTERN_STR + "\\](?!\\(.+\\)) ");
+    private static final Pattern TAG_PATTERN = Pattern.compile(" \\[" + TagUtil.TAG_TITLE_PATTERN_STR + "\\](?!\\(.+\\)) ");
 
     /**
      * Article Mapper.
@@ -90,15 +96,15 @@ public class ShortLinkQueryService {
                         linkId = StringUtils.substringAfter(matcher.group(), "/article/");
                     }
 
-                    final Query query = new Query().addProjection(Article.ARTICLE_TITLE, String.class)
-                            .setFilter(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.EQUAL, linkId));
-                    final JSONArray results = articleMapper.get(query).optJSONArray(Keys.RESULTS);
-                    if (0 == results.length()) {
+//                    final Query query = new Query().addProjection(ArticleUtil.ARTICLE_TITLE, String.class)
+//                            .setFilter(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.EQUAL, linkId));
+                    final Article linkArticle = articleMapper.getByPrimaryKey(linkId);
+                    if (null == linkArticle) {
                         continue;
                     }
 
-                    final JSONObject linkArticle = results.optJSONObject(0);
-                    final String linkTitle = linkArticle.optString(Article.ARTICLE_TITLE);
+//                    final JSONObject linkArticle = results.optJSONObject(0);
+                    final String linkTitle = linkArticle.getArticleTitle();
                     String link = " [" + linkTitle + "](" +  SpringUtil.getServerPath() + "/article/" + linkId;
                     if (StringUtils.isNotBlank(queryStr)) {
                         link += "?" + queryStr;
@@ -109,7 +115,7 @@ public class ShortLinkQueryService {
                 }
 
                 matcher.appendTail(contentBuilder);
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Generates article link error", e);
             }
 
@@ -120,23 +126,23 @@ public class ShortLinkQueryService {
                 while (matcher.find()) {
                     final String linkId = StringUtils.substringBetween(matcher.group(), "[", "]");
 
-                    final Query query = new Query().addProjection(Article.ARTICLE_TITLE, String.class)
-                            .setFilter(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.EQUAL, linkId));
-                    final JSONArray results = articleMapper.get(query).optJSONArray(Keys.RESULTS);
-                    if (0 == results.length()) {
+//                    final Query query = new Query().addProjection(ArticleUtil.ARTICLE_TITLE, String.class)
+//                            .setFilter(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.EQUAL, linkId));
+                    final Article linkArticle = articleMapper.getByPrimaryKey(linkId);
+                    if (null == linkArticle) {
                         continue;
                     }
 
-                    final JSONObject linkArticle = results.optJSONObject(0);
+//                    final JSONObject linkArticle = results.optJSONObject(0);
 
-                    final String linkTitle = linkArticle.optString(Article.ARTICLE_TITLE);
+                    final String linkTitle = linkArticle.getArticleTitle();
                     final String link = " [" + linkTitle + "](" +  SpringUtil.getServerPath() + "/article/" + linkId + ") ";
 
                     matcher.appendReplacement(contentBuilder, link);
                 }
 
                 matcher.appendTail(contentBuilder);
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Generates article link error", e);
             }
 
@@ -167,24 +173,24 @@ public class ShortLinkQueryService {
                         continue;
                     }
 
-                    final Query query = new Query().addProjection(Tag.TAG_TITLE, String.class)
-                            .addProjection(Tag.TAG_URI, String.class)
-                            .setFilter(new PropertyFilter(Tag.TAG_TITLE, FilterOperator.EQUAL, linkTagTitle));
-                    final JSONArray results = tagMapper.get(query).optJSONArray(Keys.RESULTS);
-                    if (0 == results.length()) {
+//                    final Query query = new Query().addProjection(TagUtil.TAG_TITLE, String.class)
+//                            .addProjection(TagUtil.TAG_URI, String.class)
+//                            .setFilter(new PropertyFilter(TagUtil.TAG_TITLE, FilterOperator.EQUAL, linkTagTitle));
+                    final List<Tag> results = tagMapper.getByTagTitle(linkTagTitle);
+                    if (0 == results.size()) {
                         continue;
                     }
 
-                    final JSONObject linkTag = results.optJSONObject(0);
+                    final Tag linkTag = results.get(0);
 
-                    final String linkTitle = linkTag.optString(Tag.TAG_TITLE);
-                    final String linkURI = linkTag.optString(Tag.TAG_URI);
+                    final String linkTitle = linkTag.getTagTitle();
+                    final String linkURI = linkTag.getTagURI();
                     final String link = " [" + linkTitle + "](" +  SpringUtil.getServerPath() + "/tag/" + linkURI + ") ";
 
                     matcher.appendReplacement(contentBuilder, link);
                 }
                 matcher.appendTail(contentBuilder);
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Generates tag link error", e);
             }
 

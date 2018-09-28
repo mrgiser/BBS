@@ -11,6 +11,8 @@ public interface ArticleMapper {
 //    @Autowired
 //    ArticleCache articleCache;
 
+    Article getByPrimaryKey(final String oid);
+
     void remove(final String id);
 
     @Select("select * from article WHERE articleStatus != 1 ORDER BY oId DESC")
