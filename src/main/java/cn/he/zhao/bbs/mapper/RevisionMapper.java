@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.mapper;
 
 
 import cn.he.zhao.bbs.entity.Revision;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -27,4 +28,11 @@ public interface RevisionMapper {
     void remove(final String revisionDataId, int revisionDataType);
 
     String add(Revision revision);
+
+    @Select("select * from revision where commentId = #{commentId} AND revisionDataType = #{type} ORDER BY oId ASC")
+    List<Revision> getByRevisionDataIdAndRevisionDataType(final String commentId, final int type);
+
+    @Select("select coutn(*) from revision where commentId = #{commentId} AND revisionDataType = #{type}")
+    Integer countByRevisionDataIdAndRevisionDataType(final String commentId, final int type);
+
 }
