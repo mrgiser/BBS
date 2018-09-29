@@ -29,14 +29,14 @@ import org.json.JSONObject;
  */
 public interface CommentMapper {
 
-    public void removeComment(final String commentId)  ;
+    void removeComment(final String commentId)  ;
 
-    public void remove(final String id)  ;
+    void remove(final String id)  ;
 
-    public Comment get(final String id) ;
+    Comment get(final String id) ;
 
-    public void update(final String id, final Comment comment) ;
+    void update(final String id, final Comment comment) ;
 
 
-    public void removeCommentByArticleId(final String commentOnArticleId);
+    void removeCommentByArticleId(final String commentOnArticleId);
 }

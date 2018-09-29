@@ -18,8 +18,15 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Reward;
+import org.apache.ibatis.annotations.Select;
 
 public interface RewardMapper {
 
     String add(Reward reward);
+
+    @Select("select count(*) from reward where dataId = #{dataId} AND type = #{type}")
+    Long countByDataIdAndType(final String dataId, final int type);
+
+    @Select("select count(*) from reward where senderId = #{senderId} AND dataId = #{dataId} AND type = #{type}")
+    Long countByDataIdAndTypeAndSenderId(final String senderId, final String dataId, final int type);
 }

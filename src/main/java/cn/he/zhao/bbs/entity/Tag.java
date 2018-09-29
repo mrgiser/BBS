@@ -95,6 +95,15 @@ public class Tag {
 
     private transient Long tagCreatorThumbnailUpdateTime;
     private transient String tagCreatorName;
+    private transient Long tagCreateTime;
+
+    public Long getTagCreateTime() {
+        return tagCreateTime;
+    }
+
+    public void setTagCreateTime(Long tagCreateTime) {
+        this.tagCreateTime = tagCreateTime;
+    }
 
     public String getTagCreatorName() {
         return tagCreatorName;

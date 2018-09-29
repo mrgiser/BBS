@@ -14,6 +14,7 @@ import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
@@ -668,27 +669,31 @@ public class TagQueryService {
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
         final int pageSize = requestJSONObject.optInt(Pagination.PAGINATION_PAGE_SIZE);
         final int windowSize = requestJSONObject.optInt(Pagination.PAGINATION_WINDOW_SIZE);
-        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
-        for (final Map.Entry<String, Class<?>> tagField : tagFields.entrySet()) {
-            query.addProjection(tagField.getKey(), tagField.getValue());
-        }
 
-        if (requestJSONObject.has(Tag.TAG_TITLE)) {
-            query.setFilter(new PropertyFilter(Tag.TAG_TITLE, FilterOperator.EQUAL, requestJSONObject.optString(Tag.TAG_TITLE)));
-        }
+        PageHelper.startPage(currentPageNum, pageSize, "oid desc");
 
-        JSONObject result = null;
+//        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        for (final Map.Entry<String, Class<?>> tagField : tagFields.entrySet()) {
+//            query.addProjection(tagField.getKey(), tagField.getValue());
+//        }
+
+        // TODO: 2018/9/28  requestJSONObject.has(Tag.TAG_TITLE)
+//        if (requestJSONObject.has(Tag.TAG_TITLE)) {
+//            query.setFilter(new PropertyFilter(Tag.TAG_TITLE, FilterOperator.EQUAL, requestJSONObject.optString(Tag.TAG_TITLE)));
+//        }
+
+        PageInfo<Tag> result = null;
 
         try {
-            result = tagMapper.get(query);
+            result = new PageInfo<>(tagMapper.getALL());
         } catch (final Exception e) {
             LOGGER.error( "Gets tags failed", e);
 
             throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -696,14 +701,13 @@ public class TagQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray data = result.optJSONArray(Keys.RESULTS);
-        final List<JSONObject> tags = CollectionUtils.<JSONObject>jsonArrayToList(data);
+        final List<Tag> data = result.getList();
 
-        for (final JSONObject tag : tags) {
-            tag.put(Tag.TAG_T_CREATE_TIME, new Date(tag.optLong(Keys.OBJECT_ID)));
+        for (final Tag tag : data) {
+            tag.setTagCreateTime(Long.parseLong(tag.getOid()));
         }
 
-        ret.put(TagUtil.TAGS, tags);
+        ret.put(TagUtil.TAGS, data);
 
         return ret;
     }

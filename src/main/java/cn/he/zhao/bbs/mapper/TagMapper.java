@@ -34,6 +34,7 @@ public interface TagMapper {
     void update(final String id, final Tag article) ;
 
     Tag get(final String oId) ;
+    List<Tag> getALL() ;
 
     List<Tag> getByTagTitle(final String title);
 

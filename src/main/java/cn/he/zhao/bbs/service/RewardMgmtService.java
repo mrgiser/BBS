@@ -34,7 +34,7 @@ public class RewardMgmtService {
     /**
      * Adds a reward with the specified request json object.
      *
-     * @param requestJSONObject the specified request json object, for example,      <pre>
+     * @param Reward the specified request json object, for example,      <pre>
      * {
      *     "senderId"; "",
      *     "dataId": "",

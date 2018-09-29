@@ -1,14 +1,18 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.cache.DomainCache;
+import cn.he.zhao.bbs.cache.TagCache;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.service.interf.LangPropsService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,16 +145,16 @@ public class TagMgmtService {
      * @param userId   the specified user id
      * @param tagTitle the specified tag title
      * @return tag id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public String addTag(final String userId, final String tagTitle) throws ServiceException {
+    public String addTag(final String userId, final String tagTitle) throws Exception {
         String ret;
 
         final Transaction transaction = tagMapper.beginTransaction();
 
         try {
             if (null != tagMapper.getByTitle(tagTitle)) {
-                throw new ServiceException(langPropsService.get("tagExistLabel"));
+                throw new Exception(langPropsService.get("tagExistLabel"));
             }
 
             final JSONObject author = userMapper.get(userId);
@@ -199,14 +203,14 @@ public class TagMgmtService {
             domainCache.loadDomains();
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
 
             LOGGER.error( "Adds tag failed", e);
 
-            throw new ServiceException(e.getMessage());
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -218,9 +222,9 @@ public class TagMgmtService {
      *
      * @param tagId the given tag id
      * @param tag   the specified tag
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void updateTag(final String tagId, final JSONObject tag) throws ServiceException {
+    public void updateTag(final String tagId, final JSONObject tag) throws Exception {
         final Transaction transaction = tagMapper.beginTransaction();
 
         try {
@@ -233,13 +237,13 @@ public class TagMgmtService {
             tagCache.loadTags();
 
             domainCache.loadDomains();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
 
             LOGGER.error( "Updates a tag[id=" + tagId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -247,22 +251,22 @@ public class TagMgmtService {
      * Adds a tag-tag relation.
      *
      * @param tagRelation the specified tag-tag relation
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    void addTagRelation(final JSONObject tagRelation) throws ServiceException {
+    void addTagRelation(final JSONObject tagRelation) throws Exception {
         final Transaction transaction = tagTagMapper.beginTransaction();
 
         try {
             tagTagMapper.add(tagRelation);
 
             transaction.commit();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
 
             LOGGER.error( "Adds a tag-tag failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -271,22 +275,22 @@ public class TagMgmtService {
      *
      * @param tagRelationId the given tag relation id
      * @param tagRelation   the specified tag-tag relation
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    void updateTagRelation(final String tagRelationId, final JSONObject tagRelation) throws ServiceException {
+    void updateTagRelation(final String tagRelationId, final JSONObject tagRelation) throws Exception {
         final Transaction transaction = tagTagMapper.beginTransaction();
 
         try {
             tagTagMapper.update(tagRelationId, tagRelation);
 
             transaction.commit();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
 
             LOGGER.error( "Updates a tag-tag relation [id=" + tagRelationId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -294,9 +298,9 @@ public class TagMgmtService {
      * Relates the specified tag string.
      *
      * @param tagString the specified tag string
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void relateTags(final String tagString) throws ServiceException {
+    public void relateTags(final String tagString) throws Exception {
         final List<JSONObject> tags = new ArrayList<>();
 
         try {
@@ -343,9 +347,9 @@ public class TagMgmtService {
                     addTagRelation(relation);
                 }
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Relates tag and tag [" + tagString + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }
