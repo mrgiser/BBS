@@ -18,6 +18,14 @@
 package cn.he.zhao.bbs.mapper;
 
 
+import cn.he.zhao.bbs.entity.Report;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+
 public interface ReportMapper {
+
+    @Select("select * from report ORDER BY reportHandled ASC, oid DESC")
+    List<Report> getALL();
 
 }

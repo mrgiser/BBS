@@ -17,21 +17,12 @@
  */
 package cn.he.zhao.bbs.entityUtil;
 
+import cn.he.zhao.bbs.entity.UserExt;
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
-import org.b3log.latke.Latkes;
-import org.b3log.latke.model.User;
-import org.b3log.symphony.util.Symphonys;
 import org.json.JSONObject;
 
-/**
- * This class defines ext of user model relevant keys.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @author Bill Ho
- * @version 2.13.0.0, May 23, 2018
- * @see org.b3log.latke.model.User
- * @since 0.2.0
- */
 public final class UserExtUtil {
 
     /**
@@ -701,8 +692,8 @@ public final class UserExtUtil {
      * @param user the specified user
      * @return user link
      */
-    public static String getUserLink(final JSONObject user) {
-        return getUserLink(user.optString(User.USER_NAME));
+    public static String getUserLink(final UserExt user) {
+        return getUserLink(user.getUserName());
     }
 
     /**
@@ -712,6 +703,7 @@ public final class UserExtUtil {
      * @return user link
      */
     public static String getUserLink(final String userName) {
-        return "<a href=\"" + Latkes.getServePath() + "/member/" + userName + "\">" + userName + "</a> ";
+        return "<a href=\"" + SpringUtil.getServerPath() + "/member/" + userName + "\">" + userName + "</a> ";
+//        return "<a href=\"" + Latkes.getServePath() + "/member/" + userName + "\">" + userName + "</a> ";
     }
 }
