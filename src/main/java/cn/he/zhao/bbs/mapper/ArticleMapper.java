@@ -27,4 +27,6 @@ public interface ArticleMapper {
     String add(Article article);
 
     Article getByOid(final String oid);
+
+    List<Article> getByArticleAuthorId(final String articleAuthorId);
 }

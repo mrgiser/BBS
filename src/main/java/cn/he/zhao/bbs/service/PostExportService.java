@@ -17,6 +17,10 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.CommentUtil;
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -38,6 +42,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -88,13 +93,13 @@ public class PostExportService {
     public String exportPosts(final String userId) {
         final int pointDataExport = Symphonys.getInt("pointDataExport");
         try {
-            final JSONObject user = userMapper.get(userId);
-            final int balance = user.optInt(UserExt.USER_POINT);
+            final UserExt user = userMapper.get(userId);
+            final int balance = user.getUserPoint();
 
             if (balance - pointDataExport < 0) {
                 return "-1";
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Checks user failed", e);
 
             return null;
@@ -102,30 +107,30 @@ public class PostExportService {
 
         final JSONArray posts = new JSONArray();
 
-        Query query = new Query().setFilter(
-                new PropertyFilter(Article.ARTICLE_AUTHOR_ID, FilterOperator.EQUAL, userId)).
-                addProjection(Keys.OBJECT_ID, String.class).
-                addProjection(Article.ARTICLE_TITLE, String.class).
-                addProjection(Article.ARTICLE_TAGS, String.class).
-                addProjection(Article.ARTICLE_CONTENT, String.class).
-                addProjection(Article.ARTICLE_CREATE_TIME, Long.class);
+//        Query query = new Query().setFilter(
+//                new PropertyFilter(ArticleUtil.ARTICLE_AUTHOR_ID, FilterOperator.EQUAL, userId)).
+//                addProjection(Keys.OBJECT_ID, String.class).
+//                addProjection(Article.ARTICLE_TITLE, String.class).
+//                addProjection(Article.ARTICLE_TAGS, String.class).
+//                addProjection(Article.ARTICLE_CONTENT, String.class).
+//                addProjection(Article.ARTICLE_CREATE_TIME, Long.class);
 
         try {
-            final JSONArray articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
+            final List<Article> articles = articleMapper.getByArticleAuthorId(userId);
 
-            for (int i = 0; i < articles.length(); i++) {
-                final JSONObject article = articles.getJSONObject(i);
+            for (int i = 0; i < articles.size(); i++) {
+                final Article article = articles.get(i);
                 final JSONObject post = new JSONObject();
 
-                post.put("id", article.optString(Keys.OBJECT_ID));
+                post.put("id", article.getOid());
 
                 final JSONObject content = new JSONObject();
-                content.put("title", article.optString(Article.ARTICLE_TITLE));
-                content.put("tags", article.optString(Article.ARTICLE_TAGS));
-                content.put("body", article.optString(Article.ARTICLE_CONTENT));
+                content.put("title", article.getArticleTitle());
+                content.put("tags", article.getArticleTags());
+                content.put("body", article.getArticleContent());
 
                 post.put("content", content.toString());
-                post.put("created", Article.ARTICLE_CREATE_TIME);
+                post.put("created", ArticleUtil.ARTICLE_CREATE_TIME);
                 post.put("type", "article");
 
                 posts.put(post);
@@ -136,28 +141,28 @@ public class PostExportService {
             return null;
         }
 
-        query = new Query().setFilter(
-                new PropertyFilter(Comment.COMMENT_AUTHOR_ID, FilterOperator.EQUAL, userId)).
-                addProjection(Keys.OBJECT_ID, String.class).
-                addProjection(Comment.COMMENT_CONTENT, String.class).
-                addProjection(Comment.COMMENT_CREATE_TIME, Long.class);
+//        query = new Query().setFilter(
+//                new PropertyFilter(CommentUtil.COMMENT_AUTHOR_ID, FilterOperator.EQUAL, userId)).
+//                addProjection(Keys.OBJECT_ID, String.class).
+//                addProjection(Comment.COMMENT_CONTENT, String.class).
+//                addProjection(Comment.COMMENT_CREATE_TIME, Long.class);
 
         try {
-            final JSONArray comments = commentMapper.get(query).optJSONArray(Keys.RESULTS);
+            final List<Comment> comments = commentMapper.getByCommentAuthorId(userId);
 
-            for (int i = 0; i < comments.length(); i++) {
-                final JSONObject comment = comments.getJSONObject(i);
+            for (int i = 0; i < comments.size(); i++) {
+                final Comment comment = comments.get(i);
                 final JSONObject post = new JSONObject();
 
-                post.put("id", comment.optString(Keys.OBJECT_ID));
+                post.put("id", comment.getOid());
 
                 final JSONObject content = new JSONObject();
                 content.put("title", "");
                 content.put("tags", "");
-                content.put("body", comment.optString(Comment.COMMENT_CONTENT));
+                content.put("body", comment.getCommentContent());
 
                 post.put("content", content.toString());
-                post.put("created", Comment.COMMENT_CREATE_TIME);
+                post.put("created", CommentUtil.COMMENT_CREATE_TIME);
                 post.put("type", "comment");
 
                 posts.put(post);
@@ -170,8 +175,8 @@ public class PostExportService {
 
         LOGGER.info("Exporting posts [size=" + posts.length() + "]");
 
-        final boolean succ = null != pointtransferMgmtService.transfer(userId, Pointtransfer.ID_C_SYS,
-                Pointtransfer.TRANSFER_TYPE_C_DATA_EXPORT, Pointtransfer.TRANSFER_SUM_C_DATA_EXPORT,
+        final boolean succ = null != pointtransferMgmtService.transfer(userId, PointtransferUtil.ID_C_SYS,
+                PointtransferUtil.TRANSFER_TYPE_C_DATA_EXPORT, PointtransferUtil.TRANSFER_SUM_C_DATA_EXPORT,
                 String.valueOf(posts.length()), System.currentTimeMillis());
         if (!succ) {
             return null;

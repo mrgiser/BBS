@@ -17,12 +17,13 @@
  */
 package cn.he.zhao.bbs.mapper;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import cn.he.zhao.bbs.entity.Referral;
 
 public interface ReferralMapper {
 
 
-    public JSONObject getByDataIdAndIP(final String dataId, final String ip) ;
+    Referral getByDataIdAndIP(final String dataId, final String ip) ;
+    String add(Referral referral);
+    String update(Referral referral);
 
 }

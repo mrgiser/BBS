@@ -20,6 +20,8 @@ package cn.he.zhao.bbs.mapper;
 import cn.he.zhao.bbs.entity.Comment;
 import org.json.JSONObject;
 
+import java.util.List;
+
 /**
  * Comment Mapper.
  *
@@ -39,4 +41,6 @@ public interface CommentMapper {
 
 
     void removeCommentByArticleId(final String commentOnArticleId);
+
+    List<Comment> getByCommentAuthorId(final String commentAuthorId);
 }

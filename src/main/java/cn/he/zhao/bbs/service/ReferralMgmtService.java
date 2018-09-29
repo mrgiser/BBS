@@ -1,5 +1,7 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.ReferralUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ReferralUtil management service.
@@ -37,34 +40,34 @@ public class ReferralMgmtService {
      */
     @Transactional
     public void updateReferral(final JSONObject referral) {
-        final String dataId = referral.optString(Referral.REFERRAL_DATA_ID);
-        final String ip = referral.optString(Referral.REFERRAL_IP);
+        final String dataId = referral.optString(ReferralUtil.REFERRAL_DATA_ID);
+        final String ip = referral.optString(ReferralUtil.REFERRAL_IP);
 
         try {
-            JSONObject record = referralMapper.getByDataIdAndIP(dataId, ip);
+            Referral record = referralMapper.getByDataIdAndIP(dataId, ip);
             if (null == record) {
-                record = new JSONObject();
-                record.put(Referral.REFERRAL_AUTHOR_HAS_POINT, false);
-                record.put(Referral.REFERRAL_CLICK, 1);
-                record.put(Referral.REFERRAL_DATA_ID, dataId);
-                record.put(Referral.REFERRAL_IP, ip);
-                record.put(Referral.REFERRAL_TYPE, referral.optInt(Referral.REFERRAL_TYPE));
-                record.put(Referral.REFERRAL_USER, referral.optString(Referral.REFERRAL_USER));
-                record.put(Referral.REFERRAL_USER_HAS_POINT, false);
+                record = new Referral();
+                record.setReferralAuthorHasPoint(false);
+                record.setReferralClick(1);
+                record.setReferralDataId( dataId);
+                record.setReferralIP( ip);
+                record.setReferralType(referral.optInt(ReferralUtil.REFERRAL_TYPE));
+                record.setReferralUser(referral.optString(ReferralUtil.REFERRAL_USER));
+                record.setReferralUserHasPoint(false);
 
                 referralMapper.add(record);
             } else {
-                final String currentReferralUser = referral.optString(Referral.REFERRAL_USER);
-                final String firstReferralUser = record.optString(Referral.REFERRAL_USER);
+                final String currentReferralUser = referral.optString(ReferralUtil.REFERRAL_USER);
+                final String firstReferralUser = record.getReferralUser();
                 if (!currentReferralUser.equals(firstReferralUser)) {
                     return;
                 }
 
-                record.put(Referral.REFERRAL_CLICK, record.optInt(Referral.REFERRAL_CLICK) + 1);
+                record.setReferralClick(record.getReferralClick() + 1);
 
-                referralMapper.update(record.optString(Keys.OBJECT_ID), record);
+                referralMapper.update(record);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Updates a referral failed", e);
         }
     }
