@@ -1,26 +1,19 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
+import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * PointtransferUtil query service.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.21.2.4, Jun 15, 2017
- * @since 1.3.0
- */
 @Service
 public class PointtransferQueryService {
 
@@ -97,25 +83,27 @@ public class PointtransferQueryService {
      * @param fetchSize the specified fetch size
      * @return pointtransfers, returns an empty list if not found
      */
-    public List<JSONObject> getLatestPointtransfers(final String userId, final int type, final int fetchSize) {
-        final List<JSONObject> ret = new ArrayList<>();
+    public List<Pointtransfer> getLatestPointtransfers(final String userId, final int type, final int fetchSize) {
+        final List<Pointtransfer> ret = new ArrayList<>();
 
-        final List<Filter> userFilters = new ArrayList<>();
-        userFilters.add(new PropertyFilter(Pointtransfer.FROM_ID, FilterOperator.EQUAL, userId));
-        userFilters.add(new PropertyFilter(Pointtransfer.TO_ID, FilterOperator.EQUAL, userId));
+//        final List<Filter> userFilters = new ArrayList<>();
+//        userFilters.add(new PropertyFilter(PointtransferUtil.FROM_ID, FilterOperator.EQUAL, userId));
+//        userFilters.add(new PropertyFilter(PointtransferUtil.TO_ID, FilterOperator.EQUAL, userId));
 
-        final List<Filter> filters = new ArrayList<>();
-        filters.add(new CompositeFilter(CompositeFilterOperator.OR, userFilters));
-        filters.add(new PropertyFilter(Pointtransfer.TYPE, FilterOperator.EQUAL, type));
+//        final List<Filter> filters = new ArrayList<>();
+//        filters.add(new CompositeFilter(CompositeFilterOperator.OR, userFilters));
+//        filters.add(new PropertyFilter(PointtransferUtil.TYPE, FilterOperator.EQUAL, type));
 
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).setCurrentPageNum(1)
-                .setPageSize(fetchSize).setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
+        PageHelper.startPage(1, fetchSize, "oId desc");
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).setCurrentPageNum(1)
+//                .setPageSize(fetchSize).setFilter(new CompositeFilter(CompositeFilterOperator.AND, filters));
 
         try {
-            final JSONObject result = pointtransferMapper.get(query);
+            final List<Pointtransfer> result = pointtransferMapper.getByUserIdAndType(userId, type);
 
-            return CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
-        } catch (final MapperException e) {
+            return result;
+//            return CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+        } catch (final Exception e) {
             LOGGER.error( "Gets latest pointtransfers error", e);
         }
 
@@ -132,30 +120,33 @@ public class PointtransferQueryService {
     public List<JSONObject> getTopBalanceUsers(final int avatarViewMode, final int fetchSize) {
         final List<JSONObject> ret = new ArrayList<>();
 
-        final Query query = new Query().addSort(UserExt.USER_POINT, SortDirection.DESCENDING).setCurrentPageNum(1)
-                .setPageSize(fetchSize).
-                        setFilter(new PropertyFilter(UserExt.USER_JOIN_POINT_RANK,
-                                FilterOperator.EQUAL, UserExt.USER_JOIN_POINT_RANK_C_JOIN));
+//        final Query query = new Query().addSort(UserExtUtil.USER_POINT, SortDirection.DESCENDING).setCurrentPageNum(1)
+//                .setPageSize(fetchSize).
+//                        setFilter(new PropertyFilter(UserExtUtil.USER_JOIN_POINT_RANK,
+//                                FilterOperator.EQUAL, UserExtUtil.USER_JOIN_POINT_RANK_C_JOIN));
+
+        PageHelper.startPage(1, fetchSize, "userPoint desc");
 
         final int moneyUnit = Symphonys.getInt("pointExchangeUnit");
         try {
-            final JSONObject result = userMapper.get(query);
-            final List<JSONObject> users = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            final List<UserExt> users = userMapper.getByUserJoinPointRank(UserExtUtil.USER_JOIN_POINT_RANK_C_JOIN);
+//            final List<JSONObject> users = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
 
-            for (final JSONObject user : users) {
-                if (UserExt.USER_APP_ROLE_C_HACKER == user.optInt(UserExt.USER_APP_ROLE)) {
-                    user.put(UserExt.USER_T_POINT_HEX, Integer.toHexString(user.optInt(UserExt.USER_POINT)));
+            for (final UserExt user : users) {
+
+                if (UserExtUtil.USER_APP_ROLE_C_HACKER == user.getUserAppRole()) {
+                    user.setUserPointHex(Integer.toHexString(user.getUserPoint()));
                 } else {
-                    user.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(user.optInt(UserExt.USER_POINT)));
+                    user.setUserPointCC( UserExtUtil.toCCString(user.getUserPoint()));
                 }
+                JSONObject object = new JSONObject(JsonUtil.objectToJson(user));
+                object.put(Common.MONEY, (int) Math.floor(user.getUserPoint() / moneyUnit));
 
-                user.put(Common.MONEY, (int) Math.floor(user.optInt(UserExt.USER_POINT) / moneyUnit));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, object);
 
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
-
-                ret.add(user);
+                ret.add(object);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets top balance users error", e);
         }
 
@@ -172,30 +163,32 @@ public class PointtransferQueryService {
     public List<JSONObject> getTopConsumptionUsers(final int avatarViewMode, final int fetchSize) {
         final List<JSONObject> ret = new ArrayList<>();
 
-        final Query query = new Query().addSort(UserExt.USER_USED_POINT, SortDirection.DESCENDING).setCurrentPageNum(1)
-                .setPageSize(fetchSize).
-                        setFilter(new PropertyFilter(UserExt.USER_JOIN_USED_POINT_RANK,
-                                FilterOperator.EQUAL, UserExt.USER_JOIN_USED_POINT_RANK_C_JOIN));
+//        final Query query = new Query().addSort(UserExtUtil.USER_USED_POINT, SortDirection.DESCENDING).setCurrentPageNum(1)
+//                .setPageSize(fetchSize).
+//                        setFilter(new PropertyFilter(UserExtUtil.USER_JOIN_USED_POINT_RANK,
+//                                FilterOperator.EQUAL, UserExtUtil.USER_JOIN_USED_POINT_RANK_C_JOIN));
+
+        PageHelper.startPage(1, fetchSize, "userUsedPoint desc");
 
         final int moneyUnit = Symphonys.getInt("pointExchangeUnit");
         try {
-            final JSONObject result = userMapper.get(query);
-            final List<JSONObject> users = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            final List<UserExt> users = userMapper.getByUserJoinUsedPointRank(UserExtUtil.USER_JOIN_USED_POINT_RANK_C_JOIN);
+//            final List<JSONObject> users = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
 
-            for (final JSONObject user : users) {
-                if (UserExt.USER_APP_ROLE_C_HACKER == user.optInt(UserExt.USER_APP_ROLE)) {
-                    user.put(UserExt.USER_T_POINT_HEX, Integer.toHexString(user.optInt(UserExt.USER_POINT)));
+            for (final UserExt user : users) {
+                if (UserExtUtil.USER_APP_ROLE_C_HACKER == user.getUserAppRole()) {
+                    user.setUserPointHex( Integer.toHexString(user.getUserPoint()));
                 } else {
-                    user.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(user.optInt(UserExt.USER_POINT)));
+                    user.setUserPointCC( UserExtUtil.toCCString(user.getUserPoint()));
                 }
+                JSONObject object = new JSONObject(JsonUtil.objectToJson(user));
+                object.put(Common.MONEY, (int) Math.floor(user.getUserPoint() / moneyUnit));
 
-                user.put(Common.MONEY, (int) Math.floor(user.optInt(UserExt.USER_USED_POINT) / moneyUnit));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, object);
 
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
-
-                ret.add(user);
+                ret.add(object);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets top consumption users error", e);
         }
 
@@ -216,28 +209,31 @@ public class PointtransferQueryService {
      *     }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getUserPoints(final String userId, final int currentPageNum, final int pageSize) throws ServiceException {
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
-                .setCurrentPageNum(currentPageNum).setPageSize(pageSize);
-        final List<Filter> filters = new ArrayList<>();
-        filters.add(new PropertyFilter(Pointtransfer.FROM_ID, FilterOperator.EQUAL, userId));
-        filters.add(new PropertyFilter(Pointtransfer.TO_ID, FilterOperator.EQUAL, userId));
-        query.setFilter(new CompositeFilter(CompositeFilterOperator.OR, filters));
+    public JSONObject getUserPoints(final String userId, final int currentPageNum, final int pageSize) throws Exception {
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
+//                .setCurrentPageNum(currentPageNum).setPageSize(pageSize);
+
+        PageHelper.startPage(1, pageSize, "oId desc");
+//        final List<Filter> filters = new ArrayList<>();
+//        filters.add(new PropertyFilter(PointtransferUtil.FROM_ID, FilterOperator.EQUAL, userId));
+//        filters.add(new PropertyFilter(PointtransferUtil.TO_ID, FilterOperator.EQUAL, userId));
+//        query.setFilter(new CompositeFilter(CompositeFilterOperator.OR, filters));
 
         try {
-            final JSONObject ret = pointtransferMapper.get(query);
-            final JSONArray records = ret.optJSONArray(Keys.RESULTS);
-            for (int i = 0; i < records.length(); i++) {
-                final JSONObject record = records.optJSONObject(i);
+            final List<Pointtransfer> records = pointtransferMapper.getByUserId(userId);
+//            final JSONArray records = ret.optJSONArray(Keys.RESULTS);
 
-                record.put(Common.CREATE_TIME, new Date(record.optLong(Pointtransfer.TIME)));
+            for (int i = 0; i < records.size(); i++) {
+                final Pointtransfer record = records.get(i);
 
-                final String toId = record.optString(Pointtransfer.TO_ID);
-                final String fromId = record.optString(Pointtransfer.FROM_ID);
+                record.put(Common.CREATE_TIME, new Date(record.getTime(Pointtransfer.TIME)));
 
-                String typeStr = record.optString(Pointtransfer.TYPE);
+                final String toId = record.getToId();
+                final String fromId = record.getFromId();
+
+                String typeStr = record.getType().toString();
                 if (("3".equals(typeStr) && userId.equals(toId))
                         || ("5".equals(typeStr) && userId.equals(fromId))
                         || ("9".equals(typeStr) && userId.equals(toId))
@@ -584,15 +580,18 @@ public class PointtransferQueryService {
 
                 record.put(Common.DESCRIPTION, desTemplate);
             }
+            JSONArray jsonArray = JsonUtil.listToJSONArray(records);
+            JSONObject ret = new JSONObject();
+            ret.put(Keys.RESULTS, jsonArray);
 
             final int recordCnt = ret.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_RECORD_COUNT);
             ret.remove(Pagination.PAGINATION);
             ret.put(Pagination.PAGINATION_RECORD_COUNT, recordCnt);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets user points failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }

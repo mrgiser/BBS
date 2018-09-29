@@ -24,20 +24,23 @@ import java.util.List;
 
 public interface UserMapper {
 
-    public UserExt get(final String id) ;
+    UserExt get(final String id) ;
+
+    List<UserExt> getByUserJoinPointRank(final int userJoinPointRank);
+    List<UserExt> getByUserJoinUsedPointRank(final int userJoinUsedPointRank);
 
     @Select("select * from user WHERE oId in （ #{oIds}）")
     List<UserExt> findByOIds(List<String> oIds);
 
-    public void update(final String id, final UserExt user) ;
+    void update(final String id, final UserExt user) ;
 
-    public UserExt getByName(final String name) ;
+    UserExt getByName(final String name) ;
 
-    public UserExt getByEmail(final String email) ;
+    UserExt getByEmail(final String email) ;
 
-    public List<UserExt> getAdmins() ;
+    List<UserExt> getAdmins() ;
 
-    public boolean isAdminEmail(final String email) ;
+    boolean isAdminEmail(final String email) ;
 
     @Select("select count(*) from user where userRole = #{roleId}")
     Integer countByRoleId(final String roleId);

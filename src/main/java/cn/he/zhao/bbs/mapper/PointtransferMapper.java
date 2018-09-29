@@ -17,12 +17,22 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Pointtransfer;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONObject;
 
 import java.util.List;
 
 public interface PointtransferMapper {
 
-    public int getActivityEatingSnakeAvg(final String userId) ;
+    int getActivityEatingSnakeAvg(final String userId) ;
+
+    @Select("select * from pointtransfer WHERE (fromId = #{userId} OR toId = #{userId}) AND  type = #{type}")
+    List<Pointtransfer> getByUserIdAndType(final String userId, final int type);
+
+    @Select("select * from pointtransfer WHERE fromId = #{userId} OR toId = #{userId} ")
+    List<Pointtransfer> getByUserId(final String userId);
+
+    String add(Pointtransfer pointtransfer);
 
 }

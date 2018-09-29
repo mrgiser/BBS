@@ -95,7 +95,7 @@ public class OptionQueryService {
                     optionMapper.update(maxOnlineMemberCntRecord.optString(Keys.OBJECT_ID), maxOnlineMemberCntRecord);
 
                     transaction.commit();
-                } catch (final MapperException e) {
+                } catch (final Exception e) {
                     if (transaction.isActive()) {
                         transaction.rollback();
                     }
@@ -103,7 +103,7 @@ public class OptionQueryService {
                     LOGGER.error( "Updates the max online visitor count failed", e);
                 }
             }
-        } catch (final MapperException ex) {
+        } catch (final Exception ex) {
             LOGGER.error( "Gets online visitor count failed", ex);
         }
 
@@ -114,9 +114,9 @@ public class OptionQueryService {
      * Gets the statistic.
      *
      * @return statistic
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getStatistic() throws ServiceException {
+    public JSONObject getStatistic() throws Exception {
         final JSONObject ret = new JSONObject();
 
         final Query query = new Query().
@@ -132,9 +132,9 @@ public class OptionQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets statistic failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -168,9 +168,9 @@ public class OptionQueryService {
      * Gets the reserved words.
      *
      * @return reserved words
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getReservedWords() throws ServiceException {
+    public List<JSONObject> getReservedWords() throws Exception {
         final Query query = new Query().
                 setFilter(new PropertyFilter(Option.OPTION_CATEGORY, FilterOperator.EQUAL, Option.CATEGORY_C_RESERVED_WORDS));
         try {
@@ -178,10 +178,10 @@ public class OptionQueryService {
             final JSONArray options = result.optJSONArray(Keys.RESULTS);
 
             return CollectionUtils.jsonArrayToList(options);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets reserved words failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -199,7 +199,7 @@ public class OptionQueryService {
                 ));
         try {
             return optionMapper.count(query) > 0;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Checks reserved word failed", e);
 
             return true;
@@ -216,7 +216,7 @@ public class OptionQueryService {
             final JSONObject result = optionMapper.get(Option.ID_C_MISC_ALLOW_REGISTER);
 
             return result.optString(Option.OPTION_VALUE);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets option [allow register] value failed", e);
 
             return null;
@@ -227,9 +227,9 @@ public class OptionQueryService {
      * Gets the miscellaneous.
      *
      * @return misc
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getMisc() throws ServiceException {
+    public List<JSONObject> getMisc() throws Exception {
         final Query query = new Query().
                 setFilter(new PropertyFilter(Option.OPTION_CATEGORY, FilterOperator.EQUAL, Option.CATEGORY_C_MISC));
         try {
@@ -243,9 +243,9 @@ public class OptionQueryService {
             }
 
             return CollectionUtils.jsonArrayToList(options);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets misc failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -264,7 +264,7 @@ public class OptionQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets an option [optionId=" + optionId + "] failed", e);
 
             return null;

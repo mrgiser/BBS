@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * PointtransferUtil management service.
@@ -65,55 +67,56 @@ public class PointtransferMgmtService {
      * @param time   the specified time
      * @return transfer record id, returns {@code null} if transfer failed
      */
+    @Transactional
     public synchronized String transfer(final String fromId, final String toId, final int type, final int sum,
                                         final String dataId, final long time) {
         if (StringUtils.equals(fromId, toId)) { // for example the commenter is the article author
             return null;
         }
 
-        final Transaction transaction = pointtransferMapper.beginTransaction();
+//        final Transaction transaction = pointtransferMapper.beginTransaction();
         try {
             int fromBalance = 0;
-            if (!Pointtransfer.ID_C_SYS.equals(fromId)) {
-                final JSONObject fromUser = userMapper.get(fromId);
-                fromBalance = fromUser.optInt(UserExt.USER_POINT) - sum;
+            if (!PointtransferUtil.ID_C_SYS.equals(fromId)) {
+                final UserExt fromUser = userMapper.get(fromId);
+                fromBalance = fromUser.getUserPoint() - sum;
                 if (fromBalance < 0) {
                     throw new Exception("Insufficient balance");
                 }
 
-                fromUser.put(UserExt.USER_POINT, fromBalance);
-                fromUser.put(UserExt.USER_USED_POINT, fromUser.optInt(UserExt.USER_USED_POINT) + sum);
+                fromUser.setUserPoint( fromBalance);
+                fromUser.setUserUsedPoint( fromUser.getUserUsedPoint() + sum);
                 userMapper.update(fromId, fromUser);
             }
 
             int toBalance = 0;
-            if (!Pointtransfer.ID_C_SYS.equals(toId)) {
-                final JSONObject toUser = userMapper.get(toId);
-                toBalance = toUser.optInt(UserExt.USER_POINT) + sum;
-                toUser.put(UserExt.USER_POINT, toBalance);
+            if (!PointtransferUtil.ID_C_SYS.equals(toId)) {
+                final UserExt toUser = userMapper.get(toId);
+                toBalance = toUser.getUserPoint() + sum;
+                toUser.setUserPoint( toBalance);
 
                 userMapper.update(toId, toUser);
             }
 
-            final JSONObject pointtransfer = new JSONObject();
-            pointtransfer.put(Pointtransfer.FROM_ID, fromId);
-            pointtransfer.put(Pointtransfer.TO_ID, toId);
-            pointtransfer.put(Pointtransfer.SUM, sum);
-            pointtransfer.put(Pointtransfer.FROM_BALANCE, fromBalance);
-            pointtransfer.put(Pointtransfer.TO_BALANCE, toBalance);
-            pointtransfer.put(Pointtransfer.TIME, time);
-            pointtransfer.put(Pointtransfer.TYPE, type);
-            pointtransfer.put(Pointtransfer.DATA_ID, dataId);
+            final Pointtransfer pointtransfer = new Pointtransfer();
+            pointtransfer.setFromId( fromId);
+            pointtransfer.setToId( toId);
+            pointtransfer.setSum( sum);
+            pointtransfer.setFromBalance( fromBalance);
+            pointtransfer.setToBalance( toBalance);
+            pointtransfer.setTime( time);
+            pointtransfer.setType( type);
+            pointtransfer.setDataId( dataId);
 
             final String ret = pointtransferMapper.add(pointtransfer);
 
-            transaction.commit();
+//            transaction.commit();
 
             return ret;
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Transfer [fromId=" + fromId + ", toId=" + toId + ", sum=" + sum + ", type=" +
                     type + ", dataId=" + dataId + "] error", e);

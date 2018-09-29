@@ -17,11 +17,15 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Liveness;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public interface LivenessMapper {
 
+    String add(Liveness liveness);
 
-    public JSONObject getByUserAndDate(final String userId, final String date) ;
+    Integer update (Liveness liveness);
+
+    Liveness getByUserAndDate(final String userId, final String date) ;
 }

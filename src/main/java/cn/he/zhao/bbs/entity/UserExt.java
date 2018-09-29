@@ -80,6 +80,25 @@ public class UserExt {
     private String userLanguage;
     private String userTimezone;
 
+    private transient String userPointHex;
+    private transient String userPointCC;
+
+    public String getUserPointCC() {
+        return userPointCC;
+    }
+
+    public void setUserPointCC(String userPointCC) {
+        this.userPointCC = userPointCC;
+    }
+
+    public String getUserPointHex() {
+        return userPointHex;
+    }
+
+    public void setUserPointHex(String userPointHex) {
+        this.userPointHex = userPointHex;
+    }
+
     public String getOid() {
         return oid;
     }

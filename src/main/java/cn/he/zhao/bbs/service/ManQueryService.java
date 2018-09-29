@@ -19,6 +19,8 @@ package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.spring.Common;
+import cn.he.zhao.bbs.util.Markdowns;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
