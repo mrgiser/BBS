@@ -28,4 +28,9 @@ public interface ReportMapper {
     @Select("select * from report ORDER BY reportHandled ASC, oid DESC")
     List<Report> getALL();
 
+    String add(Report report);
+
+    Report getByOId(final String oid);
+
+    Integer updateByPrimaryKey(Report report);
 }
