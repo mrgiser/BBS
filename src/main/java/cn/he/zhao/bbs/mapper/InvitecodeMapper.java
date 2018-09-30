@@ -19,10 +19,15 @@ package cn.he.zhao.bbs.mapper;
 
 
 import cn.he.zhao.bbs.entity.Invitecode;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
 public interface InvitecodeMapper {
+
+    String add(final Invitecode invitecode);
+
+    Integer update(final String OId, final Invitecode invitecode);
 
     List<Invitecode> getByUserId(final String userId);
 
@@ -33,5 +38,10 @@ public interface InvitecodeMapper {
     Invitecode getByOId(final  String oId);
 
     List<Invitecode> getAll();
+
+    Integer remove(final String oId);
+
+    @Select("select * from invitecode WHERE status = #{status} AND generatorId != #{generatorId}  AND oId <= expired")
+    List<Invitecode> getExpiredInvitecodes(final int status, final String generatorId, final String expired);
 
 }
