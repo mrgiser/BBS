@@ -96,6 +96,24 @@ public class Tag {
     private transient Long tagCreatorThumbnailUpdateTime;
     private transient String tagCreatorName;
     private transient Long tagCreateTime;
+    private transient String tagTitleLowerCase;
+    private transient Object tagLinks;
+
+    public Object getTagLinks() {
+        return tagLinks;
+    }
+
+    public void setTagLinks(Object tagLinks) {
+        this.tagLinks = tagLinks;
+    }
+
+    public String getTagTitleLowerCase() {
+        return tagTitleLowerCase;
+    }
+
+    public void setTagTitleLowerCase(String tagTitleLowerCase) {
+        this.tagTitleLowerCase = tagTitleLowerCase;
+    }
 
     public Long getTagCreateTime() {
         return tagCreateTime;

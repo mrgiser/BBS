@@ -36,6 +36,15 @@ public interface TagMapper {
     Tag get(final String oId) ;
     List<Tag> getALL() ;
 
+    @Select("select * from tag where tagReferenceCount > 0")
+    List<Tag> getNewTags();
+
+    @Select("select * from tag where tagIconPath != '' AND tagStatus = 0")
+    List<Tag> getByIconAndStatus();
+
+    @Select("select * from tag where tagStatus = #{status}")
+    List<Tag> getByStatus(final int status);
+
     List<Tag> getByTagTitle(final String title);
 
     String getURIByTitle(final String title) ;

@@ -17,11 +17,13 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Link;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public interface LinkMapper {
 
-    public JSONObject getLink(final String addr) ;
+    JSONObject getLink(final String addr) ;
 
+    Link getByOId(final String oId);
 }

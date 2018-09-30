@@ -1,43 +1,23 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.cache;
 
 import cn.he.zhao.bbs.entity.Tag;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.TagMapper;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.JSONs;
 import cn.he.zhao.bbs.util.Symphonys;
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.Query;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Tag cache.
- *
- * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.5.6.4, Apr 3, 2018
- * @since 1.4.0
- */
-//@Named
-//@Singleton
 public class TagCache {
 
     /**
@@ -48,17 +28,17 @@ public class TagCache {
     /**
      * Icon tags.
      */
-    private static final List<JSONObject> ICON_TAGS = new ArrayList<>();
+    private static final List<Tag> ICON_TAGS = new ArrayList<>();
 
     /**
      * New tags.
      */
-    private static final List<JSONObject> NEW_TAGS = new ArrayList<>();
+    private static final List<Tag> NEW_TAGS = new ArrayList<>();
 
     /**
      * All tags.
      */
-    private static final List<JSONObject> TAGS = new ArrayList<>();
+    private static final List<Tag> TAGS = new ArrayList<>();
 
     /**
      * &lt;title, URI&gt;
@@ -68,7 +48,7 @@ public class TagCache {
     /**
      * &lt;id, tag&gt;
      */
-    private static final Map<String, JSONObject> CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Tag> CACHE = new ConcurrentHashMap<>();
 
     /**
      * Gets a tag by the specified tag id.
@@ -76,15 +56,15 @@ public class TagCache {
      * @param id the specified tag id
      * @return tag, returns {@code null} if not found
      */
-    public JSONObject getTag(final String id) {
-        final JSONObject tag = CACHE.get(id);
+    public Tag getTag(final String id) {
+        final Tag tag = CACHE.get(id);
         if (null == tag) {
             return null;
         }
 
-        final JSONObject ret = JSONs.clone(tag);
+        final Tag ret = JSONs.clone(tag);
 
-        TITLE_URIS.put(ret.optString(Tag.TAG_TITLE), ret.optString(Tag.TAG_URI));
+        TITLE_URIS.put(ret.getTagTitle(), ret.getTagURI());
 
         return ret;
     }
@@ -94,10 +74,10 @@ public class TagCache {
      *
      * @param tag the specified tag
      */
-    public void putTag(final JSONObject tag) {
-        CACHE.put(tag.optString(Keys.OBJECT_ID), JSONs.clone(tag));
+    public void putTag(final Tag tag) {
+        CACHE.put(tag.getOid(), JSONs.clone(tag));
 
-        TITLE_URIS.put(tag.optString(Tag.TAG_TITLE), tag.optString(Tag.TAG_URI));
+        TITLE_URIS.put(tag.getTagTitle(), tag.getTagURI());
     }
 
     /**
@@ -106,14 +86,14 @@ public class TagCache {
      * @param id the specified tag id
      */
     public void removeTag(final String id) {
-        final JSONObject tag = CACHE.get(id);
+        final Tag tag = CACHE.get(id);
         if (null == tag) {
             return;
         }
 
         CACHE.remove(id);
 
-        TITLE_URIS.remove(tag.optString(Tag.TAG_TITLE));
+        TITLE_URIS.remove(tag.getTagTitle());
     }
 
     /**
@@ -131,7 +111,7 @@ public class TagCache {
      *
      * @return new tags
      */
-    public List<JSONObject> getNewTags() {
+    public List<Tag> getNewTags() {
         if (NEW_TAGS.isEmpty()) {
             return Collections.emptyList();
         }
@@ -145,7 +125,7 @@ public class TagCache {
      * @param fetchSize the specified fetch size
      * @return icon tags
      */
-    public List<JSONObject> getIconTags(final int fetchSize) {
+    public List<Tag> getIconTags(final int fetchSize) {
         if (ICON_TAGS.isEmpty()) {
             return Collections.emptyList();
         }
@@ -160,7 +140,7 @@ public class TagCache {
      *
      * @return all tags
      */
-    public List<JSONObject> getTags() {
+    public List<Tag> getTags() {
         if (TAGS.isEmpty()) {
             return Collections.emptyList();
         }
@@ -181,19 +161,20 @@ public class TagCache {
      * Loads new tags.
      */
     private void loadNewTags() {
-        final LatkeBeanManager beanManager = LatkeBeanManagerImpl.getInstance();
-        final TagMapper tagMapper = beanManager.getReference(TagMapper.class);
+//        final LatkeBeanManager beanManager = LatkeBeanManagerImpl.getInstance();
+        final TagMapper tagMapper = SpringUtil.getBean(TagMapper.class);
 
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setCurrentPageNum(1).setPageSize(Symphonys.getInt("newTagsCnt")).setPageCount(1);
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
+//                setCurrentPageNum(1).setPageSize(Symphonys.getInt("newTagsCnt")).setPageCount(1);
 
-        query.setFilter(new PropertyFilter(Tag.TAG_REFERENCE_CNT, FilterOperator.GREATER_THAN, 0));
+        PageHelper.startPage(1,Symphonys.getInt("newTagsCnt"),"oId DESC");
+//        query.setFilter(new PropertyFilter(TagUtil.TAG_REFERENCE_CNT, FilterOperator.GREATER_THAN, 0));
 
         try {
-            final JSONObject result = tagMapper.get(query);
+            final List<Tag> result = tagMapper.getNewTags();
             NEW_TAGS.clear();
-            NEW_TAGS.addAll(CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS)));
-        } catch (final MapperException e) {
+            NEW_TAGS.addAll(result);
+        } catch (final Exception e) {
             LOGGER.error( "Gets new tags failed", e);
         }
     }
@@ -201,41 +182,44 @@ public class TagCache {
     /**
      * Loads icon tags.
      */
+    @Transactional
     private void loadIconTags() {
-        final LatkeBeanManager beanManager = LatkeBeanManagerImpl.getInstance();
-        final TagMapper tagMapper = beanManager.getReference(TagMapper.class);
+//        final LatkeBeanManager beanManager = LatkeBeanManagerImpl.getInstance();
+        final TagMapper tagMapper = SpringUtil.getBean(TagMapper.class);
 
-        final Query query = new Query().setFilter(
-                CompositeFilterOperator.and(
-                        new PropertyFilter(Tag.TAG_ICON_PATH, FilterOperator.NOT_EQUAL, ""),
-                        new PropertyFilter(Tag.TAG_STATUS, FilterOperator.EQUAL, Tag.TAG_STATUS_C_VALID)))
-                .setCurrentPageNum(1).setPageSize(Integer.MAX_VALUE).setPageCount(1)
-                .addSort(Tag.TAG_RANDOM_DOUBLE, SortDirection.ASCENDING);
+//        final Query query = new Query().setFilter(
+//                CompositeFilterOperator.and(
+//                        new PropertyFilter(TagUtil.TAG_ICON_PATH, FilterOperator.NOT_EQUAL, ""),
+//                        new PropertyFilter(TagUtil.TAG_STATUS, FilterOperator.EQUAL, TagUtil.TAG_STATUS_C_VALID)))
+//                .setCurrentPageNum(1).setPageSize(Integer.MAX_VALUE).setPageCount(1)
+//                .addSort(TagUtil.TAG_RANDOM_DOUBLE, SortDirection.ASCENDING);
+        PageHelper.startPage(1,Integer.MAX_VALUE,"tagRandomDouble ASC");
+
         try {
-            final JSONObject result = tagMapper.get(query);
-            final List<JSONObject> tags = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
-            final List<JSONObject> toUpdateTags = new ArrayList<>();
-            for (final JSONObject tag : tags) {
+            final List<Tag> tags = tagMapper.getByIconAndStatus();
+//            final List<JSONObject> tags = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            final List<Tag> toUpdateTags = new ArrayList<>();
+            for (final Tag tag : tags) {
                 toUpdateTags.add(JSONs.clone(tag));
             }
 
-            for (final JSONObject tag : tags) {
-                Tag.fillDescription(tag);
-                tag.put(Tag.TAG_T_TITLE_LOWER_CASE, tag.optString(Tag.TAG_TITLE).toLowerCase());
+            for (final Tag tag : tags) {
+                TagUtil.fillDescription(tag);
+                tag.setTagTitleLowerCase(tag.getTagTitle().toLowerCase());
             }
 
             ICON_TAGS.clear();
             ICON_TAGS.addAll(tags);
 
             // Updates random double
-            final Transaction transaction = tagMapper.beginTransaction();
-            for (final JSONObject tag : toUpdateTags) {
-                tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+//            final Transaction transaction = tagMapper.beginTransaction();
+            for (final Tag tag : toUpdateTags) {
+                tag.setTagRandomDouble( Math.random());
 
-                tagMapper.update(tag.optString(Keys.OBJECT_ID), tag);
+                tagMapper.update(tag.getOid(), tag);
             }
-            transaction.commit();
-        } catch (final MapperException e) {
+//            transaction.commit();
+        } catch (final Exception e) {
             LOGGER.error( "Load icon tags failed", e);
         }
     }
@@ -244,21 +228,22 @@ public class TagCache {
      * Loads all tags.
      */
     public void loadAllTags() {
-        final LatkeBeanManager beanManager = LatkeBeanManagerImpl.getInstance();
-        final TagMapper tagMapper = beanManager.getReference(TagMapper.class);
+//        final LatkeBeanManager beanManager = LatkeBeanManagerImpl.getInstance();
+        final TagMapper tagMapper = SpringUtil.getBean(TagMapper.class);
 
-        final Query query = new Query().setFilter(
-                new PropertyFilter(Tag.TAG_STATUS, FilterOperator.EQUAL, Tag.TAG_STATUS_C_VALID))
-                .setCurrentPageNum(1).setPageSize(Integer.MAX_VALUE).setPageCount(1);
+//        final Query query = new Query().setFilter(
+//                new PropertyFilter(Tag.TAG_STATUS, FilterOperator.EQUAL, TagUtil.TAG_STATUS_C_VALID))
+//                .setCurrentPageNum(1).setPageSize(Integer.MAX_VALUE).setPageCount(1);
+        PageHelper.startPage(1,Integer.MAX_VALUE)
         try {
-            final JSONObject result = tagMapper.get(query);
-            final List<JSONObject> tags = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            final List<Tag> tags = tagMapper.getByStatus(TagUtil.TAG_STATUS_C_VALID);
+//            final List<JSONObject> tags = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
 
-            final Iterator<JSONObject> iterator = tags.iterator();
+            final Iterator<Tag> iterator = tags.iterator();
             while (iterator.hasNext()) {
-                final JSONObject tag = iterator.next();
+                final Tag tag = iterator.next();
 
-                String title = tag.optString(Tag.TAG_TITLE);
+                String title = tag.getTagTitle();
                 if ("".equals(title)
                         || StringUtils.contains(title, " ")
                         || StringUtils.contains(title, "　")) { // filter legacy data
@@ -267,21 +252,21 @@ public class TagCache {
                     continue;
                 }
 
-                if (!Tag.containsWhiteListTags(title)) {
-                    if (!Tag.TAG_TITLE_PATTERN.matcher(title).matches() || title.length() > Tag.MAX_TAG_TITLE_LENGTH) {
+                if (!TagUtil.containsWhiteListTags(title)) {
+                    if (!TagUtil.TAG_TITLE_PATTERN.matcher(title).matches() || title.length() > TagUtil.MAX_TAG_TITLE_LENGTH) {
                         iterator.remove();
 
                         continue;
                     }
                 }
 
-                Tag.fillDescription(tag);
-                tag.put(Tag.TAG_T_TITLE_LOWER_CASE, tag.optString(Tag.TAG_TITLE).toLowerCase());
+                TagUtil.fillDescription(tag);
+                tag.setTagTitleLowerCase(tag.getTagTitle().toLowerCase());
             }
 
             tags.sort((t1, t2) -> {
-                final String u1Title = t1.optString(Tag.TAG_T_TITLE_LOWER_CASE);
-                final String u2Title = t2.optString(Tag.TAG_T_TITLE_LOWER_CASE);
+                final String u1Title = t1.getTagTitleLowerCase();
+                final String u2Title = t2.getTagTitleLowerCase();
 
                 return u1Title.compareTo(u2Title);
             });
@@ -290,10 +275,10 @@ public class TagCache {
             TAGS.addAll(tags);
 
             TITLE_URIS.clear();
-            for (final JSONObject tag : tags) {
-                TITLE_URIS.put(tag.optString(Tag.TAG_TITLE), tag.optString(Tag.TAG_URI));
+            for (final Tag tag : tags) {
+                TITLE_URIS.put(tag.getTagTitle(), tag.getTagURI());
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Load all tags failed", e);
         }
     }
