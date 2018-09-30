@@ -17,9 +17,14 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.InvitecodeUtil;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.spring.Paginator;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,15 +69,15 @@ public class InvitecodeQueryService {
      * }
      * </pre>, returns an empty list if not found
      */
-    public List<JSONObject> getValidInvitecodes(final String generatorId) {
-        final Query query = new Query().setFilter(
-                CompositeFilterOperator.and(
-                        new PropertyFilter(Invitecode.GENERATOR_ID, FilterOperator.EQUAL, generatorId),
-                        new PropertyFilter(Invitecode.STATUS, FilterOperator.EQUAL, Invitecode.STATUS_C_UNUSED)
-                ));
+    public List<Invitecode> getValidInvitecodes(final String generatorId) {
+//        final Query query = new Query().setFilter(
+//                CompositeFilterOperator.and(
+//                        new PropertyFilter(InvitecodeUtil.GENERATOR_ID, FilterOperator.EQUAL, generatorId),
+//                        new PropertyFilter(InvitecodeUtil.STATUS, FilterOperator.EQUAL, InvitecodeUtil.STATUS_C_UNUSED)
+//                ));
 
         try {
-            return CollectionUtils.jsonArrayToList(invitecodeMapper.get(query).optJSONArray(Keys.RESULTS));
+            return invitecodeMapper.getByGeneratorIdAndStatus(generatorId, InvitecodeUtil.STATUS_C_UNUSED);
         } catch (final Exception e) {
             LOGGER.error( "Gets valid invitecode failed", e);
 
@@ -86,17 +91,17 @@ public class InvitecodeQueryService {
      * @param code the specified code
      * @return invitecode, returns {@code null} if not found
      */
-    public JSONObject getInvitecode(final String code) {
-        final Query query = new Query().setFilter(new PropertyFilter(Invitecode.CODE, FilterOperator.EQUAL, code));
+    public Invitecode getInvitecode(final String code) {
+//        final Query query = new Query().setFilter(new PropertyFilter(InvitecodeUtil.CODE, FilterOperator.EQUAL, code));
 
         try {
-            final JSONObject result = invitecodeMapper.get(query);
-            final JSONArray codes = result.optJSONArray(Keys.RESULTS);
-            if (0 == codes.length()) {
+            final List<Invitecode> result = invitecodeMapper.getByCore(code);
+//            final JSONArray codes = result.optJSONArray(Keys.RESULTS);
+            if (0 == result.size()) {
                 return null;
             }
 
-            return codes.optJSONObject(0);
+            return result.get(0);
         } catch (final Exception e) {
             LOGGER.error( "Gets invitecode error", e);
 
@@ -112,7 +117,6 @@ public class InvitecodeQueryService {
      *                                                       "paginationCurrentPageNum": 1,
      *                                                       "paginationPageSize": 20,
      *                                                       "paginationWindowSize": 10
-     *                                                   }, see {@link Pagination} for more details
      *                                                   </pre>
      * @return for example,      <pre>
      * {
@@ -128,30 +132,31 @@ public class InvitecodeQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
-     * @see Pagination
+     * @throws Exception service exception
      */
-    public JSONObject getInvitecodes(final JSONObject requestJSONObject) throws ServiceException {
+    public JSONObject getInvitecodes(final JSONObject requestJSONObject) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
         final int pageSize = requestJSONObject.optInt(Pagination.PAGINATION_PAGE_SIZE);
         final int windowSize = requestJSONObject.optInt(Pagination.PAGINATION_WINDOW_SIZE);
-        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).
-                addSort(Invitecode.STATUS, SortDirection.DESCENDING).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).
+//                addSort(InvitecodeUtil.STATUS, SortDirection.DESCENDING).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
 
-        JSONObject result = null;
+        PageHelper.startPage(currentPageNum,pageSize,"status DESC, OId DESC");
+
+        PageInfo<Invitecode> result = null;
 
         try {
-            result = invitecodeMapper.get(query);
-        } catch (final MapperException e) {
+            result = new PageInfo<>( invitecodeMapper.getAll());
+        } catch (final Exception e) {
             LOGGER.error( "Gets invitecodes failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -159,10 +164,10 @@ public class InvitecodeQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray data = result.optJSONArray(Keys.RESULTS);
-        final List<JSONObject> invitecodes = CollectionUtils.<JSONObject>jsonArrayToList(data);
+        final List<Invitecode> data = result.getList();
+//        final List<JSONObject> invitecodes = CollectionUtils.<JSONObject>jsonArrayToList(data);
 
-        ret.put(Invitecode.INVITECODES, invitecodes);
+        ret.put(InvitecodeUtil.INVITECODES, data);
 
         return ret;
     }
@@ -179,15 +184,15 @@ public class InvitecodeQueryService {
      *     ....
      * }
      * </pre>, returns {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getInvitecodeById(final String invitecodeId) throws ServiceException {
+    public Invitecode getInvitecodeById(final String invitecodeId) throws Exception {
         try {
-            return invitecodeMapper.get(invitecodeId);
-        } catch (final MapperException e) {
+            return invitecodeMapper.getByOId(invitecodeId);
+        } catch (final Exception e) {
             LOGGER.error( "Gets an invitecode failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -203,22 +208,22 @@ public class InvitecodeQueryService {
      *     ....
      * }
      * </pre>, returns {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getInvitecodeByUserId(final String userId) throws ServiceException {
-        final Query query = new Query().setFilter(new PropertyFilter(Invitecode.USER_ID, FilterOperator.EQUAL, userId));
+    public Invitecode getInvitecodeByUserId(final String userId) throws Exception {
+//        final Query query = new Query().setFilter(new PropertyFilter(InvitecodeUtil.USER_ID, FilterOperator.EQUAL, userId));
 
         try {
-            final JSONArray data = invitecodeMapper.get(query).optJSONArray(Keys.RESULTS);
-            if (1 > data.length()) {
+            final List<Invitecode> data = invitecodeMapper.getByUserId(userId);
+            if (1 > data.size()) {
                 return null;
             }
 
-            return data.optJSONObject(0);
+            return data.get(0);
         } catch (final Exception e) {
             LOGGER.error( "Gets an invitecode failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }

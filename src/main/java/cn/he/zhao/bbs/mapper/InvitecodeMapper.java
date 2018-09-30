@@ -18,7 +18,20 @@
 package cn.he.zhao.bbs.mapper;
 
 
+import cn.he.zhao.bbs.entity.Invitecode;
+
+import java.util.List;
+
 public interface InvitecodeMapper {
 
+    List<Invitecode> getByUserId(final String userId);
+
+    List<Invitecode> getByCore(final String core);
+
+    List<Invitecode> getByGeneratorIdAndStatus(final String generatorId, final int status);
+
+    Invitecode getByOId(final  String oId);
+
+    List<Invitecode> getAll();
 
 }

@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.cache.TagCache;
+import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.Links;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -353,7 +356,7 @@ public class LinkForgeMgmtService {
                     linkMapper.update(link.optString(Keys.OBJECT_ID), link);
 
                     transaction.commit();
-                } catch (final MapperException e) {
+                } catch (final Exception e) {
                     if (null != transaction && transaction.isActive()) {
                         transaction.rollback();
                     }
