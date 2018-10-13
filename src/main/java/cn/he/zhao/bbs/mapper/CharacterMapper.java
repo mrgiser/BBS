@@ -33,6 +33,8 @@ import java.util.List;
  */
 public interface CharacterMapper {
 
+    String add(Character character);
+
     @Select("select count(DISTINCT characterContent) from character")
     Integer countCharacter();
 

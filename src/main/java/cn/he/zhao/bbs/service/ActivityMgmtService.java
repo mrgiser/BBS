@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entity.Character;
 import cn.he.zhao.bbs.entityUtil.LivenessUtil;
 import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
 import cn.he.zhao.bbs.entityUtil.UserExtUtil;
@@ -236,14 +237,14 @@ public class ActivityMgmtService {
         LOGGER.info("Character [" + character + "], recognized [" + recognizedCharacter + "], image path [" + imagePath
                 + "]");
         if (StringUtils.equals(character, recognizedCharacter)) {
-            final Query query = new Query();
-            query.setFilter(CompositeFilterOperator.and(
-                    new PropertyFilter(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
-                    new PropertyFilter(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_CONTENT, FilterOperator.EQUAL, character)
-            ));
+//            final Query query = new Query();
+//            query.setFilter(CompositeFilterOperator.and(
+//                    new PropertyFilter(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
+//                    new PropertyFilter(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_CONTENT, FilterOperator.EQUAL, character)
+//            ));
 
             try {
-                if (characterMapper.count(query) > 0) {
+                if (characterMapper.countByCharacterUserIdANDCharacterContent(userId,character) > 0) {
                     return ret;
                 }
             } catch (final Exception e) {
@@ -252,18 +253,18 @@ public class ActivityMgmtService {
                 return ret;
             }
 
-            final JSONObject record = new JSONObject();
-            record.put(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_CONTENT, character);
-            record.put(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_IMG, characterImg);
-            record.put(cn.he.zhao.bbs.entityUtil.CharacterUtil.CHARACTER_USER_ID, userId);
+            final Character record = new Character();
+            record.setCharacterContent( character);
+            record.setCharacterImg( characterImg);
+            record.setCharacterUserId( userId);
 
             String characterId = "";
 //            final Transaction transaction = characterMapper.beginTransaction();
-//            try {
+            try {
                 characterId = characterMapper.add(record);
 
 //                transaction.commit();
-//            } catch (final MapperException e) {
+            } catch (final Exception e) {
 //                LOGGER.error( "Submits character failed", e);
 
 //                if (null != transaction) {
@@ -271,7 +272,7 @@ public class ActivityMgmtService {
 //                }
 
                 return ret;
-//            }
+            }
 
             pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
                     PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHARACTER, PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHARACTER,
@@ -446,12 +447,12 @@ public class ActivityMgmtService {
             return ret;
         }
 
-        final List<JSONObject> records = pointtransferQueryService.getLatestPointtransfers(userId,
+        final List<Pointtransfer> records = pointtransferQueryService.getLatestPointtransfers(userId,
                 PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
-        final JSONObject pointtransfer = records.get(0);
-        final String data = pointtransfer.optString(PointtransferUtil.DATA_ID);
+        final Pointtransfer pointtransfer = records.get(0);
+        final String data = pointtransfer.getDataId();
         final String smallOrLarge = data.split("-")[1];
-        final int sum = pointtransfer.optInt(PointtransferUtil.SUM);
+        final int sum = pointtransfer.getSum();
 
         String smallOrLargeResult = null;
         try {
