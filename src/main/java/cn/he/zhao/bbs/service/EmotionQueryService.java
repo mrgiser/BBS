@@ -65,7 +65,7 @@ public class EmotionQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( e.getMessage());
 
             return COMMON_USED;

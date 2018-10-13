@@ -17,14 +17,17 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.EmotionUtil;
 import cn.he.zhao.bbs.mapper.EmotionMapper;
 import cn.he.zhao.bbs.entity.Emotion;
+import cn.he.zhao.bbs.util.Emotions;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -56,10 +59,11 @@ public class EmotionMgmtService {
      *
      * @param userId the specified user id
      * @param emotionList the specified emotions
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void setEmotionList(final String userId, final String emotionList) throws ServiceException {
-        final Transaction transaction = emotionMapper.beginTransaction();
+    @Transactional
+    public void setEmotionList(final String userId, final String emotionList) throws Exception {
+//        final Transaction transaction = emotionMapper.beginTransaction();
 
         try {
             // clears the user all emotions
@@ -73,25 +77,25 @@ public class EmotionMgmtService {
                     continue;
                 }
 
-                final JSONObject userEmotion = new JSONObject();
-                userEmotion.put(Emotion.EMOTION_USER_ID, userId);
-                userEmotion.put(Emotion.EMOTION_CONTENT, content);
-                userEmotion.put(Emotion.EMOTION_SORT, sort++);
-                userEmotion.put(Emotion.EMOTION_TYPE, Emotion.EMOTION_TYPE_C_EMOJI);
+                final Emotion userEmotion = new Emotion();
+                userEmotion.setEmotionUserId(userId);
+                userEmotion.setEmotionContent(content);
+                userEmotion.setEmotionSort(sort++);
+                userEmotion.setEmotionType(EmotionUtil.EMOTION_TYPE_C_EMOJI);
 
                 emotionMapper.add(userEmotion);
 
                 emotionSet.add(content);
             }
 
-            transaction.commit();
-        } catch (final MapperException e) {
+//            transaction.commit();
+        } catch (final Exception e) {
             LOGGER.error( "Set user emotion list failed [id=" + userId + "]", e);
-            if (null != transaction && transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (null != transaction && transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }

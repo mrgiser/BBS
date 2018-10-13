@@ -17,14 +17,16 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.Emotion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 
 public interface EmotionMapper {
 
+    String add(Emotion emotion);
 
-    public String getUserEmojis(final String userId) ;
+    String getUserEmojis(final String userId) ;
 
-    public void removeUserEmotions(final String userId) ;
+    void removeUserEmotions(final String userId) ;
 }
