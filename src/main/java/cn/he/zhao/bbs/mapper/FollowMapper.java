@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface FollowMapper {
 
+    String add(Follow follow);
 
     void removeByFollowerIdAndFollowingId(final String followerId, final String followingId,
                                                  final int followingType);

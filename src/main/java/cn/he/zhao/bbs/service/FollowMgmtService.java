@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.FollowUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
 import cn.he.zhao.bbs.mapper.ArticleMapper;
 import cn.he.zhao.bbs.mapper.FollowMapper;
 import cn.he.zhao.bbs.mapper.TagMapper;
@@ -68,17 +70,17 @@ public class FollowMgmtService {
      *
      * @param followerId     the specified follower id
      * @param followingTagId the specified following tag id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void followTag(final String followerId, final String followingTagId) throws ServiceException {
+    public void followTag(final String followerId, final String followingTagId) throws Exception {
         try {
-            follow(followerId, followingTagId, Follow.FOLLOWING_TYPE_C_TAG);
-        } catch (final MapperException e) {
+            follow(followerId, followingTagId, FollowUtil.FOLLOWING_TYPE_C_TAG);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] follows a tag[id=" + followingTagId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -87,17 +89,17 @@ public class FollowMgmtService {
      *
      * @param followerId      the specified follower id
      * @param followingUserId the specified following user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void followUser(final String followerId, final String followingUserId) throws ServiceException {
+    public void followUser(final String followerId, final String followingUserId) throws Exception {
         try {
-            follow(followerId, followingUserId, Follow.FOLLOWING_TYPE_C_USER);
-        } catch (final MapperException e) {
+            follow(followerId, followingUserId, FollowUtil.FOLLOWING_TYPE_C_USER);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] follows a user[id=" + followingUserId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -106,17 +108,17 @@ public class FollowMgmtService {
      *
      * @param followerId         the specified follower id
      * @param followingArticleId the specified following article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void followArticle(final String followerId, final String followingArticleId) throws ServiceException {
+    public void followArticle(final String followerId, final String followingArticleId) throws Exception {
         try {
-            follow(followerId, followingArticleId, Follow.FOLLOWING_TYPE_C_ARTICLE);
-        } catch (final MapperException e) {
+            follow(followerId, followingArticleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] follows an article[id=" + followingArticleId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -125,17 +127,17 @@ public class FollowMgmtService {
      *
      * @param followerId         the specified follower id
      * @param followingArticleId the specified following article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void watchArticle(final String followerId, final String followingArticleId) throws ServiceException {
+    public void watchArticle(final String followerId, final String followingArticleId) throws Exception {
         try {
-            follow(followerId, followingArticleId, Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH);
-        } catch (final MapperException e) {
+            follow(followerId, followingArticleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] watches an article[id=" + followingArticleId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -144,17 +146,17 @@ public class FollowMgmtService {
      *
      * @param followerId     the specified follower id
      * @param followingTagId the specified following tag id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void unfollowTag(final String followerId, final String followingTagId) throws ServiceException {
+    public void unfollowTag(final String followerId, final String followingTagId) throws Exception {
         try {
-            unfollow(followerId, followingTagId, Follow.FOLLOWING_TYPE_C_TAG);
-        } catch (final MapperException e) {
+            unfollow(followerId, followingTagId, FollowUtil.FOLLOWING_TYPE_C_TAG);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] unfollows a tag[id=" + followingTagId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -163,17 +165,17 @@ public class FollowMgmtService {
      *
      * @param followerId      the specified follower id
      * @param followingUserId the specified following user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void unfollowUser(final String followerId, final String followingUserId) throws ServiceException {
+    public void unfollowUser(final String followerId, final String followingUserId) throws Exception {
         try {
-            unfollow(followerId, followingUserId, Follow.FOLLOWING_TYPE_C_USER);
-        } catch (final MapperException e) {
+            unfollow(followerId, followingUserId, FollowUtil.FOLLOWING_TYPE_C_USER);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] unfollows a user[id=" + followingUserId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -182,17 +184,17 @@ public class FollowMgmtService {
      *
      * @param followerId         the specified follower id
      * @param followingArticleId the specified following article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void unfollowArticle(final String followerId, final String followingArticleId) throws ServiceException {
+    public void unfollowArticle(final String followerId, final String followingArticleId) throws Exception {
         try {
-            unfollow(followerId, followingArticleId, Follow.FOLLOWING_TYPE_C_ARTICLE);
-        } catch (final MapperException e) {
+            unfollow(followerId, followingArticleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] unfollows an article[id=" + followingArticleId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -202,17 +204,17 @@ public class FollowMgmtService {
      *
      * @param followerId         the specified follower id
      * @param followingArticleId the specified following article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void unwatchArticle(final String followerId, final String followingArticleId) throws ServiceException {
+    public void unwatchArticle(final String followerId, final String followingArticleId) throws Exception {
         try {
-            unfollow(followerId, followingArticleId, Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH);
-        } catch (final MapperException e) {
+            unfollow(followerId, followingArticleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH);
+        } catch (final Exception e) {
             final String msg = "User[id=" + followerId + "] unwatches an article[id=" + followingArticleId + "] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -222,53 +224,53 @@ public class FollowMgmtService {
      * @param followerId    the specified follower id
      * @param followingId   the specified following entity id
      * @param followingType the specified following type
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private synchronized void follow(final String followerId, final String followingId, final int followingType) throws MapperException {
+    private synchronized void follow(final String followerId, final String followingId, final int followingType) throws Exception {
         if (followMapper.exists(followerId, followingId, followingType)) {
             return;
         }
 
-        if (Follow.FOLLOWING_TYPE_C_TAG == followingType) {
-            final JSONObject tag = tagMapper.get(followingId);
+        if (FollowUtil.FOLLOWING_TYPE_C_TAG == followingType) {
+            final Tag tag = tagMapper.get(followingId);
             if (null == tag) {
                 LOGGER.error( "Not found tag [id={0}] to follow", followingId);
 
                 return;
             }
 
-            tag.put(Tag.TAG_FOLLOWER_CNT, tag.optInt(Tag.TAG_FOLLOWER_CNT) + 1);
-            tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+            tag.setTagFollowerCount(tag.getTagFollowerCount() + 1);
+            tag.setTagRandomDouble(Math.random());
 
             tagMapper.update(followingId, tag);
-        } else if (Follow.FOLLOWING_TYPE_C_ARTICLE == followingType) {
-            final JSONObject article = articleMapper.get(followingId);
+        } else if (FollowUtil.FOLLOWING_TYPE_C_ARTICLE == followingType) {
+            final Article article = articleMapper.getByOid(followingId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to follow", followingId);
 
                 return;
             }
 
-            article.put(Article.ARTICLE_COLLECT_CNT, article.optInt(Article.ARTICLE_COLLECT_CNT) + 1);
+            article.setArticleCollectCnt(article.getArticleCollectCnt() + 1);
 
-            articleMapper.update(followingId, article);
-        } else if (Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH == followingType) {
-            final JSONObject article = articleMapper.get(followingId);
+            articleMapper.update( article);
+        } else if (FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH == followingType) {
+            final Article article = articleMapper.getByOid(followingId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to watch", followingId);
 
                 return;
             }
 
-            article.put(Article.ARTICLE_WATCH_CNT, article.optInt(Article.ARTICLE_WATCH_CNT) + 1);
+            article.setArticleWatchCnt(article.getArticleWatchCnt() + 1);
 
-            articleMapper.update(followingId, article);
+            articleMapper.update( article);
         }
 
-        final JSONObject follow = new JSONObject();
-        follow.put(Follow.FOLLOWER_ID, followerId);
-        follow.put(Follow.FOLLOWING_ID, followingId);
-        follow.put(Follow.FOLLOWING_TYPE, followingType);
+        final Follow follow = new Follow();
+        follow.setFollowerId( followerId);
+        follow.setFollowingId( followingId);
+        follow.setFollowingType( followingType);
 
         followMapper.add(follow);
     }
@@ -279,55 +281,55 @@ public class FollowMgmtService {
      * @param followerId    the specified follower id
      * @param followingId   the specified following entity id
      * @param followingType the specified following type
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    public synchronized void unfollow(final String followerId, final String followingId, final int followingType) throws MapperException {
+    public synchronized void unfollow(final String followerId, final String followingId, final int followingType) throws Exception {
         followMapper.removeByFollowerIdAndFollowingId(followerId, followingId, followingType);
 
-        if (Follow.FOLLOWING_TYPE_C_TAG == followingType) {
-            final JSONObject tag = tagMapper.get(followingId);
+        if (FollowUtil.FOLLOWING_TYPE_C_TAG == followingType) {
+            final Tag tag = tagMapper.get(followingId);
             if (null == tag) {
                 LOGGER.error( "Not found tag [id={0}] to unfollow", followingId);
 
                 return;
             }
 
-            tag.put(Tag.TAG_FOLLOWER_CNT, tag.optInt(Tag.TAG_FOLLOWER_CNT) - 1);
-            if (tag.optInt(Tag.TAG_FOLLOWER_CNT) < 0) {
-                tag.put(Tag.TAG_FOLLOWER_CNT, 0);
+            tag.setTagFollowerCount(tag.getTagFollowerCount() - 1);
+            if (tag.getTagFollowerCount() < 0) {
+                tag.setTagFollowerCount( 0);
             }
 
-            tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+            tag.setTagRandomDouble( Math.random());
 
             tagMapper.update(followingId, tag);
-        } else if (Follow.FOLLOWING_TYPE_C_ARTICLE == followingType) {
-            final JSONObject article = articleMapper.get(followingId);
+        } else if (FollowUtil.FOLLOWING_TYPE_C_ARTICLE == followingType) {
+            final Article article = articleMapper.getByOid(followingId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to unfollow", followingId);
 
                 return;
             }
 
-            article.put(Article.ARTICLE_COLLECT_CNT, article.optInt(Article.ARTICLE_COLLECT_CNT) - 1);
-            if (article.optInt(Article.ARTICLE_COLLECT_CNT) < 0) {
-                article.put(Article.ARTICLE_COLLECT_CNT, 0);
+            article.setArticleCollectCnt( article.getArticleCollectCnt() - 1);
+            if (article.getArticleCollectCnt() < 0) {
+                article.setArticleCollectCnt( 0);
             }
 
-            articleMapper.update(followingId, article);
-        } else if (Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH == followingType) {
-            final JSONObject article = articleMapper.get(followingId);
+            articleMapper.update( article);
+        } else if (FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH == followingType) {
+            final Article article = articleMapper.getByOid(followingId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to unwatch", followingId);
 
                 return;
             }
 
-            article.put(Article.ARTICLE_WATCH_CNT, article.optInt(Article.ARTICLE_WATCH_CNT) - 1);
-            if (article.optInt(Article.ARTICLE_WATCH_CNT) < 0) {
-                article.put(Article.ARTICLE_WATCH_CNT, 0);
+            article.setArticleWatchCnt(article.getArticleWatchCnt() - 1);
+            if (article.getArticleWatchCnt() < 0) {
+                article.setArticleWatchCnt(0);
             }
 
-            articleMapper.update(followingId, article);
+            articleMapper.update( article);
         }
     }
 }
