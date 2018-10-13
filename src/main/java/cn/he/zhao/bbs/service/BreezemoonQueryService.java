@@ -17,6 +17,11 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.BreezemoonUtil;
+import cn.he.zhao.bbs.entityUtil.CommonUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.Breezemoon;
@@ -26,8 +31,11 @@ import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Markdowns;
 import cn.he.zhao.bbs.util.Times;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,9 +107,9 @@ public class BreezemoonQueryService {
      * </pre>
      * @throws Exception service exception
      */
-    public JSONObject getFollowingUserBreezemoons(final int avatarViewMode, final String userId,
+    public PageInfo<Breezemoon> getFollowingUserBreezemoons(final int avatarViewMode, final String userId,
                                                   final int page, final int pageSize, final int windowSize) throws Exception {
-        final JSONObject ret = new JSONObject();
+//        final JSONObject ret = new JSONObject();
 
         final List<JSONObject> users = (List<JSONObject>) followQueryService.getFollowingUsers(
                 avatarViewMode, userId, 1, Integer.MAX_VALUE).opt(Keys.RESULTS);
@@ -109,30 +117,32 @@ public class BreezemoonQueryService {
             return getBreezemoons(avatarViewMode, userId, "", page, pageSize, windowSize);
         }
 
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
-                .setPageSize(pageSize).setCurrentPageNum(page);
+        PageHelper.startPage(page,pageSize);
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
+//                .setPageSize(pageSize).setCurrentPageNum(page);
+
         final List<String> followingUserIds = new ArrayList<>();
         for (final JSONObject user : users) {
             followingUserIds.add(user.optString(Keys.OBJECT_ID));
         }
-        query.setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Breezemoon.BREEZEMOON_STATUS, FilterOperator.EQUAL, Breezemoon.BREEZEMOON_STATUS_C_VALID),
-                new PropertyFilter(Breezemoon.BREEZEMOON_AUTHOR_ID, FilterOperator.IN, followingUserIds)
-        ));
+//        query.setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(BreezemoonUtil.BREEZEMOON_STATUS, FilterOperator.EQUAL, BreezemoonUtil.BREEZEMOON_STATUS_C_VALID),
+//                new PropertyFilter(BreezemoonUtil.BREEZEMOON_AUTHOR_ID, FilterOperator.IN, followingUserIds)
+//        ));
 
-        JSONObject result;
+        PageInfo<Breezemoon> result;
         try {
             Stopwatchs.start("Query following user breezemoons");
 
-            result = breezemoonMapper.get(query);
-            final JSONArray data = result.optJSONArray(Keys.RESULTS);
-            final List<JSONObject> bms = CollectionUtils.jsonArrayToList(data);
+            result = new PageInfo<>(breezemoonMapper.getFollowingUserBreezemoon(BreezemoonUtil.BREEZEMOON_STATUS_C_VALID, followingUserIds));
+            final List<Breezemoon> bms =  result.getList();
+//            final List<JSONObject> bms = CollectionUtils.jsonArrayToList(data);
             if (bms.isEmpty()) {
                 return getBreezemoons(avatarViewMode, userId, "", page, pageSize, windowSize);
             }
 
             organizeBreezemoons(avatarViewMode, userId, bms);
-            ret.put(Breezemoon.BREEZEMOONS, (Object) bms);
+//            ret.put(BreezemoonUtil.BREEZEMOONS, (Object) bms);
 
         } catch (final Exception e) {
             LOGGER.error( "Gets following user breezemoons failed", e);
@@ -142,13 +152,14 @@ public class BreezemoonQueryService {
             Stopwatchs.end();
         }
 
-        final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
-        ret.put(Pagination.PAGINATION, pagination);
-        final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
-        final List<Integer> pageNums = Paginator.paginate(page, pageSize, pageCount, windowSize);
-        pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
+        // TODO: 2018/10/13 取消分页结果
+//        final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
+//        ret.put(Pagination.PAGINATION, pagination);
+//        final int pageCount = result.getPages(Pagination.PAGINATION_PAGE_COUNT);
+//        final List<Integer> pageNums = Paginator.paginate(page, pageSize, pageCount, windowSize);
+//        pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        return ret;
+        return result;
     }
 
     /**
@@ -175,34 +186,43 @@ public class BreezemoonQueryService {
      * @throws Exception service exception
      * @see Pagination
      */
-    public JSONObject getBreezemoons(final int avatarViewMode, final String currentUserId, final String authorId,
+    public PageInfo<Breezemoon> getBreezemoons(final int avatarViewMode, final String currentUserId, final String authorId,
                                      final int page, final int pageSize, final int windowSize) throws Exception {
-        final JSONObject ret = new JSONObject();
-        CompositeFilter filter;
-        final Filter statusFilter = new PropertyFilter(Breezemoon.BREEZEMOON_STATUS, FilterOperator.EQUAL, Breezemoon.BREEZEMOON_STATUS_C_VALID);
-        if (StringUtils.isNotBlank(authorId)) {
-            filter = CompositeFilterOperator.and(new PropertyFilter(Breezemoon.BREEZEMOON_AUTHOR_ID, FilterOperator.EQUAL, authorId), statusFilter);
-        } else {
-            filter = CompositeFilterOperator.and(new PropertyFilter(Breezemoon.BREEZEMOON_AUTHOR_ID, FilterOperator.NOT_EQUAL, authorId), statusFilter);
-        }
-        final Query query = new Query().setFilter(filter).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).setCurrentPageNum(page).setPageSize(20);
-        JSONObject result;
-        try {
-            result = breezemoonMapper.get(query);
-        } catch (final Exception e) {
+//        final JSONObject ret = new JSONObject();
+//        CompositeFilter filter;
+//        final Filter statusFilter = new PropertyFilter(BreezemoonUtil.BREEZEMOON_STATUS, FilterOperator.EQUAL, BreezemoonUtil.BREEZEMOON_STATUS_C_VALID);
+//        if (StringUtils.isNotBlank(authorId)) {
+//            filter = CompositeFilterOperator.and(new PropertyFilter(BreezemoonUtil.BREEZEMOON_AUTHOR_ID, FilterOperator.EQUAL, authorId), statusFilter);
+//        } else {
+//            filter = CompositeFilterOperator.and(new PropertyFilter(BreezemoonUtil.BREEZEMOON_AUTHOR_ID, FilterOperator.NOT_EQUAL, authorId), statusFilter);
+//        }
+//        final Query query = new Query().setFilter(filter).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).setCurrentPageNum(page).setPageSize(20);
+
+        PageHelper.startPage(page,20,"oId DESC");
+
+        PageInfo<Breezemoon> result;
+        try{
+            if (StringUtils.isNotBlank(authorId)) {
+                result = new PageInfo<>( breezemoonMapper.getByUseridAndStatus(BreezemoonUtil.BREEZEMOON_STATUS_C_VALID, authorId));
+            } else {
+                result = new PageInfo<>( breezemoonMapper.getByExcludeUseridAndStatus(BreezemoonUtil.BREEZEMOON_STATUS_C_VALID, authorId));
+            }
+        }catch (final Exception e) {
             LOGGER.error( "Get breezemoons failed", e);
 
             throw new Exception(e);
         }
 
-        final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
-        ret.put(Pagination.PAGINATION, pagination);
-        final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
-        final List<Integer> pageNums = Paginator.paginate(page, pageSize, pageCount, windowSize);
-        pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray data = result.optJSONArray(Keys.RESULTS);
-        final List<JSONObject> bms = CollectionUtils.jsonArrayToList(data);
+
+//        final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
+//        ret.put(Pagination.PAGINATION, pagination);
+//        final int pageCount = result.getPages();
+//        final List<Integer> pageNums = Paginator.paginate(page, pageSize, pageCount, windowSize);
+//        pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
+
+        final List<Breezemoon> bms = result.getList();
+//        final List<JSONObject> bms = CollectionUtils.jsonArrayToList(data);
         try {
             organizeBreezemoons(avatarViewMode, currentUserId, bms);
         } catch (final Exception e) {
@@ -211,9 +231,9 @@ public class BreezemoonQueryService {
             throw new Exception(e);
         }
 
-        ret.put(Breezemoon.BREEZEMOONS, (Object) bms);
+//        ret.put(BreezemoonUtil.BREEZEMOONS, (Object) bms);
 
-        return ret;
+        return result;
     }
 
     /**
@@ -251,22 +271,24 @@ public class BreezemoonQueryService {
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
         final int pageSize = requestJSONObject.optInt(Pagination.PAGINATION_PAGE_SIZE);
         final int windowSize = requestJSONObject.optInt(Pagination.PAGINATION_WINDOW_SIZE);
-        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize)
-                .addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
-        for (final Map.Entry<String, Class<?>> field : fields.entrySet()) {
-            query.addProjection(field.getKey(), field.getValue());
-        }
 
-        JSONObject result;
+        PageHelper.startPage(currentPageNum,pageSize,"oId DESC");
+//        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize)
+//                .addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        for (final Map.Entry<String, Class<?>> field : fields.entrySet()) {
+//            query.addProjection(field.getKey(), field.getValue());
+//        }
+
+        PageInfo<Breezemoon> result;
         try {
-            result = breezemoonMapper.get(query);
-        } catch (final MapperException e) {
+            result = new PageInfo<>( breezemoonMapper.getAll());
+        } catch (final Exception e) {
             LOGGER.error( "Get breezemoons failed", e);
 
             throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -274,8 +296,8 @@ public class BreezemoonQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray data = result.optJSONArray(Keys.RESULTS);
-        final List<JSONObject> breezemoons = CollectionUtils.jsonArrayToList(data);
+        final List<Breezemoon> breezemoons = result.getList();
+//        final List<JSONObject> breezemoons = CollectionUtils.jsonArrayToList(data);
         try {
             organizeBreezemoons(avatarViewMode, "admin", breezemoons);
         } catch (final Exception e) {
@@ -284,7 +306,7 @@ public class BreezemoonQueryService {
             throw new Exception(e);
         }
 
-        ret.put(Breezemoon.BREEZEMOONS, breezemoons);
+        ret.put(BreezemoonUtil.BREEZEMOONS, breezemoons);
 
         return ret;
     }
@@ -296,39 +318,41 @@ public class BreezemoonQueryService {
      * @return breezemoon, return {@code null} if not found
      * @throws Exception service exception
      */
-    public JSONObject getBreezemoon(final String breezemoonId) throws Exception {
+    public Breezemoon getBreezemoon(final String breezemoonId) throws Exception {
         try {
             return breezemoonMapper.get(breezemoonId);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets a breezemoon [id=" + breezemoonId + "] failed", e);
 
             throw new Exception(e);
         }
     }
 
-    private void organizeBreezemoons(final int avatarViewMode, final String currentUserId, final List<JSONObject> breezemoons) throws Exception {
-        final Iterator<JSONObject> iterator = breezemoons.iterator();
+    private void organizeBreezemoons(final int avatarViewMode, final String currentUserId, final List<Breezemoon> breezemoons) throws Exception {
+        final Iterator<Breezemoon> iterator = breezemoons.iterator();
         while (iterator.hasNext()) {
-            final JSONObject bm = iterator.next();
+            final Breezemoon bm = iterator.next();
 
-            final String authorId = bm.optString(Breezemoon.BREEZEMOON_AUTHOR_ID);
-            final JSONObject author = userMapper.get(authorId);
-            if (UserExt.USER_XXX_STATUS_C_PRIVATE == author.optInt(UserExt.USER_BREEZEMOON_STATUS)
+            final String authorId = bm.getBreezemoonAuthorId();
+            final UserExt author = userMapper.get(authorId);
+            if (UserExtUtil.USER_XXX_STATUS_C_PRIVATE == author.getUserBreezemoonStatus()
                     && !StringUtils.equals(currentUserId, authorId) && !"admin".equals(currentUserId)) {
                 iterator.remove();
 
                 continue;
             }
-            bm.put(Breezemoon.BREEZEMOON_T_AUTHOR_NAME, author.optString(User.USER_NAME));
-            bm.put(Breezemoon.BREEZEMOON_T_AUTHOR_THUMBNAIL_URL + "48", avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "48"));
-            final long time = bm.optLong(Breezemoon.BREEZEMOON_CREATED);
-            bm.put(Common.TIME_AGO, Times.getTimeAgo(time, Locales.getLocale()));
-            bm.put(Breezemoon.BREEZEMOON_T_CREATE_TIME, new Date(time));
-            String content = bm.optString(Breezemoon.BREEZEMOON_CONTENT);
+            bm.setBreezemoonAuthorName( author.getUserName());
+
+            JSONObject json = new JSONObject(JsonUtil.objectToJson(author));
+            bm.setBreezemoonAuthorThumbnailURL( avatarQueryService.getAvatarURLByUser(avatarViewMode, json, "48"));
+            final long time = bm.getBreezemoonCreated();
+            bm.setTimeAgo( Times.getTimeAgo(time, Locales.getLocale()));
+            bm.setBreezemoonCreateTime( new Date(time));
+            String content = bm.getBreezemoonContent();
             content = Emotions.convert(content);
             content = Markdowns.toHTML(content);
             content = Markdowns.clean(content, "");
-            bm.put(Breezemoon.BREEZEMOON_CONTENT, content);
+            bm.setBreezemoonContent( content);
         }
     }
 }

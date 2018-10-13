@@ -18,6 +18,9 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Breezemoon;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * Breezemoon Mapper.
@@ -32,7 +35,24 @@ public interface BreezemoonMapper {
 
     void update(String id, Breezemoon old);
 
-    Breezemoon get(String id);
+    Breezemoon get(String oId);
+
+    List<Breezemoon> getAll();
+
+    @Select("<script>"
+            + "SELECT * FROM breezemoon WHERE breezemoonStatus = #{breezemoonStatus} AND  breezemoonAuthorId IN "
+            + "<foreach item='item' index='index' collection='followingUserIds' open='(' separator=',' close=')'>"
+            + "#{item}"
+            + "</foreach>"
+            + "ORDER BY oId DESC"
+            + "</script>")
+    List<Breezemoon> getFollowingUserBreezemoon(final int breezemoonStatus, List<String> followingUserIds);
 
     void add(Breezemoon bm);
+
+    @Select("select * from breezemoon WHERE breezemoonStatus=#{breezemoonStatus} AND breezemoonAuthorId = #{authorId}")
+    List<Breezemoon> getByUseridAndStatus(final int breezemoonStatus, final String authorId);
+
+    @Select("select * from breezemoon WHERE breezemoonStatus=#{breezemoonStatus} AND breezemoonAuthorId != #{authorId}")
+    List<Breezemoon> getByExcludeUseridAndStatus(final int breezemoonStatus, final String authorId);
 }

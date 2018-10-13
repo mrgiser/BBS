@@ -1,5 +1,7 @@
 package cn.he.zhao.bbs.entity;
 
+import java.util.Date;
+
 public class Breezemoon {
 
     private String oid;
@@ -38,6 +40,46 @@ public class Breezemoon {
      * Key of breezemoon status.
      */
     private Integer breezemoonStatus;
+
+    private transient String breezemoonAuthorName;
+
+    private transient String breezemoonAuthorThumbnailURL;
+
+    private transient String timeAgo;
+
+    private transient Date breezemoonCreateTime;
+
+    public Date getBreezemoonCreateTime() {
+        return breezemoonCreateTime;
+    }
+
+    public void setBreezemoonCreateTime(Date breezemoonCreateTime) {
+        this.breezemoonCreateTime = breezemoonCreateTime;
+    }
+
+    public String getTimeAgo() {
+        return timeAgo;
+    }
+
+    public void setTimeAgo(String timeAgo) {
+        this.timeAgo = timeAgo;
+    }
+
+    public String getBreezemoonAuthorThumbnailURL() {
+        return breezemoonAuthorThumbnailURL;
+    }
+
+    public void setBreezemoonAuthorThumbnailURL(String breezemoonAuthorThumbnailURL) {
+        this.breezemoonAuthorThumbnailURL = breezemoonAuthorThumbnailURL;
+    }
+
+    public String getBreezemoonAuthorName() {
+        return breezemoonAuthorName;
+    }
+
+    public void setBreezemoonAuthorName(String breezemoonAuthorName) {
+        this.breezemoonAuthorName = breezemoonAuthorName;
+    }
 
     public String getOid() {
         return oid;

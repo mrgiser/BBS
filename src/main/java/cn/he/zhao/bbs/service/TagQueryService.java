@@ -9,6 +9,7 @@ import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -499,7 +500,8 @@ public class TagQueryService {
             // TODO: 2018/10/13 增加 entity到 json的工具类 
             final UserExt creator = userMapper.get(creatorId);
 
-            final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, creator, "48");
+            JSONObject json = new JSONObject(JsonUtil.objectToJson(creator));
+            final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, json, "48");
 
             ret.setTagCreatorThumbnailURL( thumbnailURL);
             ret.setTagCreatorThumbnailUpdateTime(creator.getUserUpdateTime());
@@ -559,7 +561,8 @@ public class TagQueryService {
 
                 participant.setTagCreatorName( user.getUserName());
 
-                final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, user, "48");
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, json, "48");
                 participant.setTagCreatorThumbnailURL( thumbnailURL);
                 participant.setTagCreatorThumbnailUpdateTime( user.getUserUpdateTime());
 
