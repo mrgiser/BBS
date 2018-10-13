@@ -34,6 +34,12 @@ import java.util.List;
 
 public interface DomainMapper {
 
+    String add(Domain domain);
+
+    Integer remove(final String oId);
+
+    Integer update(final Domain domain);
+
     @Select("select * from domain ORDER BY domainSort ASC, domainTagCnt DESC, oId DESC")
     List<Domain> getAllByOrder();
 

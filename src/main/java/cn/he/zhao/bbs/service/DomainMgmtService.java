@@ -18,6 +18,9 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
+import cn.he.zhao.bbs.entity.DomainTag;
+import cn.he.zhao.bbs.entityUtil.DomainUtil;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
 import cn.he.zhao.bbs.mapper.DomainMapper;
 import cn.he.zhao.bbs.mapper.DomainTagMapper;
 import cn.he.zhao.bbs.mapper.OptionMapper;
@@ -31,6 +34,8 @@ import org.springframework.stereotype.Service;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Domain management service.
@@ -76,35 +81,35 @@ public class DomainMgmtService {
      *
      * @param domainId the specified domain id
      * @param tagId the specified tag id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void removeDomainTag(final String domainId, final String tagId) throws ServiceException {
+    public void removeDomainTag(final String domainId, final String tagId) throws Exception {
         try {
-            final JSONObject domain = domainMapper.get(domainId);
-            domain.put(Domain.DOMAIN_TAG_COUNT, domain.optInt(Domain.DOMAIN_TAG_COUNT) - 1);
+            final Domain domain = domainMapper.getByOId(domainId);
+            domain.setDomainTagCnt(domain.getDomainTagCnt() - 1);
 
-            domainMapper.update(domainId, domain);
+            domainMapper.update( domain);
 
-            final Query query = new Query().setFilter(
-                    CompositeFilterOperator.and(
-                            new PropertyFilter(Domain.DOMAIN + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, domainId),
-                            new PropertyFilter(Tag.TAG + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, tagId)));
+//            final Query query = new Query().setFilter(
+//                    CompositeFilterOperator.and(
+//                            new PropertyFilter(Domain.DOMAIN + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, domainId),
+//                            new PropertyFilter(Tag.TAG + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, tagId)));
 
-            final JSONArray relations = domainTagMapper.get(query).optJSONArray(Keys.RESULTS);
-            if (relations.length() < 1) {
+            final List<DomainTag> relations = domainTagMapper.getByDomain_oIdAndTag_oId(domainId, tagId);
+            if (relations.size() < 1) {
                 return;
             }
 
-            final JSONObject relation = relations.optJSONObject(0);
-            domainTagMapper.remove(relation.optString(Keys.OBJECT_ID));
+//            final JSONObject relation = relations.optJSONObject(0);
+            domainTagMapper.remove(relations.get(0).getOid());
 
             // Refresh cache
             domainCache.loadDomains();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Adds a domain-tag relation failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -112,24 +117,24 @@ public class DomainMgmtService {
      * Adds a domain-tag relation.
      *
      * @param domainTag the specified domain-tag relation
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addDomainTag(final JSONObject domainTag) throws ServiceException {
+    public void addDomainTag(final DomainTag domainTag) throws Exception {
         try {
-            final String domainId = domainTag.optString(Domain.DOMAIN + "_" + Keys.OBJECT_ID);
-            final JSONObject domain = domainMapper.get(domainId);
-            domain.put(Domain.DOMAIN_TAG_COUNT, domain.optInt(Domain.DOMAIN_TAG_COUNT) + 1);
+            final String domainId = domainTag.getDomain_oId();
+            final Domain domain = domainMapper.getByOId(domainId);
+            domain.setDomainTagCnt( domain.getDomainTagCnt() + 1);
 
-            domainMapper.update(domainId, domain);
+            domainMapper.update( domain);
             domainTagMapper.add(domainTag);
 
             // Refresh cache
             domainCache.loadDomains();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Adds a domain-tag relation failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -138,30 +143,30 @@ public class DomainMgmtService {
      *
      * @param domain the specified domain relation
      * @return domain id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public String addDomain(final JSONObject domain) throws ServiceException {
+    public String addDomain(final JSONObject domain) throws Exception {
         try {
-            final JSONObject record = new JSONObject();
-            record.put(Domain.DOMAIN_CSS, domain.optString(Domain.DOMAIN_CSS));
-            record.put(Domain.DOMAIN_DESCRIPTION, domain.optString(Domain.DOMAIN_DESCRIPTION));
-            record.put(Domain.DOMAIN_ICON_PATH, domain.optString(Domain.DOMAIN_ICON_PATH));
-            record.put(Domain.DOMAIN_SEO_DESC, domain.optString(Domain.DOMAIN_SEO_DESC));
-            record.put(Domain.DOMAIN_SEO_KEYWORDS, domain.optString(Domain.DOMAIN_SEO_KEYWORDS));
-            record.put(Domain.DOMAIN_SEO_TITLE, domain.optString(Domain.DOMAIN_SEO_TITLE));
-            record.put(Domain.DOMAIN_STATUS, domain.optInt(Domain.DOMAIN_STATUS));
-            record.put(Domain.DOMAIN_TITLE, domain.optString(Domain.DOMAIN_TITLE));
-            record.put(Domain.DOMAIN_URI, domain.optString(Domain.DOMAIN_URI));
-            record.put(Domain.DOMAIN_TAG_COUNT, 0);
-            record.put(Domain.DOMAIN_TYPE, "");
-            record.put(Domain.DOMAIN_SORT, 10);
-            record.put(Domain.DOMAIN_NAV, Domain.DOMAIN_NAV_C_ENABLED);
+            final Domain record = new Domain();
+            record.setDomainCSS(domain.optString(DomainUtil.DOMAIN_CSS));
+            record.setDomainDescription( domain.optString(DomainUtil.DOMAIN_DESCRIPTION));
+            record.setDomainIconPath( domain.optString(DomainUtil.DOMAIN_ICON_PATH));
+            record.setDomainSeoDesc(domain.optString(DomainUtil.DOMAIN_SEO_DESC));
+            record.setDomainSeoKeywords(domain.optString(DomainUtil.DOMAIN_SEO_KEYWORDS));
+            record.setDomainSeoTitle(domain.optString(DomainUtil.DOMAIN_SEO_TITLE));
+            record.setDomainStatus(domain.optInt(DomainUtil.DOMAIN_STATUS));
+            record.setDomainTitle(domain.optString(DomainUtil.DOMAIN_TITLE));
+            record.setDomainURI(domain.optString(DomainUtil.DOMAIN_URI));
+            record.setDomainTagCnt( 0);
+            record.setDomainType("");
+            record.setDomainSort( 10);
+            record.setDomainNav(DomainUtil.DOMAIN_NAV_C_ENABLED);
 
-            final JSONObject domainCntOption = optionMapper.get(Option.ID_C_STATISTIC_DOMAIN_COUNT);
-            final int domainCnt = domainCntOption.optInt(Option.OPTION_VALUE);
-            domainCntOption.put(Option.OPTION_VALUE, domainCnt + 1);
-            optionMapper.update(Option.ID_C_STATISTIC_DOMAIN_COUNT, domainCntOption);
+            final Option domainCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_DOMAIN_COUNT);
+            final int domainCnt = Integer.parseInt(domainCntOption.getOptionValue());
+            domainCntOption.setOptionValue(String.valueOf(domainCnt + 1));
+            optionMapper.update( domainCntOption);
 
             final String ret = domainMapper.add(record);
 
@@ -169,10 +174,10 @@ public class DomainMgmtService {
             domainCache.loadDomains();
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Adds a domain failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -181,19 +186,19 @@ public class DomainMgmtService {
      *
      * @param domainId the given domain id
      * @param domain the specified domain
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void updateDomain(final String domainId, final JSONObject domain) throws ServiceException {
+    public void updateDomain(final String domainId, final Domain domain) throws Exception {
         try {
-            domainMapper.update(domainId, domain);
+            domainMapper.update(domain);
 
             // Refresh cache
             domainCache.loadDomains();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Updates a domain [id=" + domainId + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -201,25 +206,26 @@ public class DomainMgmtService {
      * Removes the specified domain by the given domain id.
      *
      * @param domainId the given domain id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void removeDomain(final String domainId) throws ServiceException {
+    public void removeDomain(final String domainId) throws Exception {
         try {
             domainTagMapper.removeByDomainId(domainId);
             domainMapper.remove(domainId);
 
-            final JSONObject domainCntOption = optionMapper.get(Option.ID_C_STATISTIC_DOMAIN_COUNT);
-            final int domainCnt = domainCntOption.optInt(Option.OPTION_VALUE);
-            domainCntOption.put(Option.OPTION_VALUE, domainCnt - 1);
-            optionMapper.update(Option.ID_C_STATISTIC_DOMAIN_COUNT, domainCntOption);
+            final Option domainCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_DOMAIN_COUNT);
+            final String domainCnt = domainCntOption.getOptionValue();
+            int newcnt = Integer.parseInt(domainCnt) -1;
+            domainCntOption.setOptionValue(String.valueOf(newcnt));
+            optionMapper.update( domainCntOption);
 
             // Refresh cache
             domainCache.loadDomains();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Updates a domain [id=" + domainId + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }
