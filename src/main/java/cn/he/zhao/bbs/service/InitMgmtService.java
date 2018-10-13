@@ -1,22 +1,6 @@
-/*
- * Symphony - A modern community (forum/BBS/SNS/blog) platform written in Java.
- * Copyright (C) 2012-2018, b3log.org & hacpai.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.PermissionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,92 +50,92 @@ public class InitMgmtService {
 
         // Default
         DEFAULT_PERMISSIONS.addAll(VISITOR_PERMISSIONS);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_ADD_ARTICLE);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_UPDATE_ARTICLE);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_REMOVE_ARTICLE);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_ADD_COMMENT);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_ADD_BREEZEMOON);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_UPDATE_BREEZEMOON);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_REMOVE_BREEZEMOON);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_UPDATE_COMMENT);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_REMOVE_COMMENT);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_THANK_ARTICLE);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_THANK_COMMENT);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_WATCH_ARTICLE);
-        DEFAULT_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_FOLLOW_ARTICLE);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_ARTICLE);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_ARTICLE);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_ADD_BREEZEMOON);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_BREEZEMOON);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_BREEZEMOON);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_COMMENT);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_COMMENT);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_THANK_ARTICLE);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_THANK_COMMENT);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_WATCH_ARTICLE);
+        DEFAULT_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_FOLLOW_ARTICLE);
 
         // Member
         MEMBER_PERMISSIONS.addAll(DEFAULT_PERMISSIONS);
-        MEMBER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_GOOD_ARTICLE);
-        MEMBER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_BAD_ARTICLE);
-        MEMBER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_GOOD_COMMENT);
-        MEMBER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_BAD_COMMENT);
-        MEMBER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_AT_USER);
-        MEMBER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
+        MEMBER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_ARTICLE);
+        MEMBER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_BAD_ARTICLE);
+        MEMBER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_COMMENT);
+        MEMBER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_BAD_COMMENT);
+        MEMBER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_AT_USER);
+        MEMBER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
 
         // Regular
         REGULAR_PERMISSIONS.addAll(MEMBER_PERMISSIONS);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_STICK_ARTICLE);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_ADD_ARTICLE_ANONYMOUS);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_ADD_COMMENT_ANONYMOUS);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_VIEW_ARTICLE_HISTORY);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_VIEW_COMMENT_HISTORY);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_AT_PARTICIPANTS);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMON_EXCHANGE_INVITATION_CODE);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_TAG_UPDATE_TAG_BASIC);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN);
-        REGULAR_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_TAGS);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_STICK_ARTICLE);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE_ANONYMOUS);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT_ANONYMOUS);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_ARTICLE_HISTORY);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_COMMENT_HISTORY);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_AT_PARTICIPANTS);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMON_EXCHANGE_INVITATION_CODE);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_TAG_UPDATE_TAG_BASIC);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN);
+        REGULAR_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_TAGS);
 
         // Leader
         LEADER_PERMISSIONS.addAll(REGULAR_PERMISSIONS);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_USER_ADD_USER);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_USER_UPDATE_USER_BASIC);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_USER_UPDATE_USER_ADVANCED);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_UPDATE_ARTICLE_BASIC);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_STICK_ARTICLE);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_CANCEL_STICK_ARTICLE);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLE_INDEX);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMENT_UPDATE_COMMENT_BASIC);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_BREEZEMOON_UPDATE_BREEZEMOON);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_BREEZEMOON_REMOVE_BREEZEMOON);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_USER_ADD_POINT);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_USER_EXCHANGE_POINT);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_USER_DEDUCT_POINT);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_IC_GEN_IC);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_IC_UPDATE_IC_BASIC);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_RW_ADD_RW);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_RW_UPDATE_RW_BASIC);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_RW_REMOVE_RW);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_USERS);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_BREEZEMOONS);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_ARTICLES);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_COMMENTS);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_ICS);
-        LEADER_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_RWS);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_USER_ADD_USER);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_BASIC);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_ADVANCED);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_UPDATE_ARTICLE_BASIC);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_STICK_ARTICLE);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_CANCEL_STICK_ARTICLE);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLE_INDEX);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMENT_UPDATE_COMMENT_BASIC);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_BREEZEMOON_UPDATE_BREEZEMOON);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_BREEZEMOON_REMOVE_BREEZEMOON);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_USER_ADD_POINT);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_USER_EXCHANGE_POINT);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_USER_DEDUCT_POINT);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_IC_GEN_IC);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_IC_UPDATE_IC_BASIC);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_RW_ADD_RW);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_RW_UPDATE_RW_BASIC);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_RW_REMOVE_RW);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_USERS);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_BREEZEMOONS);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ARTICLES);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_COMMENTS);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ICS);
+        LEADER_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_RWS);
 
         // Admin
         ADMIN_PERMISSIONS.addAll(LEADER_PERMISSIONS);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_ADD_ARTICLE);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLES_INDEX);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_ARTICLE_REMOVE_ARTICLE);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_COMMENT_REMOVE_COMMENT);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN_TAG);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN_TAG);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_DOMAIN_UPDATE_DOMAIN_BASIC);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_AD_UPDATE_SIDE);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_AD_UPDATE_BANNER);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MISC_ALLOW_ADD_ARTICLE);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MISC_ALLOW_ADD_COMMENT);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MISC_LANGUAGE);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MISC_REGISTER_METHOD);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_DOMAINS);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_AD);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_ROLES);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_MISC);
-        ADMIN_PERMISSIONS.add(Permission.PERMISSION_ID_C_MENU_ADMIN_REPORTS);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_ADD_ARTICLE);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLES_INDEX);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_ARTICLE_REMOVE_ARTICLE);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_COMMENT_REMOVE_COMMENT);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN_TAG);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN_TAG);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_DOMAIN_UPDATE_DOMAIN_BASIC);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_AD_UPDATE_SIDE);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_AD_UPDATE_BANNER);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_ARTICLE);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_COMMENT);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MISC_LANGUAGE);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MISC_REGISTER_METHOD);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_DOMAINS);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_AD);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ROLES);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_MISC);
+        ADMIN_PERMISSIONS.add(PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_REPORTS);
     }
 
     /**
@@ -229,11 +213,12 @@ public class InitMgmtService {
         try {
             LOGGER.info( "Database [{0}], creating all tables", Latkes.getRuntimeDatabase());
 
-            final List<JdbcRepositories.CreateTableResult> createTableResults = JdbcRepositories.initAllTables();
-            for (final JdbcRepositories.CreateTableResult createTableResult : createTableResults) {
-                LOGGER.info( "Creates table result [tableName={0}, isSuccess={1}]",
-                        createTableResult.getName(), createTableResult.isSuccess());
-            }
+            // TODO: 2018/9/30 初始化创建数据库表
+//            final List<JdbcRepositories.CreateTableResult> createTableResults = JdbcRepositories.initAllTables();
+//            for (final JdbcRepositories.CreateTableResult createTableResult : createTableResults) {
+//                LOGGER.info( "Creates table result [tableName={0}, isSuccess={1}]",
+//                        createTableResult.getName(), createTableResult.isSuccess());
+//            }
 
             final Transaction transaction = optionMapper.beginTransaction();
 
@@ -315,200 +300,200 @@ public class InitMgmtService {
             final JSONObject permission = new JSONObject();
 
             // ad management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_AD);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_AD);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_AD_UPDATE_SIDE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_AD_UPDATE_SIDE);
             permissionMapper.add(permission);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_AD_UPDATE_BANNER);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_AD_UPDATE_BANNER);
             permissionMapper.add(permission);
 
             // article management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_ARTICLE);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_ARTICLE);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_ADD_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_ADD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_CANCEL_STICK_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_CANCEL_STICK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLES_INDEX);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLES_INDEX);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLE_INDEX);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLE_INDEX);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_REMOVE_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_REMOVE_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_STICK_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_STICK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_ARTICLE_UPDATE_ARTICLE_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_UPDATE_ARTICLE_BASIC);
             permissionMapper.add(permission);
 
             // comment management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_COMMENT);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_COMMENT);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMENT_REMOVE_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMENT_REMOVE_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMENT_UPDATE_COMMENT_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMENT_UPDATE_COMMENT_BASIC);
             permissionMapper.add(permission);
 
             // breezemoon management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_BREEZEMOON);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_BREEZEMOON);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_BREEZEMOON_REMOVE_BREEZEMOON);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_BREEZEMOON_REMOVE_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_BREEZEMOON_UPDATE_BREEZEMOON);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_BREEZEMOON_UPDATE_BREEZEMOON);
             permissionMapper.add(permission);
 
             // common permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_COMMON);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_COMMON);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_ADD_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_ADD_ARTICLE_ANONYMOUS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE_ANONYMOUS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_UPDATE_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_REMOVE_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_ADD_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_ADD_BREEZEMOON);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_UPDATE_BREEZEMOON);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_REMOVE_BREEZEMOON);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_ADD_COMMENT_ANONYMOUS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT_ANONYMOUS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_UPDATE_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_REMOVE_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_VIEW_COMMENT_HISTORY);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_COMMENT_HISTORY);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_AT_USER);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_AT_USER);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_AT_PARTICIPANTS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_AT_PARTICIPANTS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_BAD_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_BAD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_BAD_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_BAD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_EXCHANGE_INVITATION_CODE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_EXCHANGE_INVITATION_CODE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_FOLLOW_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_FOLLOW_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_WATCH_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_WATCH_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_GOOD_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_GOOD_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_STICK_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_STICK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_THANK_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_THANK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_THANK_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_THANK_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_COMMON_VIEW_ARTICLE_HISTORY);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_ARTICLE_HISTORY);
             permissionMapper.add(permission);
 
             // domain management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_DOMAIN);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_DOMAIN);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN_TAG);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN_TAG);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN_TAG);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN_TAG);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_DOMAIN_UPDATE_DOMAIN_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_UPDATE_DOMAIN_BASIC);
             permissionMapper.add(permission);
 
             // invitecode management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_IC);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_IC);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_IC_GEN_IC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_IC_GEN_IC);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_IC_UPDATE_IC_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_IC_UPDATE_IC_BASIC);
             permissionMapper.add(permission);
 
             // misc management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_MISC);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_MISC);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MISC_ALLOW_ADD_ARTICLE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MISC_ALLOW_ADD_COMMENT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MISC_LANGUAGE);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_LANGUAGE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MISC_REGISTER_METHOD);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_REGISTER_METHOD);
             permissionMapper.add(permission);
 
             // reserved word management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_RESERVED_WORD);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_RESERVED_WORD);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_RW_ADD_RW);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_RW_ADD_RW);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_RW_REMOVE_RW);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_RW_REMOVE_RW);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_RW_UPDATE_RW_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_RW_UPDATE_RW_BASIC);
             permissionMapper.add(permission);
 
             // tag management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_TAG);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_TAG);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_TAG_UPDATE_TAG_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_TAG_UPDATE_TAG_BASIC);
             permissionMapper.add(permission);
 
             // user management permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_USER);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_USER);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_USER_ADD_POINT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_ADD_POINT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_USER_ADD_USER);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_ADD_USER);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_USER_DEDUCT_POINT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_DEDUCT_POINT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_USER_EXCHANGE_POINT);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_EXCHANGE_POINT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_USER_UPDATE_USER_ADVANCED);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_ADVANCED);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_USER_UPDATE_USER_BASIC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_BASIC);
             permissionMapper.add(permission);
 
             // menu permissions
-            permission.put(Permission.PERMISSION_CATEGORY, Permission.PERMISSION_CATEGORY_C_MENU);
+            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_MENU);
 
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_AD);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_AD);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_ARTICLES);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ARTICLES);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_COMMENTS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_COMMENTS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_DOMAINS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_DOMAINS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_ICS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ICS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_RWS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_RWS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_TAGS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_TAGS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_USERS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_USERS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_BREEZEMOONS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_BREEZEMOONS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_MISC);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_MISC);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_ROLES);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ROLES);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, Permission.PERMISSION_ID_C_MENU_ADMIN_REPORTS);
+            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_REPORTS);
             permissionMapper.add(permission);
 
             // Init roles
@@ -548,46 +533,46 @@ public class InitMgmtService {
             final JSONObject rolePermission = new JSONObject();
 
             // [Default] role's permissions
-            rolePermission.put(Role.ROLE_ID, Role.ROLE_ID_C_DEFAULT);
+            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_DEFAULT);
             for (final String permissionId : DEFAULT_PERMISSIONS) {
-                rolePermission.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermission.put(Permission.PERMISSION_ID, permissionId);
+                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
+                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Member] role's permissions
-            rolePermission.put(Role.ROLE_ID, Role.ROLE_ID_C_MEMBER);
+            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_MEMBER);
             for (final String permissionId : MEMBER_PERMISSIONS) {
-                rolePermission.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermission.put(Permission.PERMISSION_ID, permissionId);
+                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
+                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Regular] role's permissions
-            rolePermission.put(Role.ROLE_ID, Role.ROLE_ID_C_REGULAR);
+            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_REGULAR);
             for (final String permissionId : REGULAR_PERMISSIONS) {
-                rolePermission.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermission.put(Permission.PERMISSION_ID, permissionId);
+                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
+                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Leader] role's permissions
-            rolePermission.put(Role.ROLE_ID, Role.ROLE_ID_C_LEADER);
+            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_LEADER);
             for (final String permissionId : LEADER_PERMISSIONS) {
-                rolePermission.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermission.put(Permission.PERMISSION_ID, permissionId);
+                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
+                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Admin] role's permissions
-            rolePermission.put(Role.ROLE_ID, Role.ROLE_ID_C_ADMIN);
+            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_ADMIN);
             for (final String permissionId : ADMIN_PERMISSIONS) {
-                rolePermission.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermission.put(Permission.PERMISSION_ID, permissionId);
+                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
+                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }

@@ -1959,7 +1959,7 @@ public class ArticleQueryService {
      * @param article        the specified article
      * @throws MapperException Mapper exception
      */
-    public void organizeArticle(final int avatarViewMode, final JSONObject article) throws MapperException {
+    public void organizeArticle(final int avatarViewMode, final Article article) throws MapperException {
         article.put(Article.ARTICLE_T_ORIGINAL_CONTENT, article.optString(Article.ARTICLE_CONTENT));
         toArticleDate(article);
         genArticleAuthor(avatarViewMode, article);

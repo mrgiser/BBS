@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface UserMapper {
 
-    UserExt get(final String id) ;
+    UserExt get(final String oId) ;
 
     List<UserExt> getByUserJoinPointRank(final int userJoinPointRank);
     List<UserExt> getByUserJoinUsedPointRank(final int userJoinUsedPointRank);
