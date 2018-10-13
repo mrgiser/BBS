@@ -18,6 +18,8 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Locales;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
@@ -135,8 +137,8 @@ public class DataModelService {
      */
     public void fillRelevantArticles(final int avatarViewMode,
                                      final Map<String, Object> dataModel, final JSONObject article) throws Exception {
-        final int articleStatus = article.optInt(Article.ARTICLE_STATUS);
-        if (Article.ARTICLE_STATUS_C_INVALID == articleStatus) {
+        final int articleStatus = article.optInt(ArticleUtil.ARTICLE_STATUS);
+        if (ArticleUtil.ARTICLE_STATUS_C_INVALID == articleStatus) {
             dataModel.put(Common.SIDE_RELEVANT_ARTICLES, Collections.emptyList());
 
             return;
@@ -226,19 +228,19 @@ public class DataModelService {
         try {
             for (int i = 0; i < 13; i++) {
                 final JSONObject tag = new JSONObject();
-                tag.put(Tag.TAG_URI, "Sym");
-                tag.put(Tag.TAG_ICON_PATH, "sym.png");
-                tag.put(Tag.TAG_TITLE, "Sym");
+                tag.put(TagUtil.TAG_URI, "Sym");
+                tag.put(TagUtil.TAG_ICON_PATH, "sym.png");
+                tag.put(TagUtil.TAG_TITLE, "Sym");
 
-                dataModel.put(Tag.TAG + i, tag);
+                dataModel.put(TagUtil.TAG + i, tag);
             }
 
             final List<JSONObject> tags = tagQueryService.getTags(Symphonys.getInt("sideTagsCnt"));
             for (int i = 0; i < tags.size(); i++) {
-                dataModel.put(Tag.TAG + i, tags.get(i));
+                dataModel.put(TagUtil.TAG + i, tags.get(i));
             }
 
-            dataModel.put(Tag.TAGS, tags);
+            dataModel.put(TagUtil.TAGS, tags);
         } finally {
             Stopwatchs.end();
         }
@@ -281,7 +283,7 @@ public class DataModelService {
     private void fillDomainNav(final Map<String, Object> dataModel) {
         Stopwatchs.start("Fills domain nav");
         try {
-            dataModel.put(Domain.DOMAINS, domainCache.getDomains(Integer.MAX_VALUE));
+            dataModel.put(DomainUtil.DOMAINS, domainCache.getDomains(Integer.MAX_VALUE));
         } finally {
             Stopwatchs.end();
         }
@@ -377,41 +379,41 @@ public class DataModelService {
             final String userRole = curUser.optString(User.USER_ROLE);
             dataModel.put(User.USER_ROLE, userRole);
 
-            dataModel.put(Common.IS_ADMIN_LOGGED_IN, Role.ROLE_ID_C_ADMIN.equals(userRole));
+            dataModel.put(Common.IS_ADMIN_LOGGED_IN, RoleUtil.ROLE_ID_C_ADMIN.equals(userRole));
 
-            avatarQueryService.fillUserAvatarURL(curUser.optInt(UserExt.USER_AVATAR_VIEW_MODE), curUser);
+            avatarQueryService.fillUserAvatarURL(curUser.optInt(UserExtUtil.USER_AVATAR_VIEW_MODE), curUser);
 
             final String userId = curUser.optString(Keys.OBJECT_ID);
 
-            final long followingArticleCnt = followQueryService.getFollowingCount(userId, Follow.FOLLOWING_TYPE_C_ARTICLE);
-            final long followingTagCnt = followQueryService.getFollowingCount(userId, Follow.FOLLOWING_TYPE_C_TAG);
-            final long followingUserCnt = followQueryService.getFollowingCount(userId, Follow.FOLLOWING_TYPE_C_USER);
+            final long followingArticleCnt = followQueryService.getFollowingCount(userId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE);
+            final long followingTagCnt = followQueryService.getFollowingCount(userId, FollowUtil.FOLLOWING_TYPE_C_TAG);
+            final long followingUserCnt = followQueryService.getFollowingCount(userId, FollowUtil.FOLLOWING_TYPE_C_USER);
 
             curUser.put(Common.FOLLOWING_ARTICLE_CNT, followingArticleCnt);
             curUser.put(Common.FOLLOWING_TAG_CNT, followingTagCnt);
             curUser.put(Common.FOLLOWING_USER_CNT, followingUserCnt);
-            final int point = curUser.optInt(UserExt.USER_POINT);
-            final int appRole = curUser.optInt(UserExt.USER_APP_ROLE);
-            if (UserExt.USER_APP_ROLE_C_HACKER == appRole) {
-                curUser.put(UserExt.USER_T_POINT_HEX, Integer.toHexString(point));
+            final int point = curUser.optInt(UserExtUtil.USER_POINT);
+            final int appRole = curUser.optInt(UserExtUtil.USER_APP_ROLE);
+            if (UserExtUtil.USER_APP_ROLE_C_HACKER == appRole) {
+                curUser.put(UserExtUtil.USER_T_POINT_HEX, Integer.toHexString(point));
             } else {
-                curUser.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(point));
+                curUser.put(UserExtUtil.USER_T_POINT_CC, UserExtUtil.toCCString(point));
             }
 
             dataModel.put(Common.CURRENT_USER, curUser);
 
             final JSONObject role = roleQueryService.getRole(userRole);
-            curUser.put(Role.ROLE_NAME, role.optString(Role.ROLE_NAME));
+            curUser.put(RoleUtil.ROLE_NAME, role.optString(RoleUtil.ROLE_NAME));
 
             // final int unreadNotificationCount = notificationQueryService.getUnreadNotificationCount(curUser.optString(Keys.OBJECT_ID));
-            dataModel.put(Notification.NOTIFICATION_T_UNREAD_COUNT, 0); // AJAX polling 
+            dataModel.put(NotificationUtil.NOTIFICATION_T_UNREAD_COUNT, 0); // AJAX polling
 
             dataModel.put(Common.IS_DAILY_CHECKIN, activityQueryService.isCheckedinToday(userId));
             dataModel.put(Common.USE_CAPTCHA_CHECKIN, Symphonys.getBoolean("geetest.enabled"));
 
             final int livenessMax = Symphonys.getInt("activitYesterdayLivenessReward.maxPoint");
             final int currentLiveness = livenessQueryService.getCurrentLivenessPoint(userId);
-            dataModel.put(Liveness.LIVENESS, (float) (Math.round((float) currentLiveness / livenessMax * 100 * 100)) / 100);
+            dataModel.put(LivenessUtil.LIVENESS, (float) (Math.round((float) currentLiveness / livenessMax * 100 * 100)) / 100);
         } finally {
             Stopwatchs.end();
         }
@@ -455,11 +457,11 @@ public class DataModelService {
      * @param dataModel the specified data entity
      */
     private void fillSideAd(final Map<String, Object> dataModel) {
-        final JSONObject adOption = optionQueryService.getOption(Option.ID_C_SIDE_FULL_AD);
+        final JSONObject adOption = optionQueryService.getOption(OptionUtil.ID_C_SIDE_FULL_AD);
         if (null == adOption) {
             dataModel.put("ADLabel", "");
         } else {
-            dataModel.put("ADLabel", adOption.optString(Option.OPTION_VALUE));
+            dataModel.put("ADLabel", adOption.optString(OptionUtil.OPTION_VALUE));
         }
     }
 
@@ -497,11 +499,11 @@ public class DataModelService {
      * @param dataModel the specified data entity
      */
     private void fillHeaderBanner(final Map<String, Object> dataModel) {
-        final JSONObject adOption = optionQueryService.getOption(Option.ID_C_HEADER_BANNER);
+        final JSONObject adOption = optionQueryService.getOption(OptionUtil.ID_C_HEADER_BANNER);
         if (null == adOption) {
             dataModel.put("HeaderBannerLabel", "");
         } else {
-            dataModel.put("HeaderBannerLabel", adOption.optString(Option.OPTION_VALUE));
+            dataModel.put("HeaderBannerLabel", adOption.optString(OptionUtil.OPTION_VALUE));
         }
     }
 
@@ -538,6 +540,6 @@ public class DataModelService {
      * @throws Exception exception
      */
     private void fillSysInfo(final Map<String, Object> dataModel) throws Exception {
-        dataModel.put(Common.VERSION, SymphonyServletListener.VERSION);
+        dataModel.put(Common.VERSION, SpringUtil.VERSION);
     }
 }

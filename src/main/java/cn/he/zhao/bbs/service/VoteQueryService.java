@@ -81,7 +81,7 @@ public class VoteQueryService {
     public boolean isOwn(final String userId, final String dataId, final int dataType) {
         try {
             if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
-                final Article article = articleMapper.get(dataId);
+                final Article article = articleMapper.getByPrimaryKey(dataId);
                 if (null == article) {
                     LOGGER.error( "Not found article [id={0}]", dataId);
 

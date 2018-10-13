@@ -56,10 +56,10 @@ public class AvatarQueryService {
      * @param viewMode the specified view mode, {@code 0} for original image, {@code 1} for static image
      * @param user     the specified user
      */
-    public void fillUserAvatarURL(final int viewMode, final UserExt user) {
-        user.setUserAvatarURL(UserExtUtil.USER_AVATAR_URL + "210", getAvatarURLByUser(viewMode, user, "210"));
-        user.setUserAvatarURL(UserExtUtil.USER_AVATAR_URL + "48", getAvatarURLByUser(viewMode, user, "48"));
-        user.setUserAvatarURL(UserExtUtil.USER_AVATAR_URL + "20", getAvatarURLByUser(viewMode, user, "20"));
+    public void fillUserAvatarURL(final int viewMode, final JSONObject user) {
+        user.put(UserExtUtil.USER_AVATAR_URL + "210", getAvatarURLByUser(viewMode, user, "210"));
+        user.put(UserExtUtil.USER_AVATAR_URL + "48", getAvatarURLByUser(viewMode, user, "48"));
+        user.put(UserExtUtil.USER_AVATAR_URL + "20", getAvatarURLByUser(viewMode, user, "20"));
     }
 
     /**
@@ -87,7 +87,7 @@ public class AvatarQueryService {
      * @param size     the specified size
      * @return the avatar URL
      */
-    public String getAvatarURLByUser(final int viewMode, final UserExt user, final String size) {
+    public String getAvatarURLByUser(final int viewMode, final JSONObject user, final String size) {
         if (null == user) {
             return DEFAULT_AVATAR_URL;
         }

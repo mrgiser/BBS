@@ -1,5 +1,9 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.PermissionUtil;
+import cn.he.zhao.bbs.entityUtil.RoleUtil;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
@@ -85,11 +89,11 @@ public class RoleQueryService {
      */
     public boolean userHasPermissions(final String userId, final Set<String> requisitePermissions) {
         try {
-            final JSONObject user = userMapper.get(userId);
-            final String roleId = user.optString(User.USER_ROLE);
+            final UserExt user = userMapper.get(userId);
+            final String roleId = user.getUserRole();
             final Set<String> permissions = getPermissions(roleId);
 
-            return Permission.hasPermission(requisitePermissions, permissions);
+            return PermissionUtil.hasPermission(requisitePermissions, permissions);
         } catch (final Exception e) {
             LOGGER.error( "Checks user [" + userId + "] has permission failed", e);
 
@@ -107,7 +111,7 @@ public class RoleQueryService {
     public boolean hasPermissions(final String roleId, final Set<String> requisitePermissions) {
         final Set<String> permissions = getPermissions(roleId);
 
-        return Permission.hasPermission(requisitePermissions, permissions);
+        return PermissionUtil.hasPermission(requisitePermissions, permissions);
     }
 
     /**
@@ -134,7 +138,7 @@ public class RoleQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets role failed", e);
 
             return null;
@@ -169,18 +173,18 @@ public class RoleQueryService {
      */
     public List<JSONObject> getUserPermissionsGrant(final String userId) {
         try {
-            final JSONObject user = userMapper.get(userId);
+            final UserExt user = userMapper.get(userId);
             if (null == user) {
-                return getPermissionsGrant(Role.ROLE_ID_C_VISITOR);
+                return getPermissionsGrant(RoleUtil.ROLE_ID_C_VISITOR);
             }
 
-            final String roleId = user.optString(User.USER_ROLE);
+            final String roleId = user.getUserRole();
 
             return getPermissionsGrant(roleId);
         } catch (final Exception e) {
             LOGGER.error( "Gets user permissions grant failed", e);
 
-            return getPermissionsGrant(Role.ROLE_ID_C_VISITOR);
+            return getPermissionsGrant(RoleUtil.ROLE_ID_C_VISITOR);
         }
     }
 
@@ -192,15 +196,15 @@ public class RoleQueryService {
      */
     public Set<String> getUserPermissions(final String userId) {
         try {
-            final JSONObject user = userMapper.get(userId);
+            final UserExt user = userMapper.get(userId);
             if (null == user) {
                 return Collections.emptySet();
             }
 
-            final String roleId = user.optString(User.USER_ROLE);
+            final String roleId = user.getUserRole();
 
             return getPermissions(roleId);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets grant permissions of user [id=" + userId + "] failed", e);
 
             return Collections.emptySet();
@@ -243,20 +247,20 @@ public class RoleQueryService {
 
             for (final JSONObject permission : permissions) {
                 final String permissionId = permission.optString(Keys.OBJECT_ID);
-                permission.put(Permission.PERMISSION_T_GRANT, false);
+                permission.put(PermissionUtil.PERMISSION_T_GRANT, false);
                 ret.add(permission);
 
                 for (final JSONObject rolePermission : rolePermissions) {
                     final String grantPermissionId = rolePermission.optString(Permission.PERMISSION_ID);
 
                     if (permissionId.equals(grantPermissionId)) {
-                        permission.put(Permission.PERMISSION_T_GRANT, true);
+                        permission.put(PermissionUtil.PERMISSION_T_GRANT, true);
 
                         break;
                     }
                 }
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets permissions grant of role [id=" + roleId + "] failed", e);
         }
 
@@ -281,7 +285,7 @@ public class RoleQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets permissions of role [id=" + roleId + "] failed", e);
 
             return Collections.emptySet();
@@ -314,11 +318,11 @@ public class RoleQueryService {
      *     }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
     public JSONObject getRoles(final int currentPage, final int pageSize, final int windowSize)
-            throws ServiceException {
+            throws Exception {
         final JSONObject ret = new JSONObject();
 
         final Query query = new Query().setCurrentPageNum(currentPage).setPageSize(pageSize).
@@ -328,10 +332,10 @@ public class RoleQueryService {
 
         try {
             result = roleMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets roles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -386,10 +390,10 @@ public class RoleQueryService {
                 role.put(Role.ROLE_NAME, roleName);
                 role.put(Role.ROLE_DESCRIPTION, roleDesc);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets role permissions failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         Collections.sort(roles, (o1, o2) -> ((List) o2.opt(Permission.PERMISSIONS)).size()

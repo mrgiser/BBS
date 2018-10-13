@@ -106,7 +106,7 @@ public class VoteMgmtService {
             final int oldType = voteMapper.removeIfExists(userId, dataId, dataType);
 
             if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
-                final Article article = articleMapper.get(dataId);
+                final Article article = articleMapper.getByPrimaryKey(dataId);
                 if (null == article) {
                     LOGGER.error( "Not found article [id={0}] to vote cancel", dataId);
 
@@ -213,7 +213,7 @@ public class VoteMgmtService {
         final int oldType = voteMapper.removeIfExists(userId, dataId, dataType);
 
         if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
-            final Article article = articleMapper.get(dataId);
+            final Article article = articleMapper.getByPrimaryKey(dataId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to vote up", dataId);
 
@@ -284,7 +284,7 @@ public class VoteMgmtService {
         final int oldType = voteMapper.removeIfExists(userId, dataId, dataType);
 
         if (VoteUtil.DATA_TYPE_C_ARTICLE == dataType) {
-            final Article article = articleMapper.get(dataId);
+            final Article article = articleMapper.getByPrimaryKey(dataId);
             if (null == article) {
                 LOGGER.error( "Not found article [id={0}] to vote down", dataId);
 

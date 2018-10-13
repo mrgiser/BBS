@@ -496,6 +496,7 @@ public class TagQueryService {
                 return ret;
             }
 
+            // TODO: 2018/10/13 增加 entity到 json的工具类 
             final UserExt creator = userMapper.get(creatorId);
 
             final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, creator, "48");
