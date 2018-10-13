@@ -32,7 +32,7 @@ public interface RevisionMapper {
     @Select("select * from revision where commentId = #{commentId} AND revisionDataType = #{type} ORDER BY oId ASC")
     List<Revision> getByRevisionDataIdAndRevisionDataType(final String commentId, final int type);
 
-    @Select("select coutn(*) from revision where commentId = #{commentId} AND revisionDataType = #{type}")
+    @Select("select count(*) from revision where commentId = #{commentId} AND revisionDataType = #{type}")
     Integer countByRevisionDataIdAndRevisionDataType(final String commentId, final int type);
 
 }

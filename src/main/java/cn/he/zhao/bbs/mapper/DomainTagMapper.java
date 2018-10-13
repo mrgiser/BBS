@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Domain;
 import cn.he.zhao.bbs.entity.DomainTag;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,6 +28,7 @@ import java.util.List;
 
 public interface DomainTagMapper {
 
+    List<DomainTag> getByDomainId(final String domainId) ;
 
     JSONObject getByDomainId(final String domainId, final int currentPageNum, final int pageSize) ;
 
@@ -37,4 +39,7 @@ public interface DomainTagMapper {
     JSONObject getByTagOId(final String tagId, final int currentPageNum, final int pageSize);
 
     List<DomainTag> getByTagOId(final String tagId);
+
+    @Select("select count(*) from domain_tag WHERE domain_oId = #{domainId} AND tag_oId = #{tagId}")
+    Integer countByDomain_oIdAndTag_oId(final String domainId, final String tagId);
 }

@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entity.DomainTag;
+import cn.he.zhao.bbs.entityUtil.DomainUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
 import cn.he.zhao.bbs.mapper.DomainMapper;
 import cn.he.zhao.bbs.mapper.DomainTagMapper;
 import cn.he.zhao.bbs.mapper.TagMapper;
@@ -25,7 +28,10 @@ import cn.he.zhao.bbs.entity.Tag;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.util.Markdowns;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,18 +90,20 @@ public class DomainQueryService {
      *
      * @return domains, returns an empty list if not found
      */
-    public List<JSONObject> getAllDomains() {
-        final Query query = new Query().
-                addSort(Domain.DOMAIN_SORT, SortDirection.ASCENDING).
-                addSort(Domain.DOMAIN_TAG_COUNT, SortDirection.DESCENDING).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setPageSize(Integer.MAX_VALUE).setPageCount(1);
-        try {
-            final List<JSONObject> ret = CollectionUtils.jsonArrayToList(domainMapper.get(query).optJSONArray(Keys.RESULTS));
-            for (final JSONObject domain : ret) {
-                final List<JSONObject> tags = getTags(domain.optString(Keys.OBJECT_ID));
+    public List<Domain> getAllDomains() {
+//        final Query query = new Query().
+//                addSort(DomainUtil.DOMAIN_SORT, SortDirection.ASCENDING).
+//                addSort(DomainUtil.DOMAIN_TAG_COUNT, SortDirection.DESCENDING).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
+//                setPageSize(Integer.MAX_VALUE).setPageCount(1);
 
-                domain.put(Domain.DOMAIN_T_TAGS, (Object) tags);
+        PageHelper.startPage(1,Integer.MAX_VALUE);
+        try {
+            final List<Domain> ret = domainMapper.getAllByOrder();
+            for (final Domain domain : ret) {
+                final List<Tag> tags = getTags(domain.getOid());
+
+                domain.setDomainTags( (Object) tags);
             }
 
             return ret;
@@ -112,19 +120,21 @@ public class DomainQueryService {
      * @param fetchSize the specified fetch size
      * @return domains, returns an empty list if not found
      */
-    public List<JSONObject> getMostTagNaviDomains(final int fetchSize) {
-        final Query query = new Query().
-                setFilter(new PropertyFilter(Domain.DOMAIN_NAV, FilterOperator.EQUAL, Domain.DOMAIN_NAV_C_ENABLED)).
-                addSort(Domain.DOMAIN_SORT, SortDirection.ASCENDING).
-                addSort(Domain.DOMAIN_TAG_COUNT, SortDirection.DESCENDING).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setPageSize(fetchSize).setPageCount(1);
-        try {
-            final List<JSONObject> ret = CollectionUtils.jsonArrayToList(domainMapper.get(query).optJSONArray(Keys.RESULTS));
-            for (final JSONObject domain : ret) {
-                final List<JSONObject> tags = getTags(domain.optString(Keys.OBJECT_ID));
+    public List<Domain> getMostTagNaviDomains(final int fetchSize) {
+//        final Query query = new Query().
+//                setFilter(new PropertyFilter(DomainUtil.DOMAIN_NAV, FilterOperator.EQUAL, DomainUtil.DOMAIN_NAV_C_ENABLED)).
+//                addSort(Domain.DOMAIN_SORT, SortDirection.ASCENDING).
+//                addSort(Domain.DOMAIN_TAG_COUNT, SortDirection.DESCENDING).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
+//                setPageSize(fetchSize).setPageCount(1);
 
-                domain.put(Domain.DOMAIN_T_TAGS, (Object) tags);
+        PageHelper.startPage(1,fetchSize);
+        try {
+            final List<Domain> ret = domainMapper.getByDomainNav(DomainUtil.DOMAIN_NAV_C_ENABLED);
+            for (final Domain domain : ret) {
+                final List<Tag> tags = getTags(domain.getOid());
+
+                domain.setDomainTags((Object) tags);
             }
 
             return ret;
@@ -141,22 +151,24 @@ public class DomainQueryService {
      * @param domainId the specified domain id
      * @return tags, returns an empty list if not found
      */
-    public List<JSONObject> getTags(final String domainId) {
-        final List<JSONObject> ret = new ArrayList<>();
+    public List<Tag> getTags(final String domainId) {
+        final List<Tag> ret = new ArrayList<>();
 
-        final Query query = new Query().
-                setFilter(new PropertyFilter(Domain.DOMAIN + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, domainId));
+//        final Query query = new Query().
+//                setFilter(new PropertyFilter(Domain.DOMAIN + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, domainId));
         try {
-            final List<JSONObject> relations = CollectionUtils.jsonArrayToList(
-                    domainTagMapper.get(query).optJSONArray(Keys.RESULTS));
+//            final List<JSONObject> relations = CollectionUtils.jsonArrayToList(
+//                    domainTagMapper.get(query).optJSONArray(Keys.RESULTS));
 
-            for (final JSONObject relation : relations) {
-                final String tagId = relation.optString(Tag.TAG + "_" + Keys.OBJECT_ID);
-                final JSONObject tag = tagMapper.get(tagId);
+            final List<DomainTag> relations = domainTagMapper.getByDomainId(domainId);
+
+            for (final DomainTag relation : relations) {
+                final String tagId = relation.getOid();
+                final Tag tag = tagMapper.get(tagId);
 
                 ret.add(tag);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets domain [id=" + domainId + "] tags error", e);
         }
 
@@ -168,48 +180,48 @@ public class DomainQueryService {
      *
      * @param domainURI the specified domain URI
      * @return domain, returns {@code null} if not null
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getByURI(final String domainURI) throws ServiceException {
+    public Domain getByURI(final String domainURI) throws Exception {
         try {
-            final JSONObject ret = domainMapper.getByURI(domainURI);
+            final Domain ret = domainMapper.getByDomainURI(domainURI);
             if (null == ret) {
                 return null;
             }
 
-            if (Domain.DOMAIN_STATUS_C_VALID != ret.optInt(Domain.DOMAIN_STATUS)) {
+            if (DomainUtil.DOMAIN_STATUS_C_VALID != ret.getDomainStatus()) {
                 return null;
             }
 
-            String description = ret.optString(Domain.DOMAIN_DESCRIPTION);
-            String descriptionText = ret.optString(Domain.DOMAIN_TITLE);
+            String description = ret.getDomainDescription();
+            String descriptionText = ret.getDomainTitle();
             if (StringUtils.isNotBlank(description)) {
                 description = shortLinkQueryService.linkTag(description);
                 description = Markdowns.toHTML(description);
 
-                ret.put(Domain.DOMAIN_DESCRIPTION, description);
+                ret.setDomainDescription(description);
                 descriptionText = Jsoup.parse(description).text();
             }
 
-            final String domainTitle = ret.optString(Domain.DOMAIN_TITLE);
+            final String domainTitle = ret.getDomainTitle();
 
-            if (StringUtils.isBlank(ret.optString(Domain.DOMAIN_SEO_TITLE))) {
-                ret.put(Domain.DOMAIN_SEO_TITLE, domainTitle);
+            if (StringUtils.isBlank(ret.getDomainSeoTitle())) {
+                ret.setDomainSeoTitle(domainTitle);
             }
 
-            if (StringUtils.isBlank(ret.optString(Domain.DOMAIN_SEO_DESC))) {
-                ret.put(Domain.DOMAIN_SEO_DESC, descriptionText);
+            if (StringUtils.isBlank(ret.getDomainSeoDesc())) {
+                ret.setDomainSeoDesc(descriptionText);
             }
 
-            if (StringUtils.isBlank(ret.optString(Domain.DOMAIN_SEO_KEYWORDS))) {
-                ret.put(Domain.DOMAIN_SEO_KEYWORDS, domainTitle);
+            if (StringUtils.isBlank(ret.getDomainSeoKeywords())) {
+                ret.setDomainSeoKeywords(domainTitle);
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets domain [URI=" + domainURI + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -218,46 +230,46 @@ public class DomainQueryService {
      *
      * @param domainTitle the specified domain title
      * @return domain, returns {@code null} if not null
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getByTitle(final String domainTitle) throws ServiceException {
+    public Domain getByTitle(final String domainTitle) throws Exception {
         try {
-            final JSONObject ret = domainMapper.getByTitle(domainTitle);
+            final Domain ret = domainMapper.getByTitle(domainTitle);
             if (null == ret) {
                 return null;
             }
 
-            if (Domain.DOMAIN_STATUS_C_VALID != ret.optInt(Domain.DOMAIN_STATUS)) {
+            if (DomainUtil.DOMAIN_STATUS_C_VALID != ret.getDomainStatus()) {
                 return null;
             }
 
-            String description = ret.optString(Domain.DOMAIN_DESCRIPTION);
-            String descriptionText = ret.optString(Domain.DOMAIN_TITLE);
+            String description = ret.getDomainDescription();
+            String descriptionText = ret.getDomainTitle();
             if (StringUtils.isNotBlank(description)) {
                 description = shortLinkQueryService.linkTag(description);
                 description = Markdowns.toHTML(description);
 
-                ret.put(Domain.DOMAIN_DESCRIPTION, description);
+                ret.setDomainDescription( description);
                 descriptionText = Jsoup.parse(description).text();
             }
 
-            if (StringUtils.isBlank(ret.optString(Domain.DOMAIN_SEO_TITLE))) {
-                ret.put(Domain.DOMAIN_SEO_TITLE, domainTitle);
+            if (StringUtils.isBlank(ret.getDomainSeoTitle())) {
+                ret.setDomainSeoTitle( domainTitle);
             }
 
-            if (StringUtils.isBlank(ret.optString(Domain.DOMAIN_SEO_DESC))) {
-                ret.put(Domain.DOMAIN_SEO_DESC, descriptionText);
+            if (StringUtils.isBlank(ret.getDomainSeoDesc())) {
+                ret.setDomainSeoDesc( descriptionText);
             }
 
-            if (StringUtils.isBlank(ret.optString(Domain.DOMAIN_SEO_KEYWORDS))) {
-                ret.put(Domain.DOMAIN_SEO_KEYWORDS, domainTitle);
+            if (StringUtils.isBlank(ret.getDomainSeoKeywords())) {
+                ret.setDomainSeoKeywords( domainTitle);
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets domain [title=" + domainTitle + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -286,37 +298,46 @@ public class DomainQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
-    public JSONObject getDomains(final JSONObject requestJSONObject, final Map<String, Class<?>> domainFields) throws ServiceException {
+    public JSONObject getDomains(final JSONObject requestJSONObject, final Map<String, Class<?>> domainFields) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
         final int pageSize = requestJSONObject.optInt(Pagination.PAGINATION_PAGE_SIZE);
         final int windowSize = requestJSONObject.optInt(Pagination.PAGINATION_WINDOW_SIZE);
-        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).
-                addSort(Domain.DOMAIN_SORT, SortDirection.ASCENDING).
-                addSort(Domain.DOMAIN_TAG_COUNT, SortDirection.DESCENDING).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
-        for (final Map.Entry<String, Class<?>> field : domainFields.entrySet()) {
-            query.addProjection(field.getKey(), field.getValue());
-        }
 
-        if (requestJSONObject.has(Domain.DOMAIN_TITLE)) {
-            query.setFilter(new PropertyFilter(Domain.DOMAIN_TITLE, FilterOperator.EQUAL, requestJSONObject.optString(Domain.DOMAIN_TITLE)));
-        }
+        PageHelper.startPage(currentPageNum,pageSize);
+//        final Query query = new Query().setCurrentPageNum(currentPageNum).setPageSize(pageSize).
+//                addSort(Domain.DOMAIN_SORT, SortDirection.ASCENDING).
+//                addSort(Domain.DOMAIN_TAG_COUNT, SortDirection.DESCENDING).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        for (final Map.Entry<String, Class<?>> field : domainFields.entrySet()) {
+//            query.addProjection(field.getKey(), field.getValue());
+//        }
 
-        JSONObject result;
-        try {
-            result = domainMapper.get(query);
-        } catch (final MapperException e) {
+//        if (requestJSONObject.has(DomainUtil.DOMAIN_TITLE)) {
+//            query.setFilter(new PropertyFilter(DomainUtil.DOMAIN_TITLE, FilterOperator.EQUAL, requestJSONObject.optString(DomainUtil.DOMAIN_TITLE)));
+
+//        }
+
+        PageInfo<Domain> result;
+        try{
+            if (requestJSONObject.has(DomainUtil.DOMAIN_TITLE)) {
+                result = new PageInfo<> (domainMapper.getByDomainTitle(requestJSONObject.optString(DomainUtil.DOMAIN_TITLE)));
+            } else {
+                result = new PageInfo<>(domainMapper.getAllByOrder());
+            }
+
+        } catch (final Exception e) {
             LOGGER.error( "Gets domains failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+//        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -324,10 +345,10 @@ public class DomainQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray data = result.optJSONArray(Keys.RESULTS);
-        final List<JSONObject> domains = CollectionUtils.jsonArrayToList(data);
+        final List<Domain> domains = result.getList();
+//        final List<JSONObject> domains = CollectionUtils.jsonArrayToList(data);
 
-        ret.put(Domain.DOMAINS, domains);
+        ret.put(DomainUtil.DOMAINS, domains);
 
         return ret;
     }
@@ -337,19 +358,19 @@ public class DomainQueryService {
      *
      * @param domainId the specified id
      * @return a domain, return {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getDomain(final String domainId) throws ServiceException {
+    public Domain getDomain(final String domainId) throws Exception {
         try {
-            final JSONObject ret = domainMapper.get(domainId);
-            final List<JSONObject> tags = getTags(domainId);
-            ret.put(Domain.DOMAIN_T_TAGS, (Object) tags);
+            final Domain ret = domainMapper.getByOId(domainId);
+            final List<Tag> tags = getTags(domainId);
+            ret.setDomainTags((Object) tags);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets a domain [domainId=" + domainId + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -362,22 +383,22 @@ public class DomainQueryService {
      */
     public boolean containTag(final String tagTitle, final String domainId) {
         try {
-            final JSONObject domain = domainMapper.get(domainId);
+            final Domain domain = domainMapper.getByOId(domainId);
             if (null == domain) {
                 return true;
             }
 
-            final JSONObject tag = tagMapper.getByTitle(tagTitle);
+            final Tag tag = tagMapper.getByTitle(tagTitle);
             if (null == tag) {
                 return true;
             }
 
-            final Query query = new Query().setFilter(
-                    CompositeFilterOperator.and(
-                            new PropertyFilter(Domain.DOMAIN + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, domainId),
-                            new PropertyFilter(Tag.TAG + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, tag.optString(Keys.OBJECT_ID))));
+//            final Query query = new Query().setFilter(
+//                    CompositeFilterOperator.and(
+//                            new PropertyFilter(DomainUtil.DOMAIN + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, domainId),
+//                            new PropertyFilter(TagUtil.TAG + "_" + Keys.OBJECT_ID, FilterOperator.EQUAL, tag.getOid())));
 
-            return domainTagMapper.count(query) > 0;
+            return domainTagMapper.countByDomain_oIdAndTag_oId(domainId, tag.getOid()) > 0;
         } catch (final Exception e) {
             LOGGER.error( "Check domain tag [tagTitle=" + tagTitle + ", domainId=" + domainId + "] failed", e);
 

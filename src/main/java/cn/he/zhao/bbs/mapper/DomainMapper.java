@@ -18,8 +18,11 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Domain;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Domain Mapper.
@@ -31,10 +34,18 @@ import org.json.JSONObject;
 
 public interface DomainMapper {
 
+    @Select("select * from domain ORDER BY domainSort ASC, domainTagCnt DESC, oId DESC")
+    List<Domain> getAllByOrder();
+
     Domain getByOId(String oid);
+
+    @Select("select * from domain WHERE domainNav = #{domainNav} ORDER BY domainSort ASC, domainTagCnt DESC, oId DESC")
+    List<Domain> getByDomainNav(final int domainNav);
+
+    @Select("select * from domain WHERE domainTitle = #{domainTitle} ORDER BY domainSort ASC, domainTagCnt DESC, oId DESC")
+    List<Domain> getByDomainTitle(final String domainTitle);
 
     Domain getByTitle(final String domainTitle) ;
 
-
-    Domain getByURI(final String domainURI) ;
+    Domain getByDomainURI(final String domainURI) ;
 }

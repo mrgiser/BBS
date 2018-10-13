@@ -68,6 +68,16 @@ public class Domain {
      */
     private String domainSeoDesc;
 
+    private transient Object domainTags;
+
+    public Object getDomainTags() {
+        return domainTags;
+    }
+
+    public void setDomainTags(Object domainTags) {
+        this.domainTags = domainTags;
+    }
+
     public String getOid() {
         return oid;
     }
