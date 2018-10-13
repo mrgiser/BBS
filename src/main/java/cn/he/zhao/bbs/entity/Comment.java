@@ -19,6 +19,16 @@ public class Comment {
      */
     private Long commentCreateTime;
 
+    private String commentCreateTimeStr;
+
+    public String getCommentCreateTimeStr() {
+        return commentCreateTimeStr;
+    }
+
+    public void setCommentCreateTimeStr(String commentCreateTimeStr) {
+        this.commentCreateTimeStr = commentCreateTimeStr;
+    }
+
     /**
      * Key of comment author id.
      */
@@ -88,6 +98,66 @@ public class Comment {
      * Key of comment offered. https://github.com/b3log/symphony/issues/486
      */
     private Integer commentQnAOffered;
+
+    private String timeAgo;
+
+    private transient Object commenter;
+
+    private transient String commentAuthorName;
+
+    private transient String commentAuthorURL;
+
+    private transient String commentAuthorThumbnailURL;
+
+    private transient boolean fromClient;
+
+    public boolean isFromClient() {
+        return fromClient;
+    }
+
+    public void setFromClient(boolean fromClient) {
+        this.fromClient = fromClient;
+    }
+
+    public String getCommentAuthorThumbnailURL() {
+        return commentAuthorThumbnailURL;
+    }
+
+    public void setCommentAuthorThumbnailURL(String commentAuthorThumbnailURL) {
+        this.commentAuthorThumbnailURL = commentAuthorThumbnailURL;
+    }
+
+    public String getCommentAuthorURL() {
+        return commentAuthorURL;
+    }
+
+    public void setCommentAuthorURL(String commentAuthorURL) {
+        this.commentAuthorURL = commentAuthorURL;
+    }
+
+    public String getCommentAuthorName() {
+        return commentAuthorName;
+    }
+
+    public void setCommentAuthorName(String commentAuthorName) {
+        this.commentAuthorName = commentAuthorName;
+    }
+
+    public Object getCommenter() {
+        return commenter;
+    }
+
+    public void setCommenter(Object commenter) {
+        this.commenter = commenter;
+    }
+
+    public String getTimeAgo() {
+        return timeAgo;
+    }
+
+    public void setTimeAgo(String timeAgo) {
+        this.timeAgo = timeAgo;
+    }
 
     public String getOid() {
         return oid;

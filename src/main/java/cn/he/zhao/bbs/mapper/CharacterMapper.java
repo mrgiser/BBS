@@ -18,6 +18,11 @@
 package cn.he.zhao.bbs.mapper;
 
 
+import cn.he.zhao.bbs.entity.Character;
+import org.apache.catalina.LifecycleState;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * Character Mapper.
@@ -27,5 +32,20 @@ package cn.he.zhao.bbs.mapper;
  * @since 1.4.0
  */
 public interface CharacterMapper {
+
+    @Select("select count(DISTINCT characterContent) from character")
+    Integer countCharacter();
+
+    List<Character> getAll();
+
+    @Select("select count(*) from character WHERE characterUserId = #{characterUserId}")
+    Integer countByCharacterUserId(final String characterUserId);
+
+
+    @Select("select count(*) from character WHERE characterContent = #{characterContent}")
+    Integer countByCharacterContent(final String characterContent);
+
+    @Select("select count(*) from character WHERE characterUserId = #{characterUserId} AND characterContent = #{characterContent}")
+    Integer countByCharacterUserIdANDCharacterContent(final String characterUserId,final String characterContent);
 
 }

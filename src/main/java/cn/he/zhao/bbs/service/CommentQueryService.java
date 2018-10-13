@@ -17,6 +17,11 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.CommentUtil;
+import cn.he.zhao.bbs.entityUtil.CommonUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.mapper.ArticleMapper;
 import cn.he.zhao.bbs.mapper.CommentMapper;
@@ -29,6 +34,8 @@ import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.*;
+import cn.he.zhao.bbs.validate.UserRegisterValidation;
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
@@ -117,17 +124,17 @@ public class CommentQueryService {
      */
     public String getCommentURL(final String commentId, final int sortMode, final int pageSize) {
         try {
-            final JSONObject comment = commentMapper.get(commentId);
+            final Comment comment = commentMapper.get(commentId);
             if (null == comment) {
                 return null;
             }
 
-            final String articleId = comment.optString(Comment.COMMENT_ON_ARTICLE_ID);
-            final JSONObject article = articleMapper.get(articleId);
+            final String articleId = comment.getCommentOnArticleId();
+            final Article article = articleMapper.getByPrimaryKey(articleId);
             if (null == article) {
                 return null;
             }
-            String title = Encode.forHtml(article.optString(Article.ARTICLE_TITLE));
+            String title = Encode.forHtml(article.getArticleTitle());
             title = Emotions.convert(title);
             final int commentPage = getCommentPage(articleId, commentId, sortMode, pageSize);
 
@@ -150,28 +157,35 @@ public class CommentQueryService {
      */
     public JSONObject getOfferedComment(final int avatarViewMode, final int commentViewMode, final String articleId) {
         Stopwatchs.start("Gets accepted comment");
+        JSONObject result = new JSONObject();
         try {
-            final Query query = new Query().addSort(Comment.COMMENT_SCORE, SortDirection.DESCENDING).setCurrentPageNum(1).setPageCount(1)
-                    .setFilter(CompositeFilterOperator.and(
-                            new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
-                            new PropertyFilter(Comment.COMMENT_QNA_OFFERED, FilterOperator.EQUAL, Comment.COMMENT_QNA_OFFERED_C_YES),
-                            new PropertyFilter(Comment.COMMENT_STATUS, FilterOperator.EQUAL, Comment.COMMENT_STATUS_C_VALID)
-                    ));
+
+            PageHelper.startPage(1,1);
+
+//            final Query query = new Query().addSort(CommentUtil.COMMENT_SCORE, SortDirection.DESCENDING).setCurrentPageNum(1).setPageCount(1)
+//                    .setFilter(CompositeFilterOperator.and(
+//                            new PropertyFilter(CommentUtil.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
+//                            new PropertyFilter(CommentUtil.COMMENT_QNA_OFFERED, FilterOperator.EQUAL, CommentUtil.COMMENT_QNA_OFFERED_C_YES),
+//                            new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
+//                    ));
             try {
-                final List<JSONObject> comments = CollectionUtils.jsonArrayToList(commentMapper.get(query).optJSONArray(Keys.RESULTS));
+                final List<Comment> comments = commentMapper.getAcceptedCommentsForArticle(articleId);
                 if (comments.isEmpty()) {
                     return null;
                 }
 
-                final JSONObject ret = comments.get(0);
+                final Comment ret = comments.get(0);
                 organizeComment(avatarViewMode, ret);
 
                 final int pageSize = Symphonys.getInt("articleCommentsPageSize");
-                ret.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
-                        articleId, ret.optString(Keys.OBJECT_ID), commentViewMode, pageSize));
+//                ret.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
+//                        articleId, ret.optString(Keys.OBJECT_ID), commentViewMode, pageSize));
+                result.put("comment", ret);
+                result.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
+                        articleId, ret.getOid(), commentViewMode, pageSize));
 
-                return ret;
-            } catch (final MapperException e) {
+                return result;
+            } catch (final Exception e) {
                 LOGGER.error( "Gets accepted comment failed", e);
 
                 return null;
@@ -191,18 +205,19 @@ public class CommentQueryService {
      * @return page number, return {@code 1} if occurs exception
      */
     public int getCommentPage(final String articleId, final String commentId, final int sortMode, final int pageSize) {
-        final Query numQuery = new Query()
-                .setPageSize(Integer.MAX_VALUE).setCurrentPageNum(1).setPageCount(1);
+        PageHelper.startPage(1,Integer.MAX_VALUE);
+//        final Query numQuery = new Query()
+//                .setPageSize(Integer.MAX_VALUE).setCurrentPageNum(1).setPageCount(1);
 
         switch (sortMode) {
-            case UserExt.USER_COMMENT_VIEW_MODE_C_TRADITIONAL:
+            case UserExtUtil.USER_COMMENT_VIEW_MODE_C_TRADITIONAL:
                 numQuery.setFilter(CompositeFilterOperator.and(
                         new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
                         new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, commentId)
                 )).addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
 
                 break;
-            case UserExt.USER_COMMENT_VIEW_MODE_C_REALTIME:
+            case UserExtUtil.USER_COMMENT_VIEW_MODE_C_REALTIME:
                 numQuery.setFilter(CompositeFilterOperator.and(
                         new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
                         new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN, commentId)
@@ -260,7 +275,7 @@ public class CommentQueryService {
                     commentViewMode, pageSize));
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Get replies failed", e);
 
             return null;
@@ -314,7 +329,7 @@ public class CommentQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Get replies failed", e);
 
             return Collections.emptyList();
@@ -356,7 +371,7 @@ public class CommentQueryService {
                 }
 
                 return ret;
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Get nice comments failed", e);
 
                 return Collections.emptyList();
@@ -385,7 +400,7 @@ public class CommentQueryService {
 
         try {
             return (int) commentMapper.count(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Count day comment failed", e);
 
             return 1;
@@ -411,7 +426,7 @@ public class CommentQueryService {
 
         try {
             return (int) commentMapper.count(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Count month comment failed", e);
 
             return 1;
@@ -424,9 +439,9 @@ public class CommentQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param commentId      the specified comment id
      * @return comment, returns {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getCommentById(final int avatarViewMode, final String commentId) throws ServiceException {
+    public JSONObject getCommentById(final int avatarViewMode, final String commentId) throws Exception {
 
         try {
             final JSONObject ret = commentMapper.get(commentId);
@@ -437,10 +452,10 @@ public class CommentQueryService {
             organizeComment(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( e.getMessage(), e);
 
-            throw new ServiceException("Gets comment[id=" + commentId + "] failed");
+            throw new Exception("Gets comment[id=" + commentId + "] failed");
         }
     }
 
@@ -449,9 +464,9 @@ public class CommentQueryService {
      *
      * @param commentId the specified id
      * @return comment, return {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getComment(final String commentId) throws ServiceException {
+    public JSONObject getComment(final String commentId) throws Exception {
         try {
             final JSONObject ret = commentMapper.get(commentId);
 
@@ -460,9 +475,9 @@ public class CommentQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets a comment [commentId=" + commentId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -476,9 +491,9 @@ public class CommentQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param fetchSize      the specified fetch size
      * @return the latest comments, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getLatestComments(final int avatarViewMode, final int fetchSize) throws ServiceException {
+    public List<JSONObject> getLatestComments(final int avatarViewMode, final int fetchSize) throws Exception {
         final Query query = new Query().addSort(Comment.COMMENT_CREATE_TIME, SortDirection.DESCENDING)
                 .setCurrentPageNum(1).setPageSize(fetchSize).setPageCount(1);
         try {
@@ -524,9 +539,9 @@ public class CommentQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets user comments failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -540,10 +555,10 @@ public class CommentQueryService {
      * @param pageSize       the specified page size
      * @param viewer         the specified viewer, may be {@code null}
      * @return user comments, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getUserComments(final int avatarViewMode, final String userId, final int anonymous,
-                                            final int currentPageNum, final int pageSize, final JSONObject viewer) throws ServiceException {
+                                            final int currentPageNum, final int pageSize, final JSONObject viewer) throws Exception {
         final Query query = new Query().addSort(Comment.COMMENT_CREATE_TIME, SortDirection.DESCENDING)
                 .setCurrentPageNum(currentPageNum).setPageSize(pageSize).
                         setFilter(CompositeFilterOperator.and(
@@ -638,9 +653,9 @@ public class CommentQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets user comments failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -653,11 +668,11 @@ public class CommentQueryService {
      * @param pageSize       the specified page size
      * @param sortMode       the specified sort mode (traditional: 0, real time: 1)
      * @return comments, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getArticleComments(final int avatarViewMode,
                                                final String articleId, final int currentPageNum, final int pageSize, final int sortMode)
-            throws ServiceException {
+            throws Exception {
         Stopwatchs.start("Get comments");
 
         final Query query = new Query()
@@ -711,9 +726,9 @@ public class CommentQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets article [" + articleId + "] comments failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         } finally {
             Stopwatchs.end();
         }
@@ -743,12 +758,12 @@ public class CommentQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
 
     public JSONObject getComments(final int avatarViewMode,
-                                  final JSONObject requestJSONObject, final Map<String, Class<?>> commentFields) throws ServiceException {
+                                  final JSONObject requestJSONObject, final Map<String, Class<?>> commentFields) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
@@ -764,10 +779,10 @@ public class CommentQueryService {
 
         try {
             result = commentMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets comments failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -794,10 +809,10 @@ public class CommentQueryService {
                                 : Emotions.convert(article.optString(Article.ARTICLE_TITLE)));
                 comment.put(Comment.COMMENT_T_ARTICLE_PERMALINK, article.optString(Article.ARTICLE_PERMALINK));
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Organizes comments failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         ret.put(Comment.COMMENTS, comments);
@@ -810,10 +825,10 @@ public class CommentQueryService {
      *
      * @param avatarViewMode the specified avatar view mode
      * @param comments       the specified comments
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      * @see #organizeComment(int, JSONObject)
      */
-    private void organizeComments(final int avatarViewMode, final List<JSONObject> comments) throws MapperException {
+    private void organizeComments(final int avatarViewMode, final List<JSONObject> comments) throws Exception {
         Stopwatchs.start("Organizes comments");
 
         try {
@@ -842,30 +857,30 @@ public class CommentQueryService {
      *
      * @param avatarViewMode the specified avatar view mode
      * @param comment        the specified comment
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private void organizeComment(final int avatarViewMode, final JSONObject comment) throws MapperException {
+    private void organizeComment(final int avatarViewMode, final Comment comment) throws Exception {
         Stopwatchs.start("Organize comment");
 
         try {
-            comment.put(Common.TIME_AGO, Times.getTimeAgo(comment.optLong(Comment.COMMENT_CREATE_TIME), Locales.getLocale()));
-            final Date createDate = new Date(comment.optLong(Comment.COMMENT_CREATE_TIME));
-            comment.put(Comment.COMMENT_CREATE_TIME, createDate);
-            comment.put(Comment.COMMENT_CREATE_TIME_STR, DateFormatUtils.format(createDate, "yyyy-MM-dd HH:mm:ss"));
+            comment.setTimeAgo(Times.getTimeAgo(comment.getCommentCreateTime(), Locales.getLocale()));
+            final Date createDate = new Date(comment.getCommentCreateTime());
+            comment.setCommentCreateTime(createDate.getTime());
+            comment.setCommentCreateTimeStr( DateFormatUtils.format(createDate, "yyyy-MM-dd HH:mm:ss"));
 
-            final String authorId = comment.optString(Comment.COMMENT_AUTHOR_ID);
-            final JSONObject author = userMapper.get(authorId);
+            final String authorId = comment.getCommentAuthorId();
+            final UserExt author = userMapper.get(authorId);
 
-            comment.put(Comment.COMMENT_T_COMMENTER, author);
-            if (Comment.COMMENT_ANONYMOUS_C_PUBLIC == comment.optInt(Comment.COMMENT_ANONYMOUS)) {
-                comment.put(Comment.COMMENT_T_AUTHOR_NAME, author.optString(User.USER_NAME));
-                comment.put(Comment.COMMENT_T_AUTHOR_URL, author.optString(User.USER_URL));
+            comment.setCommenter( author);
+            if (CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC == comment.getCommentAnonymous()) {
+                comment.setCommentAuthorName( author.getUserName());
+                comment.setCommentAuthorURL(author.getUserURL());
                 final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "48");
-                comment.put(Comment.COMMENT_T_AUTHOR_THUMBNAIL_URL, thumbnailURL);
+                comment.setCommentAuthorThumbnailURL( thumbnailURL);
             } else {
-                comment.put(Comment.COMMENT_T_AUTHOR_NAME, UserExt.ANONYMOUS_USER_NAME);
-                comment.put(Comment.COMMENT_T_AUTHOR_URL, "");
-                comment.put(Comment.COMMENT_T_AUTHOR_THUMBNAIL_URL, avatarQueryService.getDefaultAvatarURL("48"));
+                comment.setCommentAuthorName( UserExtUtil.ANONYMOUS_USER_NAME);
+                comment.setCommentAuthorURL( "");
+                comment.setCommentAuthorThumbnailURL( avatarQueryService.getDefaultAvatarURL("48"));
             }
 
             processCommentContent(comment);
@@ -890,20 +905,20 @@ public class CommentQueryService {
      *                ....,
      *                "commenter": {}
      */
-    private void processCommentContent(final JSONObject comment) {
-        final JSONObject commenter = comment.optJSONObject(Comment.COMMENT_T_COMMENTER);
+    private void processCommentContent(final Comment comment) {
+        final UserExt commenter = (UserExt)comment.getCommenter();
 
-        final boolean sync = StringUtils.isNotBlank(comment.optString(Comment.COMMENT_CLIENT_COMMENT_ID));
-        comment.put(Common.FROM_CLIENT, sync);
+        final boolean sync = StringUtils.isNotBlank(comment.getClientCommentId());
+        comment.setFromClient( sync);
 
-        if (Comment.COMMENT_STATUS_C_INVALID == comment.optInt(Comment.COMMENT_STATUS)
-                || UserExt.USER_STATUS_C_INVALID == commenter.optInt(UserExt.USER_STATUS)) {
-            comment.put(Comment.COMMENT_CONTENT, langPropsService.get("commentContentBlockLabel"));
+        if (CommentUtil.COMMENT_STATUS_C_INVALID == comment.getCommentStatus()
+                || UserExtUtil.USER_STATUS_C_INVALID == commenter.getUserStatus()) {
+            comment.setCommentContent( langPropsService.get("commentContentBlockLabel"));
 
             return;
         }
 
-        String commentContent = comment.optString(Comment.COMMENT_CONTENT);
+        String commentContent = comment.getCommentContent();
 
         commentContent = shortLinkQueryService.linkArticle(commentContent);
         commentContent = shortLinkQueryService.linkTag(commentContent);
@@ -919,14 +934,14 @@ public class CommentQueryService {
             syncCommenterName = StringUtils.substringBefore(syncCommenterName, "</i>");
 
             if (UserRegisterValidation.invalidUserName(syncCommenterName)) {
-                syncCommenterName = UserExt.ANONYMOUS_USER_NAME;
+                syncCommenterName = UserExtUtil.ANONYMOUS_USER_NAME;
             }
 
             commentContent = commentContent.replaceAll("<i class=\"ft-small\">by .*</i>", "");
 
-            comment.put(Comment.COMMENT_T_AUTHOR_NAME, syncCommenterName);
+            comment.setCommentAuthorName(syncCommenterName);
         }
 
-        comment.put(Comment.COMMENT_CONTENT, commentContent);
+        comment.setCommentContent( commentContent);
     }
 }

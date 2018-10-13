@@ -18,6 +18,7 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Comment;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -43,4 +44,8 @@ public interface CommentMapper {
     void removeCommentByArticleId(final String commentOnArticleId);
 
     List<Comment> getByCommentAuthorId(final String commentAuthorId);
+
+    //Gets the offered (accepted) comment of an article
+    @Select("select * from comment WHERE commentOnArticleId = #{articleId} AND commentQnAOffered = 1 AND commentStatus = 0 ORDER BY commentScore DESC")
+    List<Comment> getAcceptedCommentsForArticle(final String articleId);
 }

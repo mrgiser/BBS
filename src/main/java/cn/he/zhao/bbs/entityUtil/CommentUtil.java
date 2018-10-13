@@ -126,7 +126,7 @@ public final class CommentUtil {
      */
     public static final String COMMENT_QNA_OFFERED = "commentQnAOffered";
 
-    //// Transient ////
+    //// Transient ////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Key of comment revision count.
      */

@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entity.Character;
+import cn.he.zhao.bbs.entityUtil.CharacterUtil;
 import cn.he.zhao.bbs.mapper.CharacterMapper;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
@@ -77,13 +79,9 @@ public class CharacterQueryService {
     public int getWrittenCharacterCount() {
 
         try {
-            final List<JSONObject> result = characterMapper.select("select count(DISTINCT characterContent) from "
-                    + characterMapper.getName());
-            if (null == result || result.isEmpty()) {
-                return 0;
-            }
+            final int result = characterMapper.countCharacter();
 
-            return result.get(0).optInt("count(DISTINCT characterContent)");
+            return result;
         } catch (final Exception e) {
             LOGGER.error( "Counts characters failed", e);
 
@@ -100,13 +98,13 @@ public class CharacterQueryService {
      *
      * @return all written characters
      */
-    public Set<JSONObject> getWrittenCharacters() {
+    public List<Character> getWrittenCharacters() {
         try {
-            return CollectionUtils.jsonArrayToSet(characterMapper.get(new Query()).optJSONArray(Keys.RESULTS));
+            return characterMapper.getAll();
         } catch (final Exception e) {
             LOGGER.error( "Gets characters failed", e);
 
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
     }
 
@@ -117,11 +115,11 @@ public class CharacterQueryService {
      * @return user written character count
      */
     public int getWrittenCharacterCount(final String userId) {
-        final Query query = new Query().setFilter(new PropertyFilter(
-                Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId));
+//        final Query query = new Query().setFilter(new PropertyFilter(
+//                CharacterUtil.CHARACTER_USER_ID, FilterOperator.EQUAL, userId));
 
         try {
-            return (int) characterMapper.count(query);
+            return (int) characterMapper.countByCharacterUserId(userId);
         } catch (final Exception e) {
             LOGGER.error( "Counts user written characters failed", e);
 
@@ -163,19 +161,19 @@ public class CharacterQueryService {
 
             index++;
 
-            final Query query = new Query();
-            query.setFilter(CompositeFilterOperator.and(
-                    new PropertyFilter(Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
-                    new PropertyFilter(Character.CHARACTER_CONTENT, FilterOperator.EQUAL, ret)
-            ));
+//            final Query query = new Query();
+//            query.setFilter(CompositeFilterOperator.and(
+//                    new PropertyFilter(Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
+//                    new PropertyFilter(CharacterUtil.CHARACTER_CONTENT, FilterOperator.EQUAL, ret)
+//            ));
 
             try {
-                if (characterMapper.count(query) > 0) {
+                if (characterMapper.countByCharacterUserIdANDCharacterContent(userId, ret) > 0) {
                     continue;
                 }
 
                 return ret;
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Gets an unwritten character for user [id=" + userId + "] failed", e);
             }
         }
@@ -199,19 +197,19 @@ public class CharacterQueryService {
             final int index = RandomUtils.nextInt(characters.length());
             final String ret = StringUtils.trim(characters.substring(index, index + 1));
 
-            final Query query = new Query();
-            query.setFilter(CompositeFilterOperator.and(
-                    new PropertyFilter(org.b3log.symphony.model.Character.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
-                    new PropertyFilter(org.b3log.symphony.model.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, ret)
-            ));
+//            final Query query = new Query();
+//            query.setFilter(CompositeFilterOperator.and(
+//                    new PropertyFilter(CharacterUtil.CHARACTER_USER_ID, FilterOperator.EQUAL, userId),
+//                    new PropertyFilter(CharacterUtil.CHARACTER_CONTENT, FilterOperator.EQUAL, ret)
+//            ));
 
             try {
-                if (characterMapper.count(query) > 0) {
+                if (characterMapper.countByCharacterUserIdANDCharacterContent(userId,ret) > 0) {
                     continue;
                 }
 
                 return ret;
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Gets an unwritten character failed", e);
             }
         }
@@ -250,16 +248,16 @@ public class CharacterQueryService {
             final int index = RandomUtils.nextInt(characters.length());
             final String ret = StringUtils.trim(characters.substring(index, index + 1));
 
-            final Query query = new Query().setFilter(
-                    new PropertyFilter(org.b3log.symphony.model.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, ret));
+//            final Query query = new Query().setFilter(
+//                    new PropertyFilter(CharacterUtil.CHARACTER_CONTENT, FilterOperator.EQUAL, ret));
 
             try {
-                if (characterMapper.count(query) > 0) {
+                if (characterMapper.countByCharacterContent(ret) > 0) {
                     continue;
                 }
 
                 return ret;
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Gets an unwritten character failed", e);
             }
         }
@@ -285,16 +283,16 @@ public class CharacterQueryService {
 
             index++;
 
-            final Query query = new Query().setFilter(
-                    new PropertyFilter(org.b3log.symphony.model.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, ret));
+//            final Query query = new Query().setFilter(
+//                    new PropertyFilter(org.b3log.symphony.model.Character.CHARACTER_CONTENT, FilterOperator.EQUAL, ret));
 
             try {
-                if (characterMapper.count(query) > 0) {
+                if (characterMapper.countByCharacterContent(ret) > 0) {
                     continue;
                 }
 
                 return ret;
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Gets an unwritten character failed", e);
             }
         }
