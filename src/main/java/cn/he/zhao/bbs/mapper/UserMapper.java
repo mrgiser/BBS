@@ -26,6 +26,8 @@ public interface UserMapper {
 
     UserExt get(final String oId) ;
 
+    List<UserExt> getAll();
+
     List<UserExt> getByUserJoinPointRank(final int userJoinPointRank);
     List<UserExt> getByUserJoinUsedPointRank(final int userJoinUsedPointRank);
 
@@ -44,4 +46,34 @@ public interface UserMapper {
 
     @Select("select count(*) from user where userRole = #{roleId}")
     Integer countByRoleId(final String roleId);
+
+    @Select("SELECT\n"
+            + "	u.*, Sum(sum) AS point\n"
+            + "FROM\n"
+            + "	" + "pointtransfer" + " AS p,\n"
+            + "	" + "user" + " AS u\n"
+            + "WHERE\n"
+            + "	p.toId = u.oId\n"
+            + "AND type = 27\n"
+            + "GROUP BY\n"
+            + "	toId\n"
+            + "ORDER BY\n"
+            + "	point DESC\n"
+            + "LIMIT #{fetchSize}")
+    List<UserExt> getsTopEatingsnakeUsersSum(final int fetchSize);
+
+    @Select("SELECT\n"
+            + "	u.*, MAX(sum) AS point\n"
+            + "FROM\n"
+            + "	" + "pointtransfer" + " AS p,\n"
+            + "	" + "user" + " AS u\n"
+            + "WHERE\n"
+            + "	p.toId = u.oId\n"
+            + "AND type = 27\n"
+            + "GROUP BY\n"
+            + "	toId\n"
+            + "ORDER BY\n"
+            + "	point DESC\n"
+            + "LIMIT #{fetchSize}")
+    List<UserExt> getsTopEatingsnakeUsersMax(final int fetchSize);
 }

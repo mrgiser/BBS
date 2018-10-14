@@ -17,6 +17,8 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.mapper.PointtransferMapper;
 import cn.he.zhao.bbs.mapper.UserMapper;
@@ -24,6 +26,8 @@ import cn.he.zhao.bbs.entity.Pointtransfer;
 import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.util.JsonUtil;
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang.time.DateUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -96,26 +100,15 @@ public class ActivityQueryService {
         final List<JSONObject> ret = new ArrayList<>();
 
         try {
-            final List<JSONObject> users = userMapper.select("SELECT\n"
-                    + "	u.*, MAX(sum) AS point\n"
-                    + "FROM\n"
-                    + "	" + pointtransferMapper.getName() + " AS p,\n"
-                    + "	" + userMapper.getName() + " AS u\n"
-                    + "WHERE\n"
-                    + "	p.toId = u.oId\n"
-                    + "AND type = 27\n"
-                    + "GROUP BY\n"
-                    + "	toId\n"
-                    + "ORDER BY\n"
-                    + "	point DESC\n"
-                    + "LIMIT ?", fetchSize);
+            final List<UserExt> users = userMapper.getsTopEatingsnakeUsersMax(fetchSize);
 
-            for (final JSONObject user : users) {
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
+            for (final UserExt user : users) {
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, json);
 
-                ret.add(user);
+                ret.add(json);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets top eating snake users error", e);
         }
 
@@ -133,26 +126,15 @@ public class ActivityQueryService {
         final List<JSONObject> ret = new ArrayList<>();
 
         try {
-            final List<JSONObject> users = userMapper.select("SELECT\n"
-                    + "	u.*, Sum(sum) AS point\n"
-                    + "FROM\n"
-                    + "	" + pointtransferMapper.getName() + " AS p,\n"
-                    + "	" + userMapper.getName() + " AS u\n"
-                    + "WHERE\n"
-                    + "	p.toId = u.oId\n"
-                    + "AND type = 27\n"
-                    + "GROUP BY\n"
-                    + "	toId\n"
-                    + "ORDER BY\n"
-                    + "	point DESC\n"
-                    + "LIMIT ?", fetchSize);
+            final List<UserExt> users = userMapper.getsTopEatingsnakeUsersSum(fetchSize);
 
-            for (final JSONObject user : users) {
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
+            for (final UserExt user : users) {
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, json);
 
-                ret.add(user);
+                ret.add(json);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets top eating snake users error", e);
         }
 
@@ -169,26 +151,29 @@ public class ActivityQueryService {
     public List<JSONObject> getTopCheckinUsers(final int avatarViewMode, final int fetchSize) {
         final List<JSONObject> ret = new ArrayList<>();
 
-        final Query query = new Query().addSort(UserExt.USER_LONGEST_CHECKIN_STREAK, SortDirection.DESCENDING).
-                addSort(UserExt.USER_CURRENT_CHECKIN_STREAK, SortDirection.DESCENDING).
-                setCurrentPageNum(1).setPageSize(fetchSize);
+//        final Query query = new Query().addSort(UserExtUtil.USER_LONGEST_CHECKIN_STREAK, SortDirection.DESCENDING).
+//                addSort(UserExtUtil.USER_CURRENT_CHECKIN_STREAK, SortDirection.DESCENDING).
+//                setCurrentPageNum(1).setPageSize(fetchSize);
+
+        PageHelper.startPage(1,fetchSize,"userLongestCheckinStreak DESC, userCurrentCheckinStreak DESC");
 
         try {
-            final JSONObject result = userMapper.get(query);
-            final List<JSONObject> users = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
+            final List<UserExt> users = userMapper.getAll();
+//            final List<JSONObject> users = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
 
-            for (final JSONObject user : users) {
-                if (UserExt.USER_APP_ROLE_C_HACKER == user.optInt(UserExt.USER_APP_ROLE)) {
-                    user.put(UserExt.USER_T_POINT_HEX, Integer.toHexString(user.optInt(UserExt.USER_POINT)));
+            for (final UserExt user : users) {
+                if (UserExtUtil.USER_APP_ROLE_C_HACKER == user.getUserAppRole()) {
+                    user.setUserPointHex( Integer.toHexString(user.getUserPoint()));
                 } else {
-                    user.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(user.optInt(UserExt.USER_POINT)));
+                    user.setUserPointCC( UserExtUtil.toCCString(user.getUserPoint()));
                 }
 
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, json);
 
-                ret.add(user);
+                ret.add(json);
             }
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets top checkin users error", e);
         }
 
@@ -204,8 +189,8 @@ public class ActivityQueryService {
     public synchronized boolean isCheckedinToday(final String userId) {
         Stopwatchs.start("Checks checkin");
         try {
-            final JSONObject user = userMapper.get(userId);
-            final long time = user.optLong(UserExt.USER_CHECKIN_TIME);
+            final UserExt user = userMapper.get(userId);
+            final long time = user.getUserCheckinTime();
 
             return DateUtils.isSameDay(new Date(), new Date(time));
         } catch (final Exception e) {
@@ -226,14 +211,14 @@ public class ActivityQueryService {
     public synchronized boolean is1A0001Today(final String userId) {
         final Date now = new Date();
 
-        final List<JSONObject> records = pointtransferQueryService.getLatestPointtransfers(userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
+        final List<Pointtransfer> records = pointtransferQueryService.getLatestPointtransfers(userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
         if (records.isEmpty()) {
             return false;
         }
 
-        final JSONObject maybeToday = records.get(0);
-        final long time = maybeToday.optLong(Pointtransfer.TIME);
+        final Pointtransfer maybeToday = records.get(0);
+        final long time = maybeToday.getTime();
 
         return DateUtils.isSameDay(now, new Date(time));
     }
@@ -247,14 +232,14 @@ public class ActivityQueryService {
     public synchronized boolean isCollected1A0001Today(final String userId) {
         final Date now = new Date();
 
-        final List<JSONObject> records = pointtransferQueryService.getLatestPointtransfers(userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001_COLLECT, 1);
+        final List<Pointtransfer> records = pointtransferQueryService.getLatestPointtransfers(userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001_COLLECT, 1);
         if (records.isEmpty()) {
             return false;
         }
 
-        final JSONObject maybeToday = records.get(0);
-        final long time = maybeToday.optLong(Pointtransfer.TIME);
+        final Pointtransfer maybeToday = records.get(0);
+        final long time = maybeToday.getTime();
 
         return DateUtils.isSameDay(now, new Date(time));
     }
@@ -268,14 +253,14 @@ public class ActivityQueryService {
     public synchronized boolean isCollectedYesterdayLivenessReward(final String userId) {
         final Date now = new Date();
 
-        final List<JSONObject> records = pointtransferQueryService.getLatestPointtransfers(userId,
-                Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD, 1);
+        final List<Pointtransfer> records = pointtransferQueryService.getLatestPointtransfers(userId,
+                PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD, 1);
         if (records.isEmpty()) {
             return false;
         }
 
-        final JSONObject maybeToday = records.get(0);
-        final long time = maybeToday.optLong(Pointtransfer.TIME);
+        final Pointtransfer maybeToday = records.get(0);
+        final long time = maybeToday.getTime();
 
         return DateUtils.isSameDay(now, new Date(time));
     }
