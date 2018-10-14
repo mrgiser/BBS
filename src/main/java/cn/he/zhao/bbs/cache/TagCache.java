@@ -234,7 +234,7 @@ public class TagCache {
 //        final Query query = new Query().setFilter(
 //                new PropertyFilter(Tag.TAG_STATUS, FilterOperator.EQUAL, TagUtil.TAG_STATUS_C_VALID))
 //                .setCurrentPageNum(1).setPageSize(Integer.MAX_VALUE).setPageCount(1);
-        PageHelper.startPage(1,Integer.MAX_VALUE)
+        PageHelper.startPage(1,Integer.MAX_VALUE);
         try {
             final List<Tag> tags = tagMapper.getByStatus(TagUtil.TAG_STATUS_C_VALID);
 //            final List<JSONObject> tags = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));

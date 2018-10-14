@@ -30,6 +30,7 @@ import cn.he.zhao.bbs.mapper.UserMapper;
 import cn.he.zhao.bbs.entity.Follow;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.util.JsonUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
@@ -128,7 +129,7 @@ public class FollowQueryService {
      */
     public JSONObject getFollowingUsers(final int avatarViewMode, final String followerId, final int currentPageNum, final int pageSize) {
         final JSONObject ret = new JSONObject();
-        final List<UserExt> records = new ArrayList<>();
+        final List<JSONObject> records = new ArrayList<>();
         ret.put(Keys.RESULTS, (Object) records);
         ret.put(Pagination.PAGINATION_RECORD_COUNT, 0);
 
@@ -148,9 +149,10 @@ public class FollowQueryService {
                     continue;
                 }
 
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, json);
 
-                records.add(user);
+                records.add(json);
             }
 
             ret.put(Pagination.PAGINATION_RECORD_COUNT, result.optInt(Pagination.PAGINATION_RECORD_COUNT));
@@ -328,7 +330,7 @@ public class FollowQueryService {
      */
     public JSONObject getArticleWatchers(final int avatarViewMode, final String watchingArticleId, final int currentPageNum, final int pageSize) {
         final JSONObject ret = new JSONObject();
-        final List<UserExt> records = new ArrayList<>();
+        final List<JSONObject> records = new ArrayList<>();
         ret.put(Keys.RESULTS, (Object) records);
         ret.put(Pagination.PAGINATION_RECORD_COUNT, 0);
 
@@ -344,9 +346,10 @@ public class FollowQueryService {
                     continue;
                 }
 
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, json);
 
-                records.add(user);
+                records.add(json);
             }
 
             ret.put(Pagination.PAGINATION_RECORD_COUNT, result.optInt(Pagination.PAGINATION_RECORD_COUNT));
@@ -375,7 +378,7 @@ public class FollowQueryService {
      */
     public JSONObject getFollowerUsers(final int avatarViewMode, final String followingUserId, final int currentPageNum, final int pageSize) {
         final JSONObject ret = new JSONObject();
-        final List<UserExt> records = new ArrayList<>();
+        final List<JSONObject> records = new ArrayList<>();
         ret.put(Keys.RESULTS, (Object) records);
         ret.put(Pagination.PAGINATION_RECORD_COUNT, 0);
 
@@ -391,9 +394,10 @@ public class FollowQueryService {
                     continue;
                 }
 
-                avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(user));
+                avatarQueryService.fillUserAvatarURL(avatarViewMode, json);
 
-                records.add(user);
+                records.add(json);
             }
 
             ret.put(Pagination.PAGINATION_RECORD_COUNT, result.optInt(Pagination.PAGINATION_RECORD_COUNT));

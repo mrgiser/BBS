@@ -10,6 +10,10 @@ public interface ArticleMapper {
 
 //    @Autowired
 //    ArticleCache articleCache;
+    Article get(final String oId);
+
+    @Select("select * from article WHERE articleStick >= #{articleStick}")
+    List<Article> getByArticleStick(final Long articleStick);
 
     Article getByPrimaryKey(final String oid);
 

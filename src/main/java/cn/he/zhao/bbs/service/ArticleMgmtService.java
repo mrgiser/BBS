@@ -209,7 +209,7 @@ public class ArticleMgmtService {
         Article article = null;
 
         try {
-            article = articleMapper.get(articleId);
+            article = articleMapper.getByOid(articleId);
         } catch (final Exception e) {
             LOGGER.error( "Gets article [id=" + articleId + "] failed", e);
         }
@@ -295,7 +295,7 @@ public class ArticleMgmtService {
 
                 article.setArticleAudioURL( audioURL);
 
-                final Article toUpdate = articleMapper.get(articleId);
+                final Article toUpdate = articleMapper.getByOid(articleId);
                 toUpdate.setArticleAudioURL( audioURL);
 
                 articleMapper.update( toUpdate);
@@ -325,7 +325,7 @@ public class ArticleMgmtService {
     @Transactional
     public void removeArticleByAdmin(final String articleId) {
         try {
-            final Article article = articleMapper.get(articleId);
+            final Article article = articleMapper.getByOid(articleId);
             if (null == article) {
                 return;
             }
@@ -356,13 +356,13 @@ public class ArticleMgmtService {
             if (null != cityArticleCntOption) {
                 Long value =  Long.parseLong(cityArticleCntOption.getOptionValue()) - 1;
                 cityArticleCntOption.setOptionValue(value.toString());
-                optionMapper.update(cityStatId, cityArticleCntOption);
+                optionMapper.update( cityArticleCntOption);
             }
 
             final Option articleCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
             Long value =  Long.parseLong(articleCntOption.getOptionValue()) - 1;
             articleCntOption.setOptionValue(value.toString());
-            optionMapper.update(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
+            optionMapper.update( articleCntOption);
 
             articleMapper.remove(articleId);
 
@@ -416,7 +416,7 @@ public class ArticleMgmtService {
         Symphonys.EXECUTOR_SERVICE.submit(() -> {
 //            final Transaction transaction = articleMapper.beginTransaction();
             try {
-                final Article article = articleMapper.get(articleId);
+                final Article article = articleMapper.getByOid(articleId);
                 if (null == article) {
 //                    if (transaction.isActive()) {
 //                        transaction.rollback();
@@ -445,7 +445,7 @@ public class ArticleMgmtService {
     /**
      * Adds an article with the specified request json object.
      *
-     * @param requestJSONObject the specified request json object, for example,
+     * @param article the specified request json object, for example,
      *                          "articleTitle": "",
      *                          "articleTags": "",
      *                          "articleContent": "",
@@ -602,7 +602,7 @@ public class ArticleMgmtService {
 
 //            article.put(Article.ARTICLE_EDITOR_TYPE, requestJSONObject.optString(Article.ARTICLE_EDITOR_TYPE));
 
-            article.setSyncWithSymphonyClient(Article.ARTICLE_SYNC_TO_CLIENT, fromClient ? true : author.optBoolean(UserExt.SYNC_TO_CLIENT));
+            article.setSyncWithSymphonyClient( String.valueOf(fromClient ? true : Boolean.valueOf(author.getSyncWithSymphonyClient())));
 
             article.setArticleAuthorId(authorId);
             article.setArticleCommentCount(0);
@@ -611,7 +611,11 @@ public class ArticleMgmtService {
             article.setArticleBadCnt(0);
             article.setArticleCollectCnt(0);
             article.setArticleWatchCnt( 0);
-            article.setArticleCommentable(Article.ARTICLE_COMMENTABLE, requestJSONObject.optBoolean(Article.ARTICLE_COMMENTABLE, true));
+            if(article.getArticleCommentable() != null){
+                article.setArticleCommentable( article.getArticleCommentable());
+            } else {
+                article.setArticleCommentable( String.valueOf(true));
+            }
             article.setArticleCreateTime( currentTimeMillis);
             article.setArticleUpdateTime( currentTimeMillis);
             article.setArticleLatestCmtTime(0L);
@@ -691,7 +695,7 @@ public class ArticleMgmtService {
             final int articleCnt = Integer.parseInt(articleCntOption.getOptionValue());
             int tmp = articleCnt + 1;
             articleCntOption.setOptionValue(tmp + "");
-            optionMapper.update(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT, articleCntOption);
+            optionMapper.update( articleCntOption);
 
             if (!StringUtils.isBlank(city)) {
                 final String cityStatId = city + "-ArticleCount";
@@ -709,7 +713,7 @@ public class ArticleMgmtService {
                     int tmp_val = cityArticleCnt + 1;
                     cityArticleCntOption.setOptionValue(tmp_val+ "");
 
-                    optionMapper.update(cityStatId, cityArticleCntOption);
+                    optionMapper.update( cityArticleCntOption);
                 }
             }
 
@@ -918,7 +922,7 @@ public class ArticleMgmtService {
             articleContent = articleContent.replace(langPropsService.get("uploadingLabel", Locale.US), "");
 
             final String oldContent = oldArticle.getArticleContent();
-            oldArticle.setArticleContent(, articleContent);
+            oldArticle.setArticleContent( articleContent);
 
             final long currentTimeMillis = System.currentTimeMillis();
             final long createTime = Long.parseLong(oldArticle.getOid());
@@ -1027,7 +1031,8 @@ public class ArticleMgmtService {
             final String authorId = article.getArticleAuthorId();
             final UserExt author = userMapper.get(authorId);
 
-            article.setArticleCommentable( Boolean.valueOf(article.getArticleCommentable()));
+            // TODO: 2018/10/14 str bool 转换
+            article.setArticleCommentable( String.valueOf(Boolean.valueOf(article.getArticleCommentable())));
             article.setSyncWithSymphonyClient( author.getSyncWithSymphonyClient());
 
             final Article oldArticle = articleMapper.get(articleId);
@@ -1287,9 +1292,9 @@ public class ArticleMgmtService {
                 throw new Exception(langPropsService.get("insufficientBalanceLabel"));
             }
 
-            final Query query = new Query().
-                    setFilter(new PropertyFilter(Article.ARTICLE_STICK, FilterOperator.GREATER_THAN, 0L));
-            final List<Article> articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
+//            final Query query = new Query().
+//                    setFilter(new PropertyFilter(ArticleUtil.ARTICLE_STICK, FilterOperator.GREATER_THAN, 0L));
+            final List<Article> articles = articleMapper.getByArticleStick(0L);
             if (articles.size() > 1) {
                 final Set<String> ids = new HashSet<>();
                 for (int i = 0; i < articles.size(); i++) {
@@ -1380,9 +1385,9 @@ public class ArticleMgmtService {
     @Transactional
     public void expireStick() throws Exception {
         try {
-            final Query query = new Query().
-                    setFilter(new PropertyFilter(Article.ARTICLE_STICK, FilterOperator.GREATER_THAN, 0L));
-            final List<Article> articles = articleMapper.get(query).optJSONArray(Keys.RESULTS);
+//            final Query query = new Query().
+//                    setFilter(new PropertyFilter(Article.ARTICLE_STICK, FilterOperator.GREATER_THAN, 0L));
+            final List<Article> articles = articleMapper.getByArticleStick(0L);
             if (articles.size() < 1) {
                 return;
             }
@@ -1775,14 +1780,14 @@ public class ArticleMgmtService {
             article.setArticleContent(Emotions.toAliases(requestJSONObject.optString(ArticleUtil.ARTICLE_CONTENT)));
             article.setArticleRewardContent( requestJSONObject.optString(ArticleUtil.ARTICLE_REWARD_CONTENT));
             article.setArticleEditorType(0);
-            article.setSyncWithSymphonyClient(false);
+            article.setSyncWithSymphonyClient(String.valueOf(false));
             article.setArticleCommentCount(0);
             article.setArticleViewCount( 0);
             article.setArticleGoodCnt( 0);
             article.setArticleBadCnt( 0);
             article.setArticleCollectCnt( 0);
             article.setArticleWatchCnt(0);
-            article.setArticleCommentable(true);
+            article.setArticleCommentable(String.valueOf(true));
             article.setArticleCreateTime( time);
             article.setArticleUpdateTime(time);
             article.setArticleLatestCmtTime( 0L);

@@ -17,10 +17,12 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.LivenessUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.util.JsonUtil;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
@@ -64,13 +66,14 @@ public class LivenessQueryService {
             final String date = DateFormatUtils.format(new Date(), "yyyyMMdd");
 
             try {
-                final JSONObject liveness = livenessMapper.getByUserAndDate(userId, date);
+                final Liveness liveness = livenessMapper.getByUserAndDate(userId, date);
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(liveness));
                 if (null == liveness) {
                     return 0;
                 }
 
-                return Liveness.calcPoint(liveness);
-            } catch (final MapperException e) {
+                return LivenessUtil.calcPoint(json);
+            } catch (final Exception e) {
                 LOGGER.error( "Gets current liveness point failed", e);
 
                 return 0;
@@ -91,8 +94,10 @@ public class LivenessQueryService {
         final String date = DateFormatUtils.format(yesterday, "yyyyMMdd");
 
         try {
-            return livenessMapper.getByUserAndDate(userId, date);
-        } catch (final MapperException e) {
+            Liveness liveness = livenessMapper.getByUserAndDate(userId, date);
+            JSONObject json = new JSONObject(JsonUtil.objectToJson(liveness));
+            return json;
+        } catch (final Exception e) {
             LOGGER.error( "Gets yesterday's liveness failed", e);
 
             return null;

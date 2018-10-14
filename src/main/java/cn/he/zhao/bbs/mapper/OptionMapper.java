@@ -28,6 +28,7 @@ public interface OptionMapper  {
     Option get(final String id) ;
 
     void update(final Option option) ;
+    void update(final String oId, final Option option) ;
 
     String add(Option cityArticleCntOption);
 }
