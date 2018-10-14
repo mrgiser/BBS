@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.json.JSONObject;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.Character;
+
 /**
  * ReferralUtil management service.
  *
@@ -47,13 +49,13 @@ public class ReferralMgmtService {
             Referral record = referralMapper.getByDataIdAndIP(dataId, ip);
             if (null == record) {
                 record = new Referral();
-                record.setReferralAuthorHasPoint(false);
+                record.setReferralAuthorHasPoint(String.valueOf(false));
                 record.setReferralClick(1);
                 record.setReferralDataId( dataId);
                 record.setReferralIP( ip);
                 record.setReferralType(referral.optInt(ReferralUtil.REFERRAL_TYPE));
                 record.setReferralUser(referral.optString(ReferralUtil.REFERRAL_USER));
-                record.setReferralUserHasPoint(false);
+                record.setReferralUserHasPoint(String.valueOf(false));
 
                 referralMapper.add(record);
             } else {
