@@ -30,7 +30,7 @@ public interface UserTagMapper {
 
     JSONObject getByUserId(final String userId, final int currentPageNum, final int pageSize) ;
 
-    JSONObject getByTagId(final String tagId, final int currentPageNum, final int pageSize) ;
+    List<UserTag> getByTagId(final String tagId, final int currentPageNum, final int pageSize) ;
 
     String add(UserTag userTagRelation);
 

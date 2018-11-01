@@ -40,7 +40,7 @@ public interface DomainTagMapper {
     void removeByDomainId(final String domainId);
 
 
-    JSONObject getByTagOId(final String tagId, final int currentPageNum, final int pageSize);
+    List<Domain> getByTagOId(final String tagId, final int currentPageNum, final int pageSize);
 
     List<DomainTag> getByTagOId(final String tagId);
 

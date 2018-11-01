@@ -18,11 +18,13 @@
 package cn.he.zhao.bbs.util;
 
 import cn.he.zhao.bbs.entity.Option;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.service.LangPropsServiceImpl;
 import cn.he.zhao.bbs.service.OptionQueryService;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Locales;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import org.apache.commons.io.IOUtils;
@@ -160,7 +162,7 @@ public final class Symphonys {
                     final OptionQueryService optionQueryService = SpringUtil.getBean(OptionQueryService.class);
 
                     final JSONObject statistic = optionQueryService.getStatistic();
-                    final int articleCount = statistic.optInt(Option.ID_C_STATISTIC_ARTICLE_COUNT);
+                    final int articleCount = statistic.optInt(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
                     if (articleCount < 66) {
                         return;
                     }

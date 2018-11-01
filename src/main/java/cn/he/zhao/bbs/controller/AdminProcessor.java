@@ -596,8 +596,8 @@ public class AdminProcessor {
         final String roleDesc = request.getParameter(Role.ROLE_DESCRIPTION);
 
         final JSONObject role = new JSONObject();
-        role.put(Role.ROLE_NAME, roleName);
-        role.put(Role.ROLE_DESCRIPTION, roleDesc);
+        role.setRoleName( roleName);
+        role.setRoleDescription( roleDesc);
 
         roleMgmtService.addRole(role);
 
@@ -726,7 +726,7 @@ public class AdminProcessor {
         if (null == adOption) {
             adOption = new JSONObject();
             adOption.put(Keys.OBJECT_ID, Option.ID_C_SIDE_FULL_AD);
-            adOption.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_AD);
+            adoption.setOptionCategory( Option.CATEGORY_C_AD);
             adOption.put(Option.OPTION_VALUE, sideFullAd);
 
             optionMgmtService.addOption(adOption);
@@ -762,7 +762,7 @@ public class AdminProcessor {
         if (null == adOption) {
             adOption = new JSONObject();
             adOption.put(Keys.OBJECT_ID, Option.ID_C_HEADER_BANNER);
-            adOption.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_AD);
+            adoption.setOptionCategory( Option.CATEGORY_C_AD);
             adOption.put(Option.OPTION_VALUE, headerBanner);
 
             optionMgmtService.addOption(adOption);
@@ -2464,7 +2464,7 @@ public class AdminProcessor {
             final JSONObject option = new JSONObject();
             option.put(Keys.OBJECT_ID, name);
             option.put(Option.OPTION_VALUE, value);
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_MISC);
+            option.setOptionCategory( Option.CATEGORY_C_MISC);
 
             misc.add(option);
         }

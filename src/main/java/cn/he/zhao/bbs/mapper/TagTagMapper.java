@@ -26,9 +26,13 @@ import java.util.List;
 
 public interface TagTagMapper {
 
+    String add(final TagTag tagTag);
+
+    void update(final String tagRelationId, final TagTag tagRelation);
+
     List<TagTag> getByTag1Id(final String tag1Id);
 
     List<TagTag> getByTag2Id(final String tag2Id);
 
-    public JSONObject getByTag1IdAndTag2Id(final String tag1Id, final String tag2Id);
+    public TagTag getByTag1IdAndTag2Id(final String tag1Id, final String tag2Id);
 }

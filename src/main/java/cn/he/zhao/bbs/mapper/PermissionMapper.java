@@ -24,6 +24,8 @@ import java.util.List;
 
 public interface PermissionMapper {
 
+    String add(final Permission permission);
+
     Permission get(final String permissionId);
 
     List<Permission> getAll();

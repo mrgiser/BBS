@@ -2,10 +2,15 @@ package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.DomainCache;
 import cn.he.zhao.bbs.cache.TagCache;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
+import cn.he.zhao.bbs.util.URLs;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -101,34 +106,33 @@ public class TagMgmtService {
 
         int removedCnt = 0;
         try {
-            final JSONArray tags = tagMapper.get(new Query()).optJSONArray(Keys.RESULTS);
+            final List<Tag> tags = tagMapper.getALL();
 
-            for (int i = 0; i < tags.length(); i++) {
-                final JSONObject tag = tags.optJSONObject(i);
-                final String tagId = tag.optString(Keys.OBJECT_ID);
+            for (int i = 0; i < tags.size(); i++) {
+                final Tag tag = tags.get(i);
+                final String tagId = tag.getOid();
 
-                if (0 == tag.optInt(Tag.TAG_REFERENCE_CNT) // article ref cnt
-                        && 0 == domainTagMapper.getByTagId(tagId, 1, Integer.MAX_VALUE)
-                        .optJSONArray(Keys.RESULTS).length() // domainTagRefCnt
+                if (0 == tag.getTagReferenceCount() // article ref cnt
+                        && 0 == domainTagMapper.getByTagOId(tagId, 1, Integer.MAX_VALUE)
+                        .size() // domainTagRefCnt
                         && 0 == tagUserLinkMapper.countTagLink(tagId) // tagUserLinkRefCnt
                         ) {
-                    final JSONArray userTagRels = userTagMapper.getByTagId(tagId, 1, Integer.MAX_VALUE)
-                            .optJSONArray(Keys.RESULTS);
-                    if (1 == userTagRels.length()
-                            && Tag.TAG_TYPE_C_CREATOR == userTagRels.optJSONObject(0).optInt(Common.TYPE)) {
+                    final List<UserTag> userTagRels = userTagMapper.getByTagId(tagId, 1, Integer.MAX_VALUE);
+                    if (1 == userTagRels.size()
+                            && TagUtil.TAG_TYPE_C_CREATOR == userTagRels.get(0).getType()) {
                         // Just the tag's creator but not use it now
                         tagMapper.remove(tagId);
                         removedCnt++;
 
-                        LOGGER.info("Removed a unused tag [title=" + tag.optString(Tag.TAG_TITLE) + "]");
+                        LOGGER.info("Removed a unused tag [title=" + tag.getTagTitle() + "]");
                     }
                 }
             }
 
-            final JSONObject tagCntOption = optionMapper.get(Option.ID_C_STATISTIC_TAG_COUNT);
-            final int tagCnt = tagCntOption.optInt(Option.OPTION_VALUE);
-            tagCntOption.put(Option.OPTION_VALUE, tagCnt - removedCnt);
-            optionMapper.update(Option.ID_C_STATISTIC_TAG_COUNT, tagCntOption);
+            final Option tagCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_TAG_COUNT);
+            final int tagCnt = Integer.getInteger(tagCntOption.getOptionValue());
+            tagCntOption.setOptionValue(String.valueOf(tagCnt - removedCnt));
+            optionMapper.update(OptionUtil.ID_C_STATISTIC_TAG_COUNT, tagCntOption);
 
             LOGGER.info("Removed [" + removedCnt + "] unused tags");
         } catch (final Exception e) {
@@ -150,63 +154,63 @@ public class TagMgmtService {
     public String addTag(final String userId, final String tagTitle) throws Exception {
         String ret;
 
-        final Transaction transaction = tagMapper.beginTransaction();
+//        final Transaction transaction = tagMapper.beginTransaction();
 
         try {
             if (null != tagMapper.getByTitle(tagTitle)) {
                 throw new Exception(langPropsService.get("tagExistLabel"));
             }
 
-            final JSONObject author = userMapper.get(userId);
+            final UserExt author = userMapper.get(userId);
 
-            JSONObject tag = new JSONObject();
-            tag.put(Tag.TAG_TITLE, tagTitle);
+            Tag tag = new Tag();
+            tag.setTagTitle(tagTitle);
             String tagURI = tagTitle;
             tagURI = URLs.encode(tagTitle);
-            tag.put(Tag.TAG_URI, tagURI);
-            tag.put(Tag.TAG_CSS, "");
-            tag.put(Tag.TAG_REFERENCE_CNT, 0);
-            tag.put(Tag.TAG_COMMENT_CNT, 0);
-            tag.put(Tag.TAG_FOLLOWER_CNT, 0);
-            tag.put(Tag.TAG_LINK_CNT, 0);
-            tag.put(Tag.TAG_DESCRIPTION, "");
-            tag.put(Tag.TAG_ICON_PATH, "");
-            tag.put(Tag.TAG_STATUS, 0);
-            tag.put(Tag.TAG_GOOD_CNT, 0);
-            tag.put(Tag.TAG_BAD_CNT, 0);
-            tag.put(Tag.TAG_SEO_TITLE, tagTitle);
-            tag.put(Tag.TAG_SEO_KEYWORDS, tagTitle);
-            tag.put(Tag.TAG_SEO_DESC, "");
-            tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+            tag.setTagURI(tagURI);
+            tag.setTagCSS( "");
+            tag.setTagReferenceCount(0);
+            tag.setTagCommentCount(0);
+            tag.setTagFollowerCount( 0);
+            tag.setTagLinkCount(0);
+            tag.setTagDescription( "");
+            tag.setTagIconPath("");
+            tag.setTagStatus( 0);
+            tag.setTagGoodCnt( 0);
+            tag.setTagBadCnt( 0);
+            tag.setTagSeoTitle( tagTitle);
+            tag.setTagSeoKeywords(tagTitle);
+            tag.setTagSeoDesc("");
+            tag.setTagRandomDouble(Math.random());
 
             ret = tagMapper.add(tag);
-            tag.put(Keys.OBJECT_ID, ret);
+            tag.setOid(ret);
 
-            final JSONObject tagCntOption = optionMapper.get(Option.ID_C_STATISTIC_TAG_COUNT);
-            final int tagCnt = tagCntOption.optInt(Option.OPTION_VALUE);
-            tagCntOption.put(Option.OPTION_VALUE, tagCnt + 1);
-            optionMapper.update(Option.ID_C_STATISTIC_TAG_COUNT, tagCntOption);
+            final Option tagCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_TAG_COUNT);
+            final int tagCnt = Integer.getInteger(tagCntOption.getOptionValue());
+            tagCntOption.setOptionValue(String.valueOf( tagCnt + 1));
+            optionMapper.update(OptionUtil.ID_C_STATISTIC_TAG_COUNT, tagCntOption);
 
-            author.put(UserExt.USER_TAG_COUNT, author.optInt(UserExt.USER_TAG_COUNT) + 1);
+            author.setUserTagCount(author.getUserTagCount() + 1);
             userMapper.update(userId, author);
 
             // User-Tag relation
-            final JSONObject userTagRelation = new JSONObject();
-            userTagRelation.put(Tag.TAG + '_' + Keys.OBJECT_ID, ret);
-            userTagRelation.put(User.USER + '_' + Keys.OBJECT_ID, userId);
-            userTagRelation.put(Common.TYPE, Tag.TAG_TYPE_C_CREATOR);
+            final UserTag userTagRelation = new UserTag();
+            userTagRelation.setTag_oId(ret);
+            userTagRelation.setUser_oId(userId);
+            userTagRelation.setType(TagUtil.TAG_TYPE_C_CREATOR);
             userTagMapper.add(userTagRelation);
 
-            transaction.commit();
+//            transaction.commit();
 
             tagCache.loadAllTags();
             domainCache.loadDomains();
 
             return ret;
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Adds tag failed", e);
 
@@ -224,23 +228,23 @@ public class TagMgmtService {
      * @param tag   the specified tag
      * @throws Exception service exception
      */
-    public void updateTag(final String tagId, final JSONObject tag) throws Exception {
-        final Transaction transaction = tagMapper.beginTransaction();
+    public void updateTag(final String tagId, final Tag tag) throws Exception {
+//        final Transaction transaction = tagMapper.beginTransaction();
 
         try {
-            tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+            tag.setTagRandomDouble( Math.random());
 
             tagMapper.update(tagId, tag);
 
-            transaction.commit();
+//            transaction.commit();
 
             tagCache.loadTags();
 
             domainCache.loadDomains();
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Updates a tag[id=" + tagId + "] failed", e);
             throw new Exception(e);
@@ -253,17 +257,17 @@ public class TagMgmtService {
      * @param tagRelation the specified tag-tag relation
      * @throws Exception service exception
      */
-    void addTagRelation(final JSONObject tagRelation) throws Exception {
-        final Transaction transaction = tagTagMapper.beginTransaction();
+    void addTagRelation(final TagTag tagRelation) throws Exception {
+//        final Transaction transaction = tagTagMapper.beginTransaction();
 
         try {
             tagTagMapper.add(tagRelation);
 
-            transaction.commit();
+//            transaction.commit();
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Adds a tag-tag failed", e);
             throw new Exception(e);
@@ -277,17 +281,17 @@ public class TagMgmtService {
      * @param tagRelation   the specified tag-tag relation
      * @throws Exception service exception
      */
-    void updateTagRelation(final String tagRelationId, final JSONObject tagRelation) throws Exception {
-        final Transaction transaction = tagTagMapper.beginTransaction();
+    void updateTagRelation(final String tagRelationId, final TagTag tagRelation) throws Exception {
+//        final Transaction transaction = tagTagMapper.beginTransaction();
 
         try {
             tagTagMapper.update(tagRelationId, tagRelation);
 
-            transaction.commit();
+//            transaction.commit();
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Updates a tag-tag relation [id=" + tagRelationId + "] failed", e);
             throw new Exception(e);
@@ -301,12 +305,12 @@ public class TagMgmtService {
      * @throws Exception service exception
      */
     public void relateTags(final String tagString) throws Exception {
-        final List<JSONObject> tags = new ArrayList<>();
+        final List<Tag> tags = new ArrayList<>();
 
         try {
             final String[] tagTitles = tagString.split(",");
             for (final String tagTitle : tagTitles) {
-                final JSONObject tag = tagMapper.getByTitle(tagTitle.trim());
+                final Tag tag = tagMapper.getByTitle(tagTitle.trim());
 
                 if (null != tag) {
                     tags.add(tag);
@@ -314,35 +318,35 @@ public class TagMgmtService {
             }
 
             for (int i = 0; i < tags.size(); i++) {
-                final JSONObject tag1 = tags.get(i);
-                final String tag1Id = tag1.optString(Keys.OBJECT_ID);
+                final Tag tag1 = tags.get(i);
+                final String tag1Id = tag1.getOid();
 
                 for (int j = i + 1; j < tags.size(); j++) {
-                    final JSONObject tag2 = tags.get(j);
-                    final String tag2Id = tag2.optString(Keys.OBJECT_ID);
+                    final Tag tag2 = tags.get(j);
+                    final String tag2Id = tag2.getOid();
 
-                    JSONObject relation = tagTagMapper.getByTag1IdAndTag2Id(tag1Id, tag2Id);
+                    TagTag relation = tagTagMapper.getByTag1IdAndTag2Id(tag1Id, tag2Id);
                     if (null != relation) {
-                        relation.put(Common.WEIGHT, relation.optInt(Common.WEIGHT) + 1);
+                        relation.setWeight(relation.getWeight() + 1);
 
-                        updateTagRelation(relation.optString(Keys.OBJECT_ID), relation);
+                        updateTagRelation(relation.getOid(), relation);
 
                         continue;
                     }
 
                     relation = tagTagMapper.getByTag1IdAndTag2Id(tag2Id, tag1Id);
                     if (null != relation) {
-                        relation.put(Common.WEIGHT, relation.optInt(Common.WEIGHT) + 1);
+                        relation.setWeight(relation.getWeight() + 1);
 
-                        updateTagRelation(relation.optString(Keys.OBJECT_ID), relation);
+                        updateTagRelation(relation.getOid(), relation);
 
                         continue;
                     }
 
-                    relation = new JSONObject();
-                    relation.put(Tag.TAG + "1_" + Keys.OBJECT_ID, tag1Id);
-                    relation.put(Tag.TAG + "2_" + Keys.OBJECT_ID, tag2Id);
-                    relation.put(Common.WEIGHT, 1);
+                    relation = new TagTag();
+                    relation.setTag1_oId(tag1Id);
+                    relation.setTag2_oId(tag2Id);
+                    relation.setWeight(1);
 
                     addTagRelation(relation);
                 }

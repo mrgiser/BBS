@@ -1,6 +1,11 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
 import cn.he.zhao.bbs.entityUtil.PermissionUtil;
+import cn.he.zhao.bbs.entityUtil.RoleUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.spring.MD5;
+import cn.he.zhao.bbs.util.Ids;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -211,7 +216,7 @@ public class InitMgmtService {
         LOGGER.info("It's your first time setup Sym, initializes Sym....");
 
         try {
-            LOGGER.info( "Database [{0}], creating all tables", Latkes.getRuntimeDatabase());
+//            LOGGER.info( "Database [{0}], creating all tables", Latkes.getRuntimeDatabase());
 
             // TODO: 2018/9/30 初始化创建数据库表
 //            final List<JdbcRepositories.CreateTableResult> createTableResults = JdbcRepositories.initAllTables();
@@ -220,417 +225,417 @@ public class InitMgmtService {
 //                        createTableResult.getName(), createTableResult.isSuccess());
 //            }
 
-            final Transaction transaction = optionMapper.beginTransaction();
+//            final Transaction transaction = optionMapper.beginTransaction();
 
             // Init statistic
-            JSONObject option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_MEMBER_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            Option option = new Option();
+            option.setOid(OptionUtil.ID_C_STATISTIC_MEMBER_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_CMT_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_STATISTIC_CMT_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_ARTICLE_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_DOMAIN_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_STATISTIC_DOMAIN_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_TAG_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_STATISTIC_TAG_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_LINK_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_STATISTIC_LINK_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_STATISTIC_MAX_ONLINE_VISITOR_COUNT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_STATISTIC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_STATISTIC_MAX_ONLINE_VISITOR_COUNT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_STATISTIC);
             optionMapper.add(option);
 
             // Init misc
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_MISC_ALLOW_REGISTER);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_MISC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_MISC_ALLOW_REGISTER);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_MISC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_MISC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_MISC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_MISC_ALLOW_ADD_ARTICLE);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_MISC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_MISC_ALLOW_ADD_ARTICLE);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_MISC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_MISC_ALLOW_ADD_COMMENT);
-            option.put(Option.OPTION_VALUE, "0");
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_MISC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_MISC_ALLOW_ADD_COMMENT);
+            option.setOptionValue( "0");
+            option.setOptionCategory( OptionUtil.CATEGORY_C_MISC);
             optionMapper.add(option);
 
-            option = new JSONObject();
-            option.put(Keys.OBJECT_ID, Option.ID_C_MISC_LANGUAGE);
-            option.put(Option.OPTION_VALUE, DEFAULT_LANG);
-            option.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_MISC);
+            option = new Option();
+            option.setOid( OptionUtil.ID_C_MISC_LANGUAGE);
+            option.setOptionValue( DEFAULT_LANG);
+            option.setOptionCategory( OptionUtil.CATEGORY_C_MISC);
             optionMapper.add(option);
 
             // Init permissions
-            final JSONObject permission = new JSONObject();
+            final Permission permission = new Permission();
 
             // ad management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_AD);
+            permission.setPermissionCategory(PermissionUtil.PERMISSION_CATEGORY_C_AD);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_AD_UPDATE_SIDE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_AD_UPDATE_SIDE);
             permissionMapper.add(permission);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_AD_UPDATE_BANNER);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_AD_UPDATE_BANNER);
             permissionMapper.add(permission);
 
             // article management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_ARTICLE);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_ARTICLE);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_ADD_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_ADD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_CANCEL_STICK_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_CANCEL_STICK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLES_INDEX);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLES_INDEX);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLE_INDEX);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_REINDEX_ARTICLE_INDEX);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_REMOVE_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_REMOVE_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_STICK_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_STICK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_ARTICLE_UPDATE_ARTICLE_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_ARTICLE_UPDATE_ARTICLE_BASIC);
             permissionMapper.add(permission);
 
             // comment management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_COMMENT);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_COMMENT);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMENT_REMOVE_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMENT_REMOVE_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMENT_UPDATE_COMMENT_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMENT_UPDATE_COMMENT_BASIC);
             permissionMapper.add(permission);
 
             // breezemoon management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_BREEZEMOON);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_BREEZEMOON);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_BREEZEMOON_REMOVE_BREEZEMOON);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_BREEZEMOON_REMOVE_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_BREEZEMOON_UPDATE_BREEZEMOON);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_BREEZEMOON_UPDATE_BREEZEMOON);
             permissionMapper.add(permission);
 
             // common permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_COMMON);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_COMMON);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE_ANONYMOUS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_ADD_ARTICLE_ANONYMOUS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_BREEZEMOON);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_ADD_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_BREEZEMOON);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_BREEZEMOON);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_BREEZEMOON);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT_ANONYMOUS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_ADD_COMMENT_ANONYMOUS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_UPDATE_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_REMOVE_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_COMMENT_HISTORY);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_COMMENT_HISTORY);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_AT_USER);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_AT_USER);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_AT_PARTICIPANTS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_AT_PARTICIPANTS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_BAD_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_BAD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_BAD_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_BAD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_EXCHANGE_INVITATION_CODE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_EXCHANGE_INVITATION_CODE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_FOLLOW_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_FOLLOW_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_WATCH_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_WATCH_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_GOOD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_STICK_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_STICK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_THANK_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_THANK_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_THANK_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_THANK_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_ARTICLE_HISTORY);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_COMMON_VIEW_ARTICLE_HISTORY);
             permissionMapper.add(permission);
 
             // domain management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_DOMAIN);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_DOMAIN);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN_TAG);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_DOMAIN_ADD_DOMAIN_TAG);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN_TAG);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_DOMAIN_REMOVE_DOMAIN_TAG);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_DOMAIN_UPDATE_DOMAIN_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_DOMAIN_UPDATE_DOMAIN_BASIC);
             permissionMapper.add(permission);
 
             // invitecode management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_IC);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_IC);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_IC_GEN_IC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_IC_GEN_IC);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_IC_UPDATE_IC_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_IC_UPDATE_IC_BASIC);
             permissionMapper.add(permission);
 
             // misc management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_MISC);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_MISC);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_ARTICLE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_ARTICLE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_COMMENT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ADD_COMMENT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MISC_ALLOW_ANONYMOUS_VIEW);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_LANGUAGE);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MISC_LANGUAGE);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MISC_REGISTER_METHOD);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MISC_REGISTER_METHOD);
             permissionMapper.add(permission);
 
             // reserved word management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_RESERVED_WORD);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_RESERVED_WORD);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_RW_ADD_RW);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_RW_ADD_RW);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_RW_REMOVE_RW);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_RW_REMOVE_RW);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_RW_UPDATE_RW_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_RW_UPDATE_RW_BASIC);
             permissionMapper.add(permission);
 
             // tag management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_TAG);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_TAG);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_TAG_UPDATE_TAG_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_TAG_UPDATE_TAG_BASIC);
             permissionMapper.add(permission);
 
             // user management permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_USER);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_USER);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_ADD_POINT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_USER_ADD_POINT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_ADD_USER);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_USER_ADD_USER);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_DEDUCT_POINT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_USER_DEDUCT_POINT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_EXCHANGE_POINT);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_USER_EXCHANGE_POINT);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_ADVANCED);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_ADVANCED);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_BASIC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_USER_UPDATE_USER_BASIC);
             permissionMapper.add(permission);
 
             // menu permissions
-            permission.put(PermissionUtil.PERMISSION_CATEGORY, PermissionUtil.PERMISSION_CATEGORY_C_MENU);
+            permission.setPermissionCategory( PermissionUtil.PERMISSION_CATEGORY_C_MENU);
 
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_AD);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_AD);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ARTICLES);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ARTICLES);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_COMMENTS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_COMMENTS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_DOMAINS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_DOMAINS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ICS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ICS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_RWS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_RWS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_TAGS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_TAGS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_USERS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_USERS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_BREEZEMOONS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_BREEZEMOONS);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_MISC);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_MISC);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ROLES);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_ROLES);
             permissionMapper.add(permission);
-            permission.put(Keys.OBJECT_ID, PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_REPORTS);
+            permission.setOid( PermissionUtil.PERMISSION_ID_C_MENU_ADMIN_REPORTS);
             permissionMapper.add(permission);
 
             // Init roles
-            final JSONObject role = new JSONObject();
+            final Role role = new Role();
 
-            role.put(Keys.OBJECT_ID, Role.ROLE_ID_C_ADMIN);
-            role.put(Role.ROLE_NAME, "Admin");
-            role.put(Role.ROLE_DESCRIPTION, "");
+            role.setOid( RoleUtil.ROLE_ID_C_ADMIN);
+            role.setRoleName( "Admin");
+            role.setRoleDescription( "");
             roleMapper.add(role);
 
-            role.put(Keys.OBJECT_ID, Role.ROLE_ID_C_DEFAULT);
-            role.put(Role.ROLE_NAME, "Default");
-            role.put(Role.ROLE_DESCRIPTION, "");
+            role.setOid( RoleUtil.ROLE_ID_C_DEFAULT);
+            role.setRoleName( "Default");
+            role.setRoleDescription( "");
             roleMapper.add(role);
 
-            role.put(Keys.OBJECT_ID, Role.ROLE_ID_C_LEADER);
-            role.put(Role.ROLE_NAME, "Leader");
-            role.put(Role.ROLE_DESCRIPTION, "");
+            role.setOid( RoleUtil.ROLE_ID_C_LEADER);
+            role.setRoleName( "Leader");
+            role.setRoleDescription( "");
             roleMapper.add(role);
 
-            role.put(Keys.OBJECT_ID, Role.ROLE_ID_C_MEMBER);
-            role.put(Role.ROLE_NAME, "Member");
-            role.put(Role.ROLE_DESCRIPTION, "");
+            role.setOid( RoleUtil.ROLE_ID_C_MEMBER);
+            role.setRoleName( "Member");
+            role.setRoleDescription( "");
             roleMapper.add(role);
 
-            role.put(Keys.OBJECT_ID, Role.ROLE_ID_C_REGULAR);
-            role.put(Role.ROLE_NAME, "Regular");
-            role.put(Role.ROLE_DESCRIPTION, "");
+            role.setOid( RoleUtil.ROLE_ID_C_REGULAR);
+            role.setRoleName( "Regular");
+            role.setRoleDescription( "");
             roleMapper.add(role);
 
-            role.put(Keys.OBJECT_ID, Role.ROLE_ID_C_VISITOR);
-            role.put(Role.ROLE_NAME, "Visitor");
-            role.put(Role.ROLE_DESCRIPTION, "");
+            role.setOid( RoleUtil.ROLE_ID_C_VISITOR);
+            role.setRoleName( "Visitor");
+            role.setRoleDescription( "");
             roleMapper.add(role);
 
             // Init RoleUtil-PermissionUtil
-            final JSONObject rolePermission = new JSONObject();
+            final RolePermission rolePermission = new RolePermission();
 
             // [Default] role's permissions
-            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_DEFAULT);
+            rolePermission.setRoleId( RoleUtil.ROLE_ID_C_DEFAULT);
             for (final String permissionId : DEFAULT_PERMISSIONS) {
-                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
+                rolePermission.setOid( Ids.genTimeMillisId());
+                rolePermission.setPermissionId(permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Member] role's permissions
-            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_MEMBER);
+            rolePermission.setRoleId( RoleUtil.ROLE_ID_C_MEMBER);
             for (final String permissionId : MEMBER_PERMISSIONS) {
-                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
+                rolePermission.setOid(Ids.genTimeMillisId());
+                rolePermission.setPermissionId(permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Regular] role's permissions
-            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_REGULAR);
+            rolePermission.setRoleId( RoleUtil.ROLE_ID_C_REGULAR);
             for (final String permissionId : REGULAR_PERMISSIONS) {
-                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
+                rolePermission.setOid( Ids.genTimeMillisId());
+                rolePermission.setPermissionId(permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Leader] role's permissions
-            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_LEADER);
+            rolePermission.setRoleId( RoleUtil.ROLE_ID_C_LEADER);
             for (final String permissionId : LEADER_PERMISSIONS) {
-                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
+                rolePermission.setOid(Ids.genTimeMillisId());
+                rolePermission.setPermissionId(permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
             // [Admin] role's permissions
-            rolePermissionUtil.put(Role.ROLE_ID, Role.ROLE_ID_C_ADMIN);
+            rolePermission.setRoleId( RoleUtil.ROLE_ID_C_ADMIN);
             for (final String permissionId : ADMIN_PERMISSIONS) {
-                rolePermissionUtil.put(Keys.OBJECT_ID, Ids.genTimeMillisId());
-                rolePermissionUtil.put(PermissionUtil.PERMISSION_ID, permissionId);
+                rolePermission.setOid(Ids.genTimeMillisId());
+                rolePermission.setPermissionId(permissionId);
 
                 rolePermissionMapper.add(rolePermission);
             }
 
-            transaction.commit();
+//            transaction.commit();
 
             // Init admin
-            final JSONObject admin = new JSONObject();
-            admin.put(User.USER_EMAIL, "admin" + UserExt.USER_BUILTIN_EMAIL_SUFFIX);
-            admin.put(User.USER_NAME, "admin");
-            admin.put(User.USER_PASSWORD, MD5.hash("admin"));
-            admin.put(UserExt.USER_LANGUAGE, DEFAULT_LANG);
-            admin.put(User.USER_ROLE, Role.ROLE_ID_C_ADMIN);
-            admin.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
-            admin.put(UserExt.USER_GUIDE_STEP, UserExt.USER_GUIDE_STEP_FIN);
+            final UserExt admin = new UserExt();
+            admin.setUserEmail("admin" + UserExtUtil.USER_BUILTIN_EMAIL_SUFFIX);
+            admin.setUserName( "admin");
+            admin.setUserPassword( MD5.hash("admin"));
+            admin.setUserLanguage( DEFAULT_LANG);
+            admin.setUserRole(RoleUtil.ROLE_ID_C_ADMIN);
+            admin.setUserStatus( UserExtUtil.USER_STATUS_C_VALID);
+            admin.setUserGuideStep(UserExtUtil.USER_GUIDE_STEP_FIN);
             final String adminId = userMgmtService.addUser(admin);
-            admin.put(Keys.OBJECT_ID, adminId);
+            admin.setOid(adminId);
 
             // Init default commenter (for sync comment from client)
-            final JSONObject defaultCommenter = new JSONObject();
-            defaultCommenter.put(User.USER_EMAIL, UserExt.DEFAULT_CMTER_EMAIL);
-            defaultCommenter.put(User.USER_NAME, UserExt.DEFAULT_CMTER_NAME);
-            defaultCommenter.put(User.USER_PASSWORD, MD5.hash(String.valueOf(new Random().nextInt())));
-            defaultCommenter.put(UserExt.USER_LANGUAGE, "en_US");
-            defaultCommenter.put(UserExt.USER_GUIDE_STEP, UserExt.USER_GUIDE_STEP_FIN);
-            defaultCommenter.put(User.USER_ROLE, UserExt.DEFAULT_CMTER_ROLE);
-            defaultCommenter.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
+            final UserExt defaultCommenter = new UserExt();
+            defaultCommenter.setUserEmail( UserExtUtil.DEFAULT_CMTER_EMAIL);
+            defaultCommenter.setUserName(UserExtUtil.DEFAULT_CMTER_NAME);
+            defaultCommenter.setUserPassword(MD5.hash(String.valueOf(new Random().nextInt())));
+            defaultCommenter.setUserLanguage("en_US");
+            defaultCommenter.setUserGuideStep(UserExtUtil.USER_GUIDE_STEP_FIN);
+            defaultCommenter.setUserRole(UserExtUtil.DEFAULT_CMTER_ROLE);
+            defaultCommenter.setUserStatus( UserExtUtil.USER_STATUS_C_VALID);
             userMgmtService.addUser(defaultCommenter);
 
             // Add tags
             String tagTitle = Symphonys.get("systemAnnounce");
             String tagId = tagMgmtService.addTag(adminId, tagTitle);
-            JSONObject tag = tagMapper.get(tagId);
-            tag.put(Tag.TAG_URI, "announcement");
+            Tag tag = tagMapper.get(tagId);
+            tag.setTagURI( "announcement");
             tagMgmtService.updateTag(tagId, tag);
 
             tagTitle = "B3log";
             tagId = tagMgmtService.addTag(adminId, tagTitle);
             tag = tagMapper.get(tagId);
-            tag.put(Tag.TAG_URI, "B3log");
-            tag.put(Tag.TAG_ICON_PATH, "b3log.png");
-            tag.put(Tag.TAG_DESCRIPTION, "[B3log](https://b3log.org) 是一个开源组织，名字来源于“Bulletin Board Blog”缩写，目标是将独立博客与论坛结合，形成一种新的网络社区体验，详细请看 [B3log 构思](https://hacpai.com/b3log)。目前 B3log 已经开源了多款产品： [Solo] 、 [Sym] 、 [Wide] 。");
+            tag.setTagURI( "B3log");
+            tag.setTagIconPath( "b3log.png");
+            tag.setTagDescription("[B3log](https://b3log.org) 是一个开源组织，名字来源于“Bulletin Board Blog”缩写，目标是将独立博客与论坛结合，形成一种新的网络社区体验，详细请看 [B3log 构思](https://hacpai.com/b3log)。目前 B3log 已经开源了多款产品： [Solo] 、 [Sym] 、 [Wide] 。");
             tagMgmtService.updateTag(tagId, tag);
 
             tagTitle = "Sym";
             tagId = tagMgmtService.addTag(adminId, tagTitle);
             tag = tagMapper.get(tagId);
-            tag.put(Tag.TAG_URI, "Sym");
-            tag.put(Tag.TAG_ICON_PATH, "sym.png");
-            tag.put(Tag.TAG_DESCRIPTION, "[Sym](https://github.com/b3log/symphony) 是一个用 [Java] 实现的现代化社区（论坛/社交网络/博客）平台，“下一代的社区系统，为未来而构建”。");
+            tag.setTagURI( "Sym");
+            tag.setTagIconPath( "sym.png");
+            tag.setTagDescription( "[Sym](https://github.com/b3log/symphony) 是一个用 [Java] 实现的现代化社区（论坛/社交网络/博客）平台，“下一代的社区系统，为未来而构建”。");
             tagMgmtService.updateTag(tagId, tag);
 
             tagTitle = "Solo";
             tagId = tagMgmtService.addTag(adminId, tagTitle);
             tag = tagMapper.get(tagId);
-            tag.put(Tag.TAG_URI, "Solo");
-            tag.put(Tag.TAG_ICON_PATH, "solo.png");
-            tag.put(Tag.TAG_DESCRIPTION, "[Solo](https://github.com/b3log/solo) 是目前 GitHub 上关注度最高的 Java 开源博客系统。\n" +
+            tag.setTagURI( "Solo");
+            tag.setTagIconPath( "solo.png");
+            tag.setTagDescription( "[Solo](https://github.com/b3log/solo) 是目前 GitHub 上关注度最高的 Java 开源博客系统。\n" +
                     "\n" +
                     "* [项目地址](https://github.com/b3log/solo)\n" +
                     "* [用户指南](https://hacpai.com/article/1492881378588)");
@@ -639,26 +644,26 @@ public class InitMgmtService {
             tagTitle = "Pipe";
             tagId = tagMgmtService.addTag(adminId, tagTitle);
             tag = tagMapper.get(tagId);
-            tag.put(Tag.TAG_URI, "Pipe");
-            tag.put(Tag.TAG_ICON_PATH, "pipe.png");
-            tag.put(Tag.TAG_DESCRIPTION, "[Pipe](https://github.com/b3log/pipe) 是一款小而美的开源博客平台，通过 [黑客派] 账号登录即可使用。如果你不想自己搭建，可以直接使用我们运维的 http://pipe.b3log.org");
+            tag.setTagURI( "Pipe");
+            tag.setTagIconPath( "pipe.png");
+            tag.setTagDescription( "[Pipe](https://github.com/b3log/pipe) 是一款小而美的开源博客平台，通过 [黑客派] 账号登录即可使用。如果你不想自己搭建，可以直接使用我们运维的 http://pipe.b3log.org");
             tagMgmtService.updateTag(tagId, tag);
 
             tagTitle = "Wide";
             tagId = tagMgmtService.addTag(adminId, tagTitle);
             tag = tagMapper.get(tagId);
-            tag.put(Tag.TAG_URI, "Wide");
-            tag.put(Tag.TAG_ICON_PATH, "wide.png");
-            tag.put(Tag.TAG_DESCRIPTION, "[Wide](https://github.com/b3log/wide) 是一个基于 [Web] 的 <a href='/tags/golang'>Go</a> 语言团队 IDE。通过浏览器就可以进行 Go 开发，并有代码自动完成、查看表达式、编译反馈、Lint、实时结果输出等功能。");
+            tag.setTagURI( "Wide");
+            tag.setTagIconPath( "wide.png");
+            tag.setTagDescription( "[Wide](https://github.com/b3log/wide) 是一个基于 [Web] 的 <a href='/tags/golang'>Go</a> 语言团队 IDE。通过浏览器就可以进行 Go 开发，并有代码自动完成、查看表达式、编译反馈、Lint、实时结果输出等功能。");
             tagMgmtService.updateTag(tagId, tag);
 
             // Hello World!
-            final JSONObject article = new JSONObject();
-            article.put(Article.ARTICLE_TITLE, "Welcome to Sym community :gift_heart:");
-            article.put(Article.ARTICLE_TAGS, "Sym,Announcement");
-            article.put(Article.ARTICLE_CONTENT, "Hello, everyone!");
-            article.put(Article.ARTICLE_EDITOR_TYPE, 0);
-            article.put(Article.ARTICLE_AUTHOR_ID, admin.optString(Keys.OBJECT_ID));
+            final Article article = new Article();
+            article.setArticleTitle( "Welcome to Sym community :gift_heart:");
+            article.setArticleTags("Sym,Announcement");
+            article.setArticleContent( "Hello, everyone!");
+            article.setArticleType( 0);
+            article.setArticleAuthorId(admin.getOid());
 
             articleMgmtService.addArticle(article);
 
