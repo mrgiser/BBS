@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.channel;
 
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Locales;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Strings;

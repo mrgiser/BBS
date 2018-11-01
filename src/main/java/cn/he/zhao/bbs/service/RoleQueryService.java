@@ -2,12 +2,19 @@ package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.entityUtil.PermissionUtil;
 import cn.he.zhao.bbs.entityUtil.RoleUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Paginator;
+import cn.he.zhao.bbs.spring.Strings;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -70,9 +77,9 @@ public class RoleQueryService {
      */
     public int countUser(final String roleId) {
         try {
-            final Query userCountQuery = new Query().setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, roleId));
+//            final Query userCountQuery = new Query().setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, roleId));
 
-            return (int) userMapper.count(userCountQuery);
+            return (int) userMapper.countByRoleId(roleId);
         } catch (final Exception e) {
             LOGGER.error( "Count role [id=" + roleId + "] uses failed", e);
 
@@ -120,21 +127,21 @@ public class RoleQueryService {
      * @param roleId the given role id
      * @return an role, returns {@code null} if not found
      */
-    public JSONObject getRole(final String roleId) {
-        if (UserExt.DEFAULT_CMTER_ROLE.equals(roleId)) { // virtual role
-            final JSONObject ret = new JSONObject();
+    public Role getRole(final String roleId) {
+        if (UserExtUtil.DEFAULT_CMTER_ROLE.equals(roleId)) { // virtual role
+            final Role ret = new Role();
 
-            ret.put(Role.ROLE_NAME, langPropsService.get(UserExt.DEFAULT_CMTER_ROLE + "NameLabel"));
-            ret.put(Role.ROLE_DESCRIPTION, langPropsService.get(UserExt.DEFAULT_CMTER_ROLE + "DescLabel"));
+            ret.setRoleName(langPropsService.get(UserExtUtil.DEFAULT_CMTER_ROLE + "NameLabel"));
+            ret.setRoleDescription(langPropsService.get(UserExtUtil.DEFAULT_CMTER_ROLE + "DescLabel"));
 
             return ret;
         }
 
         try {
-            final JSONObject ret = roleMapper.get(roleId);
+            final Role ret = roleMapper.get(roleId);
 
             if (!Strings.isNumeric(roleId)) {
-                ret.put(Role.ROLE_NAME, langPropsService.get(roleId + "NameLabel"));
+                ret.setRoleName(langPropsService.get(roleId + "NameLabel"));
             }
 
             return ret;
@@ -151,15 +158,15 @@ public class RoleQueryService {
      * @param userId the given user id
      * @return a map of permissions&lt;permissionId, permission&gt;, returns an empty map if not found
      */
-    public Map<String, JSONObject> getUserPermissionsGrantMap(final String userId) {
-        final List<JSONObject> permissions = getUserPermissionsGrant(userId);
+    public Map<String, Permission> getUserPermissionsGrantMap(final String userId) {
+        final List<Permission> permissions = getUserPermissionsGrant(userId);
         if (permissions.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        final Map<String, JSONObject> ret = new HashMap<>();
-        for (final JSONObject permission : permissions) {
-            ret.put(permission.optString(Keys.OBJECT_ID), permission);
+        final Map<String, Permission> ret = new HashMap<>();
+        for (final Permission permission : permissions) {
+            ret.put(permission.getOid(), permission);
         }
 
         return ret;
@@ -171,7 +178,7 @@ public class RoleQueryService {
      * @param userId the given user id
      * @return a list of permissions, returns an empty list if not found
      */
-    public List<JSONObject> getUserPermissionsGrant(final String userId) {
+    public List<Permission> getUserPermissionsGrant(final String userId) {
         try {
             final UserExt user = userMapper.get(userId);
             if (null == user) {
@@ -217,15 +224,15 @@ public class RoleQueryService {
      * @param roleId the given role id
      * @return a map of permissions&lt;permissionId, permission&gt;, returns an empty map if not found
      */
-    public Map<String, JSONObject> getPermissionsGrantMap(final String roleId) {
-        final List<JSONObject> permissions = getPermissionsGrant(roleId);
+    public Map<String, Permission> getPermissionsGrantMap(final String roleId) {
+        final List<Permission> permissions = getPermissionsGrant(roleId);
         if (permissions.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        final Map<String, JSONObject> ret = new HashMap<>();
-        for (final JSONObject permission : permissions) {
-            ret.put(permission.optString(Keys.OBJECT_ID), permission);
+        final Map<String, Permission> ret = new HashMap<>();
+        for (final Permission permission : permissions) {
+            ret.put(permission.getOid(), permission);
         }
 
         return ret;
@@ -237,24 +244,25 @@ public class RoleQueryService {
      * @param roleId the given role id
      * @return a list of permissions, returns an empty list if not found
      */
-    public List<JSONObject> getPermissionsGrant(final String roleId) {
-        final List<JSONObject> ret = new ArrayList<>();
+    public List<Permission> getPermissionsGrant(final String roleId) {
+        final List<Permission> ret = new ArrayList<>();
 
         try {
-            final List<JSONObject> permissions = CollectionUtils.jsonArrayToList(
-                    permissionMapper.get(new Query()).optJSONArray(Keys.RESULTS));
-            final List<JSONObject> rolePermissions = rolePermissionMapper.getByRoleId(roleId);
+//            final List<JSONObject> permissions = CollectionUtils.jsonArrayToList(
+//                    permissionMapper.getAll().optJSONArray(Keys.RESULTS));
+            final List<Permission> permissions = permissionMapper.getAll();
+            final List<RolePermission> rolePermissions = rolePermissionMapper.getByRoleId(roleId);
 
-            for (final JSONObject permission : permissions) {
-                final String permissionId = permission.optString(Keys.OBJECT_ID);
-                permission.put(PermissionUtil.PERMISSION_T_GRANT, false);
+            for (final Permission permission : permissions) {
+                final String permissionId = permission.getOid();
+                permission.setPermissionGrant( false);
                 ret.add(permission);
 
-                for (final JSONObject rolePermission : rolePermissions) {
-                    final String grantPermissionId = rolePermission.optString(Permission.PERMISSION_ID);
+                for (final RolePermission rolePermission : rolePermissions) {
+                    final String grantPermissionId = rolePermission.getPermissionId();
 
                     if (permissionId.equals(grantPermissionId)) {
-                        permission.put(PermissionUtil.PERMISSION_T_GRANT, true);
+                        permission.setPermissionGrant( true);
 
                         break;
                     }
@@ -277,9 +285,9 @@ public class RoleQueryService {
         final Set<String> ret = new HashSet<>();
 
         try {
-            final List<JSONObject> rolePermissions = rolePermissionMapper.getByRoleId(roleId);
-            for (final JSONObject rolePermission : rolePermissions) {
-                final String permissionId = rolePermission.optString(Permission.PERMISSION_ID);
+            final List<RolePermission> rolePermissions = rolePermissionMapper.getByRoleId(roleId);
+            for (final RolePermission rolePermission : rolePermissions) {
+                final String permissionId = rolePermission.getPermissionId();
 
                 ret.add(permissionId);
             }
@@ -319,26 +327,29 @@ public class RoleQueryService {
      * }
      * </pre>
      * @throws Exception service exception
-     * @see Pagination
+//     * @see Pagination
      */
     public JSONObject getRoles(final int currentPage, final int pageSize, final int windowSize)
             throws Exception {
         final JSONObject ret = new JSONObject();
 
-        final Query query = new Query().setCurrentPageNum(currentPage).setPageSize(pageSize).
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+//        final Query query = new Query().setCurrentPageNum(currentPage).setPageSize(pageSize).
+//                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
 
-        JSONObject result = null;
+        PageHelper.startPage(currentPage,pageSize,"OId DESC");
+
+        PageInfo<Role> result = null;
 
         try {
-            result = roleMapper.get(query);
+            result = new PageInfo<Role> (roleMapper.getAll());
         } catch (final Exception e) {
             LOGGER.error( "Gets roles failed", e);
 
             throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
+//        final int pageCount = result.getPages(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -346,49 +357,49 @@ public class RoleQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray data = result.optJSONArray(Keys.RESULTS);
-        final List<JSONObject> roles = CollectionUtils.<JSONObject>jsonArrayToList(data);
+        final List<Role> roles = result.getList();
+//         CollectionUtils.<JSONObject>jsonArrayToList(data);
 
         try {
-            for (final JSONObject role : roles) {
-                final List<JSONObject> permissions = new ArrayList<>();
-                role.put(Permission.PERMISSIONS, (Object) permissions);
+            for (final Role role : roles) {
+                final List<Permission> permissions = new ArrayList<>();
+                role.setPermissions((Object) permissions);
 
-                final String roleId = role.optString(Keys.OBJECT_ID);
-                final List<JSONObject> rolePermissions = rolePermissionMapper.getByRoleId(roleId);
-                for (final JSONObject rolePermission : rolePermissions) {
-                    final String permissionId = rolePermission.optString(Permission.PERMISSION_ID);
-                    final JSONObject permission = permissionMapper.get(permissionId);
+                final String roleId = role.getOid();
+                final List<RolePermission> rolePermissions = rolePermissionMapper.getByRoleId(roleId);
+                for (final RolePermission rolePermission : rolePermissions) {
+                    final String permissionId = rolePermission.getPermissionId();
+                    final Permission permission = permissionMapper.get(permissionId);
 
                     permissions.add(permission);
                 }
 
-                final Query userCountQuery = new Query().
-                        setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, roleId));
-                final int count = (int) userMapper.count(userCountQuery);
-                role.put(Role.ROLE_T_USER_COUNT, count);
+//                final Query userCountQuery = new Query().
+//                        setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, roleId));
+                final int count = (int) userMapper.countByRoleId(roleId);
+                role.setRoleUserCount( count);
 
                 // fill description
                 if (Strings.isNumeric(roleId)) {
                     continue;
                 }
 
-                String roleName = role.optString(Role.ROLE_NAME);
+                String roleName = role.getRoleName();
                 try {
                     roleName = langPropsService.get(roleId + "NameLabel");
                 } catch (final Exception e) {
                     // ignored
                 }
 
-                String roleDesc = role.optString(Role.ROLE_DESCRIPTION);
+                String roleDesc = role.getRoleDescription();
                 try {
                     roleDesc = langPropsService.get(roleId + "DescLabel");
                 } catch (final Exception e) {
                     // ignored
                 }
 
-                role.put(Role.ROLE_NAME, roleName);
-                role.put(Role.ROLE_DESCRIPTION, roleDesc);
+                role.setRoleName(roleName);
+                role.setRoleDescription( roleDesc);
             }
         } catch (final Exception e) {
             LOGGER.error( "Gets role permissions failed", e);
@@ -396,10 +407,10 @@ public class RoleQueryService {
             throw new Exception(e);
         }
 
-        Collections.sort(roles, (o1, o2) -> ((List) o2.opt(Permission.PERMISSIONS)).size()
-                - ((List) o1.opt(Permission.PERMISSIONS)).size());
+        Collections.sort(roles, (o1, o2) -> ((List) o2.getPermissions()).size()
+                - ((List) o1.getPermissions()).size());
 
-        ret.put(Role.ROLES, (Object) roles);
+        ret.put(RoleUtil.ROLES, (Object) roles);
 
         return ret;
     }

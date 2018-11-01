@@ -14,6 +14,16 @@ public class Permission {
      */
     private String permissionId;
 
+    private transient boolean permissionGrant;
+
+    public boolean isPermissionGrant() {
+        return permissionGrant;
+    }
+
+    public void setPermissionGrant(boolean permissionGrant) {
+        this.permissionGrant = permissionGrant;
+    }
+
     public String getOid() {
         return oid;
     }

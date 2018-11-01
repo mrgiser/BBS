@@ -18,6 +18,14 @@
 package cn.he.zhao.bbs.mapper;
 
 
+import cn.he.zhao.bbs.entity.Permission;
+
+import java.util.List;
+
 public interface PermissionMapper {
+
+    Permission get(final String permissionId);
+
+    List<Permission> getAll();
 
 }

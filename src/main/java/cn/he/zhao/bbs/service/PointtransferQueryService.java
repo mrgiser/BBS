@@ -228,7 +228,7 @@ public class PointtransferQueryService {
             for (int i = 0; i < records.size(); i++) {
                 final Pointtransfer record = records.get(i);
 
-                record.put(Common.CREATE_TIME, new Date(record.getTime(Pointtransfer.TIME)));
+                record.set(Common.CREATE_TIME, new Date(record.getTime(Pointtransfer.TIME)));
 
                 final String toId = record.getToId();
                 final String fromId = record.getFromId();

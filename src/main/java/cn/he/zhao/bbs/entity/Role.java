@@ -14,6 +14,26 @@ public class Role {
      */
     private String roleDescription;
 
+    private transient Object permissions;
+
+    private transient Integer roleUserCount;
+
+    public Integer getRoleUserCount() {
+        return roleUserCount;
+    }
+
+    public void setRoleUserCount(Integer roleUserCount) {
+        this.roleUserCount = roleUserCount;
+    }
+
+    public Object getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Object permissions) {
+        this.permissions = permissions;
+    }
+
     public String getOid() {
         return oid;
     }

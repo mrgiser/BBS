@@ -20,9 +20,15 @@ package cn.he.zhao.bbs.mapper;
 import cn.he.zhao.bbs.entity.Role;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 public interface RoleMapper {
 
     void add(Role role);
+
+    Role get(final String roleId);
+
+    List<Role> getAll();
 
     @Select("select count(*) from role where roleName = #{roleName}")
     Integer countByRoleName(final String roleName);

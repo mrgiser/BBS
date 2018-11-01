@@ -25,10 +25,10 @@ import java.util.List;
 
 public interface RolePermissionMapper {
 
-    public void removeByRoleId(final String roleId) ;
+    void removeByRoleId(final String roleId) ;
 
 
-    public List<JSONObject> getByRoleId(final String roleId) ;
+    List<RolePermission> getByRoleId(final String roleId) ;
 
     void add(RolePermission rel);
 }

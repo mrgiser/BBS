@@ -2,6 +2,7 @@ package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.entityUtil.*;
 import cn.he.zhao.bbs.event.EventTypes;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -1014,99 +1015,6 @@ public class ArticleMgmtService {
     }
 
     /**
-     * Updates the specified article by the given article id.
-     * <p>
-     * <b>Note</b>: This method just for admin console.
-     * </p>
-     *
-     * @param articleId the given article id
-     * @param article   the specified article
-     * @throws Exception service exception
-     */
-    @Transactional
-    public void updateArticleByAdmin(final String articleId, final Article article) throws Exception {
-//        final Transaction transaction = articleMapper.beginTransaction();
-
-        try {
-            final String authorId = article.getArticleAuthorId();
-            final UserExt author = userMapper.get(authorId);
-
-            // TODO: 2018/10/14 str bool 转换
-            article.setArticleCommentable( String.valueOf(Boolean.valueOf(article.getArticleCommentable())));
-            article.setSyncWithSymphonyClient( author.getSyncWithSymphonyClient());
-
-            final Article oldArticle = articleMapper.get(articleId);
-
-            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
-                article.setArticleTags( "回收站");
-            }
-
-            processTagsForArticleUpdate(oldArticle, article, author);
-
-            String articleTitle = article.getArticleTitle();
-            articleTitle = Emotions.toAliases(articleTitle);
-            article.setArticleTitle(articleTitle);
-
-            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.getArticleType()) {
-                article.setArticleContent( oldArticle.getArticleContent());
-            } else {
-                String articleContent = article.getArticleContent();
-                articleContent = Emotions.toAliases(articleContent);
-                article.setArticleContent( articleContent);
-            }
-
-            final int perfect = article.getArticlePerfect();
-            if (ArticleUtil.ARTICLE_PERFECT_C_PERFECT == perfect) {
-                // if it is perfect, allow anonymous view
-                article.setArticleAnonymousView( ArticleUtil.ARTICLE_ANONYMOUS_VIEW_C_ALLOW);
-
-                // updates tag-article perfect
-                final List<TagArticle> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
-                for (final TagArticle tagArticleRel : tagArticleRels) {
-                    tagArticleRel.setArticlePerfect( ArticleUtil.ARTICLE_PERFECT_C_PERFECT);
-
-                    tagArticleMapper.update(tagArticleRel.getOid(), tagArticleRel);
-                }
-            }
-
-            userMapper.update(authorId, author);
-            articleMapper.update( article);
-
-//            transaction.commit();
-
-            if (ArticleUtil.ARTICLE_PERFECT_C_NOT_PERFECT == oldArticle.getArticlePerfect()
-                    && ArticleUtil.ARTICLE_PERFECT_C_PERFECT == perfect) {
-                final Notification notification = new Notification();
-                notification.setUserId( authorId);
-                notification.setDataId( articleId);
-
-                notificationMgmtService.addPerfectArticleNotification(notification);
-
-                pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, authorId,
-                        PointtransferUtil.TRANSFER_TYPE_C_PERFECT_ARTICLE, PointtransferUtil.TRANSFER_SUM_C_PERFECT_ARTICLE,
-                        articleId, System.currentTimeMillis());
-            }
-
-            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
-                if (Symphonys.getBoolean("algolia.enabled")) {
-                    searchMgmtService.removeAlgoliaDocument(article);
-                }
-
-                if (Symphonys.getBoolean("es.enabled")) {
-                    searchMgmtService.removeESDocument(article, ArticleUtil.ARTICLE);
-                }
-            }
-        } catch (final Exception e) {
-//            if (transaction.isActive()) {
-//                transaction.rollback();
-//            }
-
-            LOGGER.error( "Updates an article[id=" + articleId + "] failed", e);
-            throw new Exception(e);
-        }
-    }
-
-    /**
      * A user specified by the given sender id rewards the author of an article specified by the given article id.
      *
      * @param articleId the given article id
@@ -1350,6 +1258,99 @@ public class ArticleMgmtService {
             LOGGER.error( "Admin sticks an article[id=" + articleId + "] failed", e);
 
             throw new Exception(langPropsService.get("stickFailedLabel"));
+        }
+    }
+
+    /**
+     * Updates the specified article by the given article id.
+     * <p>
+     * <b>Note</b>: This method just for admin console.
+     * </p>
+     *
+     * @param articleId the given article id
+     * @param article   the specified article
+     * @throws Exception service exception
+     */
+    @Transactional
+    public void updateArticleByAdmin(final String articleId, final Article article) throws Exception {
+//        final Transaction transaction = articleMapper.beginTransaction();
+
+        try {
+            final String authorId = article.getArticleAuthorId();
+            final UserExt author = userMapper.get(authorId);
+
+            // TODO: 2018/10/14 str bool 转换
+            article.setArticleCommentable( String.valueOf(Boolean.valueOf(article.getArticleCommentable())));
+            article.setSyncWithSymphonyClient( author.getSyncWithSymphonyClient());
+
+            final Article oldArticle = articleMapper.get(articleId);
+
+            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
+                article.setArticleTags( "回收站");
+            }
+
+            processTagsForArticleUpdate(oldArticle, article, author);
+
+            String articleTitle = article.getArticleTitle();
+            articleTitle = Emotions.toAliases(articleTitle);
+            article.setArticleTitle(articleTitle);
+
+            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.getArticleType()) {
+                article.setArticleContent( oldArticle.getArticleContent());
+            } else {
+                String articleContent = article.getArticleContent();
+                articleContent = Emotions.toAliases(articleContent);
+                article.setArticleContent( articleContent);
+            }
+
+            final int perfect = article.getArticlePerfect();
+            if (ArticleUtil.ARTICLE_PERFECT_C_PERFECT == perfect) {
+                // if it is perfect, allow anonymous view
+                article.setArticleAnonymousView( ArticleUtil.ARTICLE_ANONYMOUS_VIEW_C_ALLOW);
+
+                // updates tag-article perfect
+                final List<TagArticle> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
+                for (final TagArticle tagArticleRel : tagArticleRels) {
+                    tagArticleRel.setArticlePerfect( ArticleUtil.ARTICLE_PERFECT_C_PERFECT);
+
+                    tagArticleMapper.update(tagArticleRel.getOid(), tagArticleRel);
+                }
+            }
+
+            userMapper.update(authorId, author);
+            articleMapper.update( article);
+
+//            transaction.commit();
+
+            if (ArticleUtil.ARTICLE_PERFECT_C_NOT_PERFECT == oldArticle.getArticlePerfect()
+                    && ArticleUtil.ARTICLE_PERFECT_C_PERFECT == perfect) {
+                final Notification notification = new Notification();
+                notification.setUserId( authorId);
+                notification.setDataId( articleId);
+
+                notificationMgmtService.addPerfectArticleNotification(notification);
+
+                pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, authorId,
+                        PointtransferUtil.TRANSFER_TYPE_C_PERFECT_ARTICLE, PointtransferUtil.TRANSFER_SUM_C_PERFECT_ARTICLE,
+                        articleId, System.currentTimeMillis());
+            }
+
+            if (ArticleUtil.ARTICLE_STATUS_C_INVALID == article.getArticleStatus()) {
+                if (Symphonys.getBoolean("algolia.enabled")) {
+                    searchMgmtService.removeAlgoliaDocument(article);
+                }
+
+                if (Symphonys.getBoolean("es.enabled")) {
+                    searchMgmtService.removeESDocument(article, ArticleUtil.ARTICLE);
+                }
+            }
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
+
+            LOGGER.error( "Updates an article[id=" + articleId + "] failed", e);
+            throw new Exception(e);
         }
     }
 
