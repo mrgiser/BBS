@@ -1,10 +1,17 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.util.JsonUtil;
+import cn.he.zhao.bbs.util.Times;
 import cn.he.zhao.bbs.util.URLs;
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -80,14 +87,16 @@ public class UserQueryService {
         final int RANGE_SIZE = 64;
 
         try {
-            final Query userQuery = new Query();
-            userQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(RANGE_SIZE).
-                    setFilter(new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID)).
-                    addSort(UserExt.USER_ARTICLE_COUNT, SortDirection.DESCENDING).
-                    addSort(UserExt.USER_COMMENT_COUNT, SortDirection.DESCENDING);
-            final JSONArray rangeUsers = userMapper.get(userQuery).optJSONArray(Keys.RESULTS);
+//            final Query userQuery = new Query()
+//            userQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(RANGE_SIZE).
+//                    setFilter(new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID)).
+//                    addSort(UserExtUtil.USER_ARTICLE_COUNT, SortDirection.DESCENDING).
+//                    addSort(UserExtUtil.USER_COMMENT_COUNT, SortDirection.DESCENDING);
 
-            final int realLen = rangeUsers.length();
+            PageHelper.startPage(1,RANGE_SIZE,"userArticleCount DESC,userCommentCount DESC");
+            final List<UserExt> rangeUsers = userMapper.getByUserStatus(UserExtUtil.USER_STATUS_C_VALID);
+
+            final int realLen = rangeUsers.size();
             if (realLen < fetchSize) {
                 fetchSize = realLen;
             }
@@ -96,11 +105,12 @@ public class UserQueryService {
             final List<Integer> indices = CollectionUtils.getRandomIntegers(0, realLen, fetchSize);
 
             for (final Integer index : indices) {
-                ret.add(rangeUsers.getJSONObject(index));
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(rangeUsers.get(index)));
+                ret.add(json);
             }
 
             for (final JSONObject selectedUser : ret) {
-                avatarQueryService.fillUserAvatarURL(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, selectedUser);
+                avatarQueryService.fillUserAvatarURL(UserExtUtil.USER_AVATAR_VIEW_MODE_C_STATIC, selectedUser);
             }
         } catch (final Exception e) {
             LOGGER.error( "Get nice users failed", e);
@@ -116,18 +126,19 @@ public class UserQueryService {
      * @return invited user count
      */
     public int getInvitedUserCount(final String userId) {
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Pointtransfer.TO_ID, FilterOperator.EQUAL, userId),
-                CompositeFilterOperator.or(
-                        new PropertyFilter(Pointtransfer.TYPE, FilterOperator.EQUAL,
-                                Pointtransfer.TRANSFER_TYPE_C_INVITECODE_USED),
-                        new PropertyFilter(Pointtransfer.TYPE, FilterOperator.EQUAL,
-                                Pointtransfer.TRANSFER_TYPE_C_INVITE_REGISTER))
-        ));
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(PointtransferUtil.TO_ID, FilterOperator.EQUAL, userId),
+//                CompositeFilterOperator.or(
+//                        new PropertyFilter(PointtransferUtil.TYPE, FilterOperator.EQUAL,
+//                                PointtransferUtil.TRANSFER_TYPE_C_INVITECODE_USED),
+//                        new PropertyFilter(PointtransferUtil.TYPE, FilterOperator.EQUAL,
+//                                PointtransferUtil.TRANSFER_TYPE_C_INVITE_REGISTER))
+//        ));
 
         try {
-            return (int) pointtransferMapper.count(query);
-        } catch (final MapperException e) {
+            return (int) pointtransferMapper.getInvitedUserCount(userId,
+                    PointtransferUtil.TRANSFER_TYPE_C_INVITECODE_USED,PointtransferUtil.TRANSFER_TYPE_C_INVITE_REGISTER);
+        } catch (final Exception e) {
             LOGGER.error( "Gets invited user count failed", e);
 
             return 0;
@@ -157,11 +168,11 @@ public class UserQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
     public JSONObject getLatestLoggedInUsers(final long time, final int currentPageNum, final int pageSize,
-                                             final int windowSize) throws ServiceException {
+                                             final int windowSize) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
@@ -174,10 +185,10 @@ public class UserQueryService {
         JSONObject result = null;
         try {
             result = userMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets latest logged in user failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -213,7 +224,7 @@ public class UserQueryService {
 
         try {
             return (int) userMapper.count(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Count day user failed", e);
 
             return 1;
@@ -239,7 +250,7 @@ public class UserQueryService {
 
         try {
             return (int) userMapper.count(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Count month user failed", e);
 
             return 1;
@@ -276,7 +287,7 @@ public class UserQueryService {
 
                 return u1Name.compareTo(u2Name);
             });
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Loads usernames error", e);
         }
     }
@@ -346,9 +357,9 @@ public class UserQueryService {
      *
      * @param request the specified request
      * @return the current user, {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getCurrentUser(final HttpServletRequest request) throws ServiceException {
+    public JSONObject getCurrentUser(final HttpServletRequest request) throws Exception {
         final JSONObject currentUser = Sessions.currentUser(request);
         if (null == currentUser) {
             return null;
@@ -363,14 +374,14 @@ public class UserQueryService {
      * Gets the administrators.
      *
      * @return administrators, returns an empty list if not found or error
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getAdmins() throws ServiceException {
+    public List<JSONObject> getAdmins() throws Exception {
         try {
             return userMapper.getAdmins();
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets admins failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -378,9 +389,9 @@ public class UserQueryService {
      * Gets the super administrator.
      *
      * @return super administrator
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getSA() throws ServiceException {
+    public JSONObject getSA() throws Exception {
         return getAdmins().get(0);
     }
 
@@ -388,9 +399,9 @@ public class UserQueryService {
      * Gets the default commenter.
      *
      * @return default commenter
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getDefaultCommenter() throws ServiceException {
+    public JSONObject getDefaultCommenter() throws Exception {
         final JSONObject ret = getUserByName(UserExt.DEFAULT_CMTER_NAME);
         ret.remove(UserExt.USER_T_POINT_HEX);
         ret.remove(UserExt.USER_T_POINT_CC);
@@ -403,14 +414,14 @@ public class UserQueryService {
      *
      * @param email the specified email
      * @return user, returns {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getUserByEmail(final String email) throws ServiceException {
+    public JSONObject getUserByEmail(final String email) throws Exception {
         try {
             return userMapper.getByEmail(email);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets user by email[" + email + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -505,7 +516,7 @@ public class UserQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets user by name[" + name + "] failed", e);
 
             return null;
@@ -537,10 +548,10 @@ public class UserQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
-    public JSONObject getUsers(final JSONObject requestJSONObject) throws ServiceException {
+    public JSONObject getUsers(final JSONObject requestJSONObject) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
@@ -561,10 +572,10 @@ public class UserQueryService {
         JSONObject result;
         try {
             result = userMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets users failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -616,10 +627,10 @@ public class UserQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
-    public JSONObject getUsersByCity(final JSONObject requestJSONObject) throws ServiceException {
+    public JSONObject getUsersByCity(final JSONObject requestJSONObject) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
@@ -638,10 +649,10 @@ public class UserQueryService {
         JSONObject result = null;
         try {
             result = userMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets users by city error", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -660,7 +671,7 @@ public class UserQueryService {
                         followMapper.exists(requestJSONObject.optString(Keys.OBJECT_ID), user.optString(Keys.OBJECT_ID),
                                 Follow.FOLLOWING_TYPE_C_USER));
             }
-        } catch (final MapperException | JSONException e) {
+        } catch (final Exception | JSONException e) {
             LOGGER.error( "Fills following failed", e);
         }
         ret.put(User.USERS, users);

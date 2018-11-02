@@ -28,10 +28,13 @@ public interface UserMapper {
 
     List<UserExt> getAll();
 
+    @Select("select * from user WHERE userStatus = #{userStatus}")
+    List<UserExt> getByUserStatus(final int userStatus);
+
     List<UserExt> getByUserJoinPointRank(final int userJoinPointRank);
     List<UserExt> getByUserJoinUsedPointRank(final int userJoinUsedPointRank);
 
-    @Select("select * from user WHERE oId in （ #{oIds}）")
+    @Select("select * from user WHERE oId in (#{oIds})")
     List<UserExt> findByOIds(List<String> oIds);
 
     void update(final String id, final UserExt user) ;

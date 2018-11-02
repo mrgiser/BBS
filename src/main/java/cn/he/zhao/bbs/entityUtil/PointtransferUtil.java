@@ -17,7 +17,8 @@
  */
 package cn.he.zhao.bbs.entityUtil;
 
-import org.b3log.symphony.util.Symphonys;
+
+import cn.he.zhao.bbs.util.Symphonys;
 
 /**
  * This class defines all pointtransfer model relevant keys.
