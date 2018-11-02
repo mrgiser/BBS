@@ -20,12 +20,14 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.entityUtil.*;
 import cn.he.zhao.bbs.event.AddCommentEvent;
 import cn.he.zhao.bbs.event.EventTypes;
+import cn.he.zhao.bbs.event.UpdateCommentEvent;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.util.Emotions;
 import cn.he.zhao.bbs.util.Ids;
 import cn.he.zhao.bbs.util.JsonUtil;
@@ -628,56 +630,56 @@ public class CommentMgmtService {
             Comment commentTmp = JsonUtil.json2Bean(comment.toString(),Comment.class);
             commentMapper.update(commentId, commentTmp);
 
-            final String commentAuthorId = comment.optString(Comment.COMMENT_AUTHOR_ID);
+            final String commentAuthorId = comment.optString(CommentUtil.COMMENT_AUTHOR_ID);
             if (!oldContent.equals(content)) {
                 // RevisionUtil
-                final JSONObject revision = new JSONObject();
-                revision.put(Revision.REVISION_AUTHOR_ID, commentAuthorId);
+                final Revision revision = new Revision();
+                revision.setRevisionAuthorId(commentAuthorId);
 
                 final JSONObject revisionData = new JSONObject();
-                revisionData.put(Comment.COMMENT_CONTENT, content);
+                revisionData.put(CommentUtil.COMMENT_CONTENT, content);
 
-                revision.put(Revision.REVISION_DATA, revisionData.toString());
-                revision.put(Revision.REVISION_DATA_ID, commentId);
-                revision.put(Revision.REVISION_DATA_TYPE, Revision.DATA_TYPE_C_COMMENT);
+                revision.setRevisionData(revisionData.toString());
+                revision.setRevisionDataId(commentId);
+                revision.setRevisionDataType(RevisionUtil.DATA_TYPE_C_COMMENT);
 
                 revisionMapper.add(revision);
             }
 
-            transaction.commit();
+//            transaction.commit();
 
-            final JSONObject article = articleMapper.get(comment.optString(Comment.COMMENT_ON_ARTICLE_ID));
-            final int articleAnonymous = article.optInt(Article.ARTICLE_ANONYMOUS);
-            final int commentAnonymous = comment.optInt(Comment.COMMENT_ANONYMOUS);
+            final Article article = articleMapper.get(comment.optString(CommentUtil.COMMENT_ON_ARTICLE_ID));
+            final int articleAnonymous = article.getArticleAnonymous();
+            final int commentAnonymous = comment.optInt(CommentUtil.COMMENT_ANONYMOUS);
 
-            if (Comment.COMMENT_ANONYMOUS_C_PUBLIC == commentAnonymous
-                    && Article.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
+            if (CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC == commentAnonymous
+                    && ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous) {
                 // Point
                 final long now = System.currentTimeMillis();
                 final long createTime = comment.optLong(Keys.OBJECT_ID);
                 if (now - createTime > 1000 * 60 * 5) {
-                    pointtransferMgmtService.transfer(commentAuthorId, Pointtransfer.ID_C_SYS,
-                            Pointtransfer.TRANSFER_TYPE_C_UPDATE_COMMENT,
-                            Pointtransfer.TRANSFER_SUM_C_UPDATE_COMMENT, commentId, now);
+                    pointtransferMgmtService.transfer(commentAuthorId, PointtransferUtil.ID_C_SYS,
+                            PointtransferUtil.TRANSFER_TYPE_C_UPDATE_COMMENT,
+                            PointtransferUtil.TRANSFER_SUM_C_UPDATE_COMMENT, commentId, now);
                 }
             }
 
-            final boolean fromClient = comment.has(Comment.COMMENT_CLIENT_COMMENT_ID);
+            final boolean fromClient = comment.has(CommentUtil.COMMENT_CLIENT_COMMENT_ID);
 
             // Event
             final JSONObject eventData = new JSONObject();
             eventData.put(Common.FROM_CLIENT, fromClient);
-            eventData.put(Article.ARTICLE, article);
-            eventData.put(Comment.COMMENT, comment);
+            eventData.put(ArticleUtil.ARTICLE, article);
+            eventData.put(CommentUtil.COMMENT, comment);
             try {
-                eventManager.fireEventAsynchronously(new Event<>(EventTypes.UPDATE_COMMENT, eventData));
-            } catch (final EventException e) {
+                eventManager.fireEventAsynchronously(new UpdateCommentEvent(EventTypes.UPDATE_COMMENT, eventData));
+            } catch (final Exception e) {
                 LOGGER.error( e.getMessage(), e);
             }
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Updates a comment[id=" + commentId + "] failed", e);
             throw new Exception(e);
