@@ -26,6 +26,7 @@ package cn.he.zhao.bbs.entityUtil;
  */
 public final class CommonUtil {
 
+    public static final String COMMENT = "comment";
     /**
      * Key of offered.
      */

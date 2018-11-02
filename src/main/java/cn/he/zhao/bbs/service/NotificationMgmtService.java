@@ -120,7 +120,7 @@ public class NotificationMgmtService {
      * @throws ServiceException service exception
      */
     @Transactional
-    public void addCommentAcceptNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addCommentAcceptNotification(final Notification requestJSONObject) throws ServiceException {
         try {
             requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_COMMENT_ACCEPT);
 
@@ -752,7 +752,7 @@ public class NotificationMgmtService {
      * @throws ServiceException service exception
      */
     @Transactional
-    public void addCommentThankNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addCommentThankNotification(final Notification requestJSONObject) throws ServiceException {
         try {
             requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_COMMENT_THANK);
 

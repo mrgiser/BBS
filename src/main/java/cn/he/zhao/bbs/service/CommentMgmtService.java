@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.event.AddCommentEvent;
+import cn.he.zhao.bbs.event.EventTypes;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
@@ -24,6 +27,8 @@ import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.Ids;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -145,59 +152,59 @@ public class CommentMgmtService {
      * Accepts a comment specified with the given comment id.
      *
      * @param commentId
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void acceptComment(final String commentId) throws ServiceException {
+    @Transactional
+    public void acceptComment(final String commentId) throws Exception {
         try {
-            final JSONObject comment = commentMapper.get(commentId);
-            final String articleId = comment.optString(Comment.COMMENT_ON_ARTICLE_ID);
-            final Query query = new Query().setFilter(new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId));
-            final List<JSONObject> comments = CollectionUtils.jsonArrayToList(commentMapper.get(query).optJSONArray(Keys.RESULTS));
-            for (final JSONObject c : comments) {
-                final int offered = c.optInt(Comment.COMMENT_QNA_OFFERED);
-                if (Comment.COMMENT_QNA_OFFERED_C_YES == offered) {
+            final Comment comment = commentMapper.get(commentId);
+            final String articleId = comment.getCommentOnArticleId();
+//            final Query query = new Query().setFilter(new PropertyFilter(CommentUtil.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId));
+//            final List<JSONObject> comments = CollectionUtils.jsonArrayToList(commentMapper.get(query).optJSONArray(Keys.RESULTS));
+            final List<Comment> comments = commentMapper.getByCommentOnArticleId(articleId);
+            for (final Comment c : comments) {
+                final int offered = c.getCommentQnAOffered();
+                if (CommentUtil.COMMENT_QNA_OFFERED_C_YES == offered) {
                     return;
                 }
             }
 
             final String rewardId = Ids.genTimeMillisId();
 
-            final JSONObject article = articleMapper.get(articleId);
-            final String articleAuthorId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            final String commentAuthorId = comment.optString(Comment.COMMENT_AUTHOR_ID);
-            final int offerPoint = article.optInt(Article.ARTICLE_QNA_OFFER_POINT);
-            if (Comment.COMMENT_ANONYMOUS_C_PUBLIC == comment.optInt(Comment.COMMENT_ANONYMOUS)) {
+            final Article article = articleMapper.get(articleId);
+            final String articleAuthorId = article.getArticleAuthorId();
+            final String commentAuthorId = comment.getCommentAuthorId();
+            final int offerPoint = article.getArticleQnAOfferPoint();
+            if (CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC == comment.getCommentAnonymous()) {
                 final boolean succ = null != pointtransferMgmtService.transfer(articleAuthorId, commentAuthorId,
-                        Pointtransfer.TRANSFER_TYPE_C_QNA_OFFER, offerPoint, rewardId, System.currentTimeMillis());
+                        PointtransferUtil.TRANSFER_TYPE_C_QNA_OFFER, offerPoint, rewardId, System.currentTimeMillis());
                 if (!succ) {
-                    throw new ServiceException(langPropsService.get("transferFailLabel"));
+                    throw new Exception(langPropsService.get("transferFailLabel"));
                 }
             }
 
-            comment.put(Comment.COMMENT_QNA_OFFERED, Comment.COMMENT_QNA_OFFERED_C_YES);
-            final Transaction transaction = commentMapper.beginTransaction();
+            comment.setCommentQnAOffered( CommentUtil.COMMENT_QNA_OFFERED_C_YES);
+//            final Transaction transaction = commentMapper.beginTransaction();
             commentMapper.update(commentId, comment);
-            transaction.commit();
+//            transaction.commit();
 
-            final JSONObject reward = new JSONObject();
-            reward.put(Keys.OBJECT_ID, rewardId);
-            reward.put(Reward.SENDER_ID, articleAuthorId);
-            reward.put(Reward.DATA_ID, articleId);
-            reward.put(Reward.TYPE, Reward.TYPE_C_ACCEPT_COMMENT);
+            final Reward reward = new Reward();
+            reward.setOid(rewardId);
+            reward.setSenderId(articleAuthorId);
+            reward.setDataId( articleId);
+            reward.setType(RewardUtil.TYPE_C_ACCEPT_COMMENT);
             rewardMgmtService.addReward(reward);
 
-            final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, commentAuthorId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, rewardId);
+            final Notification notification = new Notification();
+            notification.setUserId(commentAuthorId);
+            notification.setDataId(rewardId);
             notificationMgmtService.addCommentAcceptNotification(notification);
 
-            livenessMgmtService.incLiveness(articleAuthorId, Liveness.LIVENESS_ACCEPT_ANSWER);
-        } catch ( final Exception e) {
-            throw e;
+            livenessMgmtService.incLiveness(articleAuthorId, LivenessUtil.LIVENESS_ACCEPT_ANSWER);
         } catch (final Exception e) {
             LOGGER.error( "Accepts a comment [id=" + commentId + "] failed", e);
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
     }
 
@@ -211,10 +218,10 @@ public class CommentMgmtService {
      * Sees https://github.com/b3log/symphony/issues/451 for more details.
      *
      * @param commentId the given commentId id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void removeComment(final String commentId) throws ServiceException {
-        JSONObject comment = null;
+    public void removeComment(final String commentId) throws Exception {
+        Comment comment = null;
 
         try {
             comment = commentMapper.get(commentId);
@@ -226,20 +233,20 @@ public class CommentMgmtService {
             return;
         }
 
-        final int replyCnt = comment.optInt(Comment.COMMENT_REPLY_CNT);
+        final int replyCnt = comment.getCommentReplyCnt();
         if (replyCnt > 0) {
-            throw new ServiceException(langPropsService.get("removeCommentFoundReplyLabel"));
+            throw new Exception(langPropsService.get("removeCommentFoundReplyLabel"));
         }
 
-        final int ups = comment.optInt(Comment.COMMENT_GOOD_CNT);
-        final int downs = comment.optInt(Comment.COMMENT_BAD_CNT);
+        final int ups = comment.getCommentGoodCnt();
+        final int downs = comment.getCommentBadCnt();
         if (ups > 0 || downs > 0) {
-            throw new ServiceException("removeCommentFoundWatchEtcLabel");
+            throw new Exception("removeCommentFoundWatchEtcLabel");
         }
 
-        final int thankCnt = (int) rewardQueryService.rewardedCount(commentId, Reward.TYPE_C_COMMENT);
+        final int thankCnt = (int) rewardQueryService.rewardedCount(commentId, RewardUtil.TYPE_C_COMMENT);
         if (thankCnt > 0) {
-            throw new ServiceException("removeCommentFoundThankLabel");
+            throw new Exception("removeCommentFoundThankLabel");
         }
 
         // Perform removal
@@ -266,79 +273,79 @@ public class CommentMgmtService {
      *
      * @param commentId the given comment id
      * @param senderId  the given sender id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void thankComment(final String commentId, final String senderId) throws ServiceException {
+    public void thankComment(final String commentId, final String senderId) throws Exception {
         try {
-            final JSONObject comment = commentMapper.get(commentId);
+            final Comment comment = commentMapper.get(commentId);
 
             if (null == comment) {
                 return;
             }
 
-            if (Comment.COMMENT_STATUS_C_INVALID == comment.optInt(Comment.COMMENT_STATUS)) {
+            if (CommentUtil.COMMENT_STATUS_C_INVALID == comment.getCommentStatus()) {
                 return;
             }
 
-            final JSONObject sender = userMapper.get(senderId);
+            final UserExt sender = userMapper.get(senderId);
             if (null == sender) {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_VALID != sender.optInt(UserExt.USER_STATUS)) {
+            if (UserExtUtil.USER_STATUS_C_VALID != sender.getUserStatus()) {
                 return;
             }
 
-            final String receiverId = comment.optString(Comment.COMMENT_AUTHOR_ID);
-            final JSONObject receiver = userMapper.get(receiverId);
+            final String receiverId = comment.getCommentAuthorId();
+            final UserExt receiver = userMapper.get(receiverId);
             if (null == receiver) {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_VALID != receiver.optInt(UserExt.USER_STATUS)) {
+            if (UserExtUtil.USER_STATUS_C_VALID != receiver.getUserStatus()) {
                 return;
             }
 
             if (receiverId.equals(senderId)) {
-                throw new ServiceException(langPropsService.get("thankSelfLabel"));
+                throw new Exception(langPropsService.get("thankSelfLabel"));
             }
 
             final int rewardPoint = Symphonys.getInt("pointThankComment");
 
-            if (rewardQueryService.isRewarded(senderId, commentId, Reward.TYPE_C_COMMENT)) {
+            if (rewardQueryService.isRewarded(senderId, commentId, RewardUtil.TYPE_C_COMMENT)) {
                 return;
             }
 
             final String rewardId = Ids.genTimeMillisId();
 
-            if (Comment.COMMENT_ANONYMOUS_C_PUBLIC == comment.optInt(Comment.COMMENT_ANONYMOUS)) {
+            if (CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC == comment.getCommentAnonymous()) {
                 final boolean succ = null != pointtransferMgmtService.transfer(senderId, receiverId,
-                        Pointtransfer.TRANSFER_TYPE_C_COMMENT_REWARD, rewardPoint, rewardId, System.currentTimeMillis());
+                        PointtransferUtil.TRANSFER_TYPE_C_COMMENT_REWARD, rewardPoint, rewardId, System.currentTimeMillis());
 
                 if (!succ) {
-                    throw new ServiceException(langPropsService.get("transferFailLabel"));
+                    throw new Exception(langPropsService.get("transferFailLabel"));
                 }
             }
 
-            final JSONObject reward = new JSONObject();
-            reward.put(Keys.OBJECT_ID, rewardId);
-            reward.put(Reward.SENDER_ID, senderId);
-            reward.put(Reward.DATA_ID, commentId);
-            reward.put(Reward.TYPE, Reward.TYPE_C_COMMENT);
+            final Reward reward = new Reward();
+            reward.setOid(rewardId);
+            reward.setSenderId(senderId);
+            reward.setDataId(commentId);
+            reward.setType(RewardUtil.TYPE_C_COMMENT);
 
             rewardMgmtService.addReward(reward);
 
-            final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, receiverId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, rewardId);
+            final Notification notification = new Notification();
+            notification.setUserId( receiverId);
+            notification.setDataId(rewardId);
 
             notificationMgmtService.addCommentThankNotification(notification);
 
-            livenessMgmtService.incLiveness(senderId, Liveness.LIVENESS_THANK);
-        } catch (final MapperException e) {
+            livenessMgmtService.incLiveness(senderId, LivenessUtil.LIVENESS_THANK);
+        } catch (final Exception e) {
             LOGGER.error( "Thanks a comment[id=" + commentId + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -358,118 +365,119 @@ public class CommentMgmtService {
      *                          "userCommentViewMode": int
      *                          , see {@link Comment} for more details
      * @return generated comment id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public synchronized String addComment(final JSONObject requestJSONObject) throws ServiceException {
+    @Transactional
+    public synchronized String addComment(final JSONObject requestJSONObject) throws Exception {
         final long currentTimeMillis = System.currentTimeMillis();
-        final String commentAuthorId = requestJSONObject.optString(Comment.COMMENT_AUTHOR_ID);
-        JSONObject commenter;
+        final String commentAuthorId = requestJSONObject.optString(CommentUtil.COMMENT_AUTHOR_ID);
+        UserExt commenter;
         try {
             commenter = userMapper.get(commentAuthorId);
         } catch (final Exception e) {
             LOGGER.error( "Gets comment author failed", e);
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
 
         if (null == commenter) {
             LOGGER.error( "Not found user [id=" + commentAuthorId + "]");
 
-            throw new ServiceException(langPropsService.get("systemErrLabel"));
+            throw new Exception(langPropsService.get("systemErrLabel"));
         }
 
-        final boolean fromClient = requestJSONObject.has(Comment.COMMENT_CLIENT_COMMENT_ID);
-        final String articleId = requestJSONObject.optString(Comment.COMMENT_ON_ARTICLE_ID);
-        final String ip = requestJSONObject.optString(Comment.COMMENT_IP);
-        String ua = requestJSONObject.optString(Comment.COMMENT_UA);
-        final int commentAnonymous = requestJSONObject.optInt(Comment.COMMENT_ANONYMOUS);
-        final int commentViewMode = requestJSONObject.optInt(UserExt.USER_COMMENT_VIEW_MODE);
+        final boolean fromClient = requestJSONObject.has(CommentUtil.COMMENT_CLIENT_COMMENT_ID);
+        final String articleId = requestJSONObject.optString(CommentUtil.COMMENT_ON_ARTICLE_ID);
+        final String ip = requestJSONObject.optString(CommentUtil.COMMENT_IP);
+        String ua = requestJSONObject.optString(CommentUtil.COMMENT_UA);
+        final int commentAnonymous = requestJSONObject.optInt(CommentUtil.COMMENT_ANONYMOUS);
+        final int commentViewMode = requestJSONObject.optInt(UserExtUtil.USER_COMMENT_VIEW_MODE);
 
-        if (currentTimeMillis - commenter.optLong(UserExt.USER_LATEST_CMT_TIME) < Symphonys.getLong("minStepCmtTime")
-                && !Role.ROLE_ID_C_ADMIN.equals(commenter.optString(User.USER_ROLE))
-                && !UserExt.DEFAULT_CMTER_ROLE.equals(commenter.optString(User.USER_ROLE))) {
-            LOGGER.warn( "Adds comment too frequent [userName={0}]", commenter.optString(User.USER_NAME));
-            throw new ServiceException(langPropsService.get("tooFrequentCmtLabel"));
+        if (currentTimeMillis - commenter.getUserLatestCmtTime() < Symphonys.getLong("minStepCmtTime")
+                && !RoleUtil.ROLE_ID_C_ADMIN.equals(commenter.getUserRole())
+                && !UserExtUtil.DEFAULT_CMTER_ROLE.equals(commenter.getUserRole())) {
+            LOGGER.warn( "Adds comment too frequent [userName={0}]", commenter.getUserName());
+            throw new Exception(langPropsService.get("tooFrequentCmtLabel"));
         }
 
-        final String commenterName = commenter.optString(User.USER_NAME);
+        final String commenterName = commenter.getUserName();
 
-        JSONObject article;
+        Article article;
         try {
             // check if admin allow to add comment
-            final JSONObject option = optionMapper.get(Option.ID_C_MISC_ALLOW_ADD_COMMENT);
+            final Option option = optionMapper.get(OptionUtil.ID_C_MISC_ALLOW_ADD_COMMENT);
 
-            if (!"0".equals(option.optString(Option.OPTION_VALUE))) {
-                throw new ServiceException(langPropsService.get("notAllowAddCommentLabel"));
+            if (!"0".equals(option.getOptionValue())) {
+                throw new Exception(langPropsService.get("notAllowAddCommentLabel"));
             }
 
-            final int balance = commenter.optInt(UserExt.USER_POINT);
+            final int balance = commenter.getUserPoint();
 
-            if (Comment.COMMENT_ANONYMOUS_C_ANONYMOUS == commentAnonymous) {
+            if (CommentUtil.COMMENT_ANONYMOUS_C_ANONYMOUS == commentAnonymous) {
                 final int anonymousPoint = Symphonys.getInt("anonymous.point");
                 if (balance < anonymousPoint) {
                     String anonymousEnabelPointLabel = langPropsService.get("anonymousEnabelPointLabel");
                     anonymousEnabelPointLabel
                             = anonymousEnabelPointLabel.replace("${point}", String.valueOf(anonymousPoint));
-                    throw new ServiceException(anonymousEnabelPointLabel);
+                    throw new Exception(anonymousEnabelPointLabel);
                 }
             }
 
             article = articleMapper.get(articleId);
 
             if (!fromClient && !TuringQueryService.ROBOT_NAME.equals(commenterName)) {
-                int pointSum = Pointtransfer.TRANSFER_SUM_C_ADD_COMMENT;
+                int pointSum = PointtransferUtil.TRANSFER_SUM_C_ADD_COMMENT;
 
                 // Point
-                final String articleAuthorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+                final String articleAuthorId = article.getArticleAuthorId();
                 if (articleAuthorId.equals(commentAuthorId)) {
-                    pointSum = Pointtransfer.TRANSFER_SUM_C_ADD_SELF_ARTICLE_COMMENT;
+                    pointSum = PointtransferUtil.TRANSFER_SUM_C_ADD_SELF_ARTICLE_COMMENT;
                 }
 
                 if (balance - pointSum < 0) {
-                    throw new ServiceException(langPropsService.get("insufficientBalanceLabel"));
+                    throw new Exception(langPropsService.get("insufficientBalanceLabel"));
                 }
             }
-        } catch (final MapperException e) {
-            throw new ServiceException(e);
+        } catch (final Exception e) {
+            throw new Exception(e);
         }
 
-        final int articleAnonymous = article.optInt(Article.ARTICLE_ANONYMOUS);
+        final int articleAnonymous = article.getArticleAnonymous();
 
-        final Transaction transaction = commentMapper.beginTransaction();
+//        final Transaction transaction = commentMapper.beginTransaction();
 
         try {
-            article.put(Article.ARTICLE_COMMENT_CNT, article.optInt(Article.ARTICLE_COMMENT_CNT) + 1);
-            article.put(Article.ARTICLE_LATEST_CMTER_NAME, commenter.optString(User.USER_NAME));
-            if (Comment.COMMENT_ANONYMOUS_C_ANONYMOUS == commentAnonymous) {
-                article.put(Article.ARTICLE_LATEST_CMTER_NAME, UserExt.ANONYMOUS_USER_NAME);
+            article.setArticleCommentCount(article.getArticleCommentCount() + 1);
+            article.setArticleLatestCmterName(commenter.getUserName());
+            if (CommentUtil.COMMENT_ANONYMOUS_C_ANONYMOUS == commentAnonymous) {
+                article.setArticleLatestCmterName( UserExtUtil.ANONYMOUS_USER_NAME);
             }
-            article.put(Article.ARTICLE_LATEST_CMT_TIME, currentTimeMillis);
+            article.setArticleLatestCmtTime(currentTimeMillis);
 
             final String ret = Ids.genTimeMillisId();
-            final JSONObject comment = new JSONObject();
-            comment.put(Keys.OBJECT_ID, ret);
+            final Comment comment = new Comment();
+            comment.setOid( ret);
 
-            String content = requestJSONObject.optString(Comment.COMMENT_CONTENT).
+            String content = requestJSONObject.optString(CommentUtil.COMMENT_CONTENT).
                     replace("_esc_enter_88250_", "<br/>"); // Solo client escape
 
-            comment.put(Comment.COMMENT_AUTHOR_ID, commentAuthorId);
-            comment.put(Comment.COMMENT_ON_ARTICLE_ID, articleId);
+            comment.setCommentAuthorId( commentAuthorId);
+            comment.setCommentOnArticleId(articleId);
             if (fromClient) {
-                comment.put(Comment.COMMENT_CLIENT_COMMENT_ID, requestJSONObject.optString(Comment.COMMENT_CLIENT_COMMENT_ID));
+                comment.setClientCommentId( requestJSONObject.optString(CommentUtil.COMMENT_CLIENT_COMMENT_ID));
 
                 // Appends original commenter name
-                final String authorName = requestJSONObject.optString(Comment.COMMENT_T_AUTHOR_NAME);
+                final String authorName = requestJSONObject.optString(CommentUtil.COMMENT_T_AUTHOR_NAME);
                 content += " <i class='ft-small'>by " + authorName + "</i>";
             }
 
-            final String originalCmtId = requestJSONObject.optString(Comment.COMMENT_ORIGINAL_COMMENT_ID);
-            comment.put(Comment.COMMENT_ORIGINAL_COMMENT_ID, originalCmtId);
+            final String originalCmtId = requestJSONObject.optString(CommentUtil.COMMENT_ORIGINAL_COMMENT_ID);
+            comment.setCommentOriginalCommentId(originalCmtId);
 
             if (StringUtils.isNotBlank(originalCmtId)) {
-                final JSONObject originalCmt = commentMapper.get(originalCmtId);
-                final int originalCmtReplyCnt = originalCmt.optInt(Comment.COMMENT_REPLY_CNT);
-                originalCmt.put(Comment.COMMENT_REPLY_CNT, originalCmtReplyCnt + 1);
+                final Comment originalCmt = commentMapper.get(originalCmtId);
+                final int originalCmtReplyCnt = originalCmt.getCommentReplyCnt();
+                originalCmt.setCommentReplyCnt(originalCmtReplyCnt + 1);
                 commentMapper.update(originalCmtId, originalCmt);
 
                 notificationMgmtService.makeRead(commentAuthorId, Arrays.asList(originalCmtId));
@@ -481,116 +489,116 @@ public class CommentMgmtService {
             content = content.replace(langPropsService.get("uploadingLabel", Locale.SIMPLIFIED_CHINESE), "");
             content = content.replace(langPropsService.get("uploadingLabel", Locale.US), "");
 
-            comment.put(Comment.COMMENT_CONTENT, content);
-            comment.put(Comment.COMMENT_CREATE_TIME, System.currentTimeMillis());
-            comment.put(Comment.COMMENT_SHARP_URL, "/article/" + articleId + "#" + ret);
-            comment.put(Comment.COMMENT_STATUS, Comment.COMMENT_STATUS_C_VALID);
-            comment.put(Comment.COMMENT_IP, ip);
+            comment.setCommentContent(content);
+            comment.setCommentCreateTime(System.currentTimeMillis());
+            comment.setCommentSharpURL( "/article/" + articleId + "#" + ret);
+            comment.setCommentStatus(CommentUtil.COMMENT_STATUS_C_VALID);
+            comment.setCommentIP(ip);
 
-            if (StringUtils.length(ua) > Common.MAX_LENGTH_UA) {
+            if (StringUtils.length(ua) > CommonUtil.MAX_LENGTH_UA) {
                 LOGGER.warn( "UA is too long [" + ua + "]");
-                ua = StringUtils.substring(ua, 0, Common.MAX_LENGTH_UA);
+                ua = StringUtils.substring(ua, 0, CommonUtil.MAX_LENGTH_UA);
             }
-            comment.put(Comment.COMMENT_UA, ua);
+            comment.setCommentUA( ua);
 
-            comment.put(Comment.COMMENT_ANONYMOUS, commentAnonymous);
+            comment.setCommentAnonymous( commentAnonymous);
 
-            final JSONObject cmtCntOption = optionMapper.get(Option.ID_C_STATISTIC_CMT_COUNT);
-            final int cmtCnt = cmtCntOption.optInt(Option.OPTION_VALUE);
-            cmtCntOption.put(Option.OPTION_VALUE, String.valueOf(cmtCnt + 1));
+            final Option cmtCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_CMT_COUNT);
+            final int cmtCnt = Integer.parseInt(cmtCntOption.getOptionValue());
+            cmtCntOption.setOptionValue( String.valueOf(cmtCnt + 1));
 
-            articleMapper.update(articleId, article); // Updates article comment count, latest commenter name and time
-            optionMapper.update(Option.ID_C_STATISTIC_CMT_COUNT, cmtCntOption); // Updates global comment count
+            articleMapper.update( article); // Updates article comment count, latest commenter name and time
+            optionMapper.update(OptionUtil.ID_C_STATISTIC_CMT_COUNT, cmtCntOption); // Updates global comment count
             // Updates tag comment count and User-Tag relation
-            final String tagsString = article.optString(Article.ARTICLE_TAGS);
+            final String tagsString = article.getArticleTags();
             final String[] tagStrings = tagsString.split(",");
             for (int i = 0; i < tagStrings.length; i++) {
                 final String tagTitle = tagStrings[i].trim();
-                final JSONObject tag = tagMapper.getByTitle(tagTitle);
-                tag.put(Tag.TAG_COMMENT_CNT, tag.optInt(Tag.TAG_COMMENT_CNT) + 1);
-                tag.put(Tag.TAG_RANDOM_DOUBLE, Math.random());
+                final Tag tag = tagMapper.getByTitle(tagTitle);
+                tag.setTagCommentCount(tag.getTagCommentCount() + 1);
+                tag.setTagRandomDouble( Math.random());
 
-                tagMapper.update(tag.optString(Keys.OBJECT_ID), tag);
+                tagMapper.update(tag.getOid(), tag);
             }
 
             // Updates user comment count, latest comment time
-            commenter.put(UserExt.USER_COMMENT_COUNT, commenter.optInt(UserExt.USER_COMMENT_COUNT) + 1);
-            commenter.put(UserExt.USER_LATEST_CMT_TIME, currentTimeMillis);
-            userMapper.update(commenter.optString(Keys.OBJECT_ID), commenter);
+            commenter.setUserCommentCount(commenter.getUserCommentCount() + 1);
+            commenter.setUserLatestCmtTime(currentTimeMillis);
+            userMapper.update(commenter.getOid(), commenter);
 
-            comment.put(Comment.COMMENT_GOOD_CNT, 0);
-            comment.put(Comment.COMMENT_BAD_CNT, 0);
-            comment.put(Comment.COMMENT_SCORE, 0D);
-            comment.put(Comment.COMMENT_REPLY_CNT, 0);
-            comment.put(Comment.COMMENT_AUDIO_URL, "");
-            comment.put(Comment.COMMENT_QNA_OFFERED, Comment.COMMENT_QNA_OFFERED_C_NOT);
+            comment.setCommentGoodCnt( 0);
+            comment.setCommentBadCnt( 0);
+            comment.setCommentScore( 0D);
+            comment.setCommentReplyCnt( 0);
+            comment.setCommentAudioURL( "");
+            comment.setCommentQnAOffered(CommentUtil.COMMENT_QNA_OFFERED_C_NOT);
 
             // Adds the comment
             final String commentId = commentMapper.add(comment);
 
             // Updates tag-article relation stat.
-            final List<JSONObject> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
-            for (final JSONObject tagArticleRel : tagArticleRels) {
-                tagArticleRel.put(Article.ARTICLE_LATEST_CMT_TIME, currentTimeMillis);
-                tagArticleRel.put(Article.ARTICLE_COMMENT_CNT, article.optInt(Article.ARTICLE_COMMENT_CNT));
+            final List<TagArticle> tagArticleRels = tagArticleMapper.getByArticleId(articleId);
+            for (final TagArticle tagArticleRel : tagArticleRels) {
+                tagArticleRel.setArticleLatestCmtTime(currentTimeMillis);
+                tagArticleRel.setArticleCommentCount(article.getArticleCommentCount());
 
-                tagArticleMapper.update(tagArticleRel.optString(Keys.OBJECT_ID), tagArticleRel);
+                tagArticleMapper.update(tagArticleRel.getOid(), tagArticleRel);
             }
 
             // RevisionUtil
-            final JSONObject revision = new JSONObject();
-            revision.put(Revision.REVISION_AUTHOR_ID, comment.optString(Comment.COMMENT_AUTHOR_ID));
+            final Revision revision = new Revision();
+            revision.setRevisionAuthorId(comment.getCommentAuthorId());
 
             final JSONObject revisionData = new JSONObject();
-            revisionData.put(Comment.COMMENT_CONTENT, content);
+            revisionData.put(CommentUtil.COMMENT_CONTENT, content);
 
-            revision.put(Revision.REVISION_DATA, revisionData.toString());
-            revision.put(Revision.REVISION_DATA_ID, commentId);
-            revision.put(Revision.REVISION_DATA_TYPE, Revision.DATA_TYPE_C_COMMENT);
+            revision.setRevisionData(revisionData.toString());
+            revision.setRevisionDataId(commentId);
+            revision.setRevisionDataType(RevisionUtil.DATA_TYPE_C_COMMENT);
 
             revisionMapper.add(revision);
 
-            transaction.commit();
+//            transaction.commit();
 
-            if (!fromClient && Comment.COMMENT_ANONYMOUS_C_PUBLIC == commentAnonymous
-                    && Article.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous
+            if (!fromClient && CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC == commentAnonymous
+                    && ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == articleAnonymous
                     && !TuringQueryService.ROBOT_NAME.equals(commenterName)) {
                 // Point
-                final String articleAuthorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+                final String articleAuthorId = article.getArticleAuthorId();
                 if (articleAuthorId.equals(commentAuthorId)) {
-                    pointtransferMgmtService.transfer(commentAuthorId, Pointtransfer.ID_C_SYS,
-                            Pointtransfer.TRANSFER_TYPE_C_ADD_COMMENT, Pointtransfer.TRANSFER_SUM_C_ADD_SELF_ARTICLE_COMMENT,
+                    pointtransferMgmtService.transfer(commentAuthorId, PointtransferUtil.ID_C_SYS,
+                            PointtransferUtil.TRANSFER_TYPE_C_ADD_COMMENT, PointtransferUtil.TRANSFER_SUM_C_ADD_SELF_ARTICLE_COMMENT,
                             commentId, System.currentTimeMillis());
                 } else {
                     pointtransferMgmtService.transfer(commentAuthorId, articleAuthorId,
-                            Pointtransfer.TRANSFER_TYPE_C_ADD_COMMENT, Pointtransfer.TRANSFER_SUM_C_ADD_COMMENT,
+                            PointtransferUtil.TRANSFER_TYPE_C_ADD_COMMENT, PointtransferUtil.TRANSFER_SUM_C_ADD_COMMENT,
                             commentId, System.currentTimeMillis());
                 }
 
-                livenessMgmtService.incLiveness(commentAuthorId, Liveness.LIVENESS_COMMENT);
+                livenessMgmtService.incLiveness(commentAuthorId, LivenessUtil.LIVENESS_COMMENT);
             }
 
             // Event
             final JSONObject eventData = new JSONObject();
-            eventData.put(Comment.COMMENT, comment);
-            eventData.put(Common.FROM_CLIENT, fromClient);
-            eventData.put(Article.ARTICLE, article);
-            eventData.put(UserExt.USER_COMMENT_VIEW_MODE, commentViewMode);
+            eventData.put(CommentUtil.COMMENT, comment);
+            eventData.put(CommonUtil.FROM_CLIENT, fromClient);
+            eventData.put(ArticleUtil.ARTICLE, article);
+            eventData.put(UserExtUtil.USER_COMMENT_VIEW_MODE, commentViewMode);
 
             try {
-                eventManager.fireEventAsynchronously(new Event<JSONObject>(EventTypes.ADD_COMMENT_TO_ARTICLE, eventData));
-            } catch (final EventException e) {
+                eventManager.fireEventAsynchronously(new AddCommentEvent(EventTypes.ADD_COMMENT_TO_ARTICLE, eventData));
+            } catch (final Exception e) {
                 LOGGER.error( e.getMessage(), e);
             }
 
             return ret;
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Adds a comment failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -599,24 +607,26 @@ public class CommentMgmtService {
      *
      * @param commentId the given comment id
      * @param comment   the specified comment
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void updateComment(final String commentId, final JSONObject comment) throws ServiceException {
-        final Transaction transaction = commentMapper.beginTransaction();
+    @Transactional
+    public void updateComment(final String commentId, final JSONObject comment) throws Exception {
+//        final Transaction transaction = commentMapper.beginTransaction();
 
         try {
-            final JSONObject oldComment = commentMapper.get(commentId);
-            final String oldContent = oldComment.optString(Comment.COMMENT_CONTENT);
+            final Comment oldComment = commentMapper.get(commentId);
+            final String oldContent = oldComment.getCommentContent();
 
-            String content = comment.optString(Comment.COMMENT_CONTENT);
+            String content = comment.optString(CommentUtil.COMMENT_CONTENT);
             content = Emotions.toAliases(content);
             content = content.replaceAll("\\s+$", ""); // https://github.com/b3log/symphony/issues/389
             content += " "; // in case of tailing @user
             content = content.replace(langPropsService.get("uploadingLabel", Locale.SIMPLIFIED_CHINESE), "");
             content = content.replace(langPropsService.get("uploadingLabel", Locale.US), "");
-            comment.put(Comment.COMMENT_CONTENT, content);
+            comment.put(CommentUtil.COMMENT_CONTENT, content);
 
-            commentMapper.update(commentId, comment);
+            Comment commentTmp = JsonUtil.json2Bean(comment.toString(),Comment.class);
+            commentMapper.update(commentId, commentTmp);
 
             final String commentAuthorId = comment.optString(Comment.COMMENT_AUTHOR_ID);
             if (!oldContent.equals(content)) {
@@ -670,7 +680,7 @@ public class CommentMgmtService {
             }
 
             LOGGER.error( "Updates a comment[id=" + commentId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }

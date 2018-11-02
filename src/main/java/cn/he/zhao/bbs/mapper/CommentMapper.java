@@ -32,6 +32,8 @@ import java.util.List;
  */
 public interface CommentMapper {
 
+    String add(final Comment comment);
+
     void removeComment(final String commentId)  ;
 
     void remove(final String id)  ;
@@ -44,6 +46,8 @@ public interface CommentMapper {
     void removeCommentByArticleId(final String commentOnArticleId);
 
     List<Comment> getByCommentAuthorId(final String commentAuthorId);
+
+    List<Comment> getByCommentOnArticleId(final String commentOnArticleId);
 
     //Gets the offered (accepted) comment of an article
     @Select("select * from comment WHERE commentOnArticleId = #{articleId} AND commentQnAOffered = 1 AND commentStatus = 0 ORDER BY commentScore DESC")
