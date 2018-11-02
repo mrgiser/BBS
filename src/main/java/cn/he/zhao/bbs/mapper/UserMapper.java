@@ -79,4 +79,6 @@ public interface UserMapper {
             + "	point DESC\n"
             + "LIMIT #{fetchSize}")
     List<UserExt> getsTopEatingsnakeUsersMax(final int fetchSize);
+
+    List<UserExt> getMailUser();
 }

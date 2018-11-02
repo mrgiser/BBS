@@ -402,8 +402,8 @@ public class DataModelService {
 
             dataModel.put(Common.CURRENT_USER, curUser);
 
-            final JSONObject role = roleQueryService.getRole(userRole);
-            curUser.put(RoleUtil.ROLE_NAME, role.optString(RoleUtil.ROLE_NAME));
+            final Role role = roleQueryService.getRole(userRole);
+            curUser.put(RoleUtil.ROLE_NAME, role.getRoleName());
 
             // final int unreadNotificationCount = notificationQueryService.getUnreadNotificationCount(curUser.optString(Keys.OBJECT_ID));
             dataModel.put(NotificationUtil.NOTIFICATION_T_UNREAD_COUNT, 0); // AJAX polling

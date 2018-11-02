@@ -21,6 +21,7 @@ import cn.he.zhao.bbs.entityUtil.CommentUtil;
 import cn.he.zhao.bbs.entityUtil.CommonUtil;
 import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.spring.Stopwatchs;
 import cn.he.zhao.bbs.mapper.ArticleMapper;
@@ -48,6 +49,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.owasp.encoder.Encode;
 
+import javax.swing.*;
 import java.util.*;
 
 /**
@@ -138,10 +140,10 @@ public class CommentQueryService {
             title = Emotions.convert(title);
             final int commentPage = getCommentPage(articleId, commentId, sortMode, pageSize);
 
-            return "<a href=\"" +  SpringUtil.getServerPath() + "/article/" + articleId + "?p=" + commentPage
+            return "<a href=\"" + SpringUtil.getServerPath() + "/article/" + articleId + "?p=" + commentPage
                     + "&m=" + sortMode + "#" + commentId + "\" target=\"_blank\">" + title + "</a>";
         } catch (final Exception e) {
-            LOGGER.error( "Gets comment URL failed", e);
+            LOGGER.error("Gets comment URL failed", e);
 
             return null;
         }
@@ -160,7 +162,7 @@ public class CommentQueryService {
         JSONObject result = new JSONObject();
         try {
 
-            PageHelper.startPage(1,1);
+            PageHelper.startPage(1, 1);
 
 //            final Query query = new Query().addSort(CommentUtil.COMMENT_SCORE, SortDirection.DESCENDING).setCurrentPageNum(1).setPageCount(1)
 //                    .setFilter(CompositeFilterOperator.and(
@@ -186,7 +188,7 @@ public class CommentQueryService {
 
                 return result;
             } catch (final Exception e) {
-                LOGGER.error( "Gets accepted comment failed", e);
+                LOGGER.error("Gets accepted comment failed", e);
 
                 return null;
             }
@@ -205,38 +207,47 @@ public class CommentQueryService {
      * @return page number, return {@code 1} if occurs exception
      */
     public int getCommentPage(final String articleId, final String commentId, final int sortMode, final int pageSize) {
-        PageHelper.startPage(1,Integer.MAX_VALUE);
+        PageHelper.startPage(1, Integer.MAX_VALUE);
 //        final Query numQuery = new Query()
 //                .setPageSize(Integer.MAX_VALUE).setCurrentPageNum(1).setPageCount(1);
 
-        switch (sortMode) {
-            case UserExtUtil.USER_COMMENT_VIEW_MODE_C_TRADITIONAL:
-                numQuery.setFilter(CompositeFilterOperator.and(
-                        new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
-                        new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, commentId)
-                )).addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
-
-                break;
-            case UserExtUtil.USER_COMMENT_VIEW_MODE_C_REALTIME:
-                numQuery.setFilter(CompositeFilterOperator.and(
-                        new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
-                        new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN, commentId)
-                )).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
-
-                break;
-        }
-
         Stopwatchs.start("Get comment page");
+
         try {
-            final long num = commentMapper.count(numQuery);
+            long num = 0;
+            switch (sortMode) {
+                case UserExtUtil.USER_COMMENT_VIEW_MODE_C_TRADITIONAL: {
+                    PageHelper.startPage(1, Integer.MAX_VALUE, "OId ASCE");
+                    num = commentMapper.countByArticleIdAndLessCommentId(articleId, commentId);
+
+
+                    break;
+//                    numQuery.setFilter(CompositeFilterOperator.and(
+//                        new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
+//                        new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, commentId)
+//                )).addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
+                }
+
+                case UserExtUtil.USER_COMMENT_VIEW_MODE_C_REALTIME: {
+                    PageHelper.startPage(1, Integer.MAX_VALUE, "OId ASCE");
+                    num = commentMapper.countByArticleIdAndGREACommentId(articleId, commentId);
+                    break;
+                    //                    numQuery.setFilter(CompositeFilterOperator.and(
+//                            new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
+//                            new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN, commentId)
+//                    )).addSort(Keys.OBJECT_ID, SortDirection.DESCENDING);
+                }
+
+            }
             return (int) ((num / pageSize) + 1);
         } catch (final Exception e) {
-            LOGGER.error( "Gets comment page failed", e);
+            LOGGER.error("Gets comment page failed", e);
 
             return 1;
         } finally {
             Stopwatchs.end();
         }
+
     }
 
     /**
@@ -249,7 +260,7 @@ public class CommentQueryService {
      */
     public JSONObject getOriginalComment(final int avatarViewMode, final int commentViewMode, final String commentId) {
         try {
-            final JSONObject comment = commentMapper.get(commentId);
+            final Comment comment = commentMapper.get(commentId);
 
             organizeComment(avatarViewMode, comment);
 
@@ -257,26 +268,26 @@ public class CommentQueryService {
 
             final JSONObject ret = new JSONObject();
 
-            final JSONObject commentAuthor = comment.optJSONObject(Comment.COMMENT_T_COMMENTER);
-            if (UserExt.USER_XXX_STATUS_C_PRIVATE == commentAuthor.optInt(UserExt.USER_UA_STATUS)) {
-                ret.put(Comment.COMMENT_UA, "");
+            final JSONObject commentAuthor = (JSONObject) comment.getCommenter();
+            if (UserExtUtil.USER_XXX_STATUS_C_PRIVATE == commentAuthor.optInt(UserExtUtil.USER_UA_STATUS)) {
+                ret.put(CommentUtil.COMMENT_UA, "");
             }
 
-            ret.put(Comment.COMMENT_T_AUTHOR_NAME, comment.optString(Comment.COMMENT_T_AUTHOR_NAME));
-            ret.put(Comment.COMMENT_T_AUTHOR_THUMBNAIL_URL, comment.optString(Comment.COMMENT_T_AUTHOR_THUMBNAIL_URL));
-            ret.put(Common.TIME_AGO, comment.optString(Common.TIME_AGO));
-            ret.put(Comment.COMMENT_CREATE_TIME_STR, comment.optString(Comment.COMMENT_CREATE_TIME_STR));
-            ret.put(Common.REWARED_COUNT, comment.optString(Common.REWARED_COUNT));
-            ret.put(Common.REWARDED, comment.optBoolean(Common.REWARDED));
+            ret.put(CommentUtil.COMMENT_T_AUTHOR_NAME, comment.getCommentAuthorName());
+            ret.put(CommentUtil.COMMENT_T_AUTHOR_THUMBNAIL_URL, comment.getCommentAuthorThumbnailURL());
+            ret.put(CommentUtil.TIME_AGO, comment.getTimeAgo());
+            ret.put(CommentUtil.COMMENT_CREATE_TIME_STR, comment.getCommentCreateTimeStr());
+            ret.put(CommentUtil.REWARED_COUNT, comment. (Common.REWARED_COUNT));
+            ret.put(CommentUtil.REWARDED, comment.get(Common.REWARDED));
             ret.put(Keys.OBJECT_ID, commentId);
-            ret.put(Comment.COMMENT_CONTENT, comment.optString(Comment.COMMENT_CONTENT));
+            ret.put(CommentUtil.COMMENT_CONTENT, comment.getCommentContent());
             ret.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
-                    comment.optString(Comment.COMMENT_ON_ARTICLE_ID), commentId,
+                    comment.getCommentOnArticleId(), commentId,
                     commentViewMode, pageSize));
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( "Get replies failed", e);
+            LOGGER.error("Get replies failed", e);
 
             return null;
         }
@@ -330,7 +341,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( "Get replies failed", e);
+            LOGGER.error("Get replies failed", e);
 
             return Collections.emptyList();
         }
@@ -372,7 +383,7 @@ public class CommentQueryService {
 
                 return ret;
             } catch (final Exception e) {
-                LOGGER.error( "Get nice comments failed", e);
+                LOGGER.error("Get nice comments failed", e);
 
                 return Collections.emptyList();
             }
@@ -401,7 +412,7 @@ public class CommentQueryService {
         try {
             return (int) commentMapper.count(query);
         } catch (final Exception e) {
-            LOGGER.error( "Count day comment failed", e);
+            LOGGER.error("Count day comment failed", e);
 
             return 1;
         }
@@ -421,30 +432,30 @@ public class CommentQueryService {
         final Query query = new Query().setFilter(CompositeFilterOperator.and(
                 new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
                 new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
-                new PropertyFilter(Comment.COMMENT_STATUS, FilterOperator.EQUAL, Comment.COMMENT_STATUS_C_VALID)
+                new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
         ));
 
         try {
             return (int) commentMapper.count(query);
         } catch (final Exception e) {
-            LOGGER.error( "Count month comment failed", e);
+            LOGGER.error("Count month comment failed", e);
 
             return 1;
         }
     }
 
     /**
-     * Gets a comment with {@link #organizeComment(int, JSONObject)} by the specified comment id.
+     * Gets a comment with {@link #organizeComment(int, Comment)} by the specified comment id.
      *
      * @param avatarViewMode the specified avatar view mode
      * @param commentId      the specified comment id
      * @return comment, returns {@code null} if not found
      * @throws Exception service exception
      */
-    public JSONObject getCommentById(final int avatarViewMode, final String commentId) throws Exception {
+    public Comment getCommentById(final int avatarViewMode, final String commentId) throws Exception {
 
         try {
-            final JSONObject ret = commentMapper.get(commentId);
+            final Comment ret = commentMapper.get(commentId);
             if (null == ret) {
                 return null;
             }
@@ -453,7 +464,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             throw new Exception("Gets comment[id=" + commentId + "] failed");
         }
@@ -466,9 +477,9 @@ public class CommentQueryService {
      * @return comment, return {@code null} if not found
      * @throws Exception service exception
      */
-    public JSONObject getComment(final String commentId) throws Exception {
+    public Comment getComment(final String commentId) throws Exception {
         try {
-            final JSONObject ret = commentMapper.get(commentId);
+            final Comment ret = commentMapper.get(commentId);
 
             if (null == ret) {
                 return null;
@@ -476,7 +487,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( "Gets a comment [commentId=" + commentId + "] failed", e);
+            LOGGER.error("Gets a comment [commentId=" + commentId + "] failed", e);
             throw new Exception(e);
         }
     }
@@ -540,7 +551,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( "Gets user comments failed", e);
+            LOGGER.error("Gets user comments failed", e);
             throw new Exception(e);
         }
     }
@@ -654,7 +665,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( "Gets user comments failed", e);
+            LOGGER.error("Gets user comments failed", e);
             throw new Exception(e);
         }
     }
@@ -727,7 +738,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.error( "Gets article [" + articleId + "] comments failed", e);
+            LOGGER.error("Gets article [" + articleId + "] comments failed", e);
             throw new Exception(e);
         } finally {
             Stopwatchs.end();
@@ -780,7 +791,7 @@ public class CommentQueryService {
         try {
             result = commentMapper.get(query);
         } catch (final Exception e) {
-            LOGGER.error( "Gets comments failed", e);
+            LOGGER.error("Gets comments failed", e);
 
             throw new Exception(e);
         }
@@ -810,7 +821,7 @@ public class CommentQueryService {
                 comment.put(Comment.COMMENT_T_ARTICLE_PERMALINK, article.optString(Article.ARTICLE_PERMALINK));
             }
         } catch (final Exception e) {
-            LOGGER.error( "Organizes comments failed", e);
+            LOGGER.error("Organizes comments failed", e);
 
             throw new Exception(e);
         }
@@ -826,13 +837,13 @@ public class CommentQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param comments       the specified comments
      * @throws Exception Mapper exception
-     * @see #organizeComment(int, JSONObject)
+     * @see #organizeComment(int, Comment)
      */
-    private void organizeComments(final int avatarViewMode, final List<JSONObject> comments) throws Exception {
+    private void organizeComments(final int avatarViewMode, final List<Comment> comments) throws Exception {
         Stopwatchs.start("Organizes comments");
 
         try {
-            for (final JSONObject comment : comments) {
+            for (final Comment comment : comments) {
                 organizeComment(avatarViewMode, comment);
             }
         } finally {
@@ -866,21 +877,22 @@ public class CommentQueryService {
             comment.setTimeAgo(Times.getTimeAgo(comment.getCommentCreateTime(), Locales.getLocale()));
             final Date createDate = new Date(comment.getCommentCreateTime());
             comment.setCommentCreateTime(createDate.getTime());
-            comment.setCommentCreateTimeStr( DateFormatUtils.format(createDate, "yyyy-MM-dd HH:mm:ss"));
+            comment.setCommentCreateTimeStr(DateFormatUtils.format(createDate, "yyyy-MM-dd HH:mm:ss"));
 
             final String authorId = comment.getCommentAuthorId();
             final UserExt author = userMapper.get(authorId);
 
-            comment.setCommenter( author);
+            comment.setCommenter(author);
             if (CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC == comment.getCommentAnonymous()) {
-                comment.setCommentAuthorName( author.getUserName());
+                comment.setCommentAuthorName(author.getUserName());
                 comment.setCommentAuthorURL(author.getUserURL());
-                final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "48");
-                comment.setCommentAuthorThumbnailURL( thumbnailURL);
+                JSONObject json = new JSONObject(JsonUtil.objectToJson(author));
+                final String thumbnailURL = avatarQueryService.getAvatarURLByUser(avatarViewMode, json, "48");
+                comment.setCommentAuthorThumbnailURL(thumbnailURL);
             } else {
-                comment.setCommentAuthorName( UserExtUtil.ANONYMOUS_USER_NAME);
-                comment.setCommentAuthorURL( "");
-                comment.setCommentAuthorThumbnailURL( avatarQueryService.getDefaultAvatarURL("48"));
+                comment.setCommentAuthorName(UserExtUtil.ANONYMOUS_USER_NAME);
+                comment.setCommentAuthorURL("");
+                comment.setCommentAuthorThumbnailURL(avatarQueryService.getDefaultAvatarURL("48"));
             }
 
             processCommentContent(comment);
@@ -906,14 +918,14 @@ public class CommentQueryService {
      *                "commenter": {}
      */
     private void processCommentContent(final Comment comment) {
-        final UserExt commenter = (UserExt)comment.getCommenter();
+        final UserExt commenter = (UserExt) comment.getCommenter();
 
         final boolean sync = StringUtils.isNotBlank(comment.getClientCommentId());
-        comment.setFromClient( sync);
+        comment.setFromClient(sync);
 
         if (CommentUtil.COMMENT_STATUS_C_INVALID == comment.getCommentStatus()
                 || UserExtUtil.USER_STATUS_C_INVALID == commenter.getUserStatus()) {
-            comment.setCommentContent( langPropsService.get("commentContentBlockLabel"));
+            comment.setCommentContent(langPropsService.get("commentContentBlockLabel"));
 
             return;
         }
@@ -942,6 +954,6 @@ public class CommentQueryService {
             comment.setCommentAuthorName(syncCommenterName);
         }
 
-        comment.setCommentContent( commentContent);
+        comment.setCommentContent(commentContent);
     }
 }

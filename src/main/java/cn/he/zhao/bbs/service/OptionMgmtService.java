@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entity.Option;
 import cn.he.zhao.bbs.mapper.*;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * OptionUtil management service.
@@ -51,17 +53,18 @@ public class OptionMgmtService {
      *
      * @param id the specified option id
      */
+    @Transactional
     public void removeOption(final String id) {
-        final Transaction transaction = optionMapper.beginTransaction();
+//        final Transaction transaction = optionMapper.beginTransaction();
 
         try {
             optionMapper.remove(id);
 
-            transaction.commit();
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            transaction.commit();
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Removes an option failed", e);
         }
@@ -72,17 +75,18 @@ public class OptionMgmtService {
      *
      * @param option the specified option
      */
-    public void addOption(final JSONObject option) {
-        final Transaction transaction = optionMapper.beginTransaction();
+    @Transactional
+    public void addOption(final Option option) {
+//        final Transaction transaction = optionMapper.beginTransaction();
 
         try {
             optionMapper.add(option);
 
-            transaction.commit();
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            transaction.commit();
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Adds an option failed", e);
         }
@@ -93,22 +97,23 @@ public class OptionMgmtService {
      *
      * @param optionId the given option id
      * @param option the specified option
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public void updateOption(final String optionId, final JSONObject option) throws ServiceException {
-        final Transaction transaction = optionMapper.beginTransaction();
+    @Transactional
+    public void updateOption(final String optionId, final Option option) throws Exception {
+//        final Transaction transaction = optionMapper.beginTransaction();
 
         try {
             optionMapper.update(optionId, option);
 
-            transaction.commit();
-        } catch (final MapperException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            transaction.commit();
+        } catch (final Exception e) {
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Updates an option[id=" + optionId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 }

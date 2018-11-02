@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Locales;
 import cn.he.zhao.bbs.util.Mails;
@@ -24,6 +27,7 @@ import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import com.github.pagehelper.PageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,20 +122,22 @@ public class MailMgmtService {
         final long sevenDaysAgo = now - 1000 * 60 * 60 * 24 * 7;
 
         try {
-            final int memberCount = optionMapper.get(Option.ID_C_STATISTIC_MEMBER_COUNT).optInt(Option.OPTION_VALUE);
+            String optionValue = optionMapper.get(OptionUtil.ID_C_STATISTIC_MEMBER_COUNT).getOptionValue();
+            final int memberCount = Integer.getInteger(optionValue);
             final int userSize = memberCount / 7;
 
             // select receivers 
             final Query toUserQuery = new Query();
+            PageHelper.startPage(1,userSize,"OId ASCE");
             toUserQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(userSize).
                     setFilter(CompositeFilterOperator.and(
-                            new PropertyFilter(UserExt.USER_SUB_MAIL_SEND_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
-                            new PropertyFilter(UserExt.USER_LATEST_LOGIN_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
-                            new PropertyFilter(UserExt.USER_SUB_MAIL_STATUS, FilterOperator.EQUAL, UserExt.USER_SUB_MAIL_STATUS_ENABLED),
-                            new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID),
-                            new PropertyFilter(User.USER_EMAIL, FilterOperator.NOT_LIKE, "%" + UserExt.USER_BUILTIN_EMAIL_SUFFIX)
+                            new PropertyFilter(UserExtUtil.USER_SUB_MAIL_SEND_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
+                            new PropertyFilter(UserExtUtil.USER_LATEST_LOGIN_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
+                            new PropertyFilter(UserExtUtil.USER_SUB_MAIL_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_SUB_MAIL_STATUS_ENABLED),
+                            new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID),
+                            new PropertyFilter(User.USER_EMAIL, FilterOperator.NOT_LIKE, "%" + UserExtUtil.USER_BUILTIN_EMAIL_SUFFIX)
                     )).addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
-            final JSONArray receivers = userMapper.get(toUserQuery).optJSONArray(Keys.RESULTS);
+            final List<UserExt> receivers = userMapper.getMailUser();
 
             if (receivers.length() < 1) {
                 LOGGER.info("No user need send newsletter");

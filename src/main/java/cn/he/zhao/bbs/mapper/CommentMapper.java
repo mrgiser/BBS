@@ -45,6 +45,12 @@ public interface CommentMapper {
 
     void removeCommentByArticleId(final String commentOnArticleId);
 
+    @Select("select count(*) from comment where articleId = #{articleId} AND OId < #{commentId}")
+    Long countByArticleIdAndLessCommentId(final String articleId, final String commentId);
+
+    @Select("select count(*) from comment where articleId = #{articleId} AND OId > #{commentId}")
+    Long countByArticleIdAndGREACommentId(final String articleId, final String commentId);
+
     List<Comment> getByCommentAuthorId(final String commentAuthorId);
 
     List<Comment> getByCommentOnArticleId(final String commentOnArticleId);

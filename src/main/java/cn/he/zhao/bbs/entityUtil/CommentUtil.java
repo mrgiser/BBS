@@ -232,6 +232,8 @@ public final class CommentUtil {
      */
     public static final String COMMENT_T_ORIGINAL_AUTHOR_THUMBNAIL_URL = "commentOriginalAuthorThumbnailURL";
 
+    public static final String TIME_AGO = "timeAgo";
+
     //// Status constants
     /**
      * Comment status - valid.
