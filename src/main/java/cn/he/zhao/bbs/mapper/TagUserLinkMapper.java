@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.mapper;
 
+import cn.he.zhao.bbs.entity.TagUserLink;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface TagUserLinkMapper {
+
+    String add (TagUserLink tagUserLink);
 
     public int countTagLink(final String tagId) ;
 

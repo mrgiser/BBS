@@ -43,7 +43,8 @@ public interface UserMapper {
 
     UserExt getByEmail(final String email) ;
 
-    List<UserExt> getAdmins() ;
+    @Select("select * from user WHERE userRole = (#{userRole})")
+    List<UserExt> getAdmins(final String userRole) ;
 
     boolean isAdminEmail(final String email) ;
 
@@ -80,5 +81,16 @@ public interface UserMapper {
             + "LIMIT #{fetchSize}")
     List<UserExt> getsTopEatingsnakeUsersMax(final int fetchSize);
 
-    List<UserExt> getMailUser();
+    @Select("select * from user " +
+            "where " +
+            "userSubMailSendTime =< #{sevenDaysAgo} " +
+            "AND " +
+            "userLatestLoginTime =< #{sevenDaysAgo} " +
+            "AND " +
+            "userSubMailStatus = #{userSubMailStatus} " +
+            "AND " +
+            "userStatus = #{userStatus} " +
+            "AND " +
+            "userEmail NOT LIKE #{userEmail}")
+    List<UserExt> getMailUser(final long sevenDaysAgo,final int userSubMailStatus,final int userStatus,final String userEmail);
 }

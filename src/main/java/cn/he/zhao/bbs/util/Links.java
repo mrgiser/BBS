@@ -18,6 +18,8 @@
 package cn.he.zhao.bbs.util;
 
 import cn.he.zhao.bbs.entity.Link;
+import cn.he.zhao.bbs.entityUtil.LinkUtil;
+import cn.he.zhao.bbs.spring.Common;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -127,7 +129,7 @@ public final class Links {
             logger.error( "Parses URLs failed", e);
         }
 
-        Collections.sort(ret, Comparator.comparingInt(link -> link.optInt(Link.LINK_BAIDU_REF_CNT)));
+        Collections.sort(ret, Comparator.comparingInt(link -> link.optInt(LinkUtil.LINK_BAIDU_REF_CNT)));
 
         return ret;
     }
@@ -178,13 +180,13 @@ public final class Links {
 
                 final String keywords = StringUtils.substringBetween(html, "eywords\" content=\"", "\"");
 
-                ret.put(Link.LINK_ADDR, url);
-                ret.put(Link.LINK_TITLE, title);
-                ret.put(Link.LINK_T_KEYWORDS, keywords);
-                ret.put(Link.LINK_T_HTML, html);
+                ret.put(LinkUtil.LINK_ADDR, url);
+                ret.put(LinkUtil.LINK_TITLE, title);
+                ret.put(LinkUtil.LINK_T_KEYWORDS, keywords);
+                ret.put(LinkUtil.LINK_T_HTML, html);
                 final Document doc = Jsoup.parse(html);
                 doc.select("pre").remove();
-                ret.put(Link.LINK_T_TEXT, doc.text());
+                ret.put(LinkUtil.LINK_T_TEXT, doc.text());
 
                 // Evaluate the URL
                 URL baiduURL = new URL("https://www.baidu.com/s?pn=0&wd=" + URLs.encode(url));
@@ -201,8 +203,8 @@ public final class Links {
 
                 int baiduRefCnt = StringUtils.countMatches(baiduRes, "<em>" + url + "</em>");
                 if (1 > baiduRefCnt) {
-                    ret.put(Link.LINK_BAIDU_REF_CNT, baiduRefCnt);
-                    logger.debug(ret.optString(Link.LINK_ADDR));
+                    ret.put(LinkUtil.LINK_BAIDU_REF_CNT, baiduRefCnt);
+                    logger.debug(ret.optString(LinkUtil.LINK_ADDR));
 
                     return ret;
                 } else {
@@ -219,8 +221,8 @@ public final class Links {
 
                     baiduRefCnt += StringUtils.countMatches(baiduRes, "<em>" + url + "</em>");
 
-                    ret.put(Link.LINK_BAIDU_REF_CNT, baiduRefCnt);
-                    logger.debug(ret.optString(Link.LINK_ADDR));
+                    ret.put(LinkUtil.LINK_BAIDU_REF_CNT, baiduRefCnt);
+                    logger.debug(ret.optString(LinkUtil.LINK_ADDR));
 
                     return ret;
                 }

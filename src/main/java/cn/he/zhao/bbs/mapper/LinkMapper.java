@@ -21,9 +21,19 @@ import cn.he.zhao.bbs.entity.Link;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public interface LinkMapper {
+
+    List<Link> getAll();
+
+    String add(Link link);
+
+    String update(final String OId,final Link link);
 
     JSONObject getLink(final String addr) ;
 
     Link getByOId(final String oId);
+
+    void remove(final String oId);
 }

@@ -17,11 +17,11 @@
  */
 package cn.he.zhao.bbs.service;
 
-import cn.he.zhao.bbs.entityUtil.OptionUtil;
-import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.*;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Locales;
+import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.util.Mails;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -102,6 +103,7 @@ public class MailMgmtService {
     /**
      * Send weekly newsletter.
      */
+    @Transactional
     public void sendWeeklyNewsletter() {
         final Calendar calendar = Calendar.getInstance();
         final int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -127,19 +129,20 @@ public class MailMgmtService {
             final int userSize = memberCount / 7;
 
             // select receivers 
-            final Query toUserQuery = new Query();
+//            final Query toUserQuery = new Query();
             PageHelper.startPage(1,userSize,"OId ASCE");
-            toUserQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(userSize).
-                    setFilter(CompositeFilterOperator.and(
-                            new PropertyFilter(UserExtUtil.USER_SUB_MAIL_SEND_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
-                            new PropertyFilter(UserExtUtil.USER_LATEST_LOGIN_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
-                            new PropertyFilter(UserExtUtil.USER_SUB_MAIL_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_SUB_MAIL_STATUS_ENABLED),
-                            new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID),
-                            new PropertyFilter(User.USER_EMAIL, FilterOperator.NOT_LIKE, "%" + UserExtUtil.USER_BUILTIN_EMAIL_SUFFIX)
-                    )).addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
-            final List<UserExt> receivers = userMapper.getMailUser();
+//            toUserQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(userSize).
+//                    setFilter(CompositeFilterOperator.and(
+//                            new PropertyFilter(UserExtUtil.USER_SUB_MAIL_SEND_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
+//                            new PropertyFilter(UserExtUtil.USER_LATEST_LOGIN_TIME, FilterOperator.LESS_THAN_OR_EQUAL, sevenDaysAgo),
+//                            new PropertyFilter(UserExtUtil.USER_SUB_MAIL_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_SUB_MAIL_STATUS_ENABLED),
+//                            new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID),
+//                            new PropertyFilter(User.USER_EMAIL, FilterOperator.NOT_LIKE, "%" + UserExtUtil.USER_BUILTIN_EMAIL_SUFFIX)
+//                    )).addSort(Keys.OBJECT_ID, SortDirection.ASCENDING);
+            final List<UserExt> receivers = userMapper.getMailUser(sevenDaysAgo,UserExtUtil.USER_SUB_MAIL_STATUS_ENABLED,
+                                                UserExtUtil.USER_STATUS_C_VALID,"%" + UserExtUtil.USER_BUILTIN_EMAIL_SUFFIX);
 
-            if (receivers.length() < 1) {
+            if (receivers.size() < 1) {
                 LOGGER.info("No user need send newsletter");
 
                 return;
@@ -147,60 +150,61 @@ public class MailMgmtService {
 
             final Set<String> toMails = new HashSet<>();
 
-            final Transaction transaction = userMapper.beginTransaction();
-            for (int i = 0; i < receivers.length(); i++) {
-                final JSONObject user = receivers.optJSONObject(i);
-                final String email = user.optString(User.USER_EMAIL);
+//            final Transaction transaction = userMapper.beginTransaction();
+            for (int i = 0; i < receivers.size(); i++) {
+                final UserExt user = receivers.get(i);
+                final String email = user.getUserEmail();
                 if (Strings.isEmail(email)) {
                     toMails.add(email);
 
-                    user.put(UserExt.USER_SUB_MAIL_SEND_TIME, now);
-                    userMapper.update(user.optString(Keys.OBJECT_ID), user);
+                    user.setUserSubMailSendTime( now);
+                    userMapper.update(user.getOid(), user);
                 }
             }
-            transaction.commit();
+//            transaction.commit();
 
             // send to admins by default
-            final List<JSONObject> admins = userMapper.getAdmins();
-            for (final JSONObject admin : admins) {
-                toMails.add(admin.optString(User.USER_EMAIL));
+            final List<UserExt> admins = userMapper.getAdmins(RoleUtil.ROLE_ID_C_ADMIN);
+            for (final UserExt admin : admins) {
+                toMails.add(admin.getUserEmail());
             }
 
             final Map<String, Object> dataModel = new HashMap<>();
 
             // select nice articles
-            final Query articleQuery = new Query();
-            articleQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(Symphonys.getInt("mail.batch.articleSize")).
-                    setFilter(CompositeFilterOperator.and(
-                            new PropertyFilter(Article.ARTICLE_CREATE_TIME, FilterOperator.GREATER_THAN_OR_EQUAL, sevenDaysAgo),
-                            new PropertyFilter(Article.ARTICLE_TYPE, FilterOperator.EQUAL, Article.ARTICLE_TYPE_C_NORMAL),
-                            new PropertyFilter(Article.ARTICLE_STATUS, FilterOperator.NOT_EQUAL, Article.ARTICLE_STATUS_C_INVALID),
-                            new PropertyFilter(Article.ARTICLE_TAGS, FilterOperator.NOT_LIKE, Tag.TAG_TITLE_C_SANDBOX + "%")
-                    )).addSort(Article.ARTICLE_PUSH_ORDER, SortDirection.DESCENDING).
-                    addSort(Article.ARTICLE_COMMENT_CNT, SortDirection.DESCENDING).
-                    addSort(Article.REDDIT_SCORE, SortDirection.DESCENDING);
-            final List<JSONObject> articles = CollectionUtils.jsonArrayToList(
-                    articleMapper.get(articleQuery).optJSONArray(Keys.RESULTS));
+
+            PageHelper.startPage(1,Symphonys.getInt("mail.batch.articleSize"));
+//            final Query articleQuery = new Query();
+//            articleQuery.setCurrentPageNum(1).setPageCount(1).setPageSize(Symphonys.getInt("mail.batch.articleSize")).
+//                    setFilter(CompositeFilterOperator.and(
+//                            new PropertyFilter(ArticleUtil.ARTICLE_CREATE_TIME, FilterOperator.GREATER_THAN_OR_EQUAL, sevenDaysAgo),
+//                            new PropertyFilter(ArticleUtil.ARTICLE_TYPE, FilterOperator.EQUAL, ArticleUtil.ARTICLE_TYPE_C_NORMAL),
+//                            new PropertyFilter(ArticleUtil.ARTICLE_STATUS, FilterOperator.NOT_EQUAL, ArticleUtil.ARTICLE_STATUS_C_INVALID),
+//                            new PropertyFilter(ArticleUtil.ARTICLE_TAGS, FilterOperator.NOT_LIKE, TagUtil.TAG_TITLE_C_SANDBOX + "%")
+//                    )).addSort(ArticleUtil.ARTICLE_PUSH_ORDER, SortDirection.DESCENDING).
+//                    addSort(ArticleUtil.ARTICLE_COMMENT_CNT, SortDirection.DESCENDING).
+//                    addSort(ArticleUtil.REDDIT_SCORE, SortDirection.DESCENDING);
+            final List<Article> articles = articleMapper.selectNiceArticles(sevenDaysAgo);
             if (articles.isEmpty()) {
                 LOGGER.info("No article as newsletter to send");
 
                 return;
             }
-            articleQueryService.organizeArticles(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, articles);
+            articleQueryService.organizeArticles(UserExtUtil.USER_AVATAR_VIEW_MODE_C_STATIC, articles);
 
             String mailSubject = "";
             int goodCnt = 0;
-            for (final JSONObject article : articles) {
-                article.put(Article.ARTICLE_CONTENT, articleQueryService.getArticleMetaDesc(article));
+            for (final Article article : articles) {
+                article.setArticleContent(articleQueryService.getArticleMetaDesc(article));
 
-                final int gc = article.optInt(Article.ARTICLE_GOOD_CNT);
+                final int gc = article.getArticleGoodCnt();
                 if (gc >= goodCnt) {
-                    mailSubject = article.optString(Article.ARTICLE_TITLE);
+                    mailSubject = article.getArticleTitle();
                     goodCnt = gc;
                 }
             }
 
-            dataModel.put(Article.ARTICLES, (Object) articles);
+            dataModel.put(ArticleUtil.ARTICLES, (Object) articles);
 
             // select nice users
             final List<JSONObject> users = userQueryService.getNiceUsers(6);
@@ -208,6 +212,7 @@ public class MailMgmtService {
 
             final String fromName = langPropsService.get("symphonyEnLabel") + " "
                     + langPropsService.get("weeklyEmailFromNameLabel", Locales.getLocale());
+            // TODO: 2018/11/3 datamodel 使用 entity 是否可以？
             Mails.batchSendHTML(fromName, mailSubject, new ArrayList<>(toMails), Mails.TEMPLATE_NAME_WEEKLY, dataModel);
 
             LOGGER.info("Sent weekly newsletter [" + toMails.size() + "]");

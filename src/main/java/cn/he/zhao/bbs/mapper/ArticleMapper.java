@@ -33,4 +33,17 @@ public interface ArticleMapper {
     Article getByOid(final String oid);
 
     List<Article> getByArticleAuthorId(final String articleAuthorId);
+
+    @Select("select * from article " +
+            "where " +
+            "articleCreateTime => #{sevenDaysAgo} " +
+            "AND " +
+            "articleType = 0 " +
+            "AND " +
+            "articleStatus = 1 " +
+            "AND " +
+            "articleTags NOT LIKE 'Sandbox%' " +
+            "ORDER BY articlePushOrder DESC, articleCommentCount DESC,redditScore DESC"
+            )
+    List<Article> selectNiceArticles(final long sevenDaysAgo);
 }

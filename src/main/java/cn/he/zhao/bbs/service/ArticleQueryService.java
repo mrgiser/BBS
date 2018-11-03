@@ -1925,10 +1925,10 @@ public class ArticleQueryService {
      * @throws MapperException Mapper exception
      * @see #organizeArticle(int, org.json.JSONObject)
      */
-    public void organizeArticles(final int avatarViewMode, final List<JSONObject> articles) throws MapperException {
+    public void organizeArticles(final int avatarViewMode, final List<Article> articles) throws MapperException {
         Stopwatchs.start("Organize articles");
         try {
-            for (final JSONObject article : articles) {
+            for (final Article article : articles) {
                 organizeArticle(avatarViewMode, article);
             }
         } finally {
@@ -2525,7 +2525,7 @@ public class ArticleQueryService {
      * @param article the specified article
      * @return meta description
      */
-    public String getArticleMetaDesc(final JSONObject article) {
+    public String getArticleMetaDesc(final Article article) {
         final String articleId = article.optString(Keys.OBJECT_ID);
         String articleAbstract = articleCache.getArticleAbstract(articleId);
         if (StringUtils.isNotBlank(articleAbstract)) {

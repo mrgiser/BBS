@@ -18,8 +18,16 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.TagCache;
+import cn.he.zhao.bbs.entityUtil.LinkUtil;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Links;
+import cn.he.zhao.bbs.util.Pangu;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
@@ -33,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
@@ -96,6 +105,7 @@ public class LinkForgeMgmtService {
      * @param url    the specified URL
      * @param userId the specified user id
      */
+    @Transactional
     public void forge(final String url, final String userId) {
         if (!StringUtils.startsWithIgnoreCase(url, "http://") && !StringUtils.startsWithIgnoreCase(url, "https://")) {
             return;
@@ -128,11 +138,11 @@ public class LinkForgeMgmtService {
         final List<JSONObject> links = Links.getLinks(baseURL, html);
         final List<JSONObject> cachedTags = tagCache.getTags();
 
-        final Transaction transaction = linkMapper.beginTransaction();
+//        final Transaction transaction = linkMapper.beginTransaction();
         try {
             for (final JSONObject lnk : links) {
-                final String addr = lnk.optString(Link.LINK_ADDR);
-                if (Link.inAddrBlacklist(addr)) {
+                final String addr = lnk.optString(LinkUtil.LINK_ADDR);
+                if (LinkUtil.inAddrBlacklist(addr)) {
                     continue;
                 }
 
@@ -140,36 +150,38 @@ public class LinkForgeMgmtService {
 
                 if (null == link) {
                     link = new JSONObject();
-                    link.put(Link.LINK_ADDR, lnk.optString(Link.LINK_ADDR));
-                    link.put(Link.LINK_BAD_CNT, 0);
-                    link.put(Link.LINK_BAIDU_REF_CNT, 0);
-                    link.put(Link.LINK_CLICK_CNT, 0);
-                    link.put(Link.LINK_GOOD_CNT, 0);
-                    link.put(Link.LINK_SCORE, 0);
-                    link.put(Link.LINK_SUBMIT_CNT, 0);
-                    link.put(Link.LINK_TITLE, lnk.optString(Link.LINK_TITLE));
-                    link.put(Link.LINK_TYPE, Link.LINK_TYPE_C_FORGE);
-                    link.put(Link.LINK_PING_CNT, 0);
-                    link.put(Link.LINK_PING_ERR_CNT, 0);
+                    link.put(LinkUtil.LINK_ADDR, lnk.optString(LinkUtil.LINK_ADDR));
+                    link.put(LinkUtil.LINK_BAD_CNT, 0);
+                    link.put(LinkUtil.LINK_BAIDU_REF_CNT, 0);
+                    link.put(LinkUtil.LINK_CLICK_CNT, 0);
+                    link.put(LinkUtil.LINK_GOOD_CNT, 0);
+                    link.put(LinkUtil.LINK_SCORE, 0);
+                    link.put(LinkUtil.LINK_SUBMIT_CNT, 0);
+                    link.put(LinkUtil.LINK_TITLE, lnk.optString(LinkUtil.LINK_TITLE));
+                    link.put(LinkUtil.LINK_TYPE, LinkUtil.LINK_TYPE_C_FORGE);
+                    link.put(LinkUtil.LINK_PING_CNT, 0);
+                    link.put(LinkUtil.LINK_PING_ERR_CNT, 0);
 
-                    LOGGER.info(link.optString(Link.LINK_ADDR) + "__" + link.optString(Link.LINK_TITLE));
-                    linkMapper.add(link);
+                    LOGGER.info(link.optString(LinkUtil.LINK_ADDR) + "__" + link.optString(LinkUtil.LINK_TITLE));
+                    Link link1 = JsonUtil.json2Bean(link.toString(),Link.class);
+                    linkMapper.add(link1);
 
-                    final JSONObject linkCntOption = optionMapper.get(Option.ID_C_STATISTIC_LINK_COUNT);
-                    final int linkCnt = linkCntOption.optInt(Option.OPTION_VALUE);
-                    linkCntOption.put(Option.OPTION_VALUE, linkCnt + 1);
-                    optionMapper.update(Option.ID_C_STATISTIC_LINK_COUNT, linkCntOption);
+                    final Option linkCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_LINK_COUNT);
+                    final int linkCnt = Integer.getInteger(linkCntOption.getOptionValue());
+                    linkCntOption.setOptionValue(String.valueOf(linkCnt + 1));
+                    optionMapper.update(OptionUtil.ID_C_STATISTIC_LINK_COUNT, linkCntOption);
                 } else {
-                    link.put(Link.LINK_BAIDU_REF_CNT, lnk.optInt(Link.LINK_BAIDU_REF_CNT));
-                    link.put(Link.LINK_TITLE, lnk.optString(Link.LINK_TITLE));
-                    link.put(Link.LINK_SCORE, lnk.optInt(Link.LINK_BAIDU_REF_CNT)); // XXX: Need a score algorithm
+                    link.put(LinkUtil.LINK_BAIDU_REF_CNT, lnk.optInt(LinkUtil.LINK_BAIDU_REF_CNT));
+                    link.put(LinkUtil.LINK_TITLE, lnk.optString(LinkUtil.LINK_TITLE));
+                    link.put(LinkUtil.LINK_SCORE, lnk.optInt(LinkUtil.LINK_BAIDU_REF_CNT)); // XXX: Need a score algorithm
 
-                    linkMapper.update(link.optString(Keys.OBJECT_ID), link);
+                    Link link1 = JsonUtil.json2Bean(link.toString(),Link.class);
+                    linkMapper.update(link.optString(Keys.OBJECT_ID), link1);
                 }
 
                 final String linkId = link.optString(Keys.OBJECT_ID);
-                final double linkScore = link.optDouble(Link.LINK_SCORE, 0D);
-                String title = link.optString(Link.LINK_TITLE) + " " + link.optString(Link.LINK_T_KEYWORDS);
+                final double linkScore = link.optDouble(LinkUtil.LINK_SCORE, 0D);
+                String title = link.optString(LinkUtil.LINK_TITLE) + " " + link.optString(LinkUtil.LINK_T_KEYWORDS);
                 title = Pangu.spacingText(title);
                 String[] titles = title.split(" ");
                 titles = Strings.trimAll(titles);
@@ -177,22 +189,22 @@ public class LinkForgeMgmtService {
                 for (final JSONObject cachedTag : cachedTags) {
                     final String tagId = cachedTag.optString(Keys.OBJECT_ID);
 
-                    final String tagTitle = cachedTag.optString(Tag.TAG_TITLE);
+                    final String tagTitle = cachedTag.optString(TagUtil.TAG_TITLE);
                     if (!Strings.containsIgnoreCase(tagTitle, titles)) {
                         continue;
                     }
 
-                    final JSONObject tag = tagMapper.get(tagId);
+                    final Tag tag = tagMapper.get(tagId);
 
                     // clean
                     tagUserLinkMapper.removeByTagIdUserIdAndLinkId(tagId, userId, linkId);
 
                     // re-add
-                    final JSONObject tagLinkRel = new JSONObject();
-                    tagLinkRel.put(Tag.TAG_T_ID, tagId);
-                    tagLinkRel.put(UserExt.USER_T_ID, userId);
-                    tagLinkRel.put(Link.LINK_T_ID, linkId);
-                    tagLinkRel.put(Link.LINK_SCORE, linkScore);
+                    final TagUserLink tagLinkRel = new TagUserLink();
+                    tagLinkRel.setTagId(tagId);
+                    tagLinkRel.setUserId(userId);
+                    tagLinkRel.setLinkId(linkId);
+                    tagLinkRel.setLinkScore(linkScore);
                     tagUserLinkMapper.add(tagLinkRel);
 
                     // refresh link score
@@ -200,18 +212,18 @@ public class LinkForgeMgmtService {
 
                     // re-calc tag link count
                     final int tagLinkCnt = tagUserLinkMapper.countTagLink(tagId);
-                    tag.put(Tag.TAG_LINK_CNT, tagLinkCnt);
+                    tag.setTagLinkCount(tagLinkCnt);
                     tagMapper.update(tagId, tag);
                 }
             }
 
-            transaction.commit();
+//            transaction.commit();
 
             LOGGER.info("Forged link [" + url + "]");
         } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+//            if (transaction.isActive()) {
+//                transaction.rollback();
+//            }
 
             LOGGER.error( "Saves links failed", e);
         }
@@ -220,27 +232,28 @@ public class LinkForgeMgmtService {
     /**
      * Purges link forge.
      */
+    @Transactional
     public void purge() {
         new Thread(() -> {
-            final Transaction transaction = optionMapper.beginTransaction();
+//            final Transaction transaction = optionMapper.beginTransaction();
 
             try {
                 Thread.sleep(15 * 1000);
 
-                final JSONObject linkCntOption = optionMapper.get(Option.ID_C_STATISTIC_LINK_COUNT);
-                int linkCnt = linkCntOption.optInt(Option.OPTION_VALUE);
+                final Option linkCntOption = optionMapper.get(OptionUtil.ID_C_STATISTIC_LINK_COUNT);
+                int linkCnt = Integer.getInteger(linkCntOption.getOptionValue());
 
                 int slags = 0;
-                JSONArray links = linkMapper.get(new Query()).optJSONArray(Keys.RESULTS);
-                for (int i = 0; i < links.length(); i++) {
-                    final JSONObject link = links.getJSONObject(i);
-                    final String linkAddr = link.optString(Link.LINK_ADDR);
+                List<Link> links = linkMapper.getAll();
+                for (int i = 0; i < links.size(); i++) {
+                    final Link link = links.get(i);
+                    final String linkAddr = link.getLinkAddr();
 
-                    if (!Link.inAddrBlacklist(linkAddr) && link.optInt(Link.LINK_PING_ERR_CNT) < 7) {
+                    if (!LinkUtil.inAddrBlacklist(linkAddr) && link.getLinkPingErrCnt() < 7) {
                         continue;
                     }
 
-                    final String linkId = link.optString(Keys.OBJECT_ID);
+                    final String linkId = link.getOid();
 
                     // clean slags
 
@@ -249,42 +262,43 @@ public class LinkForgeMgmtService {
 
                     final List<String> tagIds = tagUserLinkMapper.getTagIdsByLinkId(linkId, Integer.MAX_VALUE);
                     for (final String tagId : tagIds) {
-                        final JSONObject tag = tagMapper.get(tagId);
+                        final Tag tag = tagMapper.get(tagId);
 
                         tagUserLinkMapper.removeByLinkId(linkId);
 
                         final int tagLinkCnt = tagUserLinkMapper.countTagLink(tagId);
-                        tag.put(Tag.TAG_LINK_CNT, tagLinkCnt);
+                        tag.setTagLinkCount(tagLinkCnt);
                         tagMapper.update(tagId, tag);
                     }
                 }
 
-                linkCntOption.put(Option.OPTION_VALUE, linkCnt - slags);
-                optionMapper.update(Option.ID_C_STATISTIC_LINK_COUNT, linkCntOption);
+                linkCntOption.setOptionValue(String.valueOf(linkCnt - slags));
+                optionMapper.update(OptionUtil.ID_C_STATISTIC_LINK_COUNT, linkCntOption);
 
-                transaction.commit();
+//                transaction.commit();
 
                 LOGGER.info("Purged link forge [slags=" + slags + "]");
 
                 // Ping
-                links = linkMapper.get(new Query()).optJSONArray(Keys.RESULTS);
-                LOGGER.info("Ping links [size=" + links.length() + "]");
-                final CountDownLatch countDownLatch = new CountDownLatch(links.length());
-                for (int i = 0; i < links.length(); i++) {
-                    final JSONObject link = links.getJSONObject(i);
+                links = linkMapper.getAll();
+                LOGGER.info("Ping links [size=" + links.size() + "]");
+                final CountDownLatch countDownLatch = new CountDownLatch(links.size());
+                for (int i = 0; i < links.size(); i++) {
+                    final Link link = links.get(i);
                     Symphonys.EXECUTOR_SERVICE.submit(new CheckTask(link, countDownLatch));
                 }
                 countDownLatch.await(1, TimeUnit.HOURS);
-                LOGGER.info("Pinged links [size=" + links.length()
+                LOGGER.info("Pinged links [size=" + links.size()
                         + ", countDownLatch=" + countDownLatch.getCount() + "]");
             } catch (final Exception e) {
-                if (null != transaction) {
-                    transaction.rollback();
-                }
+//                if (null != transaction) {
+//                    transaction.rollback();
+//                }
 
                 LOGGER.error( "Purges link forge failed", e);
             } finally {
-                JdbcMapper.dispose();
+                // TODO: 2018/11/3 ????
+//                JdbcMapper.dispose();
             }
         }).start();
     }
@@ -301,7 +315,7 @@ public class LinkForgeMgmtService {
         /**
          * LinkUtil to check.
          */
-        private final JSONObject link;
+        private final Link link;
 
         /**
          * Count down latch.
@@ -314,14 +328,15 @@ public class LinkForgeMgmtService {
          * @param link           the specified link
          * @param countDownLatch the specified count down latch
          */
-        public CheckTask(final JSONObject link, final CountDownLatch countDownLatch) {
+        public CheckTask(final Link link, final CountDownLatch countDownLatch) {
             this.link = link;
             this.countDownLatch = countDownLatch;
         }
 
         @Override
+        @Transactional
         public void run() {
-            final String linkAddr = link.optString(Link.LINK_ADDR);
+            final String linkAddr = link.getLinkAddr();
 
             LOGGER.debug("Checks link [url=" + linkAddr + "] accessibility");
             final long start = System.currentTimeMillis();
@@ -346,20 +361,20 @@ public class LinkForgeMgmtService {
                 LOGGER.debug( "Accesses link [url=" + linkAddr + "] response [code=" + responseCode + "], "
                         + "elapsed [" + elapsed + ']');
 
-                link.put(Link.LINK_PING_CNT, link.optInt(Link.LINK_PING_CNT) + 1);
+                link.setLinkPingCnt(link.getLinkPingCnt() + 1);
                 if (HttpServletResponse.SC_OK != responseCode) {
-                    link.put(Link.LINK_PING_ERR_CNT, link.optInt(Link.LINK_PING_ERR_CNT) + 1);
+                    link.setLinkPingErrCnt(link.getLinkPingErrCnt() + 1);
                 }
 
-                final Transaction transaction = linkMapper.beginTransaction();
+//                final Transaction transaction = linkMapper.beginTransaction();
                 try {
-                    linkMapper.update(link.optString(Keys.OBJECT_ID), link);
+                    linkMapper.update(link.getOid(), link);
 
-                    transaction.commit();
+//                    transaction.commit();
                 } catch (final Exception e) {
-                    if (null != transaction && transaction.isActive()) {
-                        transaction.rollback();
-                    }
+//                    if (null != transaction && transaction.isActive()) {
+//                        transaction.rollback();
+//                    }
 
                     LOGGER.error( "Updates link failed", e);
                 }
