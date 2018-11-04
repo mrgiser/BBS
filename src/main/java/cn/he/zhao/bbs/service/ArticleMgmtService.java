@@ -1,7 +1,9 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.event.AddArticleEvent;
 import cn.he.zhao.bbs.event.EventTypes;
+import cn.he.zhao.bbs.event.UpdateArticleEvent;
 import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Strings;
 import cn.he.zhao.bbs.mapper.*;
@@ -779,9 +781,9 @@ public class ArticleMgmtService {
             // Event
             final JSONObject eventData = new JSONObject();
             eventData.put(Common.FROM_CLIENT, fromClient);
-            eventData.put(Article.ARTICLE, article);
+            eventData.put(ArticleUtil.ARTICLE, article);
             try {
-                eventManager.fireEventAsynchronously(new Event<>(EventTypes.ADD_ARTICLE, eventData));
+                eventManager.fireEventAsynchronously(new AddArticleEvent(EventTypes.ADD_ARTICLE, eventData));
             } catch (final Exception e) {
                 LOGGER.error( e.getMessage(), e);
             }
@@ -1000,8 +1002,8 @@ public class ArticleMgmtService {
             eventData.put(CommonUtil.FROM_CLIENT, fromClient);
             eventData.put(ArticleUtil.ARTICLE, oldArticle);
             try {
-                eventManager.fireEventAsynchronously(new Event<>(EventTypes.UPDATE_ARTICLE, eventData));
-            } catch (final EventException e) {
+                eventManager.fireEventAsynchronously(new UpdateArticleEvent(EventTypes.UPDATE_ARTICLE, eventData));
+            } catch (final Exception e) {
                 LOGGER.error( e.getMessage(), e);
             }
         } catch (final Exception e) {

@@ -18,9 +18,13 @@
 package cn.he.zhao.bbs.service;
 
 import cn.he.zhao.bbs.cache.ArticleCache;
-import cn.he.zhao.bbs.spring.Locales;
-import cn.he.zhao.bbs.spring.Stopwatchs;
-import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
+import cn.he.zhao.bbs.spring.*;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
@@ -155,10 +159,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified page number
      * @param pageSize       the specified page size
      * @return following tag articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getFollowingUserArticles(final int avatarViewMode, final String userId,
-                                                     final int currentPageNum, final int pageSize) throws ServiceException {
+                                                     final int currentPageNum, final int pageSize) throws Exception {
         final List<JSONObject> users = (List<JSONObject>) followQueryService.getFollowingUsers(
                 avatarViewMode, userId, 1, Integer.MAX_VALUE).opt(Keys.RESULTS);
         if (users.isEmpty()) {
@@ -205,10 +209,10 @@ public class ArticleQueryService {
             Stopwatchs.start("Query following user articles");
 
             result = articleMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets following user articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         } finally {
             Stopwatchs.end();
         }
@@ -218,10 +222,10 @@ public class ArticleQueryService {
 
         try {
             organizeArticles(avatarViewMode, ret);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Organizes articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         return ret;
@@ -235,10 +239,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified page number
      * @param pageSize       the specified page size
      * @return following tag articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getFollowingTagArticles(final int avatarViewMode, final String userId,
-                                                    final int currentPageNum, final int pageSize) throws ServiceException {
+                                                    final int currentPageNum, final int pageSize) throws Exception {
         final List<JSONObject> tags = (List<JSONObject>) followQueryService.getFollowingTags(
                 userId, 1, Integer.MAX_VALUE).opt(Keys.RESULTS);
         if (tags.isEmpty()) {
@@ -308,7 +312,7 @@ public class ArticleQueryService {
             ret.put(Article.ARTICLE_T_TITLE_EMOJI_UNICODE, EmojiParser.parseToUnicode(title));
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets next article permalink failed", e);
 
             return null;
@@ -356,7 +360,7 @@ public class ArticleQueryService {
             ret.put(Article.ARTICLE_T_TITLE_EMOJI_UNICODE, EmojiParser.parseToUnicode(title));
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets previous article permalink failed", e);
 
             return null;
@@ -371,10 +375,10 @@ public class ArticleQueryService {
      * @param title the specified title
      * @return article, returns {@code null} if not found
      */
-    public JSONObject getArticleByTitle(final String title) {
+    public Article getArticleByTitle(final String title) {
         try {
             return articleMapper.getByTitle(title);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets article by title [" + title + "] failed", e);
 
             return null;
@@ -400,7 +404,7 @@ public class ArticleQueryService {
 
         try {
             return (int) articleMapper.count(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Count day article failed", e);
 
             return 1;
@@ -426,7 +430,7 @@ public class ArticleQueryService {
 
         try {
             return (int) articleMapper.count(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Count month article failed", e);
 
             return 1;
@@ -440,9 +444,9 @@ public class ArticleQueryService {
      * @param pageSize       the specified page size
      * @param types          the specified types
      * @return articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getValidArticles(final int currentPageNum, final int pageSize, final int... types) throws ServiceException {
+    public List<JSONObject> getValidArticles(final int currentPageNum, final int pageSize, final int... types) throws Exception {
         try {
             final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
                     .setPageCount(1).setPageSize(pageSize).setCurrentPageNum(currentPageNum);
@@ -468,10 +472,10 @@ public class ArticleQueryService {
             final JSONObject result = articleMapper.get(query);
 
             return CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -483,10 +487,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified current page number
      * @param pageSize       the specified page size
      * @return result
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public JSONObject getDomainArticles(final int avatarViewMode, final String domainId,
-                                        final int currentPageNum, final int pageSize) throws ServiceException {
+                                        final int currentPageNum, final int pageSize) throws Exception {
         final JSONObject ret = new JSONObject();
         ret.put(Article.ARTICLES, (Object) Collections.emptyList());
 
@@ -541,10 +545,10 @@ public class ArticleQueryService {
 
             try {
                 organizeArticles(avatarViewMode, articles);
-            } catch (final MapperException e) {
+            } catch (final Exception e) {
                 LOGGER.error( "Organizes articles failed", e);
 
-                throw new ServiceException(e);
+                throw new Exception(e);
             }
 
             final Integer participantsCnt = Symphonys.getInt("latestArticleParticipantsCnt");
@@ -553,10 +557,10 @@ public class ArticleQueryService {
             ret.put(Article.ARTICLES, (Object) articles);
 
             return ret;
-        } catch (final MapperException | ServiceException e) {
+        } catch (final Exception | Exception e) {
             LOGGER.error( "Gets domain articles error", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -570,10 +574,10 @@ public class ArticleQueryService {
      * @param article        the specified article
      * @param fetchSize      the specified fetch size
      * @return relevant articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getRelevantArticles(final int avatarViewMode, final JSONObject article, final int fetchSize)
-            throws ServiceException {
+            throws Exception {
         final String tagsString = article.optString(Article.ARTICLE_TAGS);
         String[] tagTitles = tagsString.split(",");
         final List<String> excludedB3logTitles = new ArrayList<>();
@@ -631,9 +635,9 @@ public class ArticleQueryService {
             organizeArticles(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets relevant articles failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -644,10 +648,10 @@ public class ArticleQueryService {
      * @param pageSize       the specified fetch size
      * @param tagTitles      the specified tag titles
      * @return articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getInterests(final int currentPageNum, final int pageSize, final String... tagTitles)
-            throws ServiceException {
+            throws Exception {
         try {
             final List<JSONObject> tagList = new ArrayList<>();
             for (final String tagTitle : tagTitles) {
@@ -736,9 +740,9 @@ public class ArticleQueryService {
             }
 
             return ret;
-        } catch (final MapperException | ServiceException | JSONException e) {
+        } catch (final Exception | Exception | JSONException e) {
             LOGGER.error( "Gets interests failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -748,9 +752,9 @@ public class ArticleQueryService {
      * @param currentPageNum the specified page number
      * @param pageSize       the specified page size
      * @return articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getNews(final int currentPageNum, final int pageSize) throws ServiceException {
+    public List<JSONObject> getNews(final int currentPageNum, final int pageSize) throws Exception {
         try {
             final Query query = new Query().
                     setFilter(new PropertyFilter(Article.ARTICLE_PERFECT, FilterOperator.EQUAL, Article.ARTICLE_PERFECT_C_PERFECT)).
@@ -766,9 +770,9 @@ public class ArticleQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets news failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -781,10 +785,10 @@ public class ArticleQueryService {
      * @param articleFields  the specified article fields to return
      * @param pageSize       the specified page size
      * @return articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getArticlesByTags(final int avatarViewMode, final int currentPageNum, final int pageSize,
-                                              final Map<String, Class<?>> articleFields, final JSONObject... tags) throws ServiceException {
+                                              final Map<String, Class<?>> articleFields, final JSONObject... tags) throws Exception {
         try {
             final List<Filter> filters = new ArrayList<>();
             for (final JSONObject tag : tags) {
@@ -822,9 +826,9 @@ public class ArticleQueryService {
             organizeArticles(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles by tags [tagLength=" + tags.length + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -836,10 +840,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified page number
      * @param pageSize       the specified page size
      * @return articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getArticlesByCity(final int avatarViewMode, final String city,
-                                              final int currentPageNum, final int pageSize) throws ServiceException {
+                                              final int currentPageNum, final int pageSize) throws Exception {
         try {
             final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
                     setFilter(new PropertyFilter(Article.ARTICLE_CITY, FilterOperator.EQUAL, city))
@@ -854,10 +858,10 @@ public class ArticleQueryService {
             genParticipants(avatarViewMode, ret, participantsCnt);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles by city [" + city + "] failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -870,10 +874,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified page number
      * @param pageSize       the specified page size
      * @return articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getArticlesByTag(final int avatarViewMode, final int sortMode, final JSONObject tag,
-                                             final int currentPageNum, final int pageSize) throws ServiceException {
+                                             final int currentPageNum, final int pageSize) throws Exception {
         try {
             Query query = new Query();
             switch (sortMode) {
@@ -1011,9 +1015,9 @@ public class ArticleQueryService {
             genParticipants(avatarViewMode, ret, participantsCnt);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles by tag [tagTitle=" + tag.optString(Tag.TAG_TITLE) + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1023,9 +1027,9 @@ public class ArticleQueryService {
      * @param authorId        the specified author id
      * @param clientArticleId the specified client article id
      * @return article, return {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getArticleByClientArticleId(final String authorId, final String clientArticleId) throws ServiceException {
+    public JSONObject getArticleByClientArticleId(final String authorId, final String clientArticleId) throws Exception {
         final List<Filter> filters = new ArrayList<>();
         filters.add(new PropertyFilter(Article.ARTICLE_CLIENT_ARTICLE_ID, FilterOperator.EQUAL, clientArticleId));
         filters.add(new PropertyFilter(Article.ARTICLE_AUTHOR_ID, FilterOperator.EQUAL, authorId));
@@ -1039,9 +1043,9 @@ public class ArticleQueryService {
             }
 
             return array.optJSONObject(0);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets article [clientArticleId=" + clientArticleId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1051,9 +1055,9 @@ public class ArticleQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param articleId      the specified id
      * @return article, return {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getArticleById(final int avatarViewMode, final String articleId) throws ServiceException {
+    public JSONObject getArticleById(final int avatarViewMode, final String articleId) throws Exception {
         Stopwatchs.start("Get article by id");
         try {
             final JSONObject ret = articleMapper.get(articleId);
@@ -1064,9 +1068,9 @@ public class ArticleQueryService {
             organizeArticle(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets an article [articleId=" + articleId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         } finally {
             Stopwatchs.end();
         }
@@ -1077,9 +1081,9 @@ public class ArticleQueryService {
      *
      * @param articleId the specified id
      * @return article, return {@code null} if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public JSONObject getArticle(final String articleId) throws ServiceException {
+    public JSONObject getArticle(final String articleId) throws Exception {
         try {
             final JSONObject ret = articleMapper.get(articleId);
             if (null == ret) {
@@ -1087,9 +1091,9 @@ public class ArticleQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets an article [articleId=" + articleId + "] failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1099,9 +1103,9 @@ public class ArticleQueryService {
      * @param articleId the given article id
      * @param request   the specified request
      * @return preview content
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public String getArticlePreviewContent(final String articleId, final HttpServletRequest request) throws ServiceException {
+    public String getArticlePreviewContent(final String articleId, final HttpServletRequest request) throws Exception {
         final JSONObject article = getArticle(articleId);
         if (null == article) {
             return null;
@@ -1170,10 +1174,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified page number
      * @param pageSize       the specified page size
      * @return user articles, return an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getUserArticles(final int avatarViewMode, final String userId, final int anonymous,
-                                            final int currentPageNum, final int pageSize) throws ServiceException {
+                                            final int currentPageNum, final int pageSize) throws Exception {
         final Query query = new Query().addSort(Article.ARTICLE_CREATE_TIME, SortDirection.DESCENDING)
                 .setCurrentPageNum(currentPageNum).setPageSize(pageSize).
                         setFilter(CompositeFilterOperator.and(
@@ -1198,9 +1202,9 @@ public class ArticleQueryService {
             organizeArticles(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets user articles failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1228,17 +1232,17 @@ public class ArticleQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param fetchSize      the specified fetch size
      * @return random articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getRandomArticles(final int avatarViewMode, final int fetchSize) throws ServiceException {
+    public List<JSONObject> getRandomArticles(final int avatarViewMode, final int fetchSize) throws Exception {
         try {
             final List<JSONObject> ret = articleMapper.getRandomly(fetchSize);
             organizeArticles(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets random articles failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1482,11 +1486,11 @@ public class ArticleQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public JSONObject getRecentArticles(final int avatarViewMode, final int sortMode,
                                         final int currentPageNum, final int fetchSize)
-            throws ServiceException {
+            throws Exception {
         final JSONObject ret = new JSONObject();
 
         Query query;
@@ -1518,10 +1522,10 @@ public class ArticleQueryService {
             Stopwatchs.start("Query recent articles");
 
             result = articleMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         } finally {
             Stopwatchs.end();
         }
@@ -1542,10 +1546,10 @@ public class ArticleQueryService {
 
         try {
             organizeArticles(avatarViewMode, articles);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Organizes articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         //final Integer participantsCnt = Symphonys.getInt("latestArticleParticipantsCnt");
@@ -1560,9 +1564,9 @@ public class ArticleQueryService {
      *
      * @param avatarViewMode the specified avatar view mode
      * @return recent articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getIndexRecentArticles(final int avatarViewMode) throws ServiceException {
+    public List<JSONObject> getIndexRecentArticles(final int avatarViewMode) throws Exception {
         try {
             List<JSONObject> ret;
             Stopwatchs.start("Query index recent articles");
@@ -1607,9 +1611,9 @@ public class ArticleQueryService {
             organizeArticles(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets index recent articles failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1619,9 +1623,9 @@ public class ArticleQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param fetchSize      the specified fetch size
      * @return hot articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getHotArticles(final int avatarViewMode, final int fetchSize) throws ServiceException {
+    public List<JSONObject> getHotArticles(final int avatarViewMode, final int fetchSize) throws Exception {
         final Query query = makeTopQuery(1, fetchSize);
 
         try {
@@ -1656,9 +1660,9 @@ public class ArticleQueryService {
 //            final Integer participantsCnt = Symphonys.getInt("indexArticleParticipantsCnt");
 //            genParticipants(ret, participantsCnt);
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets index articles failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1682,10 +1686,10 @@ public class ArticleQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public JSONObject getPerfectArticles(final int avatarViewMode, final int currentPageNum, final int fetchSize)
-            throws ServiceException {
+            throws Exception {
         final Query query = new Query()
                 .addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
                 .setCurrentPageNum(currentPageNum).setPageSize(fetchSize);
@@ -1699,10 +1703,10 @@ public class ArticleQueryService {
             Stopwatchs.start("Query recent articles");
 
             result = articleMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         } finally {
             Stopwatchs.end();
         }
@@ -1723,10 +1727,10 @@ public class ArticleQueryService {
 
         try {
             organizeArticles(avatarViewMode, articles);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Organizes articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         //final Integer participantsCnt = Symphonys.getInt("latestArticleParticipantsCnt");
@@ -1741,9 +1745,9 @@ public class ArticleQueryService {
      *
      * @param avatarViewMode the specified avatar view mode
      * @return hot articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    public List<JSONObject> getIndexHotArticles(final int avatarViewMode) throws ServiceException {
+    public List<JSONObject> getIndexHotArticles(final int avatarViewMode) throws Exception {
         final Query query = new Query()
                 .addSort(Article.REDDIT_SCORE, SortDirection.DESCENDING)
                 .addSort(Article.ARTICLE_LATEST_CMT_TIME, SortDirection.DESCENDING)
@@ -1780,9 +1784,9 @@ public class ArticleQueryService {
             organizeArticles(avatarViewMode, ret);
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets index hot articles failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1802,10 +1806,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified current page number
      * @param fetchSize      the specified fetch size
      * @return recent articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getRecentArticlesWithComments(final int avatarViewMode,
-                                                          final int currentPageNum, final int fetchSize) throws ServiceException {
+                                                          final int currentPageNum, final int fetchSize) throws Exception {
         return getArticles(avatarViewMode, makeRecentDefaultQuery(currentPageNum, fetchSize));
     }
 
@@ -1816,10 +1820,10 @@ public class ArticleQueryService {
      * @param currentPageNum the specified current page number
      * @param fetchSize      the specified fetch size
      * @return recent articles, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getTopArticlesWithComments(final int avatarViewMode,
-                                                       final int currentPageNum, final int fetchSize) throws ServiceException {
+                                                       final int currentPageNum, final int fetchSize) throws Exception {
         return getArticles(avatarViewMode, makeTopQuery(currentPageNum, fetchSize));
     }
 
@@ -1829,9 +1833,9 @@ public class ArticleQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param query          conditions
      * @return articles
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
-    private List<JSONObject> getArticles(final int avatarViewMode, final Query query) throws ServiceException {
+    private List<JSONObject> getArticles(final int avatarViewMode, final Query query) throws Exception {
         try {
             final JSONObject result = articleMapper.get(query);
             final List<JSONObject> ret = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
@@ -1868,10 +1872,10 @@ public class ArticleQueryService {
             final Integer participantsCnt = Symphonys.getInt("indexArticleParticipantsCnt");
             genParticipants(avatarViewMode, stories, participantsCnt);
             return stories;
-        } catch (final MapperException | JSONException e) {
+        } catch (final Exception | JSONException e) {
             LOGGER.error( "Gets index articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -1881,15 +1885,15 @@ public class ArticleQueryService {
      * @param avatarViewMode the specified avatar view mode
      * @param articleId      the specified article id
      * @return comments, return an empty list if not found
-     * @throws ServiceException    service exception
+     * @throws Exception    service exception
      * @throws JSONException       json exception
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
     private List<JSONObject> getAllComments(final int avatarViewMode, final String articleId)
-            throws ServiceException, JSONException, MapperException {
+            throws Exception, JSONException, Exception {
         final List<JSONObject> commments = new ArrayList<>();
         final List<JSONObject> articleComments = commentQueryService.getArticleComments(
-                avatarViewMode, articleId, 1, Integer.MAX_VALUE, UserExt.USER_COMMENT_VIEW_MODE_C_TRADITIONAL);
+                avatarViewMode, articleId, 1, Integer.MAX_VALUE, UserExtUtil.USER_COMMENT_VIEW_MODE_C_TRADITIONAL);
         for (final JSONObject ac : articleComments) {
             final JSONObject comment = new JSONObject();
             final JSONObject author = userMapper.get(ac.optString(Comment.COMMENT_AUTHOR_ID));
@@ -1922,10 +1926,10 @@ public class ArticleQueryService {
      *
      * @param avatarViewMode the specified avatarViewMode
      * @param articles       the specified articles
-     * @throws MapperException Mapper exception
-     * @see #organizeArticle(int, org.json.JSONObject)
+     * @throws Exception Mapper exception
+     * @see #organizeArticle(int, Article)
      */
-    public void organizeArticles(final int avatarViewMode, final List<Article> articles) throws MapperException {
+    public void organizeArticles(final int avatarViewMode, final List<Article> articles) throws Exception {
         Stopwatchs.start("Organize articles");
         try {
             for (final Article article : articles) {
@@ -1957,9 +1961,9 @@ public class ArticleQueryService {
      *
      * @param avatarViewMode the specified avatar view mode
      * @param article        the specified article
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    public void organizeArticle(final int avatarViewMode, final Article article) throws MapperException {
+    public void organizeArticle(final int avatarViewMode, final Article article) throws Exception {
         article.put(Article.ARTICLE_T_ORIGINAL_CONTENT, article.optString(Article.ARTICLE_CONTENT));
         toArticleDate(article);
         genArticleAuthor(avatarViewMode, article);
@@ -2062,12 +2066,12 @@ public class ArticleQueryService {
      * @return the first image URL, returns {@code ""} if not found
      */
     private String getArticleThumbnail(final JSONObject article) {
-        final int articleType = article.optInt(Article.ARTICLE_TYPE);
-        if (Article.ARTICLE_TYPE_C_THOUGHT == articleType) {
+        final int articleType = article.optInt(ArticleUtil.ARTICLE_TYPE);
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == articleType) {
             return "";
         }
 
-        final String content = article.optString(Article.ARTICLE_CONTENT);
+        final String content = article.optString(ArticleUtil.ARTICLE_CONTENT);
         final String html = Markdowns.toHTML(content);
         String ret = StringUtils.substringBetween(html, "<img src=\"", "\"");
 
@@ -2105,13 +2109,13 @@ public class ArticleQueryService {
             return;
         }
 
-        final int articleType = article.optInt(Article.ARTICLE_TYPE);
-        if (Article.ARTICLE_TYPE_C_THOUGHT == articleType) {
+        final int articleType = article.optInt(ArticleUtil.ARTICLE_TYPE);
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == articleType) {
             return;
         }
 
         final String qiniuDomain = Symphonys.get("qiniu.domain");
-        String content = article.optString(Article.ARTICLE_CONTENT);
+        String content = article.optString(ArticleUtil.ARTICLE_CONTENT);
         final String html = Markdowns.toHTML(content);
 
         final String[] imgSrcs = StringUtils.substringsBetween(html, "<img src=\"", "\"");
@@ -2127,7 +2131,7 @@ public class ArticleQueryService {
             content = StringUtils.replaceOnce(content, imgSrc, imgSrc + "?imageView2/2/w/768/format/jpg/interlace/0/q");
         }
 
-        article.put(Article.ARTICLE_CONTENT, content);
+        article.put(ArticleUtil.ARTICLE_CONTENT, content);
     }
 
     /**
@@ -2136,17 +2140,17 @@ public class ArticleQueryService {
      * @param article the specified article
      */
     private void toArticleDate(final JSONObject article) {
-        article.put(Common.TIME_AGO, Times.getTimeAgo(article.optLong(Article.ARTICLE_CREATE_TIME), Locales.getLocale()));
-        article.put(Common.CMT_TIME_AGO, Times.getTimeAgo(article.optLong(Article.ARTICLE_LATEST_CMT_TIME), Locales.getLocale()));
-        final Date createDate = new Date(article.optLong(Article.ARTICLE_CREATE_TIME));
-        article.put(Article.ARTICLE_CREATE_TIME, createDate);
-        article.put(Article.ARTICLE_CREATE_TIME_STR, DateFormatUtils.format(createDate, "yyyy-MM-dd HH:mm:ss"));
-        final Date updateDate = new Date(article.optLong(Article.ARTICLE_UPDATE_TIME));
-        article.put(Article.ARTICLE_UPDATE_TIME, updateDate);
-        article.put(Article.ARTICLE_UPDATE_TIME_STR, DateFormatUtils.format(updateDate, "yyyy-MM-dd HH:mm:ss"));
-        final Date latestCmtDate = new Date(article.optLong(Article.ARTICLE_LATEST_CMT_TIME));
-        article.put(Article.ARTICLE_LATEST_CMT_TIME, latestCmtDate);
-        article.put(Article.ARTICLE_LATEST_CMT_TIME_STR, DateFormatUtils.format(latestCmtDate, "yyyy-MM-dd HH:mm:ss"));
+        article.put(Common.TIME_AGO, Times.getTimeAgo(article.optLong(ArticleUtil.ARTICLE_CREATE_TIME), Locales.getLocale()));
+        article.put(Common.CMT_TIME_AGO, Times.getTimeAgo(article.optLong(ArticleUtil.ARTICLE_LATEST_CMT_TIME), Locales.getLocale()));
+        final Date createDate = new Date(article.optLong(ArticleUtil.ARTICLE_CREATE_TIME));
+        article.put(ArticleUtil.ARTICLE_CREATE_TIME, createDate);
+        article.put(ArticleUtil.ARTICLE_CREATE_TIME_STR, DateFormatUtils.format(createDate, "yyyy-MM-dd HH:mm:ss"));
+        final Date updateDate = new Date(article.optLong(ArticleUtil.ARTICLE_UPDATE_TIME));
+        article.put(ArticleUtil.ARTICLE_UPDATE_TIME, updateDate);
+        article.put(ArticleUtil.ARTICLE_UPDATE_TIME_STR, DateFormatUtils.format(updateDate, "yyyy-MM-dd HH:mm:ss"));
+        final Date latestCmtDate = new Date(article.optLong(ArticleUtil.ARTICLE_LATEST_CMT_TIME));
+        article.put(ArticleUtil.ARTICLE_LATEST_CMT_TIME, latestCmtDate);
+        article.put(ArticleUtil.ARTICLE_LATEST_CMT_TIME_STR, DateFormatUtils.format(latestCmtDate, "yyyy-MM-dd HH:mm:ss"));
     }
 
     /**
@@ -2154,27 +2158,28 @@ public class ArticleQueryService {
      *
      * @param avatarViewMode the specified avatar view mode
      * @param article        the specified article
-     * @throws MapperException Mapper exception
+     * @throws Exception Mapper exception
      */
-    private void genArticleAuthor(final int avatarViewMode, final JSONObject article) throws MapperException {
-        final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+    private void genArticleAuthor(final int avatarViewMode, final JSONObject article) throws Exception {
+        final String authorId = article.optString(ArticleUtil.ARTICLE_AUTHOR_ID);
 
-        final JSONObject author = userMapper.get(authorId);
-        article.put(Article.ARTICLE_T_AUTHOR, author);
+        final UserExt author = userMapper.get(authorId);
+        article.put(ArticleUtil.ARTICLE_T_AUTHOR, author);
 
-        if (Article.ARTICLE_ANONYMOUS_C_ANONYMOUS == article.optInt(Article.ARTICLE_ANONYMOUS)) {
-            article.put(Article.ARTICLE_T_AUTHOR_NAME, UserExt.ANONYMOUS_USER_NAME);
-            article.put(Article.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "210", avatarQueryService.getDefaultAvatarURL("210"));
-            article.put(Article.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "48", avatarQueryService.getDefaultAvatarURL("48"));
-            article.put(Article.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "20", avatarQueryService.getDefaultAvatarURL("20"));
+        if (ArticleUtil.ARTICLE_ANONYMOUS_C_ANONYMOUS == article.optInt(ArticleUtil.ARTICLE_ANONYMOUS)) {
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_NAME, UserExtUtil.ANONYMOUS_USER_NAME);
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "210", avatarQueryService.getDefaultAvatarURL("210"));
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "48", avatarQueryService.getDefaultAvatarURL("48"));
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "20", avatarQueryService.getDefaultAvatarURL("20"));
         } else {
-            article.put(Article.ARTICLE_T_AUTHOR_NAME, author.optString(User.USER_NAME));
-            article.put(Article.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "210",
-                    avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "210"));
-            article.put(Article.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "48",
-                    avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "48"));
-            article.put(Article.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "20",
-                    avatarQueryService.getAvatarURLByUser(avatarViewMode, author, "20"));
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(author));
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_NAME, author.getUserName());
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "210",
+                    avatarQueryService.getAvatarURLByUser(avatarViewMode, jsonObject, "210"));
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "48",
+                    avatarQueryService.getAvatarURLByUser(avatarViewMode, jsonObject, "48"));
+            article.put(ArticleUtil.ARTICLE_T_AUTHOR_THUMBNAIL_URL + "20",
+                    avatarQueryService.getAvatarURLByUser(avatarViewMode, jsonObject, "20"));
         }
     }
 
@@ -2184,10 +2189,10 @@ public class ArticleQueryService {
      * @param avatarViewMode  the specified avatar view mode
      * @param articles        the specified articles
      * @param participantsCnt the specified generate size
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public void genParticipants(final int avatarViewMode,
-                                final List<JSONObject> articles, final Integer participantsCnt) throws ServiceException {
+                                final List<JSONObject> articles, final Integer participantsCnt) throws Exception {
         Stopwatchs.start("Generates participants");
         try {
             for (final JSONObject article : articles) {
@@ -2223,10 +2228,10 @@ public class ArticleQueryService {
      *     }, ....
      * ]
      * </pre>, returns an empty list if not found
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public List<JSONObject> getArticleLatestParticipants(final int avatarViewMode,
-                                                         final String articleId, final int fetchSize) throws ServiceException {
+                                                         final String articleId, final int fetchSize) throws Exception {
         final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
                 .setFilter(new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId))
                 .addProjection(Keys.OBJECT_ID, String.class)
@@ -2282,9 +2287,9 @@ public class ArticleQueryService {
             }
 
             return ret;
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets article [" + articleId + "] participants failed", e);
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
     }
 
@@ -2306,10 +2311,10 @@ public class ArticleQueryService {
      *                ....,
      *                "author": {}
      * @param request the specified request
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     public void processArticleContent(final JSONObject article, final HttpServletRequest request)
-            throws ServiceException {
+            throws Exception {
         Stopwatchs.start("Process content");
 
         try {
@@ -2424,11 +2429,11 @@ public class ArticleQueryService {
      *      }, ....]
      * }
      * </pre>
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      * @see Pagination
      */
     public JSONObject getArticles(final int avatarViewMode,
-                                  final JSONObject requestJSONObject, final Map<String, Class<?>> articleFields) throws ServiceException {
+                                  final JSONObject requestJSONObject, final Map<String, Class<?>> articleFields) throws Exception {
         final JSONObject ret = new JSONObject();
 
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
@@ -2449,10 +2454,10 @@ public class ArticleQueryService {
 
         try {
             result = articleMapper.get(query);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Gets articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -2468,10 +2473,10 @@ public class ArticleQueryService {
 
         try {
             organizeArticles(avatarViewMode, articles);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             LOGGER.error( "Organizes articles failed", e);
 
-            throw new ServiceException(e);
+            throw new Exception(e);
         }
 
         ret.put(Article.ARTICLES, articles);
@@ -2489,17 +2494,17 @@ public class ArticleQueryService {
      * @param article the specified article content
      */
     private void markdown(final JSONObject article) {
-        String content = article.optString(Article.ARTICLE_CONTENT);
+        String content = article.optString(ArticleUtil.ARTICLE_CONTENT);
 
-        final int articleType = article.optInt(Article.ARTICLE_TYPE);
-        if (Article.ARTICLE_TYPE_C_THOUGHT != articleType) {
+        final int articleType = article.optInt(ArticleUtil.ARTICLE_TYPE);
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT != articleType) {
             content = Markdowns.toHTML(content);
-            content = Markdowns.clean(content,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
+            content = Markdowns.clean(content,  SpringUtil.getServerPath() + article.optString(ArticleUtil.ARTICLE_PERMALINK));
         } else {
             final Document.OutputSettings outputSettings = new Document.OutputSettings();
             outputSettings.prettyPrint(false);
 
-            content = Jsoup.clean(content,  SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK),
+            content = Jsoup.clean(content,  SpringUtil.getServerPath() + article.optString(ArticleUtil.ARTICLE_PERMALINK),
                     Whitelist.relaxed().addAttributes(":all", "id", "target", "class").
                             addTags("span", "hr").addAttributes("iframe", "src", "width", "height")
                             .addAttributes("audio", "controls", "src"), outputSettings);
@@ -2508,14 +2513,14 @@ public class ArticleQueryService {
                     .replace("\"", "\\\"");
         }
 
-        article.put(Article.ARTICLE_CONTENT, content);
+        article.put(ArticleUtil.ARTICLE_CONTENT, content);
 
-        if (article.optInt(Article.ARTICLE_REWARD_POINT) > 0) {
-            String rewardContent = article.optString(Article.ARTICLE_REWARD_CONTENT);
+        if (article.optInt(ArticleUtil.ARTICLE_REWARD_POINT) > 0) {
+            String rewardContent = article.optString(ArticleUtil.ARTICLE_REWARD_CONTENT);
             rewardContent = Markdowns.toHTML(rewardContent);
             rewardContent = Markdowns.clean(rewardContent,
-                     SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK));
-            article.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
+                     SpringUtil.getServerPath() + article.optString(ArticleUtil.ARTICLE_PERMALINK));
+            article.put(ArticleUtil.ARTICLE_REWARD_CONTENT, rewardContent);
         }
     }
 
@@ -2526,7 +2531,7 @@ public class ArticleQueryService {
      * @return meta description
      */
     public String getArticleMetaDesc(final Article article) {
-        final String articleId = article.optString(Keys.OBJECT_ID);
+        final String articleId = article.getOid();
         String articleAbstract = articleCache.getArticleAbstract(articleId);
         if (StringUtils.isNotBlank(articleAbstract)) {
             return articleAbstract;
@@ -2534,18 +2539,18 @@ public class ArticleQueryService {
 
         Stopwatchs.start("Meta Desc");
         try {
-            final int articleType = article.optInt(Article.ARTICLE_TYPE);
-            if (Article.ARTICLE_TYPE_C_THOUGHT == articleType) {
+            final int articleType = article.getArticleType();
+            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == articleType) {
                 return "....";
             }
 
-            if (Article.ARTICLE_TYPE_C_DISCUSSION == articleType) {
+            if (ArticleUtil.ARTICLE_TYPE_C_DISCUSSION == articleType) {
                 return langPropsService.get("articleAbstractDiscussionLabel", Locales.getLocale());
             }
 
             final int length = Integer.valueOf("150");
 
-            String ret = article.optString(Article.ARTICLE_CONTENT);
+            String ret = article.getArticleContent();
             ret = Emotions.clear(ret);
             try {
                 ret = Markdowns.toHTML(ret);
@@ -2665,12 +2670,12 @@ public class ArticleQueryService {
     private String getArticleToC(final JSONObject article) {
         Stopwatchs.start("ToC");
 
-        if (Article.ARTICLE_TYPE_C_THOUGHT == article.optInt(Article.ARTICLE_TYPE)) {
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.optInt(ArticleUtil.ARTICLE_TYPE)) {
             return "";
         }
 
         try {
-            final String content = article.optString(Article.ARTICLE_CONTENT);
+            final String content = article.optString(ArticleUtil.ARTICLE_CONTENT);
             final Document doc = Jsoup.parse(content, StringUtils.EMPTY, Parser.htmlParser());
             doc.outputSettings().prettyPrint(false);
             final Elements hs = doc.select("h1, h2, h3, h4, h5");
@@ -2691,7 +2696,7 @@ public class ArticleQueryService {
             }
             listBuilder.append("</ul>");
 
-            article.put(Article.ARTICLE_CONTENT, doc.select("body").html());
+            article.put(ArticleUtil.ARTICLE_CONTENT, doc.select("body").html());
 
             return listBuilder.toString();
         } finally {
