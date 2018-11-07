@@ -41,7 +41,13 @@ public interface UserMapper {
     @Select("select * from user WHERE oId = #{q} OR userName = #{q} OR userEmail = #{q}")
     List<UserExt> getByNameOrEmailOrOId(final String q);
 
-    @Select("select * from user WHERE oId in #{oIds}")
+//    @Select("select * from user WHERE oId in #{oIds}")
+    @Select("<script>"
+            + "SELECT * FROM user WHERE oId in "
+            + "<foreach item='item' index='index' collection='oIds' open='(' separator=',' close=')'>"
+            + "#{item}"
+            + "</foreach>"
+            + "</script>")
     List<UserExt> findByOIds(List<String> oIds);
 
     void update(final String id, final UserExt user) ;

@@ -19,6 +19,7 @@ package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Tag;
 import cn.he.zhao.bbs.entity.TagArticle;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -26,15 +27,25 @@ import java.util.List;
 
 public interface TagArticleMapper {
 
-    public void removeByArticleId(final String articleId) ;
+     void removeByArticleId(final String articleId) ;
 
-    public List<TagArticle> getByArticleId(final String articleId) ;
+     List<TagArticle> getByArticleId(final String articleId) ;
 
-    public TagArticle getByTagId(final String tagId, final int currentPageNum, final int pageSize);
+     List<TagArticle> getByTagId(final String tagId, final int currentPageNum, final int pageSize);
+
+    List<TagArticle> getByTagId(final String tagId);
 
     String add(TagArticle tagArticleRelation);
 
     void remove(String relationId);
+
+    @Select("<script>"
+            + "SELECT * FROM tagarticle WHERE tag_oId in "
+            + "<foreach item='item' index='index' collection='tagIds' open='(' separator=',' close=')'>"
+            + "#{item}"
+            + "</foreach>"
+            + "</script>")
+    List<TagArticle> getByTagIds(final List<String> tagIds);
 
     void update(String oid, TagArticle tagArticleRel);
 }

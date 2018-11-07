@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -67,6 +68,22 @@ public class JsonUtil {
             json.put(jo);
         }
         return json;
+    }
+
+    public static List<JSONObject> listToJSONList(List list){
+        List<JSONObject> jsons = new ArrayList<>();
+        for(Object pLog : list){
+            String string = null;
+            try {
+                string = MAPPER.writeValueAsString(pLog);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            JSONObject jo = new JSONObject(string);
+
+            jsons.add(jo);
+        }
+        return jsons;
     }
 
     public static void main(String[] args) throws Exception{
