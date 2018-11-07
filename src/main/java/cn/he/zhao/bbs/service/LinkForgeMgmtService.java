@@ -33,6 +33,12 @@ import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +103,7 @@ public class LinkForgeMgmtService {
     /**
      * URL fetch service.
      */
-    private URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
+//    private URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
 
     /**
      * Forges the specified URL.
@@ -341,15 +347,21 @@ public class LinkForgeMgmtService {
             LOGGER.debug("Checks link [url=" + linkAddr + "] accessibility");
             final long start = System.currentTimeMillis();
             int responseCode = 0;
+            CloseableHttpClient httpClient = HttpClients.createDefault();
             try {
-                final HTTPRequest request = new HTTPRequest();
-                request.addHeader(new HTTPHeader("User-Agent", Symphonys.USER_AGENT_BOT));
-                request.setURL(new URL(linkAddr));
-                request.setConnectTimeout(1000);
-                request.setReadTimeout(1000 * 5);
+                final HttpGet request = new HttpGet(linkAddr);
+                request.addHeader("User-Agent", Symphonys.USER_AGENT_BOT);
+//                request.setURL(new URL(linkAddr));
+                RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectTimeout(1000)
+                        .setConnectionRequestTimeout(1000).setSocketTimeout(1000 * 5).build();
+                request.setConfig(defaultRequestConfig);
+//                request.setConnectTimeout(1000);
+//                request.setReadTimeout(1000 * 5);
 
-                final HTTPResponse response = urlFetchService.fetch(request);
-                responseCode = response.getResponseCode();
+                final CloseableHttpResponse response = httpClient.execute(request);
+//                final HTTPResponse response = urlFetchService.fetch(request);
+                StatusLine status = response.getStatusLine();
+                responseCode = status.getStatusCode();
 
                 LOGGER.debug( "Accesses link [url=" + linkAddr + "] response [code={0}]", responseCode);
             } catch (final Exception e) {
