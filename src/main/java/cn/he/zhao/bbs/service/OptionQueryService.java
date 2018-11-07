@@ -17,9 +17,18 @@
  */
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.channel.ArticleChannel;
+import cn.he.zhao.bbs.channel.ArticleListChannel;
+import cn.he.zhao.bbs.channel.ChatRoomChannel;
+import cn.he.zhao.bbs.channel.UserChannel;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.JsonUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.websocket.Session;
 import java.util.List;
@@ -78,27 +88,28 @@ public class OptionQueryService {
      *
      * @return online visitor count
      */
+    @Transactional
     public int getOnlineVisitorCount() {
         final int ret = ArticleChannel.SESSIONS.size() + ArticleListChannel.SESSIONS.size() + ChatRoomChannel.SESSIONS.size() + getOnlineMemberCount();
 
         try {
-            final JSONObject maxOnlineMemberCntRecord = optionMapper.get(Option.ID_C_STATISTIC_MAX_ONLINE_VISITOR_COUNT);
-            final int maxOnlineVisitorCnt = maxOnlineMemberCntRecord.optInt(Option.OPTION_VALUE);
+            final Option maxOnlineMemberCntRecord = optionMapper.get(OptionUtil.ID_C_STATISTIC_MAX_ONLINE_VISITOR_COUNT);
+            final int maxOnlineVisitorCnt = Integer.parseInt(maxOnlineMemberCntRecord.getOptionValue());
 
             if (maxOnlineVisitorCnt < ret) {
                 // Updates the max online visitor count
 
-                final Transaction transaction = optionMapper.beginTransaction();
+//                final Transaction transaction = optionMapper.beginTransaction();
 
                 try {
-                    maxOnlineMemberCntRecord.put(Option.OPTION_VALUE, String.valueOf(ret));
-                    optionMapper.update(maxOnlineMemberCntRecord.optString(Keys.OBJECT_ID), maxOnlineMemberCntRecord);
+                    maxOnlineMemberCntRecord.setOptionValue( String.valueOf(ret));
+                    optionMapper.update(maxOnlineMemberCntRecord.getOid(), maxOnlineMemberCntRecord);
 
-                    transaction.commit();
+//                    transaction.commit();
                 } catch (final Exception e) {
-                    if (transaction.isActive()) {
-                        transaction.rollback();
-                    }
+//                    if (transaction.isActive()) {
+//                        transaction.rollback();
+//                    }
 
                     LOGGER.error( "Updates the max online visitor count failed", e);
                 }
@@ -119,16 +130,16 @@ public class OptionQueryService {
     public JSONObject getStatistic() throws Exception {
         final JSONObject ret = new JSONObject();
 
-        final Query query = new Query().
-                setFilter(new PropertyFilter(Option.OPTION_CATEGORY, FilterOperator.EQUAL, Option.CATEGORY_C_STATISTIC))
-                .setPageCount(1);
+//        final Query query = new Query().
+//                setFilter(new PropertyFilter(OptionUtil.OPTION_CATEGORY, FilterOperator.EQUAL, OptionUtil.CATEGORY_C_STATISTIC))
+//                .setPageCount(1);
         try {
-            final JSONObject result = optionMapper.get(query);
-            final JSONArray options = result.optJSONArray(Keys.RESULTS);
+            final List<Option> result = optionMapper.getByOptionCategory(OptionUtil.CATEGORY_C_STATISTIC);
+            final JSONArray options = JsonUtil.listToJSONArray(result);
 
             for (int i = 0; i < options.length(); i++) {
                 final JSONObject option = options.optJSONObject(i);
-                ret.put(option.optString(Keys.OBJECT_ID), option.optInt(Option.OPTION_VALUE));
+                ret.put(option.optString(Keys.OBJECT_ID), option.optInt(OptionUtil.OPTION_VALUE));
             }
 
             return ret;
@@ -153,7 +164,7 @@ public class OptionQueryService {
             final List<JSONObject> reservedWords = getReservedWords();
 
             for (final JSONObject reservedWord : reservedWords) {
-                if (content.contains(reservedWord.optString(Option.OPTION_VALUE))) {
+                if (content.contains(reservedWord.optString(OptionUtil.OPTION_VALUE))) {
                     return true;
                 }
             }
@@ -171,11 +182,11 @@ public class OptionQueryService {
      * @throws Exception service exception
      */
     public List<JSONObject> getReservedWords() throws Exception {
-        final Query query = new Query().
-                setFilter(new PropertyFilter(Option.OPTION_CATEGORY, FilterOperator.EQUAL, Option.CATEGORY_C_RESERVED_WORDS));
+//        final Query query = new Query().
+//                setFilter(new PropertyFilter(OptionUtil.OPTION_CATEGORY, FilterOperator.EQUAL, OptionUtil.CATEGORY_C_RESERVED_WORDS));
         try {
-            final JSONObject result = optionMapper.get(query);
-            final JSONArray options = result.optJSONArray(Keys.RESULTS);
+            final List<Option> result = optionMapper.getByOptionCategory(OptionUtil.CATEGORY_C_RESERVED_WORDS);
+            final JSONArray options = JsonUtil.listToJSONArray(result);
 
             return CollectionUtils.jsonArrayToList(options);
         } catch (final Exception e) {
@@ -192,13 +203,13 @@ public class OptionQueryService {
      * @return {@code true} if it is a reserved word, returns {@code false} otherwise
      */
     public boolean isReservedWord(final String word) {
-        final Query query = new Query().
-                setFilter(CompositeFilterOperator.and(
-                        new PropertyFilter(Option.OPTION_VALUE, FilterOperator.EQUAL, word),
-                        new PropertyFilter(Option.OPTION_CATEGORY, FilterOperator.EQUAL, Option.CATEGORY_C_RESERVED_WORDS)
-                ));
+//        final Query query = new Query().
+//                setFilter(CompositeFilterOperator.and(
+//                        new PropertyFilter(OptionUtil.OPTION_VALUE, FilterOperator.EQUAL, word),
+//                        new PropertyFilter(OptionUtil.OPTION_CATEGORY, FilterOperator.EQUAL, OptionUtil.CATEGORY_C_RESERVED_WORDS)
+//                ));
         try {
-            return optionMapper.count(query) > 0;
+            return optionMapper.getByOptionCategoryAndValue(OptionUtil.CATEGORY_C_RESERVED_WORDS, word) > 0;
         } catch (final Exception e) {
             LOGGER.error( "Checks reserved word failed", e);
 
@@ -213,9 +224,9 @@ public class OptionQueryService {
      */
     public String getAllowRegister() {
         try {
-            final JSONObject result = optionMapper.get(Option.ID_C_MISC_ALLOW_REGISTER);
+            final Option result = optionMapper.get(OptionUtil.ID_C_MISC_ALLOW_REGISTER);
 
-            return result.optString(Option.OPTION_VALUE);
+            return result.getOptionValue();
         } catch (final Exception e) {
             LOGGER.error( "Gets option [allow register] value failed", e);
 
@@ -230,11 +241,11 @@ public class OptionQueryService {
      * @throws Exception service exception
      */
     public List<JSONObject> getMisc() throws Exception {
-        final Query query = new Query().
-                setFilter(new PropertyFilter(Option.OPTION_CATEGORY, FilterOperator.EQUAL, Option.CATEGORY_C_MISC));
+//        final Query query = new Query().
+//                setFilter(new PropertyFilter(OptionUtil.OPTION_CATEGORY, FilterOperator.EQUAL, OptionUtil.CATEGORY_C_MISC));
         try {
-            final JSONObject result = optionMapper.get(query);
-            final JSONArray options = result.optJSONArray(Keys.RESULTS);
+            final List<Option> result = optionMapper.getByOptionCategory(OptionUtil.CATEGORY_C_MISC);
+            final JSONArray options = JsonUtil.listToJSONArray(result);
 
             for (int i = 0; i < options.length(); i++) {
                 final JSONObject option = options.optJSONObject(i);
@@ -255,9 +266,9 @@ public class OptionQueryService {
      * @param optionId the specified id
      * @return option, return {@code null} if not found
      */
-    public JSONObject getOption(final String optionId) {
+    public Option getOption(final String optionId) {
         try {
-            final JSONObject ret = optionMapper.get(optionId);
+            final Option ret = optionMapper.get(optionId);
 
             if (null == ret) {
                 return null;

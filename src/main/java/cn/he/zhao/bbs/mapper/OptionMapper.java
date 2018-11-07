@@ -18,7 +18,10 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Option;
+import org.apache.ibatis.annotations.Select;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public interface OptionMapper  {
 
@@ -31,4 +34,10 @@ public interface OptionMapper  {
     void update(final String oId, final Option option) ;
 
     String add(Option cityArticleCntOption);
+
+    @Select("select * from option WHERE optionCategory = #{category}")
+    List<Option> getByOptionCategory(final String category);
+
+    @Select("select count(*) from option WHERE optionCategory = #{category} AND optionValue = #{value}")
+    Long getByOptionCategoryAndValue(final String category,final String value);
 }
