@@ -1,8 +1,23 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.util.Markdowns;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.entity.*;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
@@ -43,46 +58,59 @@ public class SearchMgmtService {
     /**
      * URL fetch service.
      */
-    private static final URLFetchService URL_FETCH_SVC = URLFetchServiceFactory.getURLFetchService();
+//    private static final URLFetchService URL_FETCH_SVC = URLFetchServiceFactory.getURLFetchService();
+
+    private static RequestConfig defaultRequestConfig = RequestConfig.custom().setConnectTimeout(3000)
+            .setConnectionRequestTimeout(1000).setSocketTimeout(10000).build();
 
     /**
      * Rebuilds ES index.
      */
     public void rebuildESIndex() {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
         try {
-            final HTTPRequest removeRequest = new HTTPRequest();
-            removeRequest.setRequestMethod(HTTPRequestMethod.DELETE);
-            removeRequest.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME));
-            URL_FETCH_SVC.fetch(removeRequest);
+            final HttpDelete removeRequest = new HttpDelete(ES_SERVER + "/" + ES_INDEX_NAME);
+            removeRequest.setConfig(defaultRequestConfig);
+            httpClient.execute(removeRequest);
+//            removeRequest.setRequestMethod(HTTPRequestMethod.DELETE);
+//            removeRequest.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME));
+//            URL_FETCH_SVC.fetch(removeRequest);
 
-            final HTTPRequest createRequest = new HTTPRequest();
-            createRequest.setRequestMethod(HTTPRequestMethod.PUT);
-            createRequest.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME));
-            URL_FETCH_SVC.fetch(createRequest);
+            final HttpPut createRequest = new HttpPut(ES_SERVER + "/" + ES_INDEX_NAME);
+            createRequest.setConfig(defaultRequestConfig);
+            httpClient.execute(createRequest);
+//            createRequest.setRequestMethod(HTTPRequestMethod.PUT);
+//            createRequest.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME));
+//            URL_FETCH_SVC.fetch(createRequest);
 
-            final HTTPRequest mappingRequest = new HTTPRequest();
-            mappingRequest.setRequestMethod(HTTPRequestMethod.POST);
-            mappingRequest.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + Article.ARTICLE + "/_mapping"));
+            final HttpPost mappingRequest = new HttpPost(ES_SERVER + "/" + ES_INDEX_NAME + "/" + ArticleUtil.ARTICLE + "/_mapping");
+//            mappingRequest.setRequestMethod(HTTPRequestMethod.POST);
+//            mappingRequest.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + Article.ARTICLE + "/_mapping"));
 
             final JSONObject mapping = new JSONObject();
             final JSONObject article = new JSONObject();
-            mapping.put(Article.ARTICLE, article);
+            mapping.put(ArticleUtil.ARTICLE, article);
             final JSONObject properties = new JSONObject();
             article.put("properties", properties);
             final JSONObject title = new JSONObject();
-            properties.put(Article.ARTICLE_TITLE, title);
+            properties.put(ArticleUtil.ARTICLE_TITLE, title);
             title.put("type", "string");
             title.put("analyzer", "ik_smart");
             title.put("search_analyzer", "ik_smart");
             final JSONObject content = new JSONObject();
-            properties.put(Article.ARTICLE_CONTENT, content);
+            properties.put(ArticleUtil.ARTICLE_CONTENT, content);
             content.put("type", "string");
             content.put("analyzer", "ik_smart");
             content.put("search_analyzer", "ik_smart");
 
-            mappingRequest.setPayload(mapping.toString().getBytes("UTF-8"));
+            mappingRequest.setConfig(defaultRequestConfig);
+            StringEntity strEntity = new StringEntity(mapping.toString(),"UTF-8");
+            mappingRequest.setEntity(strEntity);
+            httpClient.execute(mappingRequest);
+//            mappingRequest.setPayload(mapping.toString().getBytes("UTF-8"));
 
-            URL_FETCH_SVC.fetch(mappingRequest);
+//            URL_FETCH_SVC.fetch(mappingRequest);
         } catch (final Exception e) {
             LOGGER.error( "Removes index failed", e);
         }
@@ -102,16 +130,23 @@ public class SearchMgmtService {
         while (retries <= maxRetries) {
             String host = appId + "-" + retries + ".algolianet.com";
 
+            CloseableHttpClient httpClient = HttpClients.createDefault();
             try {
-                final HTTPRequest request = new HTTPRequest();
-                request.addHeader(new HTTPHeader("X-Algolia-API-Key", key));
-                request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
-                request.setRequestMethod(HTTPRequestMethod.POST);
+                final HttpPost request = new HttpPost("https://" + host + "/1/indexes/" + index + "/clear");
+                request.addHeader("X-Algolia-API-Key", key);
+                request.addHeader("X-Algolia-Application-Id", appId);
+//                request.addHeader(new HTTPHeader("X-Algolia-API-Key", key));
+//                request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
+//                request.setRequestMethod(HTTPRequestMethod.POST);
 
-                request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/clear"));
+//                request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/clear"));
 
-                final HTTPResponse response = URL_FETCH_SVC.fetch(request);
-                if (200 != response.getResponseCode()) {
+                request.setConfig(defaultRequestConfig);
+                final CloseableHttpResponse response = httpClient.execute(request);
+//                final HTTPResponse response = URL_FETCH_SVC.fetch(request);
+                StatusLine status = response.getStatusLine();
+                int statusCode = status.getStatusCode();
+                if (200 != statusCode) {
                     LOGGER.warn(response.toString());
                 }
 
@@ -139,19 +174,27 @@ public class SearchMgmtService {
      * @param type the specified document type
      */
     public void updateESDocument(final JSONObject doc, final String type) {
-        final HTTPRequest request = new HTTPRequest();
-        request.setRequestMethod(HTTPRequestMethod.POST);
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+
+        final HttpPost request = new HttpPost(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.optString(Keys.OBJECT_ID) + "/_update");
+//        request.setRequestMethod(HTTPRequestMethod.POST);
 
         try {
-            request.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.optString(Keys.OBJECT_ID) + "/_update"));
+//            request.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.optString(Keys.OBJECT_ID) + "/_update"));
 
             final JSONObject payload = new JSONObject();
             payload.put("doc", doc);
             payload.put("upsert", doc);
 
-            request.setPayload(payload.toString().getBytes("UTF-8"));
+            request.setConfig(defaultRequestConfig);
+            StringEntity strEntity = new StringEntity(payload.toString(),"UTF-8");
+            request.setEntity(strEntity);
+            httpClient.execute(request);
+//            request.setPayload(payload.toString().getBytes("UTF-8"));
 
-            URL_FETCH_SVC.fetchAsync(request);
+//            URL_FETCH_SVC.fetchAsync(request);
         } catch (final Exception e) {
             LOGGER.error( "Updates doc failed", e);
         }
@@ -164,13 +207,16 @@ public class SearchMgmtService {
      * @param type the specified document type
      */
     public void removeESDocument(final BaseEntity doc, final String type) {
-        final HTTPRequest request = new HTTPRequest();
-        request.setRequestMethod(HTTPRequestMethod.DELETE);
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        final HttpDelete request = new HttpDelete(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.getOid());
+//        request.setRequestMethod(HTTPRequestMethod.DELETE);
 
         try {
-            request.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.getOid()));
+//            request.setURL(new URL(ES_SERVER + "/" + ES_INDEX_NAME + "/" + type + "/" + doc.getOid()));
 
-            URL_FETCH_SVC.fetchAsync(request);
+            request.setConfig(defaultRequestConfig);
+            httpClient.execute(request);
+//            URL_FETCH_SVC.fetchAsync(request);
         } catch (final Exception e) {
             LOGGER.error( "Updates doc failed", e);
         }
@@ -192,40 +238,56 @@ public class SearchMgmtService {
         while (retries <= maxRetries) {
             String host = appId + "-" + retries + ".algolianet.com";
 
+            CloseableHttpClient httpClient = HttpClients.createDefault();
             try {
-                final HTTPRequest request = new HTTPRequest();
-                request.addHeader(new HTTPHeader("X-Algolia-API-Key", key));
-                request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
-                request.setRequestMethod(HTTPRequestMethod.PUT);
-
                 final String id = doc.optString(Keys.OBJECT_ID);
 
-                String content = doc.optString(Article.ARTICLE_CONTENT);
+                final HttpPut request = new HttpPut("https://" + host + "/1/indexes/" + index + "/" + id);
+                request.addHeader("X-Algolia-API-Key", key);
+                request.addHeader("X-Algolia-Application-Id", appId);
+//                request.addHeader(new HTTPHeader("X-Algolia-API-Key", key));
+//                request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
+//                request.setRequestMethod(HTTPRequestMethod.PUT);
+
+                String content = doc.optString(ArticleUtil.ARTICLE_CONTENT);
                 content = Markdowns.toHTML(content);
                 content = Jsoup.parse(content).text();
 
-                doc.put(Article.ARTICLE_CONTENT, content);
+                doc.put(ArticleUtil.ARTICLE_CONTENT, content);
                 final byte[] data = doc.toString().getBytes("UTF-8");
 
                 if (content.length() < 32) {
                     LOGGER.info( "This article is too small [length=" + data.length + "], so skip it [title="
-                            + doc.optString(Article.ARTICLE_TITLE) + ", id=" + id + "]");
+                            + doc.optString(ArticleUtil.ARTICLE_TITLE) + ", id=" + id + "]");
                     return;
                 }
 
                 if (data.length > 102400) {
                     LOGGER.info( "This article is too big [length=" + data.length + "], so skip it [title="
-                            + doc.optString(Article.ARTICLE_TITLE) + ", id=" + id + "]");
+                            + doc.optString(ArticleUtil.ARTICLE_TITLE) + ", id=" + id + "]");
                     return;
                 }
 
-                request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/" + id));
-                request.setPayload(data);
+//                request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/" + id));
+//                StringEntity strEntity = new StringEntity(data);
+                ByteArrayEntity byteArrayEntity = new ByteArrayEntity(data);
+                request.setEntity(byteArrayEntity);
+                request.setConfig(defaultRequestConfig);
+//                request.setPayload(data);
 
-                final HTTPResponse response = URL_FETCH_SVC.fetch(request);
-                if (200 != response.getResponseCode()) {
-                    LOGGER.warn(new String(response.getContent(), "UTF-8"));
+                final CloseableHttpResponse response = httpClient.execute(request);
+                StatusLine status = response.getStatusLine();
+                int statusCode = status.getStatusCode();
+                if (200 != statusCode) {
+                    HttpEntity entity = response.getEntity();
+                    String responseStr = EntityUtils.toString(entity);
+                    LOGGER.warn(responseStr);
                 }
+
+//                final HTTPResponse response = URL_FETCH_SVC.fetch(request);
+//                if (200 != response.getResponseCode()) {
+//                    LOGGER.warn(new String(response.getContent(), "UTF-8"));
+//                }
 
                 break;
             } catch (final UnknownHostException e) {
@@ -266,19 +328,31 @@ public class SearchMgmtService {
         while (retries <= maxRetries) {
             String host = appId + "-" + retries + ".algolianet.com";
 
+            CloseableHttpClient httpClient = HttpClients.createDefault();
             try {
-                final HTTPRequest request = new HTTPRequest();
-                request.addHeader(new HTTPHeader("X-Algolia-API-Key", key));
-                request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
-                request.setRequestMethod(HTTPRequestMethod.DELETE);
-
                 final String id = doc.getOid();
-                request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/" + id));
+                final HttpDelete request = new HttpDelete("https://" + host + "/1/indexes/" + index + "/" + id);
+                request.addHeader("X-Algolia-API-Key", key);
+                request.addHeader("X-Algolia-Application-Id", appId);
+//                request.addHeader(new HTTPHeader("X-Algolia-API-Key", key));
+//                request.addHeader(new HTTPHeader("X-Algolia-Application-Id", appId));
+//                request.setRequestMethod(HTTPRequestMethod.DELETE);
 
-                request.setPayload(doc.toString().getBytes("UTF-8"));
 
-                final HTTPResponse response = URL_FETCH_SVC.fetch(request);
-                if (200 != response.getResponseCode()) {
+//                request.setURL(new URL("https://" + host + "/1/indexes/" + index + "/" + id));
+
+                // TODO: 2018/11/7 没有增加strEntity
+//                StringEntity strEntity = new StringEntity(doc.toString(),"UTF-8");
+//                request.setEntity(strEntity);
+
+//                request.setPayload(doc.toString().getBytes("UTF-8"));
+
+                request.setConfig(defaultRequestConfig);
+                final CloseableHttpResponse response = httpClient.execute(request);
+                StatusLine status = response.getStatusLine();
+                int statusCode = status.getStatusCode();
+//                final HTTPResponse response = URL_FETCH_SVC.fetch(request);
+                if (200 != statusCode) {
                     LOGGER.warn(response.toString());
                 }
 
