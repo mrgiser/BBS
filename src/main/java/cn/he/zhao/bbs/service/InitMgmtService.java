@@ -202,7 +202,7 @@ public class InitMgmtService {
      */
     public void initSym() {
         try {
-            final List<JSONObject> admins = userQueryService.getAdmins();
+            final List<UserExt> admins = userQueryService.getAdmins();
 
             if (null != admins && !admins.isEmpty()) { // Initialized already
                 return;
