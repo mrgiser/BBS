@@ -6,6 +6,8 @@ import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class UserExt {
 
     private String oid;
@@ -82,6 +84,24 @@ public class UserExt {
 
     private transient String userPointHex;
     private transient String userPointCC;
+    private transient Date userCreateTime;
+    private transient String roleName;
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public Date getUserCreateTime() {
+        return userCreateTime;
+    }
+
+    public void setUserCreateTime(Date userCreateTime) {
+        this.userCreateTime = userCreateTime;
+    }
 
     public String getUserPointCC() {
         return userPointCC;

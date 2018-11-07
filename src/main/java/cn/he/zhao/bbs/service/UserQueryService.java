@@ -1,17 +1,25 @@
 package cn.he.zhao.bbs.service;
 
+import cn.he.zhao.bbs.entityUtil.FollowUtil;
 import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.entityUtil.RoleUtil;
 import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
+import cn.he.zhao.bbs.spring.Common;
+import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
 import cn.he.zhao.bbs.util.JsonUtil;
+import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Times;
 import cn.he.zhao.bbs.util.URLs;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -175,23 +183,25 @@ public class UserQueryService {
                                              final int windowSize) throws Exception {
         final JSONObject ret = new JSONObject();
 
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
-                .setCurrentPageNum(currentPageNum).setPageSize(pageSize)
-                .setFilter(CompositeFilterOperator.and(
-                        new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID),
-                        new PropertyFilter(UserExt.USER_LATEST_LOGIN_TIME, FilterOperator.GREATER_THAN_OR_EQUAL, time)
-                ));
+        PageHelper.startPage(currentPageNum,pageSize,"OId DESC");
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
+//                .setCurrentPageNum(currentPageNum).setPageSize(pageSize)
+//                .setFilter(CompositeFilterOperator.and(
+//                        new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID),
+//                        new PropertyFilter(UserExtUtil.USER_LATEST_LOGIN_TIME, FilterOperator.GREATER_THAN_OR_EQUAL, time)
+//                ));
 
-        JSONObject result = null;
+        PageInfo<UserExt> result = null;
         try {
-            result = userMapper.get(query);
+            result = new PageInfo<>(userMapper.getLatestLoggedByTime(UserExtUtil.USER_STATUS_C_VALID,time));
         } catch (final Exception e) {
             LOGGER.error( "Gets latest logged in user failed", e);
 
             throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+//        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -199,7 +209,7 @@ public class UserQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray users = result.optJSONArray(Keys.RESULTS);
+        final List<UserExt> users = result.getList();
         ret.put(User.USERS, users);
 
         return ret;
@@ -216,14 +226,14 @@ public class UserQueryService {
         final long start = Times.getDayStartTime(time);
         final long end = Times.getDayEndTime(time);
 
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
-                new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID)
-        ));
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
+//                new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID)
+//        ));
 
         try {
-            return (int) userMapper.count(query);
+            return (int) userMapper.getUserCountByTime(start,end,UserExtUtil.USER_STATUS_C_VALID);
         } catch (final Exception e) {
             LOGGER.error( "Count day user failed", e);
 
@@ -242,14 +252,14 @@ public class UserQueryService {
         final long start = Times.getMonthStartTime(time);
         final long end = Times.getMonthEndTime(time);
 
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
-                new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID)
-        ));
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
+//                new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID)
+//        ));
 
         try {
-            return (int) userMapper.count(query);
+            return (int) userMapper.getUserCountByTime(start,end,UserExtUtil.USER_STATUS_C_VALID);
         } catch (final Exception e) {
             LOGGER.error( "Count month user failed", e);
 
@@ -263,27 +273,28 @@ public class UserQueryService {
     public void loadUserNames() {
         USER_NAMES.clear();
 
-        final Query query = new Query().setPageCount(1).
-                setFilter(new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID)).
-                addProjection(User.USER_NAME, String.class).
-                addProjection(UserExt.USER_AVATAR_URL, String.class);
+//        final Query query = new Query().setPageCount(1).
+//                setFilter(new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID)).
+//                addProjection(User.USER_NAME, String.class).
+//                addProjection(UserExtUtil.USER_AVATAR_URL, String.class);
         try {
-            final JSONObject result = userMapper.get(query); // XXX: Performance Issue
-            final JSONArray array = result.optJSONArray(Keys.RESULTS);
-            for (int i = 0; i < array.length(); i++) {
-                final JSONObject user = array.optJSONObject(i);
+            final List<UserExt> array = userMapper.getUserByValid(UserExtUtil.USER_STATUS_C_VALID); // XXX: Performance Issue
+//            final JSONArray array = result.get(Keys.RESULTS);
+            for (int i = 0; i < array.size(); i++) {
+                final UserExt user = array.get(i);
 
                 final JSONObject u = new JSONObject();
-                u.put(User.USER_NAME, user.optString(User.USER_NAME));
-                u.put(UserExt.USER_T_NAME_LOWER_CASE, user.optString(User.USER_NAME).toLowerCase());
-                final String avatar = avatarQueryService.getAvatarURLByUser(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, user, "20");
-                u.put(UserExt.USER_AVATAR_URL, avatar);
+                u.put(User.USER_NAME, user.getUserName());
+                u.put(UserExtUtil.USER_T_NAME_LOWER_CASE, user.getUserName().toLowerCase());
+                JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+                final String avatar = avatarQueryService.getAvatarURLByUser(UserExtUtil.USER_AVATAR_VIEW_MODE_C_STATIC, jsonObject, "20");
+                u.put(UserExtUtil.USER_AVATAR_URL, avatar);
                 USER_NAMES.add(u);
             }
 
             Collections.sort(USER_NAMES, (u1, u2) -> {
-                final String u1Name = u1.optString(UserExt.USER_T_NAME_LOWER_CASE);
-                final String u2Name = u2.optString(UserExt.USER_T_NAME_LOWER_CASE);
+                final String u1Name = u1.optString(UserExtUtil.USER_T_NAME_LOWER_CASE);
+                final String u2Name = u2.optString(UserExtUtil.USER_T_NAME_LOWER_CASE);
 
                 return u1Name.compareTo(u2Name);
             });
@@ -307,11 +318,11 @@ public class UserQueryService {
      */
     public List<JSONObject> getUserNamesByPrefix(final String namePrefix) {
         final JSONObject nameToSearch = new JSONObject();
-        nameToSearch.put(UserExt.USER_T_NAME_LOWER_CASE, namePrefix.toLowerCase());
+        nameToSearch.put(UserExtUtil.USER_T_NAME_LOWER_CASE, namePrefix.toLowerCase());
 
         int index = Collections.binarySearch(USER_NAMES, nameToSearch, (u1, u2) -> {
-            String u1Name = u1.optString(UserExt.USER_T_NAME_LOWER_CASE);
-            final String inputName = u2.optString(UserExt.USER_T_NAME_LOWER_CASE);
+            String u1Name = u1.optString(UserExtUtil.USER_T_NAME_LOWER_CASE);
+            final String inputName = u2.optString(UserExtUtil.USER_T_NAME_LOWER_CASE);
 
             if (u1Name.length() < inputName.length()) {
                 return u1Name.compareTo(inputName);
@@ -331,7 +342,7 @@ public class UserQueryService {
         int start = index;
         int end = index;
 
-        while (start > -1 && USER_NAMES.get(start).optString(UserExt.USER_T_NAME_LOWER_CASE).startsWith(namePrefix.toLowerCase())) {
+        while (start > -1 && USER_NAMES.get(start).optString(UserExtUtil.USER_T_NAME_LOWER_CASE).startsWith(namePrefix.toLowerCase())) {
             start--;
         }
 
@@ -340,7 +351,7 @@ public class UserQueryService {
         if (start < index - 5) {
             end = start + 5;
         } else {
-            while (end < USER_NAMES.size() && end < index + 5 && USER_NAMES.get(end).optString(UserExt.USER_T_NAME_LOWER_CASE).startsWith(namePrefix.toLowerCase())) {
+            while (end < USER_NAMES.size() && end < index + 5 && USER_NAMES.get(end).optString(UserExtUtil.USER_T_NAME_LOWER_CASE).startsWith(namePrefix.toLowerCase())) {
                 end++;
 
                 if (end >= start + 5) {
@@ -359,7 +370,7 @@ public class UserQueryService {
      * @return the current user, {@code null} if not found
      * @throws Exception service exception
      */
-    public JSONObject getCurrentUser(final HttpServletRequest request) throws Exception {
+    public UserExt getCurrentUser(final HttpServletRequest request) throws Exception {
         final JSONObject currentUser = Sessions.currentUser(request);
         if (null == currentUser) {
             return null;
@@ -376,9 +387,9 @@ public class UserQueryService {
      * @return administrators, returns an empty list if not found or error
      * @throws Exception service exception
      */
-    public List<JSONObject> getAdmins() throws Exception {
+    public List<UserExt> getAdmins() throws Exception {
         try {
-            return userMapper.getAdmins();
+            return userMapper.getAdmins(RoleUtil.ROLE_ID_C_ADMIN);
         } catch (final Exception e) {
             LOGGER.error( "Gets admins failed", e);
             throw new Exception(e);
@@ -391,7 +402,7 @@ public class UserQueryService {
      * @return super administrator
      * @throws Exception service exception
      */
-    public JSONObject getSA() throws Exception {
+    public UserExt getSA() throws Exception {
         return getAdmins().get(0);
     }
 
@@ -401,10 +412,13 @@ public class UserQueryService {
      * @return default commenter
      * @throws Exception service exception
      */
-    public JSONObject getDefaultCommenter() throws Exception {
-        final JSONObject ret = getUserByName(UserExt.DEFAULT_CMTER_NAME);
-        ret.remove(UserExt.USER_T_POINT_HEX);
-        ret.remove(UserExt.USER_T_POINT_CC);
+    public UserExt getDefaultCommenter() throws Exception {
+        final UserExt ret = getUserByName(UserExtUtil.DEFAULT_CMTER_NAME);
+//        ret.remove(UserExt.USER_T_POINT_HEX);
+//        ret.remove(UserExt.USER_T_POINT_CC);
+
+        ret.setUserPointHex("");
+        ret.setUserPointCC("");
 
         return ret;
     }
@@ -416,7 +430,7 @@ public class UserQueryService {
      * @return user, returns {@code null} if not found
      * @throws Exception service exception
      */
-    public JSONObject getUserByEmail(final String email) throws Exception {
+    public UserExt getUserByEmail(final String email) throws Exception {
         try {
             return userMapper.getByEmail(email);
         } catch (final Exception e) {
@@ -500,19 +514,19 @@ public class UserQueryService {
      * @param name the specified name
      * @return user, returns {@code null} if not found
      */
-    public JSONObject getUserByName(final String name) {
+    public UserExt getUserByName(final String name) {
         try {
-            final JSONObject ret = userMapper.getByName(name);
+            final UserExt ret = userMapper.getByName(name);
             if (null == ret) {
                 return null;
             }
 
-            final int point = ret.optInt(UserExt.USER_POINT);
-            final int appRole = ret.optInt(UserExt.USER_APP_ROLE);
-            if (UserExt.USER_APP_ROLE_C_HACKER == appRole) {
-                ret.put(UserExt.USER_T_POINT_HEX, Integer.toHexString(point));
+            final int point = ret.getUserPoint();
+            final int appRole = ret.getUserAppRole();
+            if (UserExtUtil.USER_APP_ROLE_C_HACKER == appRole) {
+                ret.setUserPointHex(Integer.toHexString(point));
             } else {
-                ret.put(UserExt.USER_T_POINT_CC, UserExt.toCCString(point));
+                ret.setUserPointCC( UserExtUtil.toCCString(point));
             }
 
             return ret;
@@ -557,45 +571,53 @@ public class UserQueryService {
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
         final int pageSize = requestJSONObject.optInt(Pagination.PAGINATION_PAGE_SIZE);
         final int windowSize = requestJSONObject.optInt(Pagination.PAGINATION_WINDOW_SIZE);
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setCurrentPageNum(currentPageNum).setPageSize(pageSize);
 
+        PageHelper.startPage(currentPageNum,pageSize,"oId DESC");
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
+//                setCurrentPageNum(currentPageNum).setPageSize(pageSize);
+
+
+        final String q;
         if (requestJSONObject.has(Common.QUERY)) {
-            final String q = requestJSONObject.optString(Common.QUERY);
-            final List<Filter> filters = new ArrayList<>();
-            filters.add(new PropertyFilter(User.USER_NAME, FilterOperator.EQUAL, q));
-            filters.add(new PropertyFilter(User.USER_EMAIL, FilterOperator.EQUAL, q));
-            filters.add(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.EQUAL, q));
-            query.setFilter(new CompositeFilter(CompositeFilterOperator.OR, filters));
+            q = requestJSONObject.optString(Common.QUERY);
+//            final List<Filter> filters = new ArrayList<>();
+//            filters.add(new PropertyFilter(User.USER_NAME, FilterOperator.EQUAL, q));
+//            filters.add(new PropertyFilter(User.USER_EMAIL, FilterOperator.EQUAL, q));
+//            filters.add(new PropertyFilter(Keys.OBJECT_ID, FilterOperator.EQUAL, q));
+//            query.setFilter(new CompositeFilter(CompositeFilterOperator.OR, filters));
+        } else {
+            // TODO: 2018/11/7 没有查询条件退出
+            return null;
         }
 
-        JSONObject result;
+        PageInfo<UserExt> result;
         try {
-            result = userMapper.get(query);
+            result = new PageInfo<>(userMapper.getByNameOrEmailOrOId(q));
         } catch (final Exception e) {
             LOGGER.error( "Gets users failed", e);
 
             throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
         final List<Integer> pageNums = Paginator.paginate(currentPageNum, pageSize, pageCount, windowSize);
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray users = result.optJSONArray(Keys.RESULTS);
+        final List<UserExt> users = result.getList();
         ret.put(User.USERS, users);
 
-        for (int i = 0; i < users.length(); i++) {
-            final JSONObject user = users.optJSONObject(i);
-            user.put(UserExt.USER_T_CREATE_TIME, new Date(user.optLong(Keys.OBJECT_ID)));
+        for (int i = 0; i < users.size(); i++) {
+            final UserExt user = users.get(i);
+            user.setUserCreateTime(new Date(user.getOid()));
 
-            avatarQueryService.fillUserAvatarURL(UserExt.USER_AVATAR_VIEW_MODE_C_ORIGINAL, user);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            avatarQueryService.fillUserAvatarURL(UserExtUtil.USER_AVATAR_VIEW_MODE_C_ORIGINAL, jsonObject);
 
-            final JSONObject role = roleQueryService.getRole(user.optString(User.USER_ROLE));
-            user.put(Role.ROLE_NAME, role.optString(Role.ROLE_NAME));
+            final Role role = roleQueryService.getRole(user.getUserRole());
+            user.setRoleName(role.getRoleName());
         }
 
         return ret;
@@ -636,26 +658,28 @@ public class UserQueryService {
         final int currentPageNum = requestJSONObject.optInt(Pagination.PAGINATION_CURRENT_PAGE_NUM);
         final int pageSize = requestJSONObject.optInt(Pagination.PAGINATION_PAGE_SIZE);
         final int windowSize = requestJSONObject.optInt(Pagination.PAGINATION_WINDOW_SIZE);
-        final String city = requestJSONObject.optString(UserExt.USER_CITY);
-        final long latestTime = requestJSONObject.optLong(UserExt.USER_LATEST_LOGIN_TIME);
+        final String city = requestJSONObject.optString(UserExtUtil.USER_CITY);
+        final long latestTime = requestJSONObject.optLong(UserExtUtil.USER_LATEST_LOGIN_TIME);
 
-        final Query query = new Query().addSort(UserExt.USER_LATEST_LOGIN_TIME, SortDirection.DESCENDING)
-                .setCurrentPageNum(currentPageNum).setPageSize(pageSize)
-                .setFilter(CompositeFilterOperator.and(
-                        new PropertyFilter(UserExt.USER_CITY, FilterOperator.EQUAL, city),
-                        new PropertyFilter(UserExt.USER_STATUS, FilterOperator.EQUAL, UserExt.USER_STATUS_C_VALID),
-                        new PropertyFilter(UserExt.USER_LATEST_LOGIN_TIME, FilterOperator.GREATER_THAN_OR_EQUAL, latestTime)
-                ));
-        JSONObject result = null;
+        PageHelper.startPage(currentPageNum,pageSize,"userLatestLoginTime DESC");
+//        final Query query = new Query().addSort(UserExtUtil.USER_LATEST_LOGIN_TIME, SortDirection.DESCENDING)
+//                .setCurrentPageNum(currentPageNum).setPageSize(pageSize)
+//                .setFilter(CompositeFilterOperator.and(
+//                        new PropertyFilter(UserExtUtil.USER_CITY, FilterOperator.EQUAL, city),
+//                        new PropertyFilter(UserExtUtil.USER_STATUS, FilterOperator.EQUAL, UserExtUtil.USER_STATUS_C_VALID),
+//                        new PropertyFilter(UserExtUtil.USER_LATEST_LOGIN_TIME, FilterOperator.GREATER_THAN_OR_EQUAL, latestTime)
+//                ));
+        PageInfo<UserExt> result = null;
         try {
-            result = userMapper.get(query);
+            result = new PageInfo<>(userMapper.getByLoginTimeAndCity(city, latestTime, UserExtUtil.USER_STATUS_C_VALID));
         } catch (final Exception e) {
             LOGGER.error( "Gets users by city error", e);
 
             throw new Exception(e);
         }
 
-        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+//        final int pageCount = result.optJSONObject(Pagination.PAGINATION).optInt(Pagination.PAGINATION_PAGE_COUNT);
+        final int pageCount = result.getPages();
 
         final JSONObject pagination = new JSONObject();
         ret.put(Pagination.PAGINATION, pagination);
@@ -663,17 +687,18 @@ public class UserQueryService {
         pagination.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         pagination.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
 
-        final JSONArray users = result.optJSONArray(Keys.RESULTS);
-        try {
-            for (int i = 0; i < users.length(); i++) {
-                JSONObject user = users.getJSONObject(i);
-                users.getJSONObject(i).put(Common.IS_FOLLOWING,
-                        followMapper.exists(requestJSONObject.optString(Keys.OBJECT_ID), user.optString(Keys.OBJECT_ID),
-                                Follow.FOLLOWING_TYPE_C_USER));
-            }
-        } catch (final Exception | JSONException e) {
-            LOGGER.error( "Fills following failed", e);
-        }
+        final List<UserExt> users = result.getList();
+        // TODO: 2018/11/7 删除以下的代码是否有影响？
+//        try {
+//            for (int i = 0; i < users.size(); i++) {
+//                UserExt user = users.get(i);
+//                users.get(i).setf(Common.IS_FOLLOWING,
+//                        followMapper.exists(requestJSONObject.optString(Keys.OBJECT_ID), user.getOid(),
+//                                FollowUtil.FOLLOWING_TYPE_C_USER));
+//            }
+//        } catch (final Exception e) {
+//            LOGGER.error( "Fills following failed", e);
+//        }
         ret.put(User.USERS, users);
         return ret;
     }

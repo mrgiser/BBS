@@ -26,15 +26,22 @@ public interface UserMapper {
 
     UserExt get(final String oId) ;
 
+    @Select("select * from user WHERE userStatus = #{userStatus}")
+    List<UserExt> getUserByValid(final int userStatus);
+
     List<UserExt> getAll();
 
     @Select("select * from user WHERE userStatus = #{userStatus}")
     List<UserExt> getByUserStatus(final int userStatus);
 
     List<UserExt> getByUserJoinPointRank(final int userJoinPointRank);
+
     List<UserExt> getByUserJoinUsedPointRank(final int userJoinUsedPointRank);
 
-    @Select("select * from user WHERE oId in (#{oIds})")
+    @Select("select * from user WHERE oId = #{q} OR userName = #{q} OR userEmail = #{q}")
+    List<UserExt> getByNameOrEmailOrOId(final String q);
+
+    @Select("select * from user WHERE oId in #{oIds}")
     List<UserExt> findByOIds(List<String> oIds);
 
     void update(final String id, final UserExt user) ;
@@ -45,6 +52,15 @@ public interface UserMapper {
 
     @Select("select * from user WHERE userRole = (#{userRole})")
     List<UserExt> getAdmins(final String userRole) ;
+
+    @Select("select * from user WHERE userStatus = #{userStatus} AND userLatestLoginTime >= #{time}")
+    List<UserExt> getLatestLoggedByTime(final int userStatus,final long time);
+
+    @Select("select * from user WHERE userCity = #{userCity} AND userStatus = #{userStatus} AND userLatestLoginTime >= #{latestTime}")
+    List<UserExt> getByLoginTimeAndCity(final String userCity,final long latestTime,final int userStatus);
+
+    @Select("select count(*) from user WHERE oId >= #{start} AND oId < #{end} AND userStatus = #{userStatus}")
+    Integer getUserCountByTime(final long start,final long end,final int userStatus);
 
     boolean isAdminEmail(final String email) ;
 
