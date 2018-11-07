@@ -223,51 +223,51 @@ public class PointtransferQueryService {
 
         try {
             final List<Pointtransfer> records = pointtransferMapper.getByUserId(userId);
-//            final JSONArray records = ret.optJSONArray(Keys.RESULTS);
+            final JSONArray jsonArray = JsonUtil.listToJSONArray(records);
 
-            for (int i = 0; i < records.size(); i++) {
-                final Pointtransfer record = records.get(i);
+            for (int i = 0; i < jsonArray.length(); i++) {
 
-                record.set(Common.CREATE_TIME, new Date(record.getTime(Pointtransfer.TIME)));
+                final JSONObject record = jsonArray.optJSONObject(i);
 
-                final String toId = record.getToId();
-                final String fromId = record.getFromId();
+                record.put(Common.CREATE_TIME, new Date(record.optLong(PointtransferUtil.TIME)));
 
-                String typeStr = record.getType().toString();
+                final String toId = record.optString(PointtransferUtil.TO_ID);
+                final String fromId = record.optString(PointtransferUtil.FROM_ID);
+
+                String typeStr = record.optString(PointtransferUtil.TYPE);
                 if (("3".equals(typeStr) && userId.equals(toId))
                         || ("5".equals(typeStr) && userId.equals(fromId))
                         || ("9".equals(typeStr) && userId.equals(toId))
                         || ("14".equals(typeStr) && userId.equals(toId))
-                        || ("22".equals(typeStr) && userId.equals(toId))
-                        || ("34".equals(typeStr) && userId.equals(toId))) {
+                        || ("22".equals(typeStr) && userId.equals(toId))) {
                     typeStr += "In";
                 }
 
                 if (fromId.equals(userId)) {
-                    record.put(Common.BALANCE, record.optInt(Pointtransfer.FROM_BALANCE));
+                    record.put(Common.BALANCE, record.optInt(PointtransferUtil.FROM_BALANCE));
                     record.put(Common.OPERATION, "-");
                 } else {
-                    record.put(Common.BALANCE, record.optInt(Pointtransfer.TO_BALANCE));
+                    record.put(Common.BALANCE, record.optInt(PointtransferUtil.TO_BALANCE));
                     record.put(Common.OPERATION, "+");
                 }
 
                 record.put(Common.DISPLAY_TYPE, langPropsService.get("pointType" + typeStr + "Label"));
 
-                final int type = record.optInt(Pointtransfer.TYPE);
-                final String dataId = record.optString(Pointtransfer.DATA_ID);
+                final int type = record.optInt(PointtransferUtil.TYPE);
+                final String dataId = record.optString(PointtransferUtil.DATA_ID);
                 String desTemplate = langPropsService.get("pointType" + typeStr + "DesLabel");
 
                 switch (type) {
-                    case Pointtransfer.TRANSFER_TYPE_C_DATA_EXPORT:
-                        desTemplate = desTemplate.replace("{num}", record.optString(Pointtransfer.DATA_ID));
+                    case PointtransferUtil.TRANSFER_TYPE_C_DATA_EXPORT:
+                        desTemplate = desTemplate.replace("{num}", record.optString(PointtransferUtil.DATA_ID));
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_INIT:
-                        desTemplate = desTemplate.replace("{point}", record.optString(Pointtransfer.SUM));
+                    case PointtransferUtil.TRANSFER_TYPE_C_INIT:
+                        desTemplate = desTemplate.replace("{point}", record.optString(PointtransferUtil.SUM));
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE:
-                        final JSONObject addArticle = articleMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE:
+                        final Article addArticle = articleMapper.get(dataId);
                         if (null == addArticle) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -275,13 +275,13 @@ public class PointtransferQueryService {
                         }
 
                         final String addArticleLink = "<a href=\""
-                                + addArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + addArticle.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + addArticle.getArticlePermalink() + "\">"
+                                + addArticle.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", addArticleLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_UPDATE_ARTICLE:
-                        final JSONObject updateArticle = articleMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_UPDATE_ARTICLE:
+                        final Article updateArticle = articleMapper.get(dataId);
                         if (null == updateArticle) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -289,13 +289,13 @@ public class PointtransferQueryService {
                         }
 
                         final String updateArticleLink = "<a href=\""
-                                + updateArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + updateArticle.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + updateArticle.getArticlePermalink() + "\">"
+                                + updateArticle.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", updateArticleLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ADD_COMMENT:
-                        final JSONObject comment = commentMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_ADD_COMMENT:
+                        final Comment comment = commentMapper.get(dataId);
 
                         if (null == comment) {
                             desTemplate = langPropsService.get("removedLabel");
@@ -303,24 +303,24 @@ public class PointtransferQueryService {
                             break;
                         }
 
-                        final String articleId = comment.optString(Comment.COMMENT_ON_ARTICLE_ID);
-                        final JSONObject commentArticle = articleMapper.get(articleId);
+                        final String articleId = comment.getCommentOnArticleId();
+                        final Article commentArticle = articleMapper.get(articleId);
 
                         final String commentArticleLink = "<a href=\""
-                                + commentArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + commentArticle.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + commentArticle.getArticlePermalink() + "\">"
+                                + commentArticle.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", commentArticleLink);
 
                         if ("3In".equals(typeStr)) {
-                            final JSONObject commenter = userMapper.get(fromId);
-                            final String commenterLink = UserExt.getUserLink(commenter);
+                            final UserExt commenter = userMapper.get(fromId);
+                            final String commenterLink = UserExtUtil.getUserLink(commenter);
 
                             desTemplate = desTemplate.replace("{user}", commenterLink);
                         }
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_UPDATE_COMMENT:
-                        final JSONObject comment32 = commentMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_UPDATE_COMMENT:
+                        final Comment comment32 = commentMapper.get(dataId);
 
                         if (null == comment32) {
                             desTemplate = langPropsService.get("removedLabel");
@@ -328,17 +328,17 @@ public class PointtransferQueryService {
                             break;
                         }
 
-                        final String articleId32 = comment32.optString(Comment.COMMENT_ON_ARTICLE_ID);
-                        final JSONObject commentArticle32 = articleMapper.get(articleId32);
+                        final String articleId32 = comment32.getCommentOnArticleId();
+                        final Article commentArticle32 = articleMapper.get(articleId32);
 
                         final String commentArticleLink32 = "<a href=\""
-                                + commentArticle32.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + commentArticle32.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + commentArticle32.getArticlePermalink() + "\">"
+                                + commentArticle32.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", commentArticleLink32);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE_REWARD:
-                        final JSONObject addArticleReword = articleMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE_REWARD:
+                        final Article addArticleReword = articleMapper.get(dataId);
                         if (null == addArticleReword) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -346,24 +346,24 @@ public class PointtransferQueryService {
                         }
 
                         final String addArticleRewordLink = "<a href=\""
-                                + addArticleReword.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + addArticleReword.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + addArticleReword.getArticlePermalink() + "\">"
+                                + addArticleReword.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", addArticleRewordLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ARTICLE_REWARD:
-                        final JSONObject reward = rewardMapper.get(dataId);
-                        String senderId = reward.optString(Reward.SENDER_ID);
+                    case PointtransferUtil.TRANSFER_TYPE_C_ARTICLE_REWARD:
+                        final Reward reward = rewardMapper.get(dataId);
+                        String senderId = reward.getSenderId();
                         if ("5In".equals(typeStr)) {
                             senderId = toId;
                         }
-                        final String rewardArticleId = reward.optString(Reward.DATA_ID);
+                        final String rewardArticleId = reward.getDataId();
 
-                        final JSONObject sender = userMapper.get(senderId);
-                        final String senderLink = UserExt.getUserLink(sender);
+                        final UserExt sender = userMapper.get(senderId);
+                        final String senderLink = UserExtUtil.getUserLink(sender);
                         desTemplate = desTemplate.replace("{user}", senderLink);
 
-                        final JSONObject articleReward = articleMapper.get(rewardArticleId);
+                        final Article articleReward = articleMapper.get(rewardArticleId);
                         if (null == articleReward) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -371,99 +371,103 @@ public class PointtransferQueryService {
                         }
 
                         final String articleRewardLink = "<a href=\""
-                                + articleReward.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + articleReward.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + articleReward.getArticlePermalink() + "\">"
+                                + articleReward.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleRewardLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_COMMENT_REWARD:
-                        final JSONObject reward14 = rewardMapper.get(dataId);
-                        JSONObject user14;
+                    case PointtransferUtil.TRANSFER_TYPE_C_COMMENT_REWARD:
+                        final Reward reward14 = rewardMapper.get(dataId);
+                        UserExt user14;
                         if ("14In".equals(typeStr)) {
                             user14 = userMapper.get(fromId);
                         } else {
                             user14 = userMapper.get(toId);
                         }
-                        final String userLink14 = UserExt.getUserLink(user14);
-                        desTemplate = desTemplate.replace("{user}", userLink14);
-                        final String articleId14 = reward14.optString(Reward.DATA_ID);
-                        final JSONObject article14 = articleMapper.get(articleId14);
-                        if (null == article14) {
+                        final String commentId14 = reward14.getDataId();
+                        final Comment comment14 = commentMapper.get(commentId14);
+                        if (null == comment14) {
                             desTemplate = langPropsService.get("removedLabel");
 
                             break;
                         }
-                        final String articleLink14 = "<a href=\""
-                                + article14.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + article14.optString(Article.ARTICLE_TITLE) + "</a>";
-                        desTemplate = desTemplate.replace("{article}", articleLink14);
+
+                        final String articleId14 = comment14.getCommentOnArticleId();
+
+                        final String userLink14 = UserExtUtil.getUserLink(user14);
+                        desTemplate = desTemplate.replace("{user}", userLink14);
+
+                        final Article article14 = articleMapper.get(articleId14);
+                        final String articleLink = "<a href=\""
+                                + article14.getArticlePermalink() + "\">"
+                                + article14.getArticleTitle() + "</a>";
+                        desTemplate = desTemplate.replace("{article}", articleLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ARTICLE_THANK:
-                        final JSONObject thank22 = rewardMapper.get(dataId);
-                        JSONObject user22;
+                    case PointtransferUtil.TRANSFER_TYPE_C_ARTICLE_THANK:
+                        final Reward thank22 = rewardMapper.get(dataId);
+                        UserExt user22;
                         if ("22In".equals(typeStr)) {
                             user22 = userMapper.get(fromId);
                         } else {
                             user22 = userMapper.get(toId);
                         }
-                        final String articleId22 = thank22.optString(Reward.DATA_ID);
-                        final JSONObject article22 = articleMapper.get(articleId22);
+                        final String articleId22 = thank22.getDataId();
+                        final Article article22 = articleMapper.get(articleId22);
                         if (null == article22) {
                             desTemplate = langPropsService.get("removedLabel");
 
                             break;
                         }
 
-                        final String userLink22 = UserExt.getUserLink(user22);
+                        final String userLink22 = UserExtUtil.getUserLink(user22);
                         desTemplate = desTemplate.replace("{user}", userLink22);
 
                         final String articleLink22 = "<a href=\""
-                                + article22.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + article22.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + article22.getArticlePermalink() + "\">"
+                                + article22.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", articleLink22);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_INVITE_REGISTER:
-                        final JSONObject newUser = userMapper.get(dataId);
-                        final String newUserLink = UserExt.getUserLink(newUser);
+                    case PointtransferUtil.TRANSFER_TYPE_C_INVITE_REGISTER:
+                        final UserExt newUser = userMapper.get(dataId);
+                        final String newUserLink = UserExtUtil.getUserLink(newUser);
                         desTemplate = desTemplate.replace("{user}", newUserLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_INVITED_REGISTER:
-                        final JSONObject referralUser = userMapper.get(dataId);
-                        final String referralUserLink = UserExt.getUserLink(referralUser);
+                    case PointtransferUtil.TRANSFER_TYPE_C_INVITED_REGISTER:
+                        final UserExt referralUser = userMapper.get(dataId);
+                        final String referralUserLink = UserExtUtil.getUserLink(referralUser);
                         desTemplate = desTemplate.replace("{user}", referralUserLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_INVITECODE_USED:
-                        final JSONObject newUser1 = userMapper.get(dataId);
-                        final String newUserLink1 = UserExt.getUserLink(newUser1);
+                    case PointtransferUtil.TRANSFER_TYPE_C_INVITECODE_USED:
+                        final UserExt newUser1 = userMapper.get(dataId);
+                        final String newUserLink1 = UserExtUtil.getUserLink(newUser1);
                         desTemplate = desTemplate.replace("{user}", newUserLink1);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_CHECKIN:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001_COLLECT:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_CHARACTER:
-                    case Pointtransfer.TRANSFER_TYPE_C_BUY_INVITECODE:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE_COLLECT:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_GOBANG:
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_GOBANG_COLLECT:
-                    case Pointtransfer.TRANSFER_TYPE_C_REPORT_HANDLED:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHECKIN:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_YESTERDAY_LIVENESS_REWARD:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001_COLLECT:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHARACTER:
+                    case PointtransferUtil.TRANSFER_TYPE_C_BUY_INVITECODE:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_EATINGSNAKE_COLLECT:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_GOBANG:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_GOBANG_COLLECT:
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_AT_PARTICIPANTS:
-                        final JSONObject comment20 = commentMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_AT_PARTICIPANTS:
+                        final Comment comment20 = commentMapper.get(dataId);
                         if (null == comment20) {
                             desTemplate = langPropsService.get("removedLabel");
 
                             break;
                         }
 
-                        final String articleId20 = comment20.optString(Comment.COMMENT_ON_ARTICLE_ID);
-                        final JSONObject atParticipantsArticle = articleMapper.get(articleId20);
+                        final String articleId20 = comment20.getCommentOnArticleId();
+                        final Article atParticipantsArticle = articleMapper.get(articleId20);
                         if (null == atParticipantsArticle) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -471,13 +475,13 @@ public class PointtransferQueryService {
                         }
 
                         final String ArticleLink20 = "<a href=\""
-                                + atParticipantsArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + atParticipantsArticle.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + atParticipantsArticle.getArticlePermalink() + "\">"
+                                + atParticipantsArticle.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", ArticleLink20);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_STICK_ARTICLE:
-                        final JSONObject stickArticle = articleMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_STICK_ARTICLE:
+                        final Article stickArticle = articleMapper.get(dataId);
                         if (null == stickArticle) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -485,44 +489,44 @@ public class PointtransferQueryService {
                         }
 
                         final String stickArticleLink = "<a href=\""
-                                + stickArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + stickArticle.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + stickArticle.getArticlePermalink() + "\">"
+                                + stickArticle.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", stickArticleLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ACCOUNT2ACCOUNT:
-                        JSONObject user9;
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACCOUNT2ACCOUNT:
+                        UserExt user9;
                         if ("9In".equals(typeStr)) {
                             user9 = userMapper.get(fromId);
                         } else {
                             user9 = userMapper.get(toId);
                         }
 
-                        final String userLink = UserExt.getUserLink(user9);
+                        final String userLink = UserExtUtil.getUserLink(user9);
                         desTemplate = desTemplate.replace("{user}", userLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_CHECKIN_STREAK:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_CHECKIN_STREAK:
                         desTemplate = desTemplate.replace("{point}",
-                                String.valueOf(Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK));
+                                String.valueOf(PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK));
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_CHARGE:
+                    case PointtransferUtil.TRANSFER_TYPE_C_CHARGE:
                         final String yuan = dataId.split("-")[0];
                         desTemplate = desTemplate.replace("{yuan}", yuan);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_EXCHANGE:
+                    case PointtransferUtil.TRANSFER_TYPE_C_EXCHANGE:
                         final String exYuan = dataId;
                         desTemplate = desTemplate.replace("{yuan}", exYuan);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ABUSE_DEDUCT:
+                    case PointtransferUtil.TRANSFER_TYPE_C_ABUSE_DEDUCT:
                         desTemplate = desTemplate.replace("{action}", dataId);
-                        desTemplate = desTemplate.replace("{point}", record.optString(Pointtransfer.SUM));
+                        desTemplate = desTemplate.replace("{point}", record.optString(PointtransferUtil.SUM));
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_ADD_ARTICLE_BROADCAST:
-                        final JSONObject addArticleBroadcast = articleMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_ADD_ARTICLE_BROADCAST:
+                        final Article addArticleBroadcast = articleMapper.get(dataId);
                         if (null == addArticleBroadcast) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -530,13 +534,13 @@ public class PointtransferQueryService {
                         }
 
                         final String addArticleBroadcastLink = "<a href=\""
-                                + addArticleBroadcast.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + addArticleBroadcast.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + addArticleBroadcast.getArticlePermalink() + "\">"
+                                + addArticleBroadcast.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", addArticleBroadcastLink);
 
                         break;
-                    case Pointtransfer.TRANSFER_TYPE_C_PERFECT_ARTICLE:
-                        final JSONObject perfectArticle = articleMapper.get(dataId);
+                    case PointtransferUtil.TRANSFER_TYPE_C_PERFECT_ARTICLE:
+                        final Article perfectArticle = articleMapper.get(dataId);
                         if (null == perfectArticle) {
                             desTemplate = langPropsService.get("removedLabel");
 
@@ -544,32 +548,9 @@ public class PointtransferQueryService {
                         }
 
                         final String perfectArticleLink = "<a href=\""
-                                + perfectArticle.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + perfectArticle.optString(Article.ARTICLE_TITLE) + "</a>";
+                                + perfectArticle.getArticlePermalink() + "\">"
+                                + perfectArticle.getArticleTitle() + "</a>";
                         desTemplate = desTemplate.replace("{article}", perfectArticleLink);
-
-                        break;
-                    case Pointtransfer.TRANSFER_TYPE_C_QNA_OFFER:
-                        final JSONObject reward34 = rewardMapper.get(dataId);
-                        JSONObject user34;
-                        if ("34In".equals(typeStr)) {
-                            user34 = userMapper.get(fromId);
-                        } else {
-                            user34 = userMapper.get(toId);
-                        }
-                        final String userLink34 = UserExt.getUserLink(user34);
-                        desTemplate = desTemplate.replace("{user}", userLink34);
-                        final String articleId34 = reward34.optString(Reward.DATA_ID);
-                        final JSONObject article34 = articleMapper.get(articleId34);
-                        if (null == article34) {
-                            desTemplate = langPropsService.get("removedLabel");
-
-                            break;
-                        }
-                        final String articleLink34 = "<a href=\""
-                                + article34.optString(Article.ARTICLE_PERMALINK) + "\">"
-                                + article34.optString(Article.ARTICLE_TITLE) + "</a>";
-                        desTemplate = desTemplate.replace("{article}", articleLink34);
 
                         break;
                     default:
@@ -580,7 +561,7 @@ public class PointtransferQueryService {
 
                 record.put(Common.DESCRIPTION, desTemplate);
             }
-            JSONArray jsonArray = JsonUtil.listToJSONArray(records);
+//            JSONArray jsonArray = JsonUtil.listToJSONArray(records);
             JSONObject ret = new JSONObject();
             ret.put(Keys.RESULTS, jsonArray);
 

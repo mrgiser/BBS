@@ -24,6 +24,8 @@ public interface RewardMapper {
 
     String add(Reward reward);
 
+    Reward get(final String oId);
+
     @Select("select count(*) from reward where dataId = #{dataId} AND type = #{type}")
     Long countByDataIdAndType(final String dataId, final int type);
 
