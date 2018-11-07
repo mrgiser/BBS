@@ -27,6 +27,7 @@ import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.math.RandomUtils;
@@ -360,7 +361,8 @@ public class DataModelService {
             JSONObject curUser = null;
 
             try {
-                curUser = userQueryService.getCurrentUser(request);
+                UserExt userExt = userQueryService.getCurrentUser(request);
+                curUser = new JSONObject(JsonUtil.objectToJson(userExt));
             } catch ( final Exception e) {
                 LOGGER.error( "Gets the current user failed", e);
             }
@@ -457,11 +459,11 @@ public class DataModelService {
      * @param dataModel the specified data entity
      */
     private void fillSideAd(final Map<String, Object> dataModel) {
-        final JSONObject adOption = optionQueryService.getOption(OptionUtil.ID_C_SIDE_FULL_AD);
+        final Option adOption = optionQueryService.getOption(OptionUtil.ID_C_SIDE_FULL_AD);
         if (null == adOption) {
             dataModel.put("ADLabel", "");
         } else {
-            dataModel.put("ADLabel", adOption.optString(OptionUtil.OPTION_VALUE));
+            dataModel.put("ADLabel", adOption.getOptionValue());
         }
     }
 
@@ -499,11 +501,11 @@ public class DataModelService {
      * @param dataModel the specified data entity
      */
     private void fillHeaderBanner(final Map<String, Object> dataModel) {
-        final JSONObject adOption = optionQueryService.getOption(OptionUtil.ID_C_HEADER_BANNER);
+        final Option adOption = optionQueryService.getOption(OptionUtil.ID_C_HEADER_BANNER);
         if (null == adOption) {
             dataModel.put("HeaderBannerLabel", "");
         } else {
-            dataModel.put("HeaderBannerLabel", adOption.optString(OptionUtil.OPTION_VALUE));
+            dataModel.put("HeaderBannerLabel", adOption.getOptionValue());
         }
     }
 
