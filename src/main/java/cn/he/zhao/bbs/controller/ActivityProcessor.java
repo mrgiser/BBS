@@ -18,10 +18,15 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.entityUtil.PointtransferUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.GeetestLib;
@@ -132,7 +137,7 @@ public class ActivityProcessor {
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
@@ -226,16 +231,16 @@ public class ActivityProcessor {
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
         dataModelService.fillLatestCmts(dataModel);
 
-        dataModel.put("pointActivityCheckinMin", Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MIN);
-        dataModel.put("pointActivityCheckinMax", Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MAX);
-        dataModel.put("pointActivityCheckinStreak", Pointtransfer.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK);
+        dataModel.put("pointActivityCheckinMin", PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MIN);
+        dataModel.put("pointActivityCheckinMax", PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKIN_MAX);
+        dataModel.put("pointActivityCheckinStreak", PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_CHECKINT_STREAK);
         dataModel.put("activitYesterdayLivenessRewardMaxPoint",
                 Symphonys.getInt("activitYesterdayLivenessReward.maxPoint"));
         return result;
@@ -272,7 +277,7 @@ public class ActivityProcessor {
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
@@ -409,12 +414,12 @@ public class ActivityProcessor {
             if (participated) {
                 dataModel.put(Common.HOUR, hour);
 
-                final List<JSONObject> records = pointtransferQueryService.getLatestPointtransfers(userId,
-                        Pointtransfer.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
-                final JSONObject pointtransfer = records.get(0);
-                final String data = pointtransfer.optString(Pointtransfer.DATA_ID);
+                final List<Pointtransfer> records = pointtransferQueryService.getLatestPointtransfers(userId,
+                        PointtransferUtil.TRANSFER_TYPE_C_ACTIVITY_1A0001, 1);
+                final Pointtransfer pointtransfer = records.get(0);
+                final String data = pointtransfer.getDataId();
                 final String smallOrLarge = data.split("-")[1];
-                final int sum = pointtransfer.optInt(Pointtransfer.SUM);
+                final int sum = pointtransfer.getSum();
                 String msg = langPropsService.get("activity1A0001BetedLabel");
                 final String small = langPropsService.get("activity1A0001BetSmallLabel");
                 final String large = langPropsService.get("activity1A0001BetLargeLabel");
@@ -436,7 +441,7 @@ public class ActivityProcessor {
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
@@ -542,7 +547,7 @@ public class ActivityProcessor {
         String result = "/activity/eating-snake.ftl";
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
@@ -649,13 +654,13 @@ public class ActivityProcessor {
 
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
 
         String pointActivityGobang = langPropsService.get("activityStartGobangTipLabel");
-        pointActivityGobang = pointActivityGobang.replace("{point}", String.valueOf(Pointtransfer.TRANSFER_SUM_C_ACTIVITY_GOBANG_START));
+        pointActivityGobang = pointActivityGobang.replace("{point}", String.valueOf(PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_GOBANG_START));
         dataModel.put("activityStartGobangTipLabel", pointActivityGobang);
 
         return result;
@@ -676,7 +681,7 @@ public class ActivityProcessor {
 
         final JSONObject ret = Results.falseResult();
 
-        final boolean succ = currentUser.optInt(UserExt.USER_POINT) - Pointtransfer.TRANSFER_SUM_C_ACTIVITY_GOBANG_START >= 0;
+        final boolean succ = currentUser.optInt(UserExtUtil.USER_POINT) - PointtransferUtil.TRANSFER_SUM_C_ACTIVITY_GOBANG_START >= 0;
         ret.put(Keys.STATUS_CODE, succ);
 
         final String msg = succ ? "started" : langPropsService.get("activityStartGobangFailLabel");
