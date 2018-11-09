@@ -18,6 +18,9 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.entityUtil.feed.RSSCategory;
 import cn.he.zhao.bbs.entityUtil.feed.RSSChannel;
 import cn.he.zhao.bbs.entityUtil.feed.RSSItem;
@@ -102,8 +105,8 @@ public class FeedProcessor {
 
 
             final RSSChannel channel = new RSSChannel();
-            final JSONObject result = articleQueryService.getRecentArticles(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, 0, 1, Symphonys.getInt("indexArticlesCnt"));
-            final List<JSONObject> articles = (List<JSONObject>) result.get(Article.ARTICLES);
+            final JSONObject result = articleQueryService.getRecentArticles(UserExtUtil.USER_AVATAR_VIEW_MODE_C_STATIC, 0, 1, Symphonys.getInt("indexArticlesCnt"));
+            final List<JSONObject> articles = (List<JSONObject>) result.get(ArticleUtil.ARTICLES);
             for (int i = 0; i < articles.size(); i++) {
                 RSSItem item = getItem(articles, i);
                 channel.addItem(item);
@@ -113,7 +116,7 @@ public class FeedProcessor {
             channel.setLink( SpringUtil.getServerPath());
             channel.setAtomLink( SpringUtil.getServerPath() + "/rss/recent.xml");
             channel.setGenerator("Symphony v" + SpringUtil.VERSION + ", https://sym.b3log.org");
-            final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
+            final String localeString = optionQueryService.getOption("miscLanguage").getOptionValue();
             final String country = Locales.getCountry(localeString).toLowerCase();
             final String language = Locales.getLanguage(localeString).toLowerCase();
             channel.setLanguage(language + '-' + country);
@@ -149,7 +152,7 @@ public class FeedProcessor {
             response.setCharacterEncoding("UTF-8");
             PrintWriter writer = response.getWriter();
 
-            final JSONObject domain = domainQueryService.getByURI(domainURI);
+            final Domain domain = domainQueryService.getByURI(domainURI);
             if (null == domain) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -157,9 +160,9 @@ public class FeedProcessor {
             }
 
             final RSSChannel channel = new RSSChannel();
-            final String domainId = domain.optString(Keys.OBJECT_ID);
-            final JSONObject result = articleQueryService.getDomainArticles(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, domainId, 1, Symphonys.getInt("indexArticlesCnt"));
-            final List<JSONObject> articles = (List<JSONObject>) result.get(Article.ARTICLES);
+            final String domainId = domain.getOid();
+            final JSONObject result = articleQueryService.getDomainArticles(UserExtUtil.USER_AVATAR_VIEW_MODE_C_STATIC, domainId, 1, Symphonys.getInt("indexArticlesCnt"));
+            final List<JSONObject> articles = (List<JSONObject>) result.get(ArticleUtil.ARTICLES);
             for (int i = 0; i < articles.size(); i++) {
                 RSSItem item = getItem(articles, i);
                 channel.addItem(item);
@@ -169,7 +172,7 @@ public class FeedProcessor {
             channel.setLink( SpringUtil.getServerPath());
             channel.setAtomLink( SpringUtil.getServerPath() + "/rss/" + domainURI + ".xml");
             channel.setGenerator("Symphony v" + SpringUtil.VERSION + ", https://sym.b3log.org");
-            final String localeString = optionQueryService.getOption("miscLanguage").optString(Option.OPTION_VALUE);
+            final String localeString = optionQueryService.getOption("miscLanguage").getOptionValue();
             final String country = Locales.getCountry(localeString).toLowerCase();
             final String language = Locales.getLanguage(localeString).toLowerCase();
             channel.setLanguage(language + '-' + country);
@@ -192,19 +195,19 @@ public class FeedProcessor {
     private RSSItem getItem(final List<JSONObject> articles, int i) throws org.json.JSONException {
         final JSONObject article = articles.get(i);
         final RSSItem ret = new RSSItem();
-        String title = article.getString(Article.ARTICLE_TITLE);
+        String title = article.getString(ArticleUtil.ARTICLE_TITLE);
         title = Emotions.toAliases(title);
         ret.setTitle(title);
-        String description = article.getString(Article.ARTICLE_T_PREVIEW_CONTENT);
+        String description = article.getString(ArticleUtil.ARTICLE_T_PREVIEW_CONTENT);
         description = Emotions.toAliases(description);
         ret.setDescription(description);
-        final Date pubDate = (Date) article.get(Article.ARTICLE_UPDATE_TIME);
+        final Date pubDate = (Date) article.get(ArticleUtil.ARTICLE_UPDATE_TIME);
         ret.setPubDate(pubDate);
-        final String link =  SpringUtil.getServerPath() + article.getString(Article.ARTICLE_PERMALINK);
+        final String link =  SpringUtil.getServerPath() + article.getString(ArticleUtil.ARTICLE_PERMALINK);
         ret.setLink(link);
         ret.setGUID(link);
-        ret.setAuthor(article.optString(Article.ARTICLE_T_AUTHOR_NAME));
-        final String tagsString = article.getString(Article.ARTICLE_TAGS);
+        ret.setAuthor(article.optString(ArticleUtil.ARTICLE_T_AUTHOR_NAME));
+        final String tagsString = article.getString(ArticleUtil.ARTICLE_TAGS);
         final String[] tagStrings = tagsString.split(",");
         for (final String tagString : tagStrings) {
             final RSSCategory catetory = new RSSCategory();

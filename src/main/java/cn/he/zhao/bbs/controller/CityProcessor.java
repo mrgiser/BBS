@@ -19,11 +19,19 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Symphonys;
+import com.qiniu.util.Json;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +127,7 @@ public class CityProcessor {
 
         dataModel.put(Common.CURRENT, "");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
@@ -127,27 +135,28 @@ public class CityProcessor {
         dataModelService.fillLatestCmts(dataModel);
 
         List<JSONObject> articles = new ArrayList<>();
-        dataModel.put(Article.ARTICLES, articles); // an empty list to avoid null check in template
+        dataModel.put(ArticleUtil.ARTICLES, articles); // an empty list to avoid null check in template
         dataModel.put(Common.SELECTED, Common.CITY);
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
-        if (!UserExt.finshedGuide(user)) {
+        UserExt userExt = JsonUtil.json2Bean(user.toString(),UserExt.class);
+        if (!UserExtUtil.finshedGuide(userExt)) {
             return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
 //            return;
         }
 
-        dataModel.put(UserExt.USER_GEO_STATUS, true);
+        dataModel.put(UserExtUtil.USER_GEO_STATUS, true);
         dataModel.put(Common.CITY_FOUND, true);
         dataModel.put(Common.CITY, langService.get("sameCityLabel"));
 
-        if (UserExt.USER_GEO_STATUS_C_PUBLIC != user.optInt(UserExt.USER_GEO_STATUS)) {
-            dataModel.put(UserExt.USER_GEO_STATUS, false);
+        if (UserExtUtil.USER_GEO_STATUS_C_PUBLIC != user.optInt(UserExtUtil.USER_GEO_STATUS)) {
+            dataModel.put(UserExtUtil.USER_GEO_STATUS, false);
 
             return url;
         }
 
-        final String userCity = user.optString(UserExt.USER_CITY);
+        final String userCity = user.optString(UserExtUtil.USER_CITY);
 
         String queryCity = city;
         if ("my".equals(city)) {
@@ -164,16 +173,16 @@ public class CityProcessor {
         }
 
         final int pageNum = Paginator.getPage(request);
-        final int pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+        final int pageSize = user.optInt(UserExtUtil.USER_LIST_PAGE_SIZE);
         final int windowSize = Symphonys.getInt("cityArticlesWindowSize");
 
-        final JSONObject statistic = optionQueryService.getOption(queryCity + "-ArticleCount");
+        final Option statistic = optionQueryService.getOption(queryCity + "-ArticleCount");
         if (null != statistic) {
             articles = articleQueryService.getArticlesByCity(avatarViewMode, queryCity, pageNum, pageSize);
-            dataModel.put(Article.ARTICLES, articles);
+            dataModel.put(ArticleUtil.ARTICLES, articles);
         }
 
-        final int articleCnt = null == statistic ? 0 : statistic.optInt(Option.OPTION_VALUE);
+        final int articleCnt = null == statistic ? 0 : Integer.getInteger(statistic.getOptionValue());
         final int pageCount = (int) Math.ceil(articleCnt / (double) pageSize);
 
         final List<Integer> pageNums = Paginator.paginate(pageNum, pageSize, pageCount, windowSize);
@@ -216,7 +225,7 @@ public class CityProcessor {
 
         dataModel.put(Common.CURRENT, "/users");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
@@ -227,22 +236,23 @@ public class CityProcessor {
         dataModel.put(Common.SELECTED, Common.CITY);
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
-        if (!UserExt.finshedGuide(user)) {
+        UserExt userExt = JsonUtil.json2Bean(user.toString(),UserExt.class);
+        if (!UserExtUtil.finshedGuide(userExt)) {
             return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
 //            return;
         }
 
-        dataModel.put(UserExt.USER_GEO_STATUS, true);
+        dataModel.put(UserExtUtil.USER_GEO_STATUS, true);
         dataModel.put(Common.CITY_FOUND, true);
         dataModel.put(Common.CITY, langService.get("sameCityLabel"));
-        if (UserExt.USER_GEO_STATUS_C_PUBLIC != user.optInt(UserExt.USER_GEO_STATUS)) {
-            dataModel.put(UserExt.USER_GEO_STATUS, false);
+        if (UserExtUtil.USER_GEO_STATUS_C_PUBLIC != user.optInt(UserExtUtil.USER_GEO_STATUS)) {
+            dataModel.put(UserExtUtil.USER_GEO_STATUS, false);
 
             return url;
         }
 
-        final String userCity = user.optString(UserExt.USER_CITY);
+        final String userCity = user.optString(UserExtUtil.USER_CITY);
 
         String queryCity = city;
         if ("my".equals(city)) {
@@ -268,8 +278,8 @@ public class CityProcessor {
         requestJSONObject.put(Pagination.PAGINATION_PAGE_SIZE, pageSize);
         requestJSONObject.put(Pagination.PAGINATION_WINDOW_SIZE, windowSize);
         final long latestLoginTime = DateUtils.addDays(new Date(), Integer.MIN_VALUE).getTime(); // all users
-        requestJSONObject.put(UserExt.USER_LATEST_LOGIN_TIME, latestLoginTime);
-        requestJSONObject.put(UserExt.USER_CITY, queryCity);
+        requestJSONObject.put(UserExtUtil.USER_LATEST_LOGIN_TIME, latestLoginTime);
+        requestJSONObject.put(UserExtUtil.USER_CITY, queryCity);
         final JSONObject result = userQueryService.getUsersByCity(requestJSONObject);
         final JSONArray cityUsers = result.optJSONArray(User.USERS);
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);

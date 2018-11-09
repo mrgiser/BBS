@@ -19,10 +19,18 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.channel.ChatRoomChannel;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.CommentUtil;
+import cn.he.zhao.bbs.entityUtil.NotificationUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.service.*;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.util.Emotions;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Markdowns;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.validate.ChatMsgAddValidation;
@@ -139,13 +147,13 @@ public class ChatRoomProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         try {
-            final JSONObject xiaoV = userQueryService.getUserByName(TuringQueryService.ROBOT_NAME);
+            final UserExt xiaoV = userQueryService.getUserByName(TuringQueryService.ROBOT_NAME);
             if (null == xiaoV) {
                 return;
             }
 
-            final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
-            final String xiaoVUserId = xiaoV.optString(Keys.OBJECT_ID);
+            final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
+            final String xiaoVUserId = xiaoV.getOid();
             final JSONObject atResult = notificationQueryService.getAtNotifications(
                     avatarViewMode, xiaoVUserId, 1, 1); // Just get the latest one
             final List<JSONObject> notifications = (List<JSONObject>) atResult.get(Keys.RESULTS);
@@ -153,21 +161,21 @@ public class ChatRoomProcessor {
                     avatarViewMode, xiaoVUserId, 1, 1); // Just get the latest one
             notifications.addAll((List<JSONObject>) replyResult.get(Keys.RESULTS));
             for (final JSONObject notification : notifications) {
-                if (notification.optBoolean(Notification.NOTIFICATION_HAS_READ)) {
+                if (notification.optBoolean(NotificationUtil.NOTIFICATION_HAS_READ)) {
                     continue;
                 }
 
                 notificationMgmtService.makeRead(notification);
 
-                String articleId = notification.optString(Article.ARTICLE_T_ID);
+                String articleId = notification.optString(ArticleUtil.ARTICLE_T_ID);
                 String q = null;
-                final int dataType = notification.optInt(Notification.NOTIFICATION_DATA_TYPE);
+                final int dataType = notification.optInt(NotificationUtil.NOTIFICATION_DATA_TYPE);
                 switch (dataType) {
-                    case Notification.DATA_TYPE_C_AT:
+                    case NotificationUtil.DATA_TYPE_C_AT:
                         q = notification.optString(Common.CONTENT);
                         break;
-                    case Notification.DATA_TYPE_C_REPLY:
-                        q = notification.optString(Comment.COMMENT_CONTENT);
+                    case NotificationUtil.DATA_TYPE_C_REPLY:
+                        q = notification.optString(CommentUtil.COMMENT_CONTENT);
                         break;
                     default:
                         LOGGER.warn("Unknown notificat data type [" + dataType + "] for XiaoV reply");
@@ -181,10 +189,10 @@ public class ChatRoomProcessor {
 
                     xiaoVSaid = turingQueryService.chat(articleId, q);
 
-                    comment.put(Comment.COMMENT_CONTENT, xiaoVSaid);
-                    comment.put(Comment.COMMENT_AUTHOR_ID, xiaoVUserId);
-                    comment.put(Comment.COMMENT_ON_ARTICLE_ID, articleId);
-                    comment.put(Comment.COMMENT_ORIGINAL_COMMENT_ID, notification.optString(Comment.COMMENT_T_ID));
+                    comment.put(CommentUtil.COMMENT_CONTENT, xiaoVSaid);
+                    comment.put(CommentUtil.COMMENT_AUTHOR_ID, xiaoVUserId);
+                    comment.put(CommentUtil.COMMENT_ON_ARTICLE_ID, articleId);
+                    comment.put(CommentUtil.COMMENT_ORIGINAL_COMMENT_ID, notification.optString(CommentUtil.COMMENT_T_ID));
 
                     commentMgmtService.addComment(comment);
                 }
@@ -237,7 +245,7 @@ public class ChatRoomProcessor {
 
         final JSONObject msg = new JSONObject();
         msg.put(User.USER_NAME, userName);
-        msg.put(UserExt.USER_AVATAR_URL, currentUser.optString(UserExt.USER_AVATAR_URL));
+        msg.put(UserExtUtil.USER_AVATAR_URL, currentUser.optString(UserExtUtil.USER_AVATAR_URL));
         msg.put(Common.CONTENT, content);
 
         ChatRoomChannel.notifyChat(msg);
@@ -254,7 +262,7 @@ public class ChatRoomProcessor {
             if (null != xiaoVSaid) {
                 final JSONObject xiaoVMsg = new JSONObject();
                 xiaoVMsg.put(User.USER_NAME, TuringQueryService.ROBOT_NAME);
-                xiaoVMsg.put(UserExt.USER_AVATAR_URL, TuringQueryService.ROBOT_AVATAR + "?imageView2/1/w/48/h/48/interlace/0/q/100");
+                xiaoVMsg.put(UserExtUtil.USER_AVATAR_URL, TuringQueryService.ROBOT_AVATAR + "?imageView2/1/w/48/h/48/interlace/0/q/100");
                 xiaoVMsg.put(Common.CONTENT, "<p>@" + userName + " " + xiaoVSaid + "</p>");
 
                 ChatRoomChannel.notifyChat(xiaoVMsg);
@@ -268,9 +276,10 @@ public class ChatRoomProcessor {
 
         dataModel.put(Keys.STATUS_CODE,true);
 
-        currentUser.put(UserExt.USER_LATEST_CMT_TIME, System.currentTimeMillis());
+        currentUser.put(UserExtUtil.USER_LATEST_CMT_TIME, System.currentTimeMillis());
         try {
-            userMgmtService.updateUser(currentUser.optString(Keys.OBJECT_ID), currentUser);
+            UserExt userExt = JsonUtil.json2Bean(currentUser.toString(),UserExt.class);
+            userMgmtService.updateUser(currentUser.optString(Keys.OBJECT_ID), userExt);
         } catch (final Exception e) {
             LOGGER.error( "Update user latest comment time failed", e);
         }
@@ -316,7 +325,7 @@ public class ChatRoomProcessor {
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
@@ -366,7 +375,7 @@ public class ChatRoomProcessor {
         final String defaultAvatarURL = Symphonys.get("defaultThumbnailURL");
         final JSONObject chatroomMsg = new JSONObject();
         chatroomMsg.put(User.USER_NAME, user);
-        chatroomMsg.put(UserExt.USER_AVATAR_URL, defaultAvatarURL);
+        chatroomMsg.put(UserExtUtil.USER_AVATAR_URL, defaultAvatarURL);
         chatroomMsg.put(Common.CONTENT, msg);
 
         ChatRoomChannel.notifyChat(chatroomMsg);

@@ -19,7 +19,11 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.service.*;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -105,35 +109,35 @@ public class DomainProcessor {
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.getUserListPageSize();
 
-            if (!UserExt.finshedGuide(user)) {
+            if (!UserExtUtil.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             }
         }
 
-        final JSONObject domain = domainQueryService.getByURI(domainURI);
+        final Domain domain = domainQueryService.getByURI(domainURI);
         if (null == domain) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return null;
         }
 
-        final List<JSONObject> tags = domainQueryService.getTags(domain.optString(Keys.OBJECT_ID));
-        domain.put(Domain.DOMAIN_T_TAGS, (Object) tags);
+        final List<Tag> tags = domainQueryService.getTags(domain.getOid());
+        domain.setDomainTags((Object) tags);
 
-        dataModel.put(Domain.DOMAIN, domain);
-        dataModel.put(Common.SELECTED, domain.optString(Domain.DOMAIN_URI));
+        dataModel.put(DomainUtil.DOMAIN, domain);
+        dataModel.put(Common.SELECTED, domain.getDomainURI());
 
-        final String domainId = domain.optString(Keys.OBJECT_ID);
+        final String domainId = domain.getOid();
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = articleQueryService.getDomainArticles(avatarViewMode, domainId, pageNum, pageSize);
-        final List<JSONObject> latestArticles = (List<JSONObject>) result.opt(Article.ARTICLES);
+        final List<JSONObject> latestArticles = (List<JSONObject>) result.opt(ArticleUtil.ARTICLES);
         dataModel.put(Common.LATEST_ARTICLES, latestArticles);
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
@@ -183,13 +187,13 @@ public class DomainProcessor {
         String url = "domains.ftl";
 
         final JSONObject statistic = optionQueryService.getStatistic();
-        final int tagCnt = statistic.optInt(Option.ID_C_STATISTIC_TAG_COUNT);
-        dataModel.put(Tag.TAG_T_COUNT, tagCnt);
+        final int tagCnt = statistic.optInt(OptionUtil.ID_C_STATISTIC_TAG_COUNT);
+        dataModel.put(TagUtil.TAG_T_COUNT, tagCnt);
 
-        final int domainCnt = statistic.optInt(Option.ID_C_STATISTIC_DOMAIN_COUNT);
-        dataModel.put(Domain.DOMAIN_T_COUNT, domainCnt);
+        final int domainCnt = statistic.optInt(OptionUtil.ID_C_STATISTIC_DOMAIN_COUNT);
+        dataModel.put(DomainUtil.DOMAIN_T_COUNT, domainCnt);
 
-        final List<JSONObject> domains = domainQueryService.getAllDomains();
+        final List<Domain> domains = domainQueryService.getAllDomains();
         dataModel.put(Common.ALL_DOMAINS, domains);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);

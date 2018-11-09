@@ -19,15 +19,18 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.BreezemoonUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
-import cn.he.zhao.bbs.util.Headers;
-import cn.he.zhao.bbs.util.Sessions;
-import cn.he.zhao.bbs.util.StatusCodes;
-import cn.he.zhao.bbs.util.Symphonys;
+import cn.he.zhao.bbs.util.*;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,13 +117,14 @@ public class BreezemoonProcessor {
         String url = "breezemoon.ftl";
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         final JSONObject user = Sessions.currentUser(request);
         String currentUserId = null;
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.optInt(UserExtUtil.USER_LIST_PAGE_SIZE);
 
-            if (!UserExt.finshedGuide(user)) {
+            UserExt userExt = JsonUtil.json2Bean(user.toString(),UserExt.class);
+            if (!UserExtUtil.finshedGuide(userExt)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
 //                return;
@@ -130,8 +134,8 @@ public class BreezemoonProcessor {
         }
 
         final int windowSize = Symphonys.getInt("latestArticlesWindowSize");
-        final JSONObject result = breezemoonQueryService.getFollowingUserBreezemoons(avatarViewMode, currentUserId, pageNum, pageSize, windowSize);
-        final List<JSONObject> bms = (List<JSONObject>) result.opt(Breezemoon.BREEZEMOONS);
+        final PageInfo<Breezemoon> result = breezemoonQueryService.getFollowingUserBreezemoons(avatarViewMode, currentUserId, pageNum, pageSize, windowSize);
+        final List<Breezemoon> bms =  result.getList();
         dataModel.put(Common.WATCHING_BREEZEMOONS, bms);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
@@ -174,15 +178,15 @@ public class BreezemoonProcessor {
         }
 
         final JSONObject breezemoon = new JSONObject();
-        final String breezemoonContent = requestJSONObject.optString(Breezemoon.BREEZEMOON_CONTENT);
-        breezemoon.put(Breezemoon.BREEZEMOON_CONTENT, breezemoonContent);
+        final String breezemoonContent = requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_CONTENT);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_CONTENT, breezemoonContent);
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String authorId = user.optString(Keys.OBJECT_ID);
-        breezemoon.put(Breezemoon.BREEZEMOON_AUTHOR_ID, authorId);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_AUTHOR_ID, authorId);
         final String ip = Requests.getRemoteAddr(request);
-        breezemoon.put(Breezemoon.BREEZEMOON_IP, ip);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_IP, ip);
         final String ua = Headers.getHeader(request, Common.USER_AGENT);
-        breezemoon.put(Breezemoon.BREEZEMOON_UA, ua);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_UA, ua);
 
         try {
             breezemoonMgmtService.addBreezemoon(breezemoon);
@@ -224,15 +228,15 @@ public class BreezemoonProcessor {
 
         final JSONObject breezemoon = new JSONObject();
         breezemoon.put(Keys.OBJECT_ID, id);
-        final String breezemoonContent = requestJSONObject.optString(Breezemoon.BREEZEMOON_CONTENT);
-        breezemoon.put(Breezemoon.BREEZEMOON_CONTENT, breezemoonContent);
+        final String breezemoonContent = requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_CONTENT);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_CONTENT, breezemoonContent);
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String authorId = user.optString(Keys.OBJECT_ID);
-        breezemoon.put(Breezemoon.BREEZEMOON_AUTHOR_ID, authorId);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_AUTHOR_ID, authorId);
         final String ip = Requests.getRemoteAddr(request);
-        breezemoon.put(Breezemoon.BREEZEMOON_IP, ip);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_IP, ip);
         final String ua = Headers.getHeader(request, Common.USER_AGENT);
-        breezemoon.put(Breezemoon.BREEZEMOON_UA, ua);
+        breezemoon.put(BreezemoonUtil.BREEZEMOON_UA, ua);
 
         try {
             breezemoonMgmtService.updateBreezemoon(breezemoon);
@@ -272,7 +276,7 @@ public class BreezemoonProcessor {
     }
 
     private boolean isInvalid(Map<String, Object> dataModel, final JSONObject requestJSONObject) {
-        String breezemoonContent = requestJSONObject.optString(Breezemoon.BREEZEMOON_CONTENT);
+        String breezemoonContent = requestJSONObject.optString(BreezemoonUtil.BREEZEMOON_CONTENT);
         breezemoonContent = StringUtils.trim(breezemoonContent);
         final int length = StringUtils.length(breezemoonContent);
         if (1 > length || 512 < length) {
@@ -289,7 +293,7 @@ public class BreezemoonProcessor {
             return true;
         }
 
-        requestJSONObject.put(Breezemoon.BREEZEMOON_CONTENT, breezemoonContent);
+        requestJSONObject.put(BreezemoonUtil.BREEZEMOON_CONTENT, breezemoonContent);
 
         return false;
     }
