@@ -17,6 +17,9 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.entityUtil.ReportUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.util.StatusCodes;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
@@ -80,17 +83,17 @@ public class ReportProcessor {
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
-        final String dataId = requestJSONObject.optString(Report.REPORT_DATA_ID);
-        final int dataType = requestJSONObject.optInt(Report.REPORT_DATA_TYPE);
-        final int type = requestJSONObject.optInt(Report.REPORT_TYPE);
-        final String memo = StringUtils.trim(requestJSONObject.optString(Report.REPORT_MEMO));
+        final String dataId = requestJSONObject.optString(ReportUtil.REPORT_DATA_ID);
+        final int dataType = requestJSONObject.optInt(ReportUtil.REPORT_DATA_TYPE);
+        final int type = requestJSONObject.optInt(ReportUtil.REPORT_TYPE);
+        final String memo = StringUtils.trim(requestJSONObject.optString(ReportUtil.REPORT_MEMO));
 
-        final JSONObject report = new JSONObject();
-        report.put(Report.REPORT_USER_ID, userId);
-        report.put(Report.REPORT_DATA_ID, dataId);
-        report.put(Report.REPORT_DATA_TYPE, dataType);
-        report.put(Report.REPORT_TYPE, type);
-        report.put(Report.REPORT_MEMO, memo);
+        final Report report = new Report();
+        report.setReportUserId(userId);
+        report.setReportDataId(dataId);
+        report.setReportDataType(dataType);
+        report.setReportType(type);
+        report.setReportMemo(memo);
 
         try {
             reportMgmtService.addReport(report);
