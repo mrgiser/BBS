@@ -18,9 +18,15 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.entityUtil.LinkUtil;
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.service.*;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Networks;
@@ -135,17 +141,17 @@ public class LinkForgeProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "other/link-forge.ftl";
 
-        final List<JSONObject> tags = linkForgeQueryService.getForgedLinks();
-        dataModel.put(Tag.TAGS, (Object) tags);
+        final List<Tag> tags = linkForgeQueryService.getForgedLinks();
+        dataModel.put(TagUtil.TAGS, (Object) tags);
 
         dataModel.put(Common.SELECTED, Common.FORGE);
 
         final JSONObject statistic = optionQueryService.getStatistic();
-        final int tagCnt = statistic.optInt(Option.ID_C_STATISTIC_TAG_COUNT);
-        dataModel.put(Tag.TAG_T_COUNT, tagCnt);
+        final int tagCnt = statistic.optInt(OptionUtil.ID_C_STATISTIC_TAG_COUNT);
+        dataModel.put(TagUtil.TAG_T_COUNT, tagCnt);
 
-        final int linkCnt = statistic.optInt(Option.ID_C_STATISTIC_LINK_COUNT);
-        dataModel.put(Link.LINK_T_COUNT, linkCnt);
+        final int linkCnt = statistic.optInt(OptionUtil.ID_C_STATISTIC_LINK_COUNT);
+        dataModel.put(LinkUtil.LINK_T_COUNT, linkCnt);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
