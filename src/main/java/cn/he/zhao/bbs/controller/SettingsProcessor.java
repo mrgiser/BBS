@@ -17,9 +17,14 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Languages;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.util.TimeZones;
@@ -189,8 +194,8 @@ public class SettingsProcessor {
 
         final String userId = user.optString(Keys.OBJECT_ID);
         try {
-            JSONObject verifycode = verifycodeQueryService.getVerifycodeByUserId(Verifycode.TYPE_C_EMAIL, Verifycode.BIZ_TYPE_C_BIND_EMAIL, userId);
-            if (null != verifycode) {
+            Verifycode verifycode1 = verifycodeQueryService.getVerifycodeByUserId(VerifycodeUtil.TYPE_C_EMAIL, VerifycodeUtil.BIZ_TYPE_C_BIND_EMAIL, userId);
+            if (null != verifycode1) {
 //                context.renderTrueResult().renderMsg(langPropsService.get("vcSentLabel"));
                 dataModel.put(Keys.STATUS_CODE,false);
                 dataModel.put(Keys.MSG,langPropsService.get("vcSentLabel"));
@@ -205,14 +210,14 @@ public class SettingsProcessor {
             }
 
             final String code = RandomStringUtils.randomNumeric(6);
-            verifycode = new JSONObject();
-            verifycode.put(Verifycode.USER_ID, userId);
-            verifycode.put(Verifycode.BIZ_TYPE, Verifycode.BIZ_TYPE_C_BIND_EMAIL);
-            verifycode.put(Verifycode.TYPE, Verifycode.TYPE_C_EMAIL);
-            verifycode.put(Verifycode.CODE, code);
-            verifycode.put(Verifycode.STATUS, Verifycode.STATUS_C_UNSENT);
-            verifycode.put(Verifycode.EXPIRED, DateUtils.addMinutes(new Date(), 10).getTime());
-            verifycode.put(Verifycode.RECEIVER, email);
+            Verifycode verifycode = new Verifycode();
+            verifycode.setUserId(userId);
+            verifycode.setBizType(VerifycodeUtil.BIZ_TYPE_C_BIND_EMAIL);
+            verifycode.setType(VerifycodeUtil.TYPE_C_EMAIL);
+            verifycode.setCode(code);
+            verifycode.setStatus( VerifycodeUtil.STATUS_C_UNSENT);
+            verifycode.setExpired(DateUtils.addMinutes(new Date(), 10).getTime());
+            verifycode.setReceiver( email);
             verifycodeMgmtService.addVerifycode(verifycode);
 
 //            context.renderTrueResult().renderMsg(langPropsService.get("verifycodeSentLabel"));
@@ -239,7 +244,7 @@ public class SettingsProcessor {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
         try {
-            final JSONObject verifycode = verifycodeQueryService.getVerifycodeByUserId(Verifycode.TYPE_C_EMAIL, Verifycode.BIZ_TYPE_C_BIND_EMAIL, userId);
+            final Verifycode verifycode = verifycodeQueryService.getVerifycodeByUserId(VerifycodeUtil.TYPE_C_EMAIL, VerifycodeUtil.BIZ_TYPE_C_BIND_EMAIL, userId);
             if (null == verifycode) {
                 final String msg = langPropsService.get("updateFailLabel") + " - " + langPropsService.get("captchaErrorLabel");
                 dataModel.put("msg",msg);
@@ -248,7 +253,7 @@ public class SettingsProcessor {
                 return;
             }
 
-            if (!StringUtils.equals(verifycode.optString(Verifycode.CODE), captcha)) {
+            if (!StringUtils.equals(verifycode.getCode(), captcha)) {
                 final String msg = langPropsService.get("updateFailLabel") + " - " + langPropsService.get("captchaErrorLabel");
                 dataModel.put("msg",msg);
                 dataModel.put(Common.CODE, 2);
@@ -256,10 +261,11 @@ public class SettingsProcessor {
                 return;
             }
 
-            final JSONObject user = userQueryService.getUser(userId);
-            final String email = verifycode.optString(Verifycode.RECEIVER);
-            user.put(User.USER_EMAIL, email);
-            userMgmtService.updateUserEmail(userId, user);
+            final UserExt user = userQueryService.getUser(userId);
+            final String email = verifycode.getReceiver();
+            user.setUserEmail(email);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            userMgmtService.updateUserEmail(userId, jsonObject);
             verifycodeMgmtService.removeByCode(captcha);
 
             dataModel.put(Keys.STATUS_CODE,true);
@@ -293,22 +299,22 @@ public class SettingsProcessor {
             requestJSONObject = new JSONObject();
         }
 
-        String userLanguage = requestJSONObject.optString(UserExt.USER_LANGUAGE, Locale.SIMPLIFIED_CHINESE.toString());
+        String userLanguage = requestJSONObject.optString(UserExtUtil.USER_LANGUAGE, Locale.SIMPLIFIED_CHINESE.toString());
         if (!Languages.getAvailableLanguages().contains(userLanguage)) {
             userLanguage = Locale.US.toString();
         }
 
-        String userTimezone = requestJSONObject.optString(UserExt.USER_TIMEZONE, TimeZone.getDefault().getID());
+        String userTimezone = requestJSONObject.optString(UserExtUtil.USER_TIMEZONE, TimeZone.getDefault().getID());
         if (!Arrays.asList(TimeZone.getAvailableIDs()).contains(userTimezone)) {
             userTimezone = TimeZone.getDefault().getID();
         }
 
         try {
-            final JSONObject user = userQueryService.getCurrentUser(request);
-            user.put(UserExt.USER_LANGUAGE, userLanguage);
-            user.put(UserExt.USER_TIMEZONE, userTimezone);
+            final UserExt user = userQueryService.getCurrentUser(request);
+            user.setUserLanguage(userLanguage);
+            user.setUserTimezone(userTimezone);
 
-            userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
+            userMgmtService.updateUser(user.getOid(), user);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -347,10 +353,10 @@ public class SettingsProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
         UserProcessor.fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final String userId = user.optString(Keys.OBJECT_ID);
@@ -376,7 +382,7 @@ public class SettingsProcessor {
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
         String inviteTipLabel = (String) dataModel.get("inviteTipLabel");
-        inviteTipLabel = inviteTipLabel.replace("{point}", String.valueOf(Pointtransfer.TRANSFER_SUM_C_INVITE_REGISTER));
+        inviteTipLabel = inviteTipLabel.replace("{point}", String.valueOf(PointtransferUtil.TRANSFER_SUM_C_INVITE_REGISTER));
         dataModel.put("inviteTipLabel", inviteTipLabel);
 
         String pointTransferTipLabel = (String) dataModel.get("pointTransferTipLabel");
@@ -385,7 +391,7 @@ public class SettingsProcessor {
 
         String dataExportTipLabel = (String) dataModel.get("dataExportTipLabel");
         dataExportTipLabel = dataExportTipLabel.replace("{point}",
-                String.valueOf(Pointtransfer.TRANSFER_SUM_C_DATA_EXPORT));
+                String.valueOf(PointtransferUtil.TRANSFER_SUM_C_DATA_EXPORT));
         dataModel.put("dataExportTipLabel", dataExportTipLabel);
 
         final String allowRegister = optionQueryService.getAllowRegister();
@@ -393,24 +399,24 @@ public class SettingsProcessor {
 
         String buyInvitecodeLabel = langPropsService.get("buyInvitecodeLabel");
         buyInvitecodeLabel = buyInvitecodeLabel.replace("${point}",
-                String.valueOf(Pointtransfer.TRANSFER_SUM_C_BUY_INVITECODE));
+                String.valueOf(PointtransferUtil.TRANSFER_SUM_C_BUY_INVITECODE));
         buyInvitecodeLabel = buyInvitecodeLabel.replace("${point2}",
-                String.valueOf(Pointtransfer.TRANSFER_SUM_C_INVITECODE_USED));
+                String.valueOf(PointtransferUtil.TRANSFER_SUM_C_INVITECODE_USED));
         dataModel.put("buyInvitecodeLabel", buyInvitecodeLabel);
 
-        final List<JSONObject> invitecodes = invitecodeQueryService.getValidInvitecodes(userId);
-        for (final JSONObject invitecode : invitecodes) {
+        final List<Invitecode> invitecodes = invitecodeQueryService.getValidInvitecodes(userId);
+        for (final Invitecode invitecode : invitecodes) {
             String msg = langPropsService.get("expireTipLabel");
-            msg = msg.replace("${time}", DateFormatUtils.format(invitecode.optLong(Keys.OBJECT_ID)
-                    + Symphonys.getLong("invitecode.expired"), "yyyy-MM-dd HH:mm"));
-            invitecode.put(Common.MEMO, msg);
+            msg = msg.replace("${time}", DateFormatUtils.format(Long.parseLong(invitecode.getOid()
+                    + Symphonys.getLong("invitecode.expired")), "yyyy-MM-dd HH:mm"));
+            invitecode.setMemo( msg);
         }
 
-        dataModel.put(Invitecode.INVITECODES, (Object) invitecodes);
+        dataModel.put(InvitecodeUtil.INVITECODES, (Object) invitecodes);
 
         if (requestURI.contains("function")) {
-            dataModel.put(Emotion.EMOTIONS, emotionQueryService.getEmojis(userId));
-            dataModel.put(Emotion.SHORT_T_LIST, emojiLists);
+            dataModel.put(EmotionUtil.EMOTIONS, emotionQueryService.getEmojis(userId));
+            dataModel.put(EmotionUtil.SHORT_T_LIST, emojiLists);
         }
 
         if (requestURI.contains("i18n")) {
@@ -457,16 +463,16 @@ public class SettingsProcessor {
             requestJSONObject = new JSONObject();
         }
 
-        int geoStatus = requestJSONObject.optInt(UserExt.USER_GEO_STATUS);
-        if (UserExt.USER_GEO_STATUS_C_PRIVATE != geoStatus && UserExt.USER_GEO_STATUS_C_PUBLIC != geoStatus) {
-            geoStatus = UserExt.USER_GEO_STATUS_C_PUBLIC;
+        int geoStatus = requestJSONObject.optInt(UserExtUtil.USER_GEO_STATUS);
+        if (UserExtUtil.USER_GEO_STATUS_C_PRIVATE != geoStatus && UserExtUtil.USER_GEO_STATUS_C_PUBLIC != geoStatus) {
+            geoStatus = UserExtUtil.USER_GEO_STATUS_C_PUBLIC;
         }
 
         try {
-            final JSONObject user = userQueryService.getCurrentUser(request);
-            user.put(UserExt.USER_GEO_STATUS, geoStatus);
+            final UserExt user = userQueryService.getCurrentUser(request);
+            user.setUserGeoStatus(geoStatus);
 
-            userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
+            userMgmtService.updateUser(user.getOid(), user);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -500,57 +506,57 @@ public class SettingsProcessor {
             requestJSONObject = new JSONObject();
         }
 
-        final boolean articleStatus = requestJSONObject.optBoolean(UserExt.USER_ARTICLE_STATUS);
-        final boolean commentStatus = requestJSONObject.optBoolean(UserExt.USER_COMMENT_STATUS);
-        final boolean followingUserStatus = requestJSONObject.optBoolean(UserExt.USER_FOLLOWING_USER_STATUS);
-        final boolean followingTagStatus = requestJSONObject.optBoolean(UserExt.USER_FOLLOWING_TAG_STATUS);
-        final boolean followingArticleStatus = requestJSONObject.optBoolean(UserExt.USER_FOLLOWING_ARTICLE_STATUS);
-        final boolean watchingArticleStatus = requestJSONObject.optBoolean(UserExt.USER_WATCHING_ARTICLE_STATUS);
-        final boolean followerStatus = requestJSONObject.optBoolean(UserExt.USER_FOLLOWER_STATUS);
-        final boolean breezemoonStatus = requestJSONObject.optBoolean(UserExt.USER_BREEZEMOON_STATUS);
-        final boolean pointStatus = requestJSONObject.optBoolean(UserExt.USER_POINT_STATUS);
-        final boolean onlineStatus = requestJSONObject.optBoolean(UserExt.USER_ONLINE_STATUS);
-        final boolean timelineStatus = requestJSONObject.optBoolean(UserExt.USER_TIMELINE_STATUS);
-        final boolean uaStatus = requestJSONObject.optBoolean(UserExt.USER_UA_STATUS);
-        final boolean userForgeLinkStatus = requestJSONObject.optBoolean(UserExt.USER_FORGE_LINK_STATUS);
-        final boolean userJoinPointRank = requestJSONObject.optBoolean(UserExt.USER_JOIN_POINT_RANK);
-        final boolean userJoinUsedPointRank = requestJSONObject.optBoolean(UserExt.USER_JOIN_USED_POINT_RANK);
+        final boolean articleStatus = requestJSONObject.optBoolean(UserExtUtil.USER_ARTICLE_STATUS);
+        final boolean commentStatus = requestJSONObject.optBoolean(UserExtUtil.USER_COMMENT_STATUS);
+        final boolean followingUserStatus = requestJSONObject.optBoolean(UserExtUtil.USER_FOLLOWING_USER_STATUS);
+        final boolean followingTagStatus = requestJSONObject.optBoolean(UserExtUtil.USER_FOLLOWING_TAG_STATUS);
+        final boolean followingArticleStatus = requestJSONObject.optBoolean(UserExtUtil.USER_FOLLOWING_ARTICLE_STATUS);
+        final boolean watchingArticleStatus = requestJSONObject.optBoolean(UserExtUtil.USER_WATCHING_ARTICLE_STATUS);
+        final boolean followerStatus = requestJSONObject.optBoolean(UserExtUtil.USER_FOLLOWER_STATUS);
+        final boolean breezemoonStatus = requestJSONObject.optBoolean(UserExtUtil.USER_BREEZEMOON_STATUS);
+        final boolean pointStatus = requestJSONObject.optBoolean(UserExtUtil.USER_POINT_STATUS);
+        final boolean onlineStatus = requestJSONObject.optBoolean(UserExtUtil.USER_ONLINE_STATUS);
+        final boolean timelineStatus = requestJSONObject.optBoolean(UserExtUtil.USER_TIMELINE_STATUS);
+        final boolean uaStatus = requestJSONObject.optBoolean(UserExtUtil.USER_UA_STATUS);
+        final boolean userForgeLinkStatus = requestJSONObject.optBoolean(UserExtUtil.USER_FORGE_LINK_STATUS);
+        final boolean userJoinPointRank = requestJSONObject.optBoolean(UserExtUtil.USER_JOIN_POINT_RANK);
+        final boolean userJoinUsedPointRank = requestJSONObject.optBoolean(UserExtUtil.USER_JOIN_USED_POINT_RANK);
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
 
-        user.put(UserExt.USER_ONLINE_STATUS, onlineStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_ARTICLE_STATUS, articleStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_COMMENT_STATUS, commentStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_FOLLOWING_USER_STATUS, followingUserStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_FOLLOWING_TAG_STATUS, followingTagStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_FOLLOWING_ARTICLE_STATUS, followingArticleStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_WATCHING_ARTICLE_STATUS, watchingArticleStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_FOLLOWER_STATUS, followerStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_BREEZEMOON_STATUS, breezemoonStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_POINT_STATUS, pointStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_TIMELINE_STATUS, timelineStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_UA_STATUS, uaStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
-        user.put(UserExt.USER_JOIN_POINT_RANK, userJoinPointRank
-                ? UserExt.USER_JOIN_POINT_RANK_C_JOIN : UserExt.USER_JOIN_POINT_RANK_C_NOT_JOIN);
-        user.put(UserExt.USER_JOIN_USED_POINT_RANK, userJoinUsedPointRank
-                ? UserExt.USER_JOIN_USED_POINT_RANK_C_JOIN : UserExt.USER_JOIN_USED_POINT_RANK_C_NOT_JOIN);
-        user.put(UserExt.USER_FORGE_LINK_STATUS, userForgeLinkStatus
-                ? UserExt.USER_XXX_STATUS_C_PUBLIC : UserExt.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserOnlineStatus(onlineStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserArticleStatus(articleStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserCommentStatus( commentStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserFollowingUserStatus(followingUserStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserFollowingTagStatus(followingTagStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserFollowingArticleStatus(followingArticleStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserWatchingArticleStatus(watchingArticleStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserFollowerStatus( followerStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserBreezemoonStatus(breezemoonStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserPointStatus(pointStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserTimelineStatus(timelineStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserUAStatus(uaStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
+        user.setUserJoinPointRank(userJoinPointRank
+                ? UserExtUtil.USER_JOIN_POINT_RANK_C_JOIN : UserExtUtil.USER_JOIN_POINT_RANK_C_NOT_JOIN);
+        user.setUserJoinUsedPointRank(userJoinUsedPointRank
+                ? UserExtUtil.USER_JOIN_USED_POINT_RANK_C_JOIN : UserExtUtil.USER_JOIN_USED_POINT_RANK_C_NOT_JOIN);
+        user.setUserForgeLinkStatus( userForgeLinkStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_PUBLIC : UserExtUtil.USER_XXX_STATUS_C_PRIVATE);
 
         try {
-            userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
+            userMgmtService.updateUser(user.getOid(), user);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -584,14 +590,14 @@ public class SettingsProcessor {
             requestJSONObject = new JSONObject();
         }
 
-        String userListPageSizeStr = requestJSONObject.optString(UserExt.USER_LIST_PAGE_SIZE);
-        final int userCommentViewMode = requestJSONObject.optInt(UserExt.USER_COMMENT_VIEW_MODE);
-        final int userAvatarViewMode = requestJSONObject.optInt(UserExt.USER_AVATAR_VIEW_MODE);
-        final int userListViewMode = requestJSONObject.optInt(UserExt.USER_LIST_VIEW_MODE);
-        final boolean notifyStatus = requestJSONObject.optBoolean(UserExt.USER_NOTIFY_STATUS);
-        final boolean subMailStatus = requestJSONObject.optBoolean(UserExt.USER_SUB_MAIL_STATUS);
-        final boolean keyboardShortcutsStatus = requestJSONObject.optBoolean(UserExt.USER_KEYBOARD_SHORTCUTS_STATUS);
-        final boolean userReplyWatchArticleStatus = requestJSONObject.optBoolean(UserExt.USER_REPLY_WATCH_ARTICLE_STATUS);
+        String userListPageSizeStr = requestJSONObject.optString(UserExtUtil.USER_LIST_PAGE_SIZE);
+        final int userCommentViewMode = requestJSONObject.optInt(UserExtUtil.USER_COMMENT_VIEW_MODE);
+        final int userAvatarViewMode = requestJSONObject.optInt(UserExtUtil.USER_AVATAR_VIEW_MODE);
+        final int userListViewMode = requestJSONObject.optInt(UserExtUtil.USER_LIST_VIEW_MODE);
+        final boolean notifyStatus = requestJSONObject.optBoolean(UserExtUtil.USER_NOTIFY_STATUS);
+        final boolean subMailStatus = requestJSONObject.optBoolean(UserExtUtil.USER_SUB_MAIL_STATUS);
+        final boolean keyboardShortcutsStatus = requestJSONObject.optBoolean(UserExtUtil.USER_KEYBOARD_SHORTCUTS_STATUS);
+        final boolean userReplyWatchArticleStatus = requestJSONObject.optBoolean(UserExtUtil.USER_REPLY_WATCH_ARTICLE_STATUS);
 
         int userListPageSize;
         try {
@@ -608,23 +614,23 @@ public class SettingsProcessor {
             userListPageSize = Symphonys.getInt("indexArticlesCnt");
         }
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
 
-        user.put(UserExt.USER_LIST_PAGE_SIZE, userListPageSize);
-        user.put(UserExt.USER_COMMENT_VIEW_MODE, userCommentViewMode);
-        user.put(UserExt.USER_AVATAR_VIEW_MODE, userAvatarViewMode);
-        user.put(UserExt.USER_LIST_VIEW_MODE, userListViewMode);
-        user.put(UserExt.USER_NOTIFY_STATUS, notifyStatus
-                ? UserExt.USER_XXX_STATUS_C_ENABLED : UserExt.USER_XXX_STATUS_C_DISABLED);
-        user.put(UserExt.USER_SUB_MAIL_STATUS, subMailStatus
-                ? UserExt.USER_XXX_STATUS_C_ENABLED : UserExt.USER_XXX_STATUS_C_DISABLED);
-        user.put(UserExt.USER_KEYBOARD_SHORTCUTS_STATUS, keyboardShortcutsStatus
-                ? UserExt.USER_XXX_STATUS_C_ENABLED : UserExt.USER_XXX_STATUS_C_DISABLED);
-        user.put(UserExt.USER_REPLY_WATCH_ARTICLE_STATUS, userReplyWatchArticleStatus
-                ? UserExt.USER_XXX_STATUS_C_ENABLED : UserExt.USER_XXX_STATUS_C_DISABLED);
+        user.setUserListPageSize(userListPageSize);
+        user.setUserCommentViewMode(userCommentViewMode);
+        user.setUserAvatarViewMode(userAvatarViewMode);
+        user.setUserListViewMode(userListViewMode);
+        user.setUserNotifyStatus(notifyStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_ENABLED : UserExtUtil.USER_XXX_STATUS_C_DISABLED);
+        user.setUserSubMailStatus(subMailStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_ENABLED : UserExtUtil.USER_XXX_STATUS_C_DISABLED);
+        user.setUserKeyboardShortcutsStatus(keyboardShortcutsStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_ENABLED : UserExtUtil.USER_XXX_STATUS_C_DISABLED);
+        user.setUserWatchingArticleStatus(userReplyWatchArticleStatus
+                ? UserExtUtil.USER_XXX_STATUS_C_ENABLED : UserExtUtil.USER_XXX_STATUS_C_DISABLED);
 
         try {
-            userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
+            userMgmtService.updateUser(user.getOid(), user);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -656,23 +662,24 @@ public class SettingsProcessor {
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
-        final String userTags = requestJSONObject.optString(UserExt.USER_TAGS);
+        final String userTags = requestJSONObject.optString(UserExtUtil.USER_TAGS);
         final String userURL = requestJSONObject.optString(User.USER_URL);
-        final String userQQ = requestJSONObject.optString(UserExt.USER_QQ);
-        final String userIntro = requestJSONObject.optString(UserExt.USER_INTRO);
-        final String userNickname = requestJSONObject.optString(UserExt.USER_NICKNAME);
+        final String userQQ = requestJSONObject.optString(UserExtUtil.USER_QQ);
+        final String userIntro = requestJSONObject.optString(UserExtUtil.USER_INTRO);
+        final String userNickname = requestJSONObject.optString(UserExtUtil.USER_NICKNAME);
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
 
-        user.put(UserExt.USER_TAGS, userTags);
-        user.put(User.USER_URL, userURL);
-        user.put(UserExt.USER_QQ, userQQ);
-        user.put(UserExt.USER_INTRO, userIntro);
-        user.put(UserExt.USER_NICKNAME, userNickname);
-        user.put(UserExt.USER_AVATAR_TYPE, UserExt.USER_AVATAR_TYPE_C_UPLOAD);
+        user.setUserTags(userTags);
+        user.setUserURL(userURL);
+        user.setUserQQ(userQQ);
+        user.setUserIntro( userIntro);
+        user.setUserNickname( userNickname);
+        user.setUserAvatarType(UserExtUtil.USER_AVATAR_TYPE_C_UPLOAD);
 
         try {
-            userMgmtService.updateProfiles(user);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            userMgmtService.updateProfiles(jsonObject);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -703,31 +710,31 @@ public class SettingsProcessor {
         }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
-        final String userAvatarURL = requestJSONObject.optString(UserExt.USER_AVATAR_URL);
+        final String userAvatarURL = requestJSONObject.optString(UserExtUtil.USER_AVATAR_URL);
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
 
-        user.put(UserExt.USER_AVATAR_TYPE, UserExt.USER_AVATAR_TYPE_C_UPLOAD);
-        user.put(UserExt.USER_UPDATE_TIME, System.currentTimeMillis());
+        user.setUserAvatarType(UserExtUtil.USER_AVATAR_TYPE_C_UPLOAD);
+        user.setUserUpdateTime(System.currentTimeMillis());
 
         if (Strings.contains(userAvatarURL, new String[]{"<", ">", "\"", "'"})) {
-            user.put(UserExt.USER_AVATAR_URL, Symphonys.get("defaultThumbnailURL"));
+            user.setUserAvatarURL(Symphonys.get("defaultThumbnailURL"));
         } else {
             if (Symphonys.getBoolean("qiniu.enabled")) {
                 final String qiniuDomain = Symphonys.get("qiniu.domain");
 
                 if (!StringUtils.startsWith(userAvatarURL, qiniuDomain)) {
-                    user.put(UserExt.USER_AVATAR_URL, Symphonys.get("defaultThumbnailURL"));
+                    user.setUserAvatarURL(Symphonys.get("defaultThumbnailURL"));
                 } else {
-                    user.put(UserExt.USER_AVATAR_URL, userAvatarURL);
+                    user.setUserAvatarURL(userAvatarURL);
                 }
             } else {
-                user.put(UserExt.USER_AVATAR_URL, userAvatarURL);
+                user.setUserAvatarURL(userAvatarURL);
             }
         }
 
         try {
-            userMgmtService.updateUser(user.optString(Keys.OBJECT_ID), user);
+            userMgmtService.updateUser(user.getOid(), user);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -758,21 +765,22 @@ public class SettingsProcessor {
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
-        final String b3Key = requestJSONObject.optString(UserExt.USER_B3_KEY);
-        final String addArticleURL = requestJSONObject.optString(UserExt.USER_B3_CLIENT_ADD_ARTICLE_URL);
-        final String updateArticleURL = requestJSONObject.optString(UserExt.USER_B3_CLIENT_UPDATE_ARTICLE_URL);
-        final String addCommentURL = requestJSONObject.optString(UserExt.USER_B3_CLIENT_ADD_COMMENT_URL);
-        final boolean syncWithSymphonyClient = requestJSONObject.optBoolean(UserExt.SYNC_TO_CLIENT, false);
+        final String b3Key = requestJSONObject.optString(UserExtUtil.USER_B3_KEY);
+        final String addArticleURL = requestJSONObject.optString(UserExtUtil.USER_B3_CLIENT_ADD_ARTICLE_URL);
+        final String updateArticleURL = requestJSONObject.optString(UserExtUtil.USER_B3_CLIENT_UPDATE_ARTICLE_URL);
+        final String addCommentURL = requestJSONObject.optString(UserExtUtil.USER_B3_CLIENT_ADD_COMMENT_URL);
+        final boolean syncWithSymphonyClient = requestJSONObject.optBoolean(UserExtUtil.SYNC_TO_CLIENT, false);
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
-        user.put(UserExt.USER_B3_KEY, b3Key);
-        user.put(UserExt.USER_B3_CLIENT_ADD_ARTICLE_URL, addArticleURL);
-        user.put(UserExt.USER_B3_CLIENT_UPDATE_ARTICLE_URL, updateArticleURL);
-        user.put(UserExt.USER_B3_CLIENT_ADD_COMMENT_URL, addCommentURL);
-        user.put(UserExt.SYNC_TO_CLIENT, syncWithSymphonyClient);
+        final UserExt user = userQueryService.getCurrentUser(request);
+        user.setUserB3Key(b3Key);
+        user.setUserB3ClientAddArticleURL(addArticleURL);
+        user.setUserB3ClientUpdateArticleURL(updateArticleURL);
+        user.setUserB3ClientAddCommentURL(addCommentURL);
+        user.setSyncWithSymphonyClient(String.valueOf(syncWithSymphonyClient));
 
         try {
-            userMgmtService.updateSyncB3(user);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            userMgmtService.updateSyncB3(jsonObject);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -810,18 +818,19 @@ public class SettingsProcessor {
         final String password = requestJSONObject.optString(User.USER_PASSWORD);
         final String newPassword = requestJSONObject.optString(User.USER_NEW_PASSWORD);
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
 
-        if (!password.equals(user.optString(User.USER_PASSWORD))) {
+        if (!password.equals(user.getUserPassword())) {
             dataModel.put(Keys.MSG ,langPropsService.get("invalidOldPwdLabel"));
 
             return;
         }
 
-        user.put(User.USER_PASSWORD, newPassword);
+        user.setUserPassword(newPassword);
 
         try {
-            userMgmtService.updatePassword(user);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            userMgmtService.updatePassword(jsonObject);
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
             final String msg = langPropsService.get("updateFailLabel") + " - " + e.getMessage();
@@ -854,12 +863,12 @@ public class SettingsProcessor {
         }
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
-        final String emotionList = requestJSONObject.optString(Emotion.EMOTIONS);
+        final String emotionList = requestJSONObject.optString(EmotionUtil.EMOTIONS);
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
 
         try {
-            emotionMgmtService.setEmotionList(user.optString(Keys.OBJECT_ID), emotionList);
+            emotionMgmtService.setEmotionList(user.getOid(), emotionList);
 
             dataModel.put(Keys.STATUS_CODE,true);
         } catch ( final Exception e) {
@@ -1036,6 +1045,6 @@ public class SettingsProcessor {
             "sweet_potato",
             "eggplant",
             "tomato",
-            Emotion.EOF_EMOJI // 标记结束以便在function.ftl中处理
+            EmotionUtil.EOF_EMOJI // 标记结束以便在function.ftl中处理
     }};
 }
