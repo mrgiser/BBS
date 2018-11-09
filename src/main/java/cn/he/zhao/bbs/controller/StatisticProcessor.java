@@ -17,6 +17,10 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.entityUtil.OptionUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.util.Times;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -169,8 +173,8 @@ public class StatisticProcessor {
             commentCnts.add(commentCnt);
         }
 
-        final JSONObject firstAdmin = userQueryService.getAdmins().get(0);
-        final long monthStartTime = Times.getMonthStartTime(firstAdmin.optLong(Keys.OBJECT_ID));
+        final UserExt firstAdmin = userQueryService.getAdmins().get(0);
+        final long monthStartTime = Times.getMonthStartTime(Long.parseLong(firstAdmin.getOid()));
         final Date monthStart = new Date(monthStartTime);
 
         int i = 1;
@@ -234,7 +238,7 @@ public class StatisticProcessor {
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
@@ -245,7 +249,7 @@ public class StatisticProcessor {
         dataModel.put(Common.ONLINE_MEMBER_CNT, optionQueryService.getOnlineMemberCount());
 
         final JSONObject statistic = optionQueryService.getStatistic();
-        dataModel.put(Option.CATEGORY_C_STATISTIC, statistic);
+        dataModel.put(OptionUtil.CATEGORY_C_STATISTIC, statistic);
 
         return url;
     }
