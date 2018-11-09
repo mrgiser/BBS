@@ -17,6 +17,10 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.util.Escapes;
 import cn.he.zhao.bbs.util.Symphonys;
@@ -125,15 +129,15 @@ public class SearchProcessor {
 
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.getUserListPageSize();
         }
         final List<JSONObject> articles = new ArrayList<>();
         int total = 0;
 
         if (Symphonys.getBoolean("es.enabled")) {
-            final JSONObject result = searchQueryService.searchElasticsearch(Article.ARTICLE, keyword, pageNum, pageSize);
+            final JSONObject result = searchQueryService.searchElasticsearch(ArticleUtil.ARTICLE, keyword, pageNum, pageSize);
             if (null == result || 0 != result.optInt("status")) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -172,13 +176,13 @@ public class SearchProcessor {
             }
         }
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         articleQueryService.organizeArticles(avatarViewMode, articles);
         final Integer participantsCnt = Symphonys.getInt("latestArticleParticipantsCnt");
         articleQueryService.genParticipants(avatarViewMode, articles, participantsCnt);
 
-        dataModel.put(Article.ARTICLES, articles);
+        dataModel.put(ArticleUtil.ARTICLES, articles);
 
         final int pageCount = (int) Math.ceil(total / (double) pageSize);
         final List<Integer> pageNums = Paginator.paginate(pageNum, pageSize, pageCount, Symphonys.getInt("defaultPaginationWindowSize"));

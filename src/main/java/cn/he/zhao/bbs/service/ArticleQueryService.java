@@ -1970,12 +1970,12 @@ public class ArticleQueryService {
      * @param avatarViewMode the specified avatarViewMode
      * @param articles       the specified articles
      * @throws Exception Mapper exception
-     * @see #organizeArticle(int, Article)
+     * @see #organizeArticle(int, JSONObject)
      */
-    public void organizeArticles(final int avatarViewMode, final List<Article> articles) throws Exception {
+    public void organizeArticles(final int avatarViewMode, final List<JSONObject> articles) throws Exception {
         Stopwatchs.start("Organize articles");
         try {
-            for (final Article article : articles) {
+            for (final JSONObject article : articles) {
                 organizeArticle(avatarViewMode, article);
             }
         } finally {
@@ -2006,7 +2006,7 @@ public class ArticleQueryService {
      * @param article        the specified article
      * @throws Exception Mapper exception
      */
-    public void organizeArticle(final int avatarViewMode, final Article article) throws Exception {
+    public void organizeArticle(final int avatarViewMode, final JSONObject article) throws Exception {
         article.put(Article.ARTICLE_T_ORIGINAL_CONTENT, article.optString(Article.ARTICLE_CONTENT));
         toArticleDate(article);
         genArticleAuthor(avatarViewMode, article);
