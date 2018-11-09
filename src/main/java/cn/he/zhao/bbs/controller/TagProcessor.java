@@ -17,8 +17,16 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.FollowUtil;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.SpringUtil;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.commons.lang.StringUtils;
@@ -115,10 +123,10 @@ public class TagProcessor {
 
         final List<String> ret = new ArrayList<>();
         for (final JSONObject tag : tags) {
-            ret.add(tag.optString(Tag.TAG_TITLE));
+            ret.add(tag.optString(TagUtil.TAG_TITLE));
         }
 
-        dataModel.put(Tag.TAGS, ret);
+        dataModel.put(TagUtil.TAGS, ret);
     }
 
     /**
@@ -145,8 +153,8 @@ public class TagProcessor {
 
         String url = "tags.ftl";
 
-        final List<JSONObject> trendTags = tagQueryService.getTrendTags(Symphonys.getInt("tagsWallTrendCnt"));
-        final List<JSONObject> coldTags = tagQueryService.getColdTags(Symphonys.getInt("tagsWallColdCnt"));
+        final List<Tag> trendTags = tagQueryService.getTrendTags(Symphonys.getInt("tagsWallTrendCnt"));
+        final List<Tag> coldTags = tagQueryService.getColdTags(Symphonys.getInt("tagsWallColdCnt"));
 
         dataModel.put(Common.TREND_TAGS, trendTags);
         dataModel.put(Common.COLD_TAGS, coldTags);
@@ -184,42 +192,43 @@ public class TagProcessor {
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
 
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.getUserListPageSize();
 
-            if (!UserExt.finshedGuide(user)) {
+            if (!UserExtUtil.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             }
         }
 
-        final JSONObject tag = tagQueryService.getTagByURI(tagURI);
-        if (null == tag) {
+        final Tag tagTmp = tagQueryService.getTagByURI(tagURI);
+        if (null == tagTmp) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return null;
         }
 
-        tag.put(Common.IS_RESERVED, tagQueryService.isReservedTag(tag.optString(Tag.TAG_TITLE)));
+        JSONObject tag = new JSONObject(JsonUtil.objectToJson(tagTmp));
+        tag.put(Common.IS_RESERVED, tagQueryService.isReservedTag(tagTmp.getTagTitle()));
 
-        dataModel.put(Tag.TAG, tag);
+        dataModel.put(TagUtil.TAG, tag);
 
-        final String tagId = tag.optString(Keys.OBJECT_ID);
+        final String tagId = tagTmp.getOid();
 
-        final List<JSONObject> relatedTags = tagQueryService.getRelatedTags(tagId, Symphonys.getInt("tagRelatedTagsCnt"));
-        tag.put(Tag.TAG_T_RELATED_TAGS, (Object) relatedTags);
+        final List<Tag> relatedTags = tagQueryService.getRelatedTags(tagId, Symphonys.getInt("tagRelatedTagsCnt"));
+        tag.put(TagUtil.TAG_T_RELATED_TAGS, (Object) relatedTags);
 
         final boolean isLoggedIn = (Boolean) dataModel.get(Common.IS_LOGGED_IN);
         if (isLoggedIn) {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, tagId, Follow.FOLLOWING_TYPE_C_TAG);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, tagId, FollowUtil.FOLLOWING_TYPE_C_TAG);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         String sortModeStr = StringUtils.substringAfter(request.getRequestURI(), "/tag/" + tagURI);
         int sortMode;
@@ -250,17 +259,17 @@ public class TagProcessor {
 
         final List<JSONObject> articles = articleQueryService.getArticlesByTag(avatarViewMode, sortMode, tag,
                 pageNum, pageSize);
-        dataModel.put(Article.ARTICLES, articles);
+        dataModel.put(ArticleUtil.ARTICLES, articles);
 
-        final JSONObject tagCreator = tagQueryService.getCreator(avatarViewMode, tagId);
+        final Tag tagCreator = tagQueryService.getCreator(avatarViewMode, tagId);
 
-        tag.put(Tag.TAG_T_CREATOR_THUMBNAIL_URL, tagCreator.optString(Tag.TAG_T_CREATOR_THUMBNAIL_URL));
-        tag.put(Tag.TAG_T_CREATOR_NAME, tagCreator.optString(Tag.TAG_T_CREATOR_NAME));
-        tag.put(Tag.TAG_T_CREATOR_THUMBNAIL_UPDATE_TIME, tagCreator.optLong(Tag.TAG_T_CREATOR_THUMBNAIL_UPDATE_TIME));
-        tag.put(Tag.TAG_T_PARTICIPANTS, (Object) tagQueryService.getParticipants(
+        tag.put(TagUtil.TAG_T_CREATOR_THUMBNAIL_URL, tagCreator.getTagCreatorThumbnailURL());
+        tag.put(TagUtil.TAG_T_CREATOR_NAME, tagCreator.getTagCreatorName());
+        tag.put(TagUtil.TAG_T_CREATOR_THUMBNAIL_UPDATE_TIME, tagCreator.getTagCreatorThumbnailUpdateTime());
+        tag.put(TagUtil.TAG_T_PARTICIPANTS, (Object) tagQueryService.getParticipants(
                 avatarViewMode, tagId, Symphonys.getInt("tagParticipantsCnt")));
 
-        final int tagRefCnt = tag.getInt(Tag.TAG_REFERENCE_CNT);
+        final int tagRefCnt = tag.getInt(TagUtil.TAG_REFERENCE_CNT);
         final int pageCount = (int) Math.ceil(tagRefCnt / (double) pageSize);
         final int windowSize = Symphonys.getInt("tagArticlesWindowSize");
         final List<Integer> pageNums = Paginator.paginate(pageNum, pageSize, pageCount, windowSize);

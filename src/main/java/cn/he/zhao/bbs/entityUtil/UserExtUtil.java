@@ -682,8 +682,8 @@ public final class UserExtUtil {
      * @param user the specified user
      * @return {@code true} if the specified user finshed guide, returns {@code false} otherwise
      */
-    public static boolean finshedGuide(final JSONObject user) {
-        return UserExtUtil.USER_GUIDE_STEP_FIN == user.optInt(UserExtUtil.USER_GUIDE_STEP);
+    public static boolean finshedGuide(final UserExt user) {
+        return UserExtUtil.USER_GUIDE_STEP_FIN == user.getUserGuideStep();
     }
 
     /**
