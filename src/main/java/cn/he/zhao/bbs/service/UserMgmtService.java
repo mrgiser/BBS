@@ -376,7 +376,7 @@ public class UserMgmtService {
      * @return generated user id
      * @throws ServiceException if user name or email duplicated, or Mapper exception
      */
-    public synchronized String addUser(final UserExt requestJSONObject) throws ServiceException {
+    public synchronized String addUser(final JSONObject requestJSONObject) throws ServiceException {
         final Transaction transaction = userMapper.beginTransaction();
 
         try {
@@ -697,7 +697,7 @@ public class UserMgmtService {
      * @param user   the specified user, contains the new email
      * @throws ServiceException service exception
      */
-    public void updateUserEmail(final String userId, final JSONObject user) throws ServiceException {
+    public void updateUserEmail(final String userId, final UserExt user) throws ServiceException {
         final String newEmail = user.optString(User.USER_EMAIL);
 
         final Transaction transaction = userMapper.beginTransaction();
@@ -727,7 +727,7 @@ public class UserMgmtService {
      * @param user   the specified user, contains the new username
      * @throws ServiceException service exception
      */
-    public void updateUserName(final String userId, final JSONObject user) throws ServiceException {
+    public void updateUserName(final String userId, final UserExt user) throws ServiceException {
         final String newUserName = user.optString(User.USER_NAME);
 
         final Transaction transaction = userMapper.beginTransaction();

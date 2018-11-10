@@ -18,6 +18,7 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.entityUtil.*;
 import cn.he.zhao.bbs.event.handler.ArticleBaiduSender;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
@@ -26,11 +27,9 @@ import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
-import cn.he.zhao.bbs.spring.MD5;
-import cn.he.zhao.bbs.spring.Paginator;
-import cn.he.zhao.bbs.spring.SpringUtil;
-import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.spring.*;
 import cn.he.zhao.bbs.util.Escapes;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.validate.UserRegister2Validation;
 import cn.he.zhao.bbs.validate.UserRegisterValidation;
@@ -360,7 +359,7 @@ public class AdminProcessor {
         requestJSONObject.put(Pagination.PAGINATION_WINDOW_SIZE, windowSize);
 
         final JSONObject result = reportQueryService.getReports(requestJSONObject);
-        dataModel.put(Report.REPORTS, CollectionUtils.jsonArrayToList(result.optJSONArray(Report.REPORTS)));
+        dataModel.put(ReportUtil.REPORTS, CollectionUtils.jsonArrayToList(result.optJSONArray(ReportUtil.REPORTS)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -433,7 +432,7 @@ public class AdminProcessor {
         final int pageNum = Paginator.getPage(request);
         final int pageSize = PAGE_SIZE;
         final int windowSize = WINDOW_SIZE;
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject requestJSONObject = new JSONObject();
         requestJSONObject.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
@@ -442,13 +441,13 @@ public class AdminProcessor {
 
         final Map<String, Class<?>> fields = new HashMap<>();
         fields.put(Keys.OBJECT_ID, String.class);
-        fields.put(Breezemoon.BREEZEMOON_CONTENT, String.class);
-        fields.put(Breezemoon.BREEZEMOON_CREATED, Long.class);
-        fields.put(Breezemoon.BREEZEMOON_AUTHOR_ID, String.class);
-        fields.put(Breezemoon.BREEZEMOON_STATUS, Integer.class);
+        fields.put(BreezemoonUtil.BREEZEMOON_CONTENT, String.class);
+        fields.put(BreezemoonUtil.BREEZEMOON_CREATED, Long.class);
+        fields.put(BreezemoonUtil.BREEZEMOON_AUTHOR_ID, String.class);
+        fields.put(BreezemoonUtil.BREEZEMOON_STATUS, Integer.class);
 
         final JSONObject result = breezemoonQueryService.getBreezemoons(avatarViewMode, requestJSONObject, fields);
-        dataModel.put(Breezemoon.BREEZEMOONS, CollectionUtils.jsonArrayToList(result.optJSONArray(Breezemoon.BREEZEMOONS)));
+        dataModel.put(BreezemoonUtil.BREEZEMOONS, CollectionUtils.jsonArrayToList(result.optJSONArray(BreezemoonUtil.BREEZEMOONS)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -486,9 +485,10 @@ public class AdminProcessor {
 
         String url = "admin/breezemoons.ftl";
 
-        final JSONObject breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
-        Escapes.escapeHTML(breezemoon);
-        dataModel.put(Breezemoon.BREEZEMOON, breezemoon);
+        final Breezemoon breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(breezemoon));
+        Escapes.escapeHTML(jsonObject);
+        dataModel.put(BreezemoonUtil.BREEZEMOON, breezemoon);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -516,24 +516,25 @@ public class AdminProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "admin/breezemoon.ftl";
 
-        JSONObject breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
+        Breezemoon breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(breezemoon));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             final String value = request.getParameter(name);
 
-            if (name.equals(Breezemoon.BREEZEMOON_STATUS)) {
-                breezemoon.put(name, Integer.valueOf(value));
+            if (name.equals(BreezemoonUtil.BREEZEMOON_STATUS)) {
+                jsonObject.put(name, Integer.valueOf(value));
             } else {
-                breezemoon.put(name, value);
+                jsonObject.put(name, value);
             }
         }
 
-        breezemoonMgmtService.updateBreezemoon(breezemoon);
+        breezemoonMgmtService.updateBreezemoon(jsonObject);
 
         breezemoon = breezemoonQueryService.getBreezemoon(breezemoonId);
-        dataModel.put(Breezemoon.BREEZEMOON, breezemoon);
+        dataModel.put(BreezemoonUtil.BREEZEMOON, breezemoon);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -587,15 +588,15 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @StopWatchEndAnno
     public String addRole(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final String roleName = request.getParameter(Role.ROLE_NAME);
+        final String roleName = request.getParameter(RoleUtil.ROLE_NAME);
         if (StringUtils.isBlank(roleName)) {
 //            return "redirect:" +( SpringUtil.getServerPath() + "/admin/roles");
             return "redirect:" +SpringUtil.getServerPath() + "/admin/roles";
         }
 
-        final String roleDesc = request.getParameter(Role.ROLE_DESCRIPTION);
+        final String roleDesc = request.getParameter(RoleUtil.ROLE_DESCRIPTION);
 
-        final JSONObject role = new JSONObject();
+        final Role role = new Role();
         role.setRoleName( roleName);
         role.setRoleDescription( roleDesc);
 
@@ -650,24 +651,24 @@ public class AdminProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "admin/role-permissions.ftl";
 
-        final JSONObject role = roleQueryService.getRole(roleId);
-        dataModel.put(Role.ROLE, role);
+        final Role role = roleQueryService.getRole(roleId);
+        dataModel.put(RoleUtil.ROLE, role);
 
-        final Map<String, List<JSONObject>> categories = new TreeMap<>();
+        final Map<String, List<Permission>> categories = new TreeMap<>();
 
-        final List<JSONObject> permissions = roleQueryService.getPermissionsGrant(roleId);
-        for (final JSONObject permission : permissions) {
-            final String label = permission.optString(Keys.OBJECT_ID) + "PermissionLabel";
-            permission.put(Permission.PERMISSION_T_LABEL, langPropsService.get(label));
+        final List<Permission> permissions = roleQueryService.getPermissionsGrant(roleId);
+        for (final Permission permission : permissions) {
+            final String label = permission.getOid() + "PermissionLabel";
+            permission.setPermissionLabel(langPropsService.get(label));
 
-            String category = permission.optString(Permission.PERMISSION_CATEGORY);
+            String category = String.valueOf(permission.getPermissionCategory());
             category = langPropsService.get(category + "PermissionLabel");
 
-            final List<JSONObject> categoryPermissions = categories.computeIfAbsent(category, k -> new ArrayList<>());
+            final List<Permission> categoryPermissions = categories.computeIfAbsent(category, k -> new ArrayList<>());
             categoryPermissions.add(permission);
         }
 
-        dataModel.put(Permission.PERMISSION_T_CATEGORIES, categories);
+        dataModel.put(PermissionUtil.PERMISSION_T_CATEGORIES, categories);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -697,9 +698,9 @@ public class AdminProcessor {
         String url = "admin/roles.ftl";
 
         final JSONObject result = roleQueryService.getRoles(1, Integer.MAX_VALUE, 10);
-        final List<JSONObject> roles = (List<JSONObject>) result.opt(Role.ROLES);
+        final List<JSONObject> roles = (List<JSONObject>) result.opt(RoleUtil.ROLES);
 
-        dataModel.put(Role.ROLES, roles);
+        dataModel.put(RoleUtil.ROLES, roles);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -722,18 +723,18 @@ public class AdminProcessor {
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String sideFullAd = request.getParameter("sideFullAd");
 
-        JSONObject adOption = optionQueryService.getOption(Option.ID_C_SIDE_FULL_AD);
+        Option adOption = optionQueryService.getOption(OptionUtil.ID_C_SIDE_FULL_AD);
         if (null == adOption) {
-            adOption = new JSONObject();
-            adOption.put(Keys.OBJECT_ID, Option.ID_C_SIDE_FULL_AD);
-            adoption.setOptionCategory( Option.CATEGORY_C_AD);
-            adOption.put(Option.OPTION_VALUE, sideFullAd);
+            adOption = new Option();
+            adOption.setOid(OptionUtil.ID_C_SIDE_FULL_AD);
+            adOption.setOptionCategory(OptionUtil.CATEGORY_C_AD);
+            adOption.setOptionValue(sideFullAd);
 
             optionMgmtService.addOption(adOption);
         } else {
-            adOption.put(Option.OPTION_VALUE, sideFullAd);
+            adOption.setOptionValue( sideFullAd);
 
-            optionMgmtService.updateOption(Option.ID_C_SIDE_FULL_AD, adOption);
+            optionMgmtService.updateOption(OptionUtil.ID_C_SIDE_FULL_AD, adOption);
         }
 
 //        return "redirect:" +( SpringUtil.getServerPath() + "/admin/ad");
@@ -758,18 +759,18 @@ public class AdminProcessor {
                              final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final String headerBanner = request.getParameter("headerBanner");
 
-        JSONObject adOption = optionQueryService.getOption(Option.ID_C_HEADER_BANNER);
+        Option adOption = optionQueryService.getOption(OptionUtil.ID_C_HEADER_BANNER);
         if (null == adOption) {
-            adOption = new JSONObject();
-            adOption.put(Keys.OBJECT_ID, Option.ID_C_HEADER_BANNER);
-            adoption.setOptionCategory( Option.CATEGORY_C_AD);
-            adOption.put(Option.OPTION_VALUE, headerBanner);
+            adOption = new Option();
+            adOption.setOid(OptionUtil.ID_C_HEADER_BANNER);
+            adOption.setOptionCategory( OptionUtil.CATEGORY_C_AD);
+            adOption.setOptionValue(headerBanner);
 
             optionMgmtService.addOption(adOption);
         } else {
-            adOption.put(Option.OPTION_VALUE, headerBanner);
+            adOption.setOptionValue( headerBanner);
 
-            optionMgmtService.updateOption(Option.ID_C_HEADER_BANNER, adOption);
+            optionMgmtService.updateOption(OptionUtil.ID_C_HEADER_BANNER, adOption);
         }
 
 //        return "redirect:" +( SpringUtil.getServerPath() + "/admin/ad");
@@ -804,14 +805,14 @@ public class AdminProcessor {
         dataModel.put("sideFullAd", "");
         dataModel.put("headerBanner", "");
 
-        final JSONObject sideAdOption = optionQueryService.getOption(Option.ID_C_SIDE_FULL_AD);
+        final Option sideAdOption = optionQueryService.getOption(OptionUtil.ID_C_SIDE_FULL_AD);
         if (null != sideAdOption) {
-            dataModel.put("sideFullAd", sideAdOption.optString(Option.OPTION_VALUE));
+            dataModel.put("sideFullAd", sideAdOption.getOptionValue());
         }
 
-        final JSONObject headerBanner = optionQueryService.getOption(Option.ID_C_HEADER_BANNER);
+        final Option headerBanner = optionQueryService.getOption(OptionUtil.ID_C_HEADER_BANNER);
         if (null != headerBanner) {
-            dataModel.put("headerBanner", headerBanner.optString(Option.OPTION_VALUE));
+            dataModel.put("headerBanner", headerBanner.getOptionValue());
         }
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
@@ -862,20 +863,20 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String addTag(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        String title = StringUtils.trim(request.getParameter(Tag.TAG_TITLE));
+        String title = StringUtils.trim(request.getParameter(TagUtil.TAG_TITLE));
         try {
             if (Strings.isEmptyOrNull(title)) {
                 throw new Exception(langPropsService.get("tagsErrorLabel"));
             }
 
-            title = Tag.formatTags(title);
+            title = TagUtil.formatTags(title);
 
-            if (!Tag.containsWhiteListTags(title)) {
-                if (!Tag.TAG_TITLE_PATTERN.matcher(title).matches()) {
+            if (!TagUtil.containsWhiteListTags(title)) {
+                if (!TagUtil.TAG_TITLE_PATTERN.matcher(title).matches()) {
                     throw new Exception(langPropsService.get("tagsErrorLabel"));
                 }
 
-                if (title.length() > Tag.MAX_TAG_TITLE_LENGTH) {
+                if (title.length() > TagUtil.MAX_TAG_TITLE_LENGTH) {
                     throw new Exception(langPropsService.get("tagsErrorLabel"));
                 }
             }
@@ -931,7 +932,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String stickArticle(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
         articleMgmtService.adminStick(articleId);
 
 //        return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
@@ -953,7 +954,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String stickCancelArticle(final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
         articleMgmtService.adminCancelStick(articleId);
 
 //        return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
@@ -1025,7 +1026,7 @@ public class AdminProcessor {
         requestJSONObject.put(Pagination.PAGINATION_WINDOW_SIZE, windowSize);
 
         final JSONObject result = invitecodeQueryService.getInvitecodes(requestJSONObject);
-        dataModel.put(Invitecode.INVITECODES, CollectionUtils.jsonArrayToList(result.optJSONArray(Invitecode.INVITECODES)));
+        dataModel.put(InvitecodeUtil.INVITECODES, CollectionUtils.jsonArrayToList(result.optJSONArray(InvitecodeUtil.INVITECODES)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -1063,8 +1064,8 @@ public class AdminProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "admin/invitecode.ftl";
 
-        final JSONObject invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
-        dataModel.put(Invitecode.INVITECODE, invitecode);
+        final Invitecode invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
+        dataModel.put(InvitecodeUtil.INVITECODE, invitecode);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -1094,20 +1095,24 @@ public class AdminProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "admin/invitecode.ftl";
 
-        JSONObject invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
+        Invitecode invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
+
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(invitecode));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             final String value = request.getParameter(name);
 
-            invitecode.put(name, value);
+            jsonObject.put(name, value);
         }
+
+        invitecode = JsonUtil.json2Bean(jsonObject.toString(),Invitecode.class);
 
         invitecodeMgmtService.updateInvitecode(invitecodeId, invitecode);
 
         invitecode = invitecodeQueryService.getInvitecodeById(invitecodeId);
-        dataModel.put(Invitecode.INVITECODE, invitecode);
+        dataModel.put(InvitecodeUtil.INVITECODE, invitecode);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -1158,7 +1163,7 @@ public class AdminProcessor {
     public String addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
         final String userName = request.getParameter(User.USER_NAME);
-        final JSONObject author = userQueryService.getUserByName(userName);
+        final UserExt author = userQueryService.getUserByName(userName);
         if (null == author) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
 //            context.setRenderer(renderer);
@@ -1172,11 +1177,11 @@ public class AdminProcessor {
         }
 
         final String timeStr = request.getParameter(Common.TIME);
-        final String articleTitle = request.getParameter(Article.ARTICLE_TITLE);
-        final String articleTags = request.getParameter(Article.ARTICLE_TAGS);
-        final String articleContent = request.getParameter(Article.ARTICLE_CONTENT);
-        String rewardContent = request.getParameter(Article.ARTICLE_REWARD_CONTENT);
-        final String rewardPoint = request.getParameter(Article.ARTICLE_REWARD_POINT);
+        final String articleTitle = request.getParameter(ArticleUtil.ARTICLE_TITLE);
+        final String articleTags = request.getParameter(ArticleUtil.ARTICLE_TAGS);
+        final String articleContent = request.getParameter(ArticleUtil.ARTICLE_CONTENT);
+        String rewardContent = request.getParameter(ArticleUtil.ARTICLE_REWARD_CONTENT);
+        final String rewardPoint = request.getParameter(ArticleUtil.ARTICLE_REWARD_POINT);
 
         long time = System.currentTimeMillis();
 
@@ -1191,11 +1196,11 @@ public class AdminProcessor {
         }
 
         final JSONObject article = new JSONObject();
-        article.put(Article.ARTICLE_TITLE, articleTitle);
-        article.put(Article.ARTICLE_TAGS, articleTags);
-        article.put(Article.ARTICLE_CONTENT, articleContent);
-        article.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
-        article.put(Article.ARTICLE_REWARD_POINT, Integer.valueOf(rewardPoint));
+        article.put(ArticleUtil.ARTICLE_TITLE, articleTitle);
+        article.put(ArticleUtil.ARTICLE_TAGS, articleTags);
+        article.put(ArticleUtil.ARTICLE_CONTENT, articleContent);
+        article.put(ArticleUtil.ARTICLE_REWARD_CONTENT, rewardContent);
+        article.put(ArticleUtil.ARTICLE_REWARD_POINT, Integer.valueOf(rewardPoint));
         article.put(User.USER_NAME, userName);
         article.put(Common.TIME, time);
 
@@ -1252,10 +1257,11 @@ public class AdminProcessor {
 
         try {
             final JSONObject reservedWord = new JSONObject();
-            reservedWord.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_RESERVED_WORDS);
-            reservedWord.put(Option.OPTION_VALUE, word);
+            reservedWord.put(OptionUtil.OPTION_CATEGORY, OptionUtil.CATEGORY_C_RESERVED_WORDS);
+            reservedWord.put(OptionUtil.OPTION_VALUE, word);
 
-            optionMgmtService.addOption(reservedWord);
+            Option option = JsonUtil.json2Bean(reservedWord.toString(),Option.class);
+            optionMgmtService.addOption(option);
         } catch (final Exception e) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
 //            context.setRenderer(renderer);
@@ -1321,18 +1327,22 @@ public class AdminProcessor {
 //        renderer.setTemplateName("admin/reserved-word.ftl");
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final JSONObject word = optionQueryService.getOption(id);
+        final Option word = optionQueryService.getOption(id);
         dataModel.put(Common.WORD, word);
+
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(word));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             final String value = request.getParameter(name);
 
-            word.put(name, value);
+            jsonObject.put(name, value);
         }
 
-        optionMgmtService.updateOption(id, word);
+        Option option = JsonUtil.json2Bean(jsonObject.toString(),Option.class);
+
+        optionMgmtService.updateOption(id, option);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return "admin/reserved-word.ftl";
@@ -1389,7 +1399,7 @@ public class AdminProcessor {
 //        renderer.setTemplateName("admin/reserved-word.ftl");
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final JSONObject word = optionQueryService.getOption(id);
+        final Option word = optionQueryService.getOption(id);
         dataModel.put(Common.WORD, word);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
@@ -1435,7 +1445,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String removeComment(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String commentId = request.getParameter(Comment.COMMENT_T_ID);
+        final String commentId = request.getParameter(CommentUtil.COMMENT_T_ID);
         commentMgmtService.removeCommentByAdmin(commentId);
 
         return "redirect:" +( SpringUtil.getServerPath() + "/admin/comments");
@@ -1458,7 +1468,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String removeArticle(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
         articleMgmtService.removeArticleByAdmin(articleId);
 
         return "redirect:" +( SpringUtil.getServerPath() + "/admin/articles");
@@ -1493,7 +1503,7 @@ public class AdminProcessor {
         dataModel.put(Common.ONLINE_MEMBER_CNT, optionQueryService.getOnlineMemberCount());
 
         final JSONObject statistic = optionQueryService.getStatistic();
-        dataModel.put(Option.CATEGORY_C_STATISTIC, statistic);
+        dataModel.put(OptionUtil.CATEGORY_C_STATISTIC, statistic);
 
         return "admin/index.ftl";
     }
@@ -1569,13 +1579,14 @@ public class AdminProcessor {
 //        renderer.setTemplateName("admin/user.ftl");
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final JSONObject user = userQueryService.getUser(userId);
-        Escapes.escapeHTML(user);
-        dataModel.put(User.USER, user);
+        final UserExt user = userQueryService.getUser(userId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+        Escapes.escapeHTML(jsonObject);
+        dataModel.put(User.USER, jsonObject);
 
         final JSONObject result = roleQueryService.getRoles(1, Integer.MAX_VALUE, 10);
-        final List<JSONObject> roles = (List<JSONObject>) result.opt(Role.ROLES);
-        dataModel.put(Role.ROLES, roles);
+        final List<JSONObject> roles = (List<JSONObject>) result.opt(RoleUtil.ROLES);
+        dataModel.put(RoleUtil.ROLES, roles);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return "admin/user.ftl";
@@ -1627,7 +1638,7 @@ public class AdminProcessor {
         final String userName = request.getParameter(User.USER_NAME);
         final String email = request.getParameter(User.USER_EMAIL);
         final String password = request.getParameter(User.USER_PASSWORD);
-        final String appRole = request.getParameter(UserExt.USER_APP_ROLE);
+        final String appRole = request.getParameter(UserExtUtil.USER_APP_ROLE);
 
         final boolean nameInvalid = UserRegisterValidation.invalidUserName(userName);
         final boolean emailInvalid = !Strings.isEmail(email);
@@ -1658,11 +1669,11 @@ public class AdminProcessor {
             user.put(User.USER_NAME, userName);
             user.put(User.USER_EMAIL, email);
             user.put(User.USER_PASSWORD, MD5.hash(password));
-            user.put(UserExt.USER_APP_ROLE, appRole);
-            user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
+            user.put(UserExtUtil.USER_APP_ROLE, appRole);
+            user.put(UserExtUtil.USER_STATUS, UserExtUtil.USER_STATUS_C_VALID);
 
             final JSONObject admin = (JSONObject) request.getAttribute(User.USER);
-            user.put(UserExt.USER_LANGUAGE, admin.optString(UserExt.USER_LANGUAGE));
+            user.put(UserExtUtil.USER_LANGUAGE, admin.optString(UserExtUtil.USER_LANGUAGE));
 
             userId = userMgmtService.addUser(user);
         } catch (final Exception e) {
@@ -1704,13 +1715,15 @@ public class AdminProcessor {
 //        renderer.setTemplateName("admin/user.ftl");
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final JSONObject user = userQueryService.getUser(userId);
-        dataModel.put(User.USER, user);
-        final String oldRole = user.optString(User.USER_ROLE);
+        UserExt user = userQueryService.getUser(userId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+
+        dataModel.put(User.USER, jsonObject);
+        final String oldRole = user.getUserRole();
 
         final JSONObject result = roleQueryService.getRoles(1, Integer.MAX_VALUE, 10);
-        final List<JSONObject> roles = (List<JSONObject>) result.opt(Role.ROLES);
-        dataModel.put(Role.ROLES, roles);
+        final List<JSONObject> roles = (List<JSONObject>) result.opt(RoleUtil.ROLES);
+        dataModel.put(RoleUtil.ROLES, roles);
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
@@ -1718,59 +1731,60 @@ public class AdminProcessor {
             final String value = request.getParameter(name);
 
             switch (name) {
-                case UserExt.USER_POINT:
-                case UserExt.USER_APP_ROLE:
-                case UserExt.USER_STATUS:
-                case UserExt.USER_COMMENT_VIEW_MODE:
-                case UserExt.USER_AVATAR_VIEW_MODE:
-                case UserExt.USER_LIST_PAGE_SIZE:
-                case UserExt.USER_LIST_VIEW_MODE:
-                case UserExt.USER_NOTIFY_STATUS:
-                case UserExt.USER_SUB_MAIL_STATUS:
-                case UserExt.USER_KEYBOARD_SHORTCUTS_STATUS:
-                case UserExt.USER_REPLY_WATCH_ARTICLE_STATUS:
-                case UserExt.USER_GEO_STATUS:
-                case UserExt.USER_ARTICLE_STATUS:
-                case UserExt.USER_COMMENT_STATUS:
-                case UserExt.USER_FOLLOWING_USER_STATUS:
-                case UserExt.USER_FOLLOWING_TAG_STATUS:
-                case UserExt.USER_FOLLOWING_ARTICLE_STATUS:
-                case UserExt.USER_WATCHING_ARTICLE_STATUS:
-                case UserExt.USER_BREEZEMOON_STATUS:
-                case UserExt.USER_FOLLOWER_STATUS:
-                case UserExt.USER_POINT_STATUS:
-                case UserExt.USER_ONLINE_STATUS:
-                case UserExt.USER_UA_STATUS:
-                case UserExt.USER_TIMELINE_STATUS:
-                case UserExt.USER_FORGE_LINK_STATUS:
-                case UserExt.USER_JOIN_POINT_RANK:
-                case UserExt.USER_JOIN_USED_POINT_RANK:
-                    user.put(name, Integer.valueOf(value));
+                case UserExtUtil.USER_POINT:
+                case UserExtUtil.USER_APP_ROLE:
+                case UserExtUtil.USER_STATUS:
+                case UserExtUtil.USER_COMMENT_VIEW_MODE:
+                case UserExtUtil.USER_AVATAR_VIEW_MODE:
+                case UserExtUtil.USER_LIST_PAGE_SIZE:
+                case UserExtUtil.USER_LIST_VIEW_MODE:
+                case UserExtUtil.USER_NOTIFY_STATUS:
+                case UserExtUtil.USER_SUB_MAIL_STATUS:
+                case UserExtUtil.USER_KEYBOARD_SHORTCUTS_STATUS:
+                case UserExtUtil.USER_REPLY_WATCH_ARTICLE_STATUS:
+                case UserExtUtil.USER_GEO_STATUS:
+                case UserExtUtil.USER_ARTICLE_STATUS:
+                case UserExtUtil.USER_COMMENT_STATUS:
+                case UserExtUtil.USER_FOLLOWING_USER_STATUS:
+                case UserExtUtil.USER_FOLLOWING_TAG_STATUS:
+                case UserExtUtil.USER_FOLLOWING_ARTICLE_STATUS:
+                case UserExtUtil.USER_WATCHING_ARTICLE_STATUS:
+                case UserExtUtil.USER_BREEZEMOON_STATUS:
+                case UserExtUtil.USER_FOLLOWER_STATUS:
+                case UserExtUtil.USER_POINT_STATUS:
+                case UserExtUtil.USER_ONLINE_STATUS:
+                case UserExtUtil.USER_UA_STATUS:
+                case UserExtUtil.USER_TIMELINE_STATUS:
+                case UserExtUtil.USER_FORGE_LINK_STATUS:
+                case UserExtUtil.USER_JOIN_POINT_RANK:
+                case UserExtUtil.USER_JOIN_USED_POINT_RANK:
+                    jsonObject.put(name, Integer.valueOf(value));
 
                     break;
                 case User.USER_PASSWORD:
-                    final String oldPwd = user.getString(name);
+                    final String oldPwd = jsonObject.getString(name);
                     if (!oldPwd.equals(value) && !Strings.isEmptyOrNull(value)) {
-                        user.put(name, MD5.hash(value));
+                        jsonObject.put(name, MD5.hash(value));
                     }
 
                     break;
-                case UserExt.SYNC_TO_CLIENT:
-                    user.put(UserExt.SYNC_TO_CLIENT, Boolean.valueOf(value));
+                case UserExtUtil.SYNC_TO_CLIENT:
+                    jsonObject.put(UserExtUtil.SYNC_TO_CLIENT, Boolean.valueOf(value));
 
                     break;
                 default:
-                    user.put(name, value);
+                    jsonObject.put(name, value);
 
                     break;
             }
         }
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
-        if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
-            user.put(User.USER_ROLE, oldRole);
+        if (!RoleUtil.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
+            jsonObject.put(User.USER_ROLE, oldRole);
         }
 
+        user = JsonUtil.json2Bean(jsonObject.toString(),UserExt.class);
         userMgmtService.updateUser(userId, user);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
@@ -1796,8 +1810,8 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String updateUserEmail(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                 final String userId) throws Exception {
-        final JSONObject user = userQueryService.getUser(userId);
-        final String oldEmail = user.optString(User.USER_EMAIL);
+        final UserExt user = userQueryService.getUser(userId);
+        final String oldEmail = user.getUserEmail();
         final String newEmail = request.getParameter(User.USER_EMAIL);
 
         if (oldEmail.equals(newEmail)) {
@@ -1806,7 +1820,7 @@ public class AdminProcessor {
 //            return;
         }
 
-        user.put(User.USER_EMAIL, newEmail);
+        user.setUserEmail(newEmail);
 
         try {
             userMgmtService.updateUserEmail(userId, user);
@@ -1844,8 +1858,8 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String updateUserName(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                                final String userId) throws Exception {
-        final JSONObject user = userQueryService.getUser(userId);
-        final String oldUserName = user.optString(User.USER_NAME);
+        final UserExt user = userQueryService.getUser(userId);
+        final String oldUserName = user.getUserName();
         final String newUserName = request.getParameter(User.USER_NAME);
 
         if (oldUserName.equals(newUserName)) {
@@ -1854,7 +1868,7 @@ public class AdminProcessor {
 //            return;
         }
 
-        user.put(User.USER_NAME, newUserName);
+        user.setUserName(newUserName);
 
         try {
             userMgmtService.updateUserName(userId, user);
@@ -1905,12 +1919,12 @@ public class AdminProcessor {
         try {
             final int point = Integer.valueOf(pointStr);
 
-            final String transferId = pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                    Pointtransfer.TRANSFER_TYPE_C_CHARGE, point, memo, System.currentTimeMillis());
+            final String transferId = pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                    PointtransferUtil.TRANSFER_TYPE_C_CHARGE, point, memo, System.currentTimeMillis());
 
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, userId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, transferId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, userId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, transferId);
 
             notificationMgmtService.addPointChargeNotification(notification);
 //        } catch (final NumberFormatException | Exception e) {
@@ -1952,8 +1966,8 @@ public class AdminProcessor {
         try {
             final int point = Integer.valueOf(pointStr);
 
-            final JSONObject user = userQueryService.getUser(userId);
-            final int currentPoint = user.optInt(UserExt.USER_POINT);
+            final UserExt user = userQueryService.getUser(userId);
+            final int currentPoint = user.getUserPoint();
 
             if (currentPoint - point < 0) {
 //                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -1969,12 +1983,12 @@ public class AdminProcessor {
 
             final String memo = request.getParameter(Common.MEMO);
 
-            final String transferId = pointtransferMgmtService.transfer(userId, Pointtransfer.ID_C_SYS,
-                    Pointtransfer.TRANSFER_TYPE_C_ABUSE_DEDUCT, point, memo, System.currentTimeMillis());
+            final String transferId = pointtransferMgmtService.transfer(userId, PointtransferUtil.ID_C_SYS,
+                    PointtransferUtil.TRANSFER_TYPE_C_ABUSE_DEDUCT, point, memo, System.currentTimeMillis());
 
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, userId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, transferId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, userId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, transferId);
 
             notificationMgmtService.addAbusePointDeductNotification(notification);
         } catch (final Exception e) {
@@ -2011,20 +2025,20 @@ public class AdminProcessor {
     public String initPoint(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                           final String userId) throws Exception {
         try {
-            final JSONObject user = userQueryService.getUser(userId);
+            final UserExt user = userQueryService.getUser(userId);
             if (null == user
-                    || UserExt.USER_STATUS_C_VALID != user.optInt(UserExt.USER_STATUS)
-                    || UserExt.NULL_USER_NAME.equals(user.optString(User.USER_NAME))) {
+                    || UserExtUtil.USER_STATUS_C_VALID != user.getUserStatus()
+                    || UserExtUtil.NULL_USER_NAME.equals(user.getRoleName())) {
                 return "redirect:" + (SpringUtil.getServerPath() + "/admin/user/" + userId);
 
 //                return;
             }
 
-            final List<JSONObject> records
-                    = pointtransferQueryService.getLatestPointtransfers(userId, Pointtransfer.TRANSFER_TYPE_C_INIT, 1);
+            final List<Pointtransfer> records
+                    = pointtransferQueryService.getLatestPointtransfers(userId, PointtransferUtil.TRANSFER_TYPE_C_INIT, 1);
             if (records.isEmpty()) {
-                pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId, Pointtransfer.TRANSFER_TYPE_C_INIT,
-                        Pointtransfer.TRANSFER_SUM_C_INIT, userId, Long.valueOf(userId));
+                pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId, PointtransferUtil.TRANSFER_TYPE_C_INIT,
+                        PointtransferUtil.TRANSFER_SUM_C_INIT, userId, Long.valueOf(userId));
             }
 //        } catch (final IOException | NumberFormatException | Exception e) {
         }catch (Exception e) {
@@ -2065,8 +2079,8 @@ public class AdminProcessor {
         try {
             final int point = Integer.valueOf(pointStr);
 
-            final JSONObject user = userQueryService.getUser(userId);
-            final int currentPoint = user.optInt(UserExt.USER_POINT);
+            final UserExt user = userQueryService.getUser(userId);
+            final int currentPoint = user.getUserPoint();
 
             if (currentPoint - point < Symphonys.getInt("pointExchangeMin")) {
 //                final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -2082,12 +2096,12 @@ public class AdminProcessor {
 
             final String memo = String.valueOf(Math.floor(point / (double) Symphonys.getInt("pointExchangeUnit")));
 
-            final String transferId = pointtransferMgmtService.transfer(userId, Pointtransfer.ID_C_SYS,
-                    Pointtransfer.TRANSFER_TYPE_C_EXCHANGE, point, memo, System.currentTimeMillis());
+            final String transferId = pointtransferMgmtService.transfer(userId, PointtransferUtil.ID_C_SYS,
+                    PointtransferUtil.TRANSFER_TYPE_C_EXCHANGE, point, memo, System.currentTimeMillis());
 
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, userId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, transferId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, userId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, transferId);
 
             notificationMgmtService.addPointExchangeNotification(notification);
         } catch (final Exception e) {
@@ -2142,20 +2156,20 @@ public class AdminProcessor {
 
         final Map<String, Class<?>> articleFields = new HashMap<>();
         articleFields.put(Keys.OBJECT_ID, String.class);
-        articleFields.put(Article.ARTICLE_TITLE, String.class);
-        articleFields.put(Article.ARTICLE_PERMALINK, String.class);
-        articleFields.put(Article.ARTICLE_CREATE_TIME, Long.class);
-        articleFields.put(Article.ARTICLE_VIEW_CNT, Integer.class);
-        articleFields.put(Article.ARTICLE_COMMENT_CNT, Integer.class);
-        articleFields.put(Article.ARTICLE_AUTHOR_ID, String.class);
-        articleFields.put(Article.ARTICLE_TAGS, String.class);
-        articleFields.put(Article.ARTICLE_STATUS, Integer.class);
-        articleFields.put(Article.ARTICLE_STICK, Long.class);
+        articleFields.put(ArticleUtil.ARTICLE_TITLE, String.class);
+        articleFields.put(ArticleUtil.ARTICLE_PERMALINK, String.class);
+        articleFields.put(ArticleUtil.ARTICLE_CREATE_TIME, Long.class);
+        articleFields.put(ArticleUtil.ARTICLE_VIEW_CNT, Integer.class);
+        articleFields.put(ArticleUtil.ARTICLE_COMMENT_CNT, Integer.class);
+        articleFields.put(ArticleUtil.ARTICLE_AUTHOR_ID, String.class);
+        articleFields.put(ArticleUtil.ARTICLE_TAGS, String.class);
+        articleFields.put(ArticleUtil.ARTICLE_STATUS, Integer.class);
+        articleFields.put(ArticleUtil.ARTICLE_STICK, Long.class);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = articleQueryService.getArticles(avatarViewMode, requestJSONObject, articleFields);
-        dataModel.put(Article.ARTICLES, CollectionUtils.jsonArrayToList(result.optJSONArray(Article.ARTICLES)));
+        dataModel.put(ArticleUtil.ARTICLES, CollectionUtils.jsonArrayToList(result.optJSONArray(ArticleUtil.ARTICLES)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -2193,9 +2207,11 @@ public class AdminProcessor {
 //        renderer.setTemplateName("admin/article.ftl");
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
-        final JSONObject article = articleQueryService.getArticle(articleId);
-        Escapes.escapeHTML(article);
-        dataModel.put(Article.ARTICLE, article);
+        final Article article = articleQueryService.getArticle(articleId);
+
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
+        Escapes.escapeHTML(jsonObject);
+        dataModel.put(ArticleUtil.ARTICLE, jsonObject);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return "admin/article.ftl";
@@ -2225,35 +2241,37 @@ public class AdminProcessor {
 
         String url = "admin/article.ftl";
 
-        JSONObject article = articleQueryService.getArticle(articleId);
+        Article article = articleQueryService.getArticle(articleId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             final String value = request.getParameter(name);
 
-            if (name.equals(Article.ARTICLE_REWARD_POINT)
-                    || name.equals(Article.ARTICLE_QNA_OFFER_POINT)
-                    || name.equals(Article.ARTICLE_STATUS)
-                    || name.equals(Article.ARTICLE_TYPE)
-                    || name.equals(Article.ARTICLE_GOOD_CNT)
-                    || name.equals(Article.ARTICLE_BAD_CNT)
-                    || name.equals(Article.ARTICLE_PERFECT)
-                    || name.equals(Article.ARTICLE_ANONYMOUS_VIEW)
-                    || name.equals(Article.ARTICLE_PUSH_ORDER)) {
-                article.put(name, Integer.valueOf(value));
+            if (name.equals(ArticleUtil.ARTICLE_REWARD_POINT)
+                    || name.equals(ArticleUtil.ARTICLE_QNA_OFFER_POINT)
+                    || name.equals(ArticleUtil.ARTICLE_STATUS)
+                    || name.equals(ArticleUtil.ARTICLE_TYPE)
+                    || name.equals(ArticleUtil.ARTICLE_GOOD_CNT)
+                    || name.equals(ArticleUtil.ARTICLE_BAD_CNT)
+                    || name.equals(ArticleUtil.ARTICLE_PERFECT)
+                    || name.equals(ArticleUtil.ARTICLE_ANONYMOUS_VIEW)
+                    || name.equals(ArticleUtil.ARTICLE_PUSH_ORDER)) {
+                jsonObject.put(name, Integer.valueOf(value));
             } else {
-                article.put(name, value);
+                jsonObject.put(name, value);
             }
         }
 
-        final String articleTags = Tag.formatTags(article.optString(Article.ARTICLE_TAGS));
-        article.put(Article.ARTICLE_TAGS, articleTags);
+        final String articleTags = TagUtil.formatTags(jsonObject.optString(ArticleUtil.ARTICLE_TAGS));
+        jsonObject.put(ArticleUtil.ARTICLE_TAGS, articleTags);
 
+        article = JsonUtil.json2Bean(jsonObject.toString(),Article.class);
         articleMgmtService.updateArticleByAdmin(articleId, article);
 
         article = articleQueryService.getArticle(articleId);
-        dataModel.put(Article.ARTICLE, article);
+        dataModel.put(ArticleUtil.ARTICLE, article);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2294,17 +2312,17 @@ public class AdminProcessor {
 
         final Map<String, Class<?>> commentFields = new HashMap<>();
         commentFields.put(Keys.OBJECT_ID, String.class);
-        commentFields.put(Comment.COMMENT_CREATE_TIME, String.class);
-        commentFields.put(Comment.COMMENT_AUTHOR_ID, String.class);
-        commentFields.put(Comment.COMMENT_ON_ARTICLE_ID, String.class);
-        commentFields.put(Comment.COMMENT_SHARP_URL, String.class);
-        commentFields.put(Comment.COMMENT_STATUS, Integer.class);
-        commentFields.put(Comment.COMMENT_CONTENT, String.class);
+        commentFields.put(CommentUtil.COMMENT_CREATE_TIME, String.class);
+        commentFields.put(CommentUtil.COMMENT_AUTHOR_ID, String.class);
+        commentFields.put(CommentUtil.COMMENT_ON_ARTICLE_ID, String.class);
+        commentFields.put(CommentUtil.COMMENT_SHARP_URL, String.class);
+        commentFields.put(CommentUtil.COMMENT_STATUS, Integer.class);
+        commentFields.put(CommentUtil.COMMENT_CONTENT, String.class);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = commentQueryService.getComments(avatarViewMode, requestJSONObject, commentFields);
-        dataModel.put(Comment.COMMENTS, CollectionUtils.jsonArrayToList(result.optJSONArray(Comment.COMMENTS)));
+        dataModel.put(CommentUtil.COMMENTS, CollectionUtils.jsonArrayToList(result.optJSONArray(CommentUtil.COMMENTS)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -2343,9 +2361,10 @@ public class AdminProcessor {
 
         String url = "admin/comment.ftl";
 
-        final JSONObject comment = commentQueryService.getComment(commentId);
-        Escapes.escapeHTML(comment);
-        dataModel.put(Comment.COMMENT, comment);
+        final Comment comment = commentQueryService.getComment(commentId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(comment));
+        Escapes.escapeHTML(jsonObject);
+        dataModel.put(CommentUtil.COMMENT, jsonObject);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2375,26 +2394,27 @@ public class AdminProcessor {
 
         String url = "admin/comment.ftl";
 
-        JSONObject comment = commentQueryService.getComment(commentId);
+        Comment comment = commentQueryService.getComment(commentId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(comment));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             final String value = request.getParameter(name);
 
-            if (name.equals(Comment.COMMENT_STATUS)
-                    || name.equals(Comment.COMMENT_GOOD_CNT)
-                    || name.equals(Comment.COMMENT_BAD_CNT)) {
-                comment.put(name, Integer.valueOf(value));
+            if (name.equals(CommentUtil.COMMENT_STATUS)
+                    || name.equals(CommentUtil.COMMENT_GOOD_CNT)
+                    || name.equals(CommentUtil.COMMENT_BAD_CNT)) {
+                jsonObject.put(name, Integer.valueOf(value));
             } else {
-                comment.put(name, value);
+                jsonObject.put(name, value);
             }
         }
 
-        commentMgmtService.updateComment(commentId, comment);
+        commentMgmtService.updateComment(commentId, jsonObject);
 
         comment = commentQueryService.getComment(commentId);
-        dataModel.put(Comment.COMMENT, comment);
+        dataModel.put(CommentUtil.COMMENT, comment);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2425,7 +2445,7 @@ public class AdminProcessor {
         String url = "admin/misc.ftl";
 
         final List<JSONObject> misc = optionQueryService.getMisc();
-        dataModel.put(Option.OPTIONS, misc);
+        dataModel.put(OptionUtil.OPTIONS, misc);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2463,18 +2483,19 @@ public class AdminProcessor {
 
             final JSONObject option = new JSONObject();
             option.put(Keys.OBJECT_ID, name);
-            option.put(Option.OPTION_VALUE, value);
-            option.setOptionCategory( Option.CATEGORY_C_MISC);
+            option.put(OptionUtil.OPTION_VALUE, value);
+            option.put(OptionUtil.OPTION_CATEGORY, OptionUtil.CATEGORY_C_MISC);
 
             misc.add(option);
         }
 
         for (final JSONObject option : misc) {
-            optionMgmtService.updateOption(option.getString(Keys.OBJECT_ID), option);
+            Option option1 = JsonUtil.json2Bean(option.toString(),Option.class);
+            optionMgmtService.updateOption(option.getString(Keys.OBJECT_ID), option1);
         }
 
         misc = optionQueryService.getMisc();
-        dataModel.put(Option.OPTIONS, misc);
+        dataModel.put(OptionUtil.OPTIONS, misc);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2514,25 +2535,25 @@ public class AdminProcessor {
 
         final String tagTitle = request.getParameter(Common.TITLE);
         if (!Strings.isEmptyOrNull(tagTitle)) {
-            requestJSONObject.put(Tag.TAG_TITLE, tagTitle);
+            requestJSONObject.put(TagUtil.TAG_TITLE, tagTitle);
         }
 
         final Map<String, Class<?>> tagFields = new HashMap<>();
         tagFields.put(Keys.OBJECT_ID, String.class);
-        tagFields.put(Tag.TAG_TITLE, String.class);
-        tagFields.put(Tag.TAG_DESCRIPTION, String.class);
-        tagFields.put(Tag.TAG_ICON_PATH, String.class);
-        tagFields.put(Tag.TAG_COMMENT_CNT, Integer.class);
-        tagFields.put(Tag.TAG_REFERENCE_CNT, Integer.class);
-        tagFields.put(Tag.TAG_FOLLOWER_CNT, Integer.class);
-        tagFields.put(Tag.TAG_STATUS, Integer.class);
-        tagFields.put(Tag.TAG_GOOD_CNT, Integer.class);
-        tagFields.put(Tag.TAG_BAD_CNT, Integer.class);
-        tagFields.put(Tag.TAG_URI, String.class);
-        tagFields.put(Tag.TAG_CSS, String.class);
+        tagFields.put(TagUtil.TAG_TITLE, String.class);
+        tagFields.put(TagUtil.TAG_DESCRIPTION, String.class);
+        tagFields.put(TagUtil.TAG_ICON_PATH, String.class);
+        tagFields.put(TagUtil.TAG_COMMENT_CNT, Integer.class);
+        tagFields.put(TagUtil.TAG_REFERENCE_CNT, Integer.class);
+        tagFields.put(TagUtil.TAG_FOLLOWER_CNT, Integer.class);
+        tagFields.put(TagUtil.TAG_STATUS, Integer.class);
+        tagFields.put(TagUtil.TAG_GOOD_CNT, Integer.class);
+        tagFields.put(TagUtil.TAG_BAD_CNT, Integer.class);
+        tagFields.put(TagUtil.TAG_URI, String.class);
+        tagFields.put(TagUtil.TAG_CSS, String.class);
 
         final JSONObject result = tagQueryService.getTags(requestJSONObject, tagFields);
-        dataModel.put(Tag.TAGS, CollectionUtils.jsonArrayToList(result.optJSONArray(Tag.TAGS)));
+        dataModel.put(TagUtil.TAGS, CollectionUtils.jsonArrayToList(result.optJSONArray(TagUtil.TAGS)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -2572,8 +2593,8 @@ public class AdminProcessor {
 
         String url = "admin/tag.ftl";
 
-        final JSONObject tag = tagQueryService.getTag(tagId);
-        dataModel.put(Tag.TAG, tag);
+        final Tag tag = tagQueryService.getTag(tagId);
+        dataModel.put(TagUtil.TAG, tag);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2604,36 +2625,39 @@ public class AdminProcessor {
 
         String url = "admin/tag.ftl";
 
-        JSONObject tag = tagQueryService.getTag(tagId);
+        Tag tag = tagQueryService.getTag(tagId);
 
-        final String oldTitle = tag.optString(Tag.TAG_TITLE);
+        final String oldTitle = tag.getTagTitle();
+
+        JSONObject jsonObject =new JSONObject( JsonUtil.objectToJson(tag));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             final String value = request.getParameter(name);
 
-            if (name.equals(Tag.TAG_REFERENCE_CNT)
-                    || name.equals(Tag.TAG_COMMENT_CNT)
-                    || name.equals(Tag.TAG_FOLLOWER_CNT)
-                    || name.contains(Tag.TAG_LINK_CNT)
-                    || name.contains(Tag.TAG_STATUS)
-                    || name.equals(Tag.TAG_GOOD_CNT)
-                    || name.equals(Tag.TAG_BAD_CNT)) {
-                tag.put(name, Integer.valueOf(value));
+            if (name.equals(TagUtil.TAG_REFERENCE_CNT)
+                    || name.equals(TagUtil.TAG_COMMENT_CNT)
+                    || name.equals(TagUtil.TAG_FOLLOWER_CNT)
+                    || name.contains(TagUtil.TAG_LINK_CNT)
+                    || name.contains(TagUtil.TAG_STATUS)
+                    || name.equals(TagUtil.TAG_GOOD_CNT)
+                    || name.equals(TagUtil.TAG_BAD_CNT)) {
+                jsonObject.put(name, Integer.valueOf(value));
             } else {
-                tag.put(name, value);
+                jsonObject.put(name, value);
             }
         }
 
-        final String newTitle = tag.optString(Tag.TAG_TITLE);
+        final String newTitle = jsonObject.optString(TagUtil.TAG_TITLE);
 
+        tag = JsonUtil.json2Bean(jsonObject.toString(),Tag.class);
         if (oldTitle.equalsIgnoreCase(newTitle)) {
             tagMgmtService.updateTag(tagId, tag);
         }
 
         tag = tagQueryService.getTag(tagId);
-        dataModel.put(Tag.TAG, tag);
+        dataModel.put(TagUtil.TAG, tag);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2673,19 +2697,19 @@ public class AdminProcessor {
 
         final String domainTitle = request.getParameter(Common.TITLE);
         if (!Strings.isEmptyOrNull(domainTitle)) {
-            requestJSONObject.put(Domain.DOMAIN_TITLE, domainTitle);
+            requestJSONObject.put(DomainUtil.DOMAIN_TITLE, domainTitle);
         }
 
         final Map<String, Class<?>> domainFields = new HashMap<>();
         domainFields.put(Keys.OBJECT_ID, String.class);
-        domainFields.put(Domain.DOMAIN_TITLE, String.class);
-        domainFields.put(Domain.DOMAIN_DESCRIPTION, String.class);
-        domainFields.put(Domain.DOMAIN_ICON_PATH, String.class);
-        domainFields.put(Domain.DOMAIN_STATUS, String.class);
-        domainFields.put(Domain.DOMAIN_URI, String.class);
+        domainFields.put(DomainUtil.DOMAIN_TITLE, String.class);
+        domainFields.put(DomainUtil.DOMAIN_DESCRIPTION, String.class);
+        domainFields.put(DomainUtil.DOMAIN_ICON_PATH, String.class);
+        domainFields.put(DomainUtil.DOMAIN_STATUS, String.class);
+        domainFields.put(DomainUtil.DOMAIN_URI, String.class);
 
         final JSONObject result = domainQueryService.getDomains(requestJSONObject, domainFields);
-        dataModel.put(Common.ALL_DOMAINS, CollectionUtils.jsonArrayToList(result.optJSONArray(Domain.DOMAINS)));
+        dataModel.put(Common.ALL_DOMAINS, CollectionUtils.jsonArrayToList(result.optJSONArray(DomainUtil.DOMAINS)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
         final int pageCount = pagination.optInt(Pagination.PAGINATION_PAGE_COUNT);
@@ -2724,8 +2748,8 @@ public class AdminProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "admin/domain.ftl";
 
-        final JSONObject domain = domainQueryService.getDomain(domainId);
-        dataModel.put(Domain.DOMAIN, domain);
+        final Domain domain = domainQueryService.getDomain(domainId);
+        dataModel.put(DomainUtil.DOMAIN, domain);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2755,31 +2779,33 @@ public class AdminProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "admin/domain.ftl";
 
-        JSONObject domain = domainQueryService.getDomain(domainId);
-        final String oldTitle = domain.optString(Domain.DOMAIN_TITLE);
+        Domain domain = domainQueryService.getDomain(domainId);
+        final String oldTitle = domain.getDomainTitle();
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(domain));
 
         final Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
             final String name = parameterNames.nextElement();
             String value = request.getParameter(name);
 
-            if (Domain.DOMAIN_ICON_PATH.equals(name)) {
+            if (DomainUtil.DOMAIN_ICON_PATH.equals(name)) {
                 value = StringUtils.replace(value, "\"", "'");
             }
 
-            domain.put(name, value);
+            jsonObject.put(name, value);
         }
 
-        domain.remove(Domain.DOMAIN_T_TAGS);
+        jsonObject.remove(DomainUtil.DOMAIN_T_TAGS);
 
-        final String newTitle = domain.optString(Domain.DOMAIN_TITLE);
+        final String newTitle = jsonObject.optString(DomainUtil.DOMAIN_TITLE);
 
+        domain = JsonUtil.json2Bean(jsonObject.toString(),Domain.class);
         if (oldTitle.equalsIgnoreCase(newTitle)) {
             domainMgmtService.updateDomain(domainId, domain);
         }
 
         domain = domainQueryService.getDomain(domainId);
-        dataModel.put(Domain.DOMAIN, domain);
+        dataModel.put(DomainUtil.DOMAIN, domain);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return url;
@@ -2829,7 +2855,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String addDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String domainTitle = request.getParameter(Domain.DOMAIN_TITLE);
+        final String domainTitle = request.getParameter(DomainUtil.DOMAIN_TITLE);
 
         if (StringUtils.isBlank(domainTitle)) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -2862,10 +2888,10 @@ public class AdminProcessor {
         String domainId;
         try {
             final JSONObject domain = new JSONObject();
-            domain.put(Domain.DOMAIN_TITLE, domainTitle);
-            domain.put(Domain.DOMAIN_URI, domainTitle);
-            domain.put(Domain.DOMAIN_DESCRIPTION, domainTitle);
-            domain.put(Domain.DOMAIN_STATUS, Domain.DOMAIN_STATUS_C_VALID);
+            domain.put(DomainUtil.DOMAIN_TITLE, domainTitle);
+            domain.put(DomainUtil.DOMAIN_URI, domainTitle);
+            domain.put(DomainUtil.DOMAIN_DESCRIPTION, domainTitle);
+            domain.put(DomainUtil.DOMAIN_STATUS, DomainUtil.DOMAIN_STATUS_C_VALID);
 
             domainId = domainMgmtService.addDomain(domain);
         } catch (final Exception e) {
@@ -2900,7 +2926,7 @@ public class AdminProcessor {
     @StopWatchEndAnno
     public String removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response)
             throws Exception {
-        final String domainId = request.getParameter(Domain.DOMAIN_T_ID);
+        final String domainId = request.getParameter(DomainUtil.DOMAIN_T_ID);
         domainMgmtService.removeDomain(domainId);
 
         return "redirect:" +(SpringUtil.getServerPath() + "/admin/domains");
@@ -2925,26 +2951,26 @@ public class AdminProcessor {
     public String addDomainTag(Map<String, Object> dataModel,
                              final HttpServletRequest request, final HttpServletResponse response, final String domainId)
             throws Exception {
-        String tagTitle = request.getParameter(Tag.TAG_TITLE);
-        final JSONObject tag = tagQueryService.getTagByTitle(tagTitle);
+        String tagTitle = request.getParameter(TagUtil.TAG_TITLE);
+        final Tag tag = tagQueryService.getTagByTitle(tagTitle);
 
         String tagId;
         if (tag != null) {
-            tagId = tag.optString(Keys.OBJECT_ID);
+            tagId = tag.getOid();
         } else {
             try {
                 if (Strings.isEmptyOrNull(tagTitle)) {
                     throw new Exception(langPropsService.get("tagsErrorLabel"));
                 }
 
-                tagTitle = Tag.formatTags(tagTitle);
+                tagTitle = TagUtil.formatTags(tagTitle);
 
-                if (!Tag.containsWhiteListTags(tagTitle)) {
-                    if (!Tag.TAG_TITLE_PATTERN.matcher(tagTitle).matches()) {
+                if (!TagUtil.containsWhiteListTags(tagTitle)) {
+                    if (!TagUtil.TAG_TITLE_PATTERN.matcher(tagTitle).matches()) {
                         throw new Exception(langPropsService.get("tagsErrorLabel"));
                     }
 
-                    if (tagTitle.length() > Tag.MAX_TAG_TITLE_LENGTH) {
+                    if (tagTitle.length() > TagUtil.MAX_TAG_TITLE_LENGTH) {
                         throw new Exception(langPropsService.get("tagsErrorLabel"));
                     }
                 }
@@ -2998,9 +3024,9 @@ public class AdminProcessor {
             return url;
         }
 
-        final JSONObject domainTag = new JSONObject();
-        domainTag.put(Domain.DOMAIN + "_" + Keys.OBJECT_ID, domainId);
-        domainTag.put(Tag.TAG + "_" + Keys.OBJECT_ID, tagId);
+        final DomainTag domainTag = new DomainTag();
+        domainTag.setDomain_oId(domainId);
+        domainTag.setTag_oId(tagId);
 
         domainMgmtService.addDomainTag(domainTag);
 
@@ -3026,8 +3052,8 @@ public class AdminProcessor {
     public String removeDomain(Map<String, Object> dataModel, final HttpServletRequest request, final HttpServletResponse response,
                              final String domainId)
             throws Exception {
-        final String tagTitle = request.getParameter(Tag.TAG_TITLE);
-        final JSONObject tag = tagQueryService.getTagByTitle(tagTitle);
+        final String tagTitle = request.getParameter(TagUtil.TAG_TITLE);
+        final Tag tag = tagQueryService.getTagByTitle(tagTitle);
 
         if (null == tag) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
@@ -3044,10 +3070,10 @@ public class AdminProcessor {
         }
 
         final JSONObject domainTag = new JSONObject();
-        domainTag.put(Domain.DOMAIN + "_" + Keys.OBJECT_ID, domainId);
-        domainTag.put(Tag.TAG + "_" + Keys.OBJECT_ID, tag.optString(Keys.OBJECT_ID));
+        domainTag.put(DomainUtil.DOMAIN + "_" + Keys.OBJECT_ID, domainId);
+        domainTag.put(TagUtil.TAG + "_" + Keys.OBJECT_ID, tag.getOid());
 
-        domainMgmtService.removeDomainTag(domainId, tag.optString(Keys.OBJECT_ID));
+        domainMgmtService.removeDomainTag(domainId, tag.getOid());
 
         return "redirect:" +(SpringUtil.getServerPath() + "/admin/domain/" + domainId);
     }
@@ -3077,11 +3103,11 @@ public class AdminProcessor {
         new Thread(() -> {
             try {
                 final JSONObject stat = optionQueryService.getStatistic();
-                final int articleCount = stat.optInt(Option.ID_C_STATISTIC_ARTICLE_COUNT);
+                final int articleCount = stat.optInt(OptionUtil.ID_C_STATISTIC_ARTICLE_COUNT);
                 final int pages = (int) Math.ceil((double) articleCount / 50.0);
 
                 for (int pageNum = 1; pageNum <= pages; pageNum++) {
-                    final List<JSONObject> articles = articleQueryService.getValidArticles(pageNum, 50, Article.ARTICLE_TYPE_C_NORMAL, Article.ARTICLE_TYPE_C_CITY_BROADCAST);
+                    final List<JSONObject> articles = articleQueryService.getValidArticles(pageNum, 50, ArticleUtil.ARTICLE_TYPE_C_NORMAL, ArticleUtil.ARTICLE_TYPE_C_CITY_BROADCAST);
 
                     for (final JSONObject article : articles) {
                         if (Symphonys.getBoolean("algolia.enabled")) {
@@ -3089,7 +3115,7 @@ public class AdminProcessor {
                         }
 
                         if (Symphonys.getBoolean("es.enabled")) {
-                            searchMgmtService.updateESDocument(article, Article.ARTICLE);
+                            searchMgmtService.updateESDocument(article, ArticleUtil.ARTICLE);
                         }
                     }
 
@@ -3118,25 +3144,27 @@ public class AdminProcessor {
     @PermissionCheckAnno
     @StopWatchEndAnno
     public void searchIndexArticle(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
-        final JSONObject article = articleQueryService.getArticle(articleId);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
+        final Article article = articleQueryService.getArticle(articleId);
 
-        if (null == article || Article.ARTICLE_TYPE_C_DISCUSSION == article.optInt(Article.ARTICLE_TYPE)
-                || Article.ARTICLE_TYPE_C_THOUGHT == article.optInt(Article.ARTICLE_TYPE)) {
+        if (null == article || ArticleUtil.ARTICLE_TYPE_C_DISCUSSION == article.getArticleType()
+                || ArticleUtil.ARTICLE_TYPE_C_THOUGHT == article.getArticleType()) {
             return;
         }
 
-        if (Symphonys.getBoolean("algolia.enabled")) {
-            searchMgmtService.updateAlgoliaDocument(article);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
 
-            final String articlePermalink = SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK);
+        if (Symphonys.getBoolean("algolia.enabled")) {
+            searchMgmtService.updateAlgoliaDocument(jsonObject);
+
+            final String articlePermalink = SpringUtil.getServerPath() + article.getArticlePermalink();
             ArticleBaiduSender.sendToBaidu(articlePermalink);
         }
 
         if (Symphonys.getBoolean("es.enabled")) {
-            searchMgmtService.updateESDocument(article, Article.ARTICLE);
+            searchMgmtService.updateESDocument(jsonObject, ArticleUtil.ARTICLE);
 
-            final String articlePermalink = SpringUtil.getServerPath() + article.optString(Article.ARTICLE_PERMALINK);
+            final String articlePermalink = SpringUtil.getServerPath() + article.getArticlePermalink();
             ArticleBaiduSender.sendToBaidu(articlePermalink);
         }
 

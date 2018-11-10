@@ -16,6 +16,16 @@ public class Permission {
 
     private transient boolean permissionGrant;
 
+    private transient String permissionLabel;
+
+    public String getPermissionLabel() {
+        return permissionLabel;
+    }
+
+    public void setPermissionLabel(String permissionLabel) {
+        this.permissionLabel = permissionLabel;
+    }
+
     public boolean isPermissionGrant() {
         return permissionGrant;
     }

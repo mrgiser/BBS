@@ -21,6 +21,8 @@ import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.cache.DomainCache;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
 import cn.he.zhao.bbs.spring.Paginator;
