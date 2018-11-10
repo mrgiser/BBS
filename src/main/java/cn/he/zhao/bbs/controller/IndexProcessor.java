@@ -17,14 +17,12 @@
  */
 package cn.he.zhao.bbs.controller;
 
-import cn.he.zhao.bbs.spring.Locales;
-import cn.he.zhao.bbs.spring.Paginator;
-import cn.he.zhao.bbs.spring.SpringUtil;
-import cn.he.zhao.bbs.spring.Stopwatchs;
-import cn.he.zhao.bbs.util.Emotions;
-import cn.he.zhao.bbs.util.Markdowns;
-import cn.he.zhao.bbs.util.Sessions;
-import cn.he.zhao.bbs.util.Symphonys;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.spring.*;
+import cn.he.zhao.bbs.util.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import cn.he.zhao.bbs.advice.*;
@@ -126,12 +124,13 @@ public class IndexProcessor {
         String url = "watch.ftl";
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         final JSONObject user = Sessions.currentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.optInt(UserExtUtil.USER_LIST_PAGE_SIZE);
 
-            if (!UserExt.finshedGuide(user)) {
+            UserExt userExt = JsonUtil.json2Bean(user.toString(),UserExt.class);
+            if (!UserExtUtil.finshedGuide(userExt)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             }
@@ -150,7 +149,7 @@ public class IndexProcessor {
                 break;
             case "/users":
                 if (null != user) {
-                    final List<JSONObject> followingUserArticles = articleQueryService.getFollowingUserArticles(
+                    final List<Article> followingUserArticles = articleQueryService.getFollowingUserArticles(
                             avatarViewMode, user.optString(Keys.OBJECT_ID), 1, pageSize);
                     dataModel.put(Common.WATCHING_ARTICLES, followingUserArticles);
                 }
@@ -226,7 +225,7 @@ public class IndexProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "index.ftl";
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         final List<JSONObject> recentArticles = articleQueryService.getIndexRecentArticles(avatarViewMode);
         dataModel.put(Common.RECENT_ARTICLES, recentArticles);
 
@@ -265,17 +264,17 @@ public class IndexProcessor {
 
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.getUserListPageSize();
 
-            if (!UserExt.finshedGuide(user)) {
+            if (!UserExtUtil.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             }
         }
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         String sortModeStr = StringUtils.substringAfter(request.getRequestURI(), "/recent");
         int sortMode;
@@ -302,13 +301,13 @@ public class IndexProcessor {
 
         dataModel.put(Common.SELECTED, Common.RECENT);
         final JSONObject result = articleQueryService.getRecentArticles(avatarViewMode, sortMode, pageNum, pageSize);
-        final List<JSONObject> allArticles = (List<JSONObject>) result.get(Article.ARTICLES);
+        final List<JSONObject> allArticles = (List<JSONObject>) result.get(ArticleUtil.ARTICLES);
         final List<JSONObject> stickArticles = new ArrayList<>();
         final Iterator<JSONObject> iterator = allArticles.iterator();
         while (iterator.hasNext()) {
             final JSONObject article = iterator.next();
-            final boolean stick = article.optInt(Article.ARTICLE_T_STICK_REMAINS) > 0;
-            article.put(Article.ARTICLE_T_IS_STICK, stick);
+            final boolean stick = article.optInt(ArticleUtil.ARTICLE_T_STICK_REMAINS) > 0;
+            article.put(ArticleUtil.ARTICLE_T_IS_STICK, stick);
             if (stick) {
                 stickArticles.add(article);
                 iterator.remove();
@@ -364,12 +363,12 @@ public class IndexProcessor {
         String url = "hot.ftl";
 
         int pageSize = Symphonys.getInt("indexArticlesCnt");
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
+            pageSize = user.getUserListPageSize();
         }
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         final List<JSONObject> indexArticles = articleQueryService.getHotArticles(avatarViewMode, pageSize);
         dataModel.put(Common.INDEX_ARTICLES, indexArticles);
         dataModel.put(Common.SELECTED, Common.HOT);
@@ -416,7 +415,7 @@ public class IndexProcessor {
 
         Stopwatchs.start("Fills");
         try {
-            final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+            final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
             dataModelService.fillHeaderAndFooter(request, response, dataModel);
             if (!(Boolean) dataModel.get(Common.IS_MOBILE)) {
                 dataModelService.fillRandomArticles(dataModel);
@@ -453,18 +452,18 @@ public class IndexProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         final int pageNum = Paginator.getPage(request);
         int pageSize = Symphonys.getInt("indexArticlesCnt");
-        final JSONObject user = userQueryService.getCurrentUser(request);
+        final UserExt user = userQueryService.getCurrentUser(request);
         if (null != user) {
-            pageSize = user.optInt(UserExt.USER_LIST_PAGE_SIZE);
-            if (!UserExt.finshedGuide(user)) {
+            pageSize = user.getUserListPageSize();
+            if (!UserExtUtil.finshedGuide(user)) {
                 return "redirect:" +( SpringUtil.getServerPath() + "/guide");
 
             }
         }
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         final JSONObject result = articleQueryService.getPerfectArticles(avatarViewMode, pageNum, pageSize);
-        final List<JSONObject> perfectArticles = (List<JSONObject>) result.get(Article.ARTICLES);
+        final List<JSONObject> perfectArticles = (List<JSONObject>) result.get(ArticleUtil.ARTICLES);
         dataModel.put(Common.PERFECT_ARTICLES, perfectArticles);
         dataModel.put(Common.SELECTED, Common.PERFECT);
         final JSONObject pagination = result.getJSONObject(Pagination.PAGINATION);
@@ -527,7 +526,7 @@ public class IndexProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
         dataModelService.fillSideTags(dataModel);
