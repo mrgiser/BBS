@@ -1214,7 +1214,7 @@ public class ArticleQueryService {
      * @return user articles, return an empty list if not found
      * @throws Exception service exception
      */
-    public List<Article> getUserArticles(final int avatarViewMode, final String userId, final int anonymous,
+    public List<JSONObject> getUserArticles(final int avatarViewMode, final String userId, final int anonymous,
                                             final int currentPageNum, final int pageSize) throws Exception {
 
         PageHelper.startPage(currentPageNum,pageSize,"articleCreateTime DESC");
@@ -1227,11 +1227,11 @@ public class ArticleQueryService {
         try {
             final PageInfo<Article> result = new PageInfo<>(articleMapper.getByArticleAuthorIdArticleAnonymousStatus(userId,anonymous,ArticleUtil.ARTICLE_STATUS_C_INVALID));
             final List<Article> ret = result.getList();
-            if (ret.isEmpty()) {
-                return ret;
-            }
 
             List<JSONObject> jsonObjects = JsonUtil.listToJSONList(ret);
+            if (jsonObjects.isEmpty()) {
+                return jsonObjects;
+            }
 
 //            final JSONObject pagination = result.(Pagination.PAGINATION);
             final long recordCount = result.getTotal();
@@ -1243,8 +1243,9 @@ public class ArticleQueryService {
             first.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
 
             organizeArticles(avatarViewMode, jsonObjects);
+            // TODO: 2018/11/11 需要增加分页数据
 
-            return ret;
+            return jsonObjects;
         } catch (final Exception e) {
             LOGGER.error( "Gets user articles failed", e);
             throw new Exception(e);

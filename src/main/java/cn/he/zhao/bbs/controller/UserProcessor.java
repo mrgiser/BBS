@@ -17,13 +17,21 @@
  */
 package cn.he.zhao.bbs.controller;
 
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.entityUtil.my.CollectionUtils;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.util.Escapes;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.validate.PointTransferValidation;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import cn.he.zhao.bbs.advice.*;
@@ -233,11 +241,11 @@ public class UserProcessor {
 
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
         final boolean isLoggedIn = (Boolean) dataModel.get(Common.IS_LOGGED_IN);
         JSONObject currentUser;
@@ -246,18 +254,18 @@ public class UserProcessor {
             currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             currentUserId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(currentUserId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(currentUserId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
-        final JSONObject result = breezemoonQueryService.getBreezemoons(avatarViewMode, currentUserId, followingId, pageNum, pageSize, windowSize);
-        final List<JSONObject> bms = (List<JSONObject>) result.opt(Breezemoon.BREEZEMOONS);
+        final PageInfo<Breezemoon> result = breezemoonQueryService.getBreezemoons(avatarViewMode, currentUserId, followingId, pageNum, pageSize, windowSize);
+        final List<Breezemoon> bms = result.getList();
         dataModel.put(Common.USER_HOME_BREEZEMOONS, bms);
 
-        final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
-        final int recordCount = pagination.optInt(Pagination.PAGINATION_RECORD_COUNT);
+//        final JSONObject pagination = result.get(Pagination.PAGINATION);
+        final long recordCount = result.getTotal();
         final int pageCount = (int) Math.ceil(recordCount / (double) pageSize);
 
         final List<Integer> pageNums = Paginator.paginate(pageNum, pageSize, pageCount, windowSize);
@@ -271,7 +279,7 @@ public class UserProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
         dataModel.put(Pagination.PAGINATION_RECORD_COUNT, recordCount);
 
-        dataModel.put(Common.TYPE, Breezemoon.BREEZEMOONS);
+        dataModel.put(Common.TYPE, BreezemoonUtil.BREEZEMOONS);
         return "/home/breezemoons.ftl";
     }
 
@@ -300,26 +308,26 @@ public class UserProcessor {
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
         final boolean isLoggedIn = (Boolean) dataModel.get(Common.IS_LOGGED_IN);
         if (isLoggedIn) {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        final List<JSONObject> tags = linkForgeQueryService.getUserForgedLinks(user.optString(Keys.OBJECT_ID));
-        dataModel.put(Tag.TAGS, (Object) tags);
+        final List<Tag> tags = linkForgeQueryService.getUserForgedLinks(user.optString(Keys.OBJECT_ID));
+        dataModel.put(TagUtil.TAGS, (Object) tags);
 
         dataModel.put(Common.TYPE, "linkForge");
         return "/home/link-forge.ftl";
@@ -344,7 +352,7 @@ public class UserProcessor {
         dataModel.put(Keys.STATUS_CODE, false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        String invitecode = requestJSONObject.optString(Invitecode.INVITECODE);
+        String invitecode = requestJSONObject.optString(InvitecodeUtil.INVITECODE);
         if (StringUtils.isBlank(invitecode)) {
             dataModel.put(Keys.STATUS_CODE, -1);
             dataModel.put(Keys.MSG, invitecode + " " + langPropsService.get("notFoundInvitecodeLabel"));
@@ -354,29 +362,29 @@ public class UserProcessor {
 
         invitecode = invitecode.trim();
 
-        final JSONObject result = invitecodeQueryService.getInvitecode(invitecode);
+        final Invitecode result = invitecodeQueryService.getInvitecode(invitecode);
 
         if (null == result) {
             dataModel.put(Keys.STATUS_CODE, -1);
             dataModel.put(Keys.MSG, langPropsService.get("notFoundInvitecodeLabel"));
         } else {
-            final int status = result.optInt(Invitecode.STATUS);
+            final int status = result.getStatus();
             dataModel.put(Keys.STATUS_CODE, status);
 
             switch (status) {
-                case Invitecode.STATUS_C_USED:
+                case InvitecodeUtil.STATUS_C_USED:
                     dataModel.put(Keys.MSG, langPropsService.get("invitecodeUsedLabel"));
 
                     break;
-                case Invitecode.STATUS_C_UNUSED:
+                case InvitecodeUtil.STATUS_C_UNUSED:
                     String msg = langPropsService.get("invitecodeOkLabel");
-                    msg = msg.replace("${time}", DateFormatUtils.format(result.optLong(Keys.OBJECT_ID)
+                    msg = msg.replace("${time}", DateFormatUtils.format(Long.parseLong(result.getOid())
                             + Symphonys.getLong("invitecode.expired"), "yyyy-MM-dd HH:mm"));
 
                     dataModel.put(Keys.MSG, msg);
 
                     break;
-                case Invitecode.STATUS_C_STOPUSE:
+                case InvitecodeUtil.STATUS_C_STOPUSE:
                     dataModel.put(Keys.MSG, langPropsService.get("invitecodeStopLabel"));
 
                     break;
@@ -419,8 +427,8 @@ public class UserProcessor {
         // 后期可能会关掉这个【特性】
         final String invitecode = invitecodeMgmtService.userGenInvitecode(fromId, userName);
 
-        final String transferId = pointtransferMgmtService.transfer(fromId, Pointtransfer.ID_C_SYS,
-                Pointtransfer.TRANSFER_TYPE_C_BUY_INVITECODE, Pointtransfer.TRANSFER_SUM_C_BUY_INVITECODE,
+        final String transferId = pointtransferMgmtService.transfer(fromId, PointtransferUtil.ID_C_SYS,
+                PointtransferUtil.TRANSFER_TYPE_C_BUY_INVITECODE, PointtransferUtil.TRANSFER_SUM_C_BUY_INVITECODE,
                 invitecode, System.currentTimeMillis());
         final boolean succ = null != transferId;
         dataModel.put(Keys.STATUS_CODE, succ);
@@ -467,7 +475,7 @@ public class UserProcessor {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
         if (null == currentUser || (!currentUser.optString(Keys.OBJECT_ID).equals(user.optString(Keys.OBJECT_ID)))
-                && !Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
+                && !RoleUtil.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return null;
@@ -479,24 +487,24 @@ public class UserProcessor {
 
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
         if (isLoggedIn) {
             currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final List<JSONObject> userComments = commentQueryService.getUserComments(
-                avatarViewMode, user.optString(Keys.OBJECT_ID), Comment.COMMENT_ANONYMOUS_C_ANONYMOUS,
+                avatarViewMode, user.optString(Keys.OBJECT_ID), CommentUtil.COMMENT_ANONYMOUS_C_ANONYMOUS,
                 pageNum, pageSize, currentUser);
         dataModel.put(Common.USER_HOME_COMMENTS, userComments);
 
@@ -557,7 +565,7 @@ public class UserProcessor {
         final JSONObject user = (JSONObject) request.getAttribute(User.USER);
 
         if (null == currentUser || (!currentUser.optString(Keys.OBJECT_ID).equals(user.optString(Keys.OBJECT_ID)))
-                && !Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
+                && !RoleUtil.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return null;
@@ -565,28 +573,28 @@ public class UserProcessor {
 
         final int pageNum = Paginator.getPage(request);
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
         dataModel.put(User.USER, user);
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         if (isLoggedIn) {
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int pageSize = Symphonys.getInt("userHomeArticlesCnt");
         final int windowSize = Symphonys.getInt("userHomeArticlesWindowSize");
 
         final List<JSONObject> userArticles = articleQueryService.getUserArticles(avatarViewMode,
-                user.optString(Keys.OBJECT_ID), Article.ARTICLE_ANONYMOUS_C_ANONYMOUS, pageNum, pageSize);
+                user.optString(Keys.OBJECT_ID), ArticleUtil.ARTICLE_ANONYMOUS_C_ANONYMOUS, pageNum, pageSize);
         dataModel.put(Common.USER_HOME_ARTICLES, userArticles);
 
         int recordCount = 0;
@@ -669,14 +677,14 @@ public class UserProcessor {
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
 //        renderer.setTemplateName("/home/home.ftl");
 
         dataModel.put(User.USER, user);
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final boolean isLoggedIn = (Boolean) dataModel.get(Common.IS_LOGGED_IN);
@@ -684,17 +692,17 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int pageSize = Symphonys.getInt("userHomeArticlesCnt");
         final int windowSize = Symphonys.getInt("userHomeArticlesWindowSize");
 
         final List<JSONObject> userArticles = articleQueryService.getUserArticles(avatarViewMode,
-                user.optString(Keys.OBJECT_ID), Article.ARTICLE_ANONYMOUS_C_PUBLIC, pageNum, pageSize);
+                user.optString(Keys.OBJECT_ID), ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC, pageNum, pageSize);
         dataModel.put(Common.USER_HOME_ARTICLES, userArticles);
 
         int recordCount = 0;
@@ -759,11 +767,11 @@ public class UserProcessor {
 
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
         final boolean isLoggedIn = (Boolean) dataModel.get(Common.IS_LOGGED_IN);
         JSONObject currentUser = null;
@@ -771,14 +779,14 @@ public class UserProcessor {
             currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final List<JSONObject> userComments = commentQueryService.getUserComments(avatarViewMode,
-                user.optString(Keys.OBJECT_ID), Comment.COMMENT_ANONYMOUS_C_PUBLIC, pageNum, pageSize, currentUser);
+                user.optString(Keys.OBJECT_ID), CommentUtil.COMMENT_ANONYMOUS_C_PUBLIC, pageNum, pageSize, currentUser);
         dataModel.put(Common.USER_HOME_COMMENTS, userComments);
 
         int recordCount = 0;
@@ -837,9 +845,9 @@ public class UserProcessor {
         fillHomeUser(dataModel, user, roleQueryService);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final JSONObject followingUsersResult = followQueryService.getFollowingUsers(avatarViewMode,
@@ -852,17 +860,17 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
 
             for (final JSONObject followingUser : followingUsers) {
                 final String homeUserFollowingUserId = followingUser.optString(Keys.OBJECT_ID);
 
-                followingUser.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingUserId, Follow.FOLLOWING_TYPE_C_USER));
+                followingUser.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingUserId, FollowUtil.FOLLOWING_TYPE_C_USER));
             }
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int followingUserCnt = followingUsersResult.optInt(Pagination.PAGINATION_RECORD_COUNT);
         final int pageCount = (int) Math.ceil((double) followingUserCnt / (double) pageSize);
@@ -916,9 +924,9 @@ public class UserProcessor {
         fillHomeUser(dataModel, user, roleQueryService);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final JSONObject followingTagsResult = followQueryService.getFollowingTags(followingId, pageNum, pageSize);
@@ -930,17 +938,17 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
 
             for (final JSONObject followingTag : followingTags) {
                 final String homeUserFollowingTagId = followingTag.optString(Keys.OBJECT_ID);
 
-                followingTag.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingTagId, Follow.FOLLOWING_TYPE_C_TAG));
+                followingTag.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingTagId, FollowUtil.FOLLOWING_TYPE_C_TAG));
             }
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int followingTagCnt = followingTagsResult.optInt(Pagination.PAGINATION_RECORD_COUNT);
         final int pageCount = (int) Math.ceil(followingTagCnt / (double) pageSize);
@@ -993,9 +1001,9 @@ public class UserProcessor {
         fillHomeUser(dataModel, user, roleQueryService);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final JSONObject followingArticlesResult = followQueryService.getFollowingArticles(avatarViewMode,
@@ -1008,17 +1016,17 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
 
             for (final JSONObject followingArticle : followingArticles) {
                 final String homeUserFollowingArticleId = followingArticle.optString(Keys.OBJECT_ID);
 
-                followingArticle.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingArticleId, Follow.FOLLOWING_TYPE_C_ARTICLE));
+                followingArticle.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingArticleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE));
             }
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int followingArticleCnt = followingArticlesResult.optInt(Pagination.PAGINATION_RECORD_COUNT);
         final int pageCount = (int) Math.ceil(followingArticleCnt / (double) pageSize);
@@ -1072,9 +1080,9 @@ public class UserProcessor {
         fillHomeUser(dataModel, user, roleQueryService);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final JSONObject followingArticlesResult = followQueryService.getWatchingArticles(avatarViewMode,
@@ -1087,17 +1095,17 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
 
             for (final JSONObject followingArticle : followingArticles) {
                 final String homeUserFollowingArticleId = followingArticle.optString(Keys.OBJECT_ID);
 
-                followingArticle.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingArticleId, Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH));
+                followingArticle.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowingArticleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH));
             }
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int followingArticleCnt = followingArticlesResult.optInt(Pagination.PAGINATION_RECORD_COUNT);
         final int pageCount = (int) Math.ceil(followingArticleCnt / (double) pageSize);
@@ -1151,9 +1159,9 @@ public class UserProcessor {
         fillHomeUser(dataModel, user, roleQueryService);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject followerUsersResult = followQueryService.getFollowerUsers(avatarViewMode,
                 followingId, pageNum, pageSize);
@@ -1167,21 +1175,21 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, followingId, FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
 
             for (final JSONObject followerUser : followerUsers) {
                 final String homeUserFollowerUserId = followerUser.optString(Keys.OBJECT_ID);
 
-                followerUser.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowerUserId, Follow.FOLLOWING_TYPE_C_USER));
+                followerUser.put(Common.IS_FOLLOWING, followQueryService.isFollowing(followerId, homeUserFollowerUserId, FollowUtil.FOLLOWING_TYPE_C_USER));
             }
 
             if (followerId.equals(followingId)) {
-                notificationMgmtService.makeRead(followingId, Notification.DATA_TYPE_C_NEW_FOLLOWER);
+                notificationMgmtService.makeRead(followingId, NotificationUtil.DATA_TYPE_C_NEW_FOLLOWER);
             }
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int followerUserCnt = followerUsersResult.optInt(Pagination.PAGINATION_RECORD_COUNT);
         final int pageCount = (int) Math.ceil((double) followerUserCnt / (double) pageSize);
@@ -1199,7 +1207,7 @@ public class UserProcessor {
 
         dataModel.put(Common.TYPE, "followers");
 
-        notificationMgmtService.makeRead(followingId, Notification.DATA_TYPE_C_NEW_FOLLOWER);
+        notificationMgmtService.makeRead(followingId, NotificationUtil.DATA_TYPE_C_NEW_FOLLOWER);
 
         return "/home/followers.ftl";
     }
@@ -1236,11 +1244,11 @@ public class UserProcessor {
 
         fillHomeUser(dataModel, user, roleQueryService);
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
         avatarQueryService.fillUserAvatarURL(avatarViewMode, user);
 
         final String followingId = user.optString(Keys.OBJECT_ID);
-        dataModel.put(Follow.FOLLOWING_ID, followingId);
+        dataModel.put(FollowUtil.FOLLOWING_ID, followingId);
 
         final JSONObject userPointsResult
                 = pointtransferQueryService.getUserPoints(user.optString(Keys.OBJECT_ID), pageNum, pageSize);
@@ -1253,11 +1261,11 @@ public class UserProcessor {
             final JSONObject currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             final String followerId = currentUser.optString(Keys.OBJECT_ID);
 
-            final boolean isFollowing = followQueryService.isFollowing(followerId, user.optString(Keys.OBJECT_ID), Follow.FOLLOWING_TYPE_C_USER);
+            final boolean isFollowing = followQueryService.isFollowing(followerId, user.optString(Keys.OBJECT_ID), FollowUtil.FOLLOWING_TYPE_C_USER);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
         }
 
-        user.put(UserExt.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
+        user.put(UserExtUtil.USER_T_CREATE_TIME, new Date(user.getLong(Keys.OBJECT_ID)));
 
         final int pointsCnt = userPointsResult.optInt(Pagination.PAGINATION_RECORD_COUNT);
         final int pageCount = (int) Math.ceil((double) pointsCnt / (double) pageSize);
@@ -1312,15 +1320,15 @@ public class UserProcessor {
         final String toId = toUser.optString(Keys.OBJECT_ID);
 
         final String transferId = pointtransferMgmtService.transfer(fromId, toId,
-                Pointtransfer.TRANSFER_TYPE_C_ACCOUNT2ACCOUNT, amount, toId, System.currentTimeMillis());
+                PointtransferUtil.TRANSFER_TYPE_C_ACCOUNT2ACCOUNT, amount, toId, System.currentTimeMillis());
         final boolean succ = null != transferId;
         dataModel.put(Keys.STATUS_CODE, succ);
         if (!succ) {
             dataModel.put(Keys.MSG, langPropsService.get("transferFailLabel"));
         } else {
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, toId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, transferId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, toId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, transferId);
 
             notificationMgmtService.addPointTransferNotification(notification);
         }
@@ -1362,13 +1370,14 @@ public class UserProcessor {
 
         final String namePrefix = request.getParameter("name");
         if (StringUtils.isBlank(namePrefix)) {
-            final List<JSONObject> admins = userQueryService.getAdmins();
+            final List<UserExt> admins = userQueryService.getAdmins();
             final List<JSONObject> userNames = new ArrayList<>();
-            for (final JSONObject admin : admins) {
+            for (final UserExt admin : admins) {
                 final JSONObject userName = new JSONObject();
-                userName.put(User.USER_NAME, admin.optString(User.USER_NAME));
-                final String avatar = avatarQueryService.getAvatarURLByUser(UserExt.USER_AVATAR_VIEW_MODE_C_STATIC, admin, "20");
-                userName.put(UserExt.USER_AVATAR_URL, avatar);
+                userName.put(User.USER_NAME, admin.getUserName());
+                JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(admin));
+                final String avatar = avatarQueryService.getAvatarURLByUser(UserExtUtil.USER_AVATAR_VIEW_MODE_C_STATIC, jsonObject, "20");
+                userName.put(UserExtUtil.USER_AVATAR_URL, avatar);
 
                 userNames.add(userName);
             }
@@ -1442,7 +1451,7 @@ public class UserProcessor {
         dataModel.put(User.USER, user);
 
         final String roleId = user.optString(User.USER_ROLE);
-        final JSONObject role = roleQueryService.getRole(roleId);
-        user.put(Role.ROLE_NAME, role.optString(Role.ROLE_NAME));
+        final Role role = roleQueryService.getRole(roleId);
+        user.put(RoleUtil.ROLE_NAME, role.getRoleName());
     }
 }
