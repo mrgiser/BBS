@@ -19,6 +19,11 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.FollowUtil;
+import cn.he.zhao.bbs.entityUtil.NotificationUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.spring.Requests;
 import org.json.JSONObject;
@@ -103,7 +108,7 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingUserId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingUserId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
@@ -112,8 +117,8 @@ public class FollowProcessor {
 
         if (!FOLLOWS.contains(followingUserId + followerUserId)) {
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, followingUserId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, followerUserId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, followingUserId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, followerUserId);
 
             notificationMgmtService.addNewFollowerNotification(notification);
         }
@@ -147,7 +152,7 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingUserId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingUserId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
@@ -181,7 +186,7 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingTagId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingTagId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
@@ -215,7 +220,7 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingTagId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingTagId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
@@ -250,21 +255,21 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingArticleId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
 
         followMgmtService.followArticle(followerUserId, followingArticleId);
 
-        final JSONObject article = articleQueryService.getArticle(followingArticleId);
-        final String articleAuthorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+        final Article article = articleQueryService.getArticle(followingArticleId);
+        final String articleAuthorId = article.getArticleAuthorId();
 
         if (!FOLLOWS.contains(articleAuthorId + followingArticleId + "-" + followerUserId) &&
                 !articleAuthorId.equals(followerUserId)) {
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, articleAuthorId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, followingArticleId + "-" + followerUserId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, articleAuthorId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, followingArticleId + "-" + followerUserId);
 
             notificationMgmtService.addArticleNewFollowerNotification(notification);
         }
@@ -298,7 +303,7 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingArticleId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
@@ -333,21 +338,21 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingArticleId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
 
         followMgmtService.watchArticle(followerUserId, followingArticleId);
 
-        final JSONObject article = articleQueryService.getArticle(followingArticleId);
-        final String articleAuthorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+        final Article article = articleQueryService.getArticle(followingArticleId);
+        final String articleAuthorId = article.getArticleAuthorId();
 
         if (!FOLLOWS.contains(articleAuthorId + followingArticleId + "-" + followerUserId) &&
                 !articleAuthorId.equals(followerUserId)) {
             final JSONObject notification = new JSONObject();
-            notification.put(Notification.NOTIFICATION_USER_ID, articleAuthorId);
-            notification.put(Notification.NOTIFICATION_DATA_ID, followingArticleId + "-" + followerUserId);
+            notification.put(NotificationUtil.NOTIFICATION_USER_ID, articleAuthorId);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_ID, followingArticleId + "-" + followerUserId);
 
             notificationMgmtService.addArticleNewWatcherNotification(notification);
         }
@@ -381,7 +386,7 @@ public class FollowProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        final String followingArticleId = requestJSONObject.optString(Follow.FOLLOWING_ID);
+        final String followingArticleId = requestJSONObject.optString(FollowUtil.FOLLOWING_ID);
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String followerUserId = currentUser.optString(Keys.OBJECT_ID);
