@@ -17,6 +17,7 @@
  */
 package cn.he.zhao.bbs.util;
 
+import cn.he.zhao.bbs.entity.UserExt;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import org.apache.commons.lang.RandomStringUtils;
@@ -96,7 +97,7 @@ public final class Sessions {
      * @return token, returns {@code null} if login failed
      */
     public static String login(final HttpServletRequest request, final HttpServletResponse response,
-                               final JSONObject user, final boolean rememberLogin) {
+                               final UserExt user, final boolean rememberLogin) {
         final HttpSession session = request.getSession(false);
 
         if (null == session) {

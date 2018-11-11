@@ -18,14 +18,15 @@
 package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
+import cn.he.zhao.bbs.entityUtil.*;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.exception.RequestProcessAdviceException;
 import cn.he.zhao.bbs.entity.*;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
-import cn.he.zhao.bbs.spring.Locales;
-import cn.he.zhao.bbs.spring.Requests;
-import cn.he.zhao.bbs.spring.SpringUtil;
-import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.spring.*;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Sessions;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.validate.UserForgetPwdValidation;
@@ -180,16 +181,16 @@ public class LoginProcessor {
         JSONObject user = (JSONObject) request.getAttribute(User.USER);
         final String userId = user.optString(Keys.OBJECT_ID);
 
-        int step = requestJSONObject.optInt(UserExt.USER_GUIDE_STEP);
+        int step = requestJSONObject.optInt(UserExtUtil.USER_GUIDE_STEP);
 
-        if (UserExt.USER_GUIDE_STEP_STAR_PROJECT < step || UserExt.USER_GUIDE_STEP_FIN >= step) {
-            step = UserExt.USER_GUIDE_STEP_FIN;
+        if (UserExtUtil.USER_GUIDE_STEP_STAR_PROJECT < step || UserExtUtil.USER_GUIDE_STEP_FIN >= step) {
+            step = UserExtUtil.USER_GUIDE_STEP_FIN;
         }
 
         try {
-            user = userQueryService.getUser(userId);
-            user.put(UserExt.USER_GUIDE_STEP, step);
-            userMgmtService.updateUser(userId, user);
+             UserExt bean = userQueryService.getUser(userId);
+            bean.setUserGuideStep(step);
+            userMgmtService.updateUser(userId, bean);
         } catch (final Exception e) {
             LOGGER.error( "Guide next step [" + step + "] failed", e);
 
@@ -215,8 +216,8 @@ public class LoginProcessor {
     public String showGuide( final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
-        final int step = currentUser.optInt(UserExt.USER_GUIDE_STEP);
-        if (UserExt.USER_GUIDE_STEP_FIN == step) {
+        final int step = currentUser.optInt(UserExtUtil.USER_GUIDE_STEP);
+        if (UserExtUtil.USER_GUIDE_STEP_FIN == step) {
 //            return "redirect:" +(SpringUtil.getServerPath());
 
             return "redirect:/";
@@ -230,7 +231,7 @@ public class LoginProcessor {
         dataModel.put(Common.CURRENT_USER, currentUser);
 
         final List<JSONObject> tags = tagQueryService.getTags(32);
-        dataModel.put(Tag.TAGS, tags);
+        dataModel.put(TagUtil.TAGS, tags);
 
         final List<JSONObject> users = userQueryService.getNiceUsers(6);
         final Iterator<JSONObject> iterator = users.iterator();
@@ -352,25 +353,26 @@ public class LoginProcessor {
         final String email = requestJSONObject.optString(User.USER_EMAIL);
 
         try {
-            final JSONObject user = userQueryService.getUserByEmail(email);
+            final UserExt user = userQueryService.getUserByEmail(email);
             if (null == user) {
 //                context.renderFalseResult().renderMsg(langPropsService.get("notFoundUserLabel"));
                 dataModel.put("msg",langPropsService.get("notFoundUserLabel"));
                 return;
             }
 
-            final String userId = user.optString(Keys.OBJECT_ID);
+            final String userId = user.getOid();
 
             final JSONObject verifycode = new JSONObject();
-            verifycode.put(Verifycode.BIZ_TYPE, Verifycode.BIZ_TYPE_C_RESET_PWD);
+            verifycode.put(VerifycodeUtil.BIZ_TYPE, VerifycodeUtil.BIZ_TYPE_C_RESET_PWD);
             final String code = RandomStringUtils.randomAlphanumeric(6);
-            verifycode.put(Verifycode.CODE, code);
-            verifycode.put(Verifycode.EXPIRED, DateUtils.addDays(new Date(), 1).getTime());
-            verifycode.put(Verifycode.RECEIVER, email);
-            verifycode.put(Verifycode.STATUS, Verifycode.STATUS_C_UNSENT);
-            verifycode.put(Verifycode.TYPE, Verifycode.TYPE_C_EMAIL);
-            verifycode.put(Verifycode.USER_ID, userId);
-            verifycodeMgmtService.addVerifycode(verifycode);
+            verifycode.put(VerifycodeUtil.CODE, code);
+            verifycode.put(VerifycodeUtil.EXPIRED, DateUtils.addDays(new Date(), 1).getTime());
+            verifycode.put(VerifycodeUtil.RECEIVER, email);
+            verifycode.put(VerifycodeUtil.STATUS, VerifycodeUtil.STATUS_C_UNSENT);
+            verifycode.put(VerifycodeUtil.TYPE, VerifycodeUtil.TYPE_C_EMAIL);
+            verifycode.put(VerifycodeUtil.USER_ID, userId);
+            Verifycode bean = JsonUtil.json2Bean(verifycode.toString(),Verifycode.class);
+            verifycodeMgmtService.addVerifycode(bean);
 
 //            context.renderTrueResult().renderMsg(langPropsService.get("verifycodeSentLabel"));
             dataModel.put("msg",langPropsService.get("verifycodeSentLabel"));
@@ -403,7 +405,7 @@ public class LoginProcessor {
         String result = null;
 
         final String code = request.getParameter("code");
-        final JSONObject verifycode = verifycodeQueryService.getVerifycode(code);
+        final Verifycode verifycode = verifycodeQueryService.getVerifycode(code);
         if (null == verifycode) {
             dataModel.put(Keys.MSG, langPropsService.get("verifycodeExpiredLabel"));
 //            renderer.setTemplateName("/error/custom.ftl");
@@ -412,8 +414,8 @@ public class LoginProcessor {
 //            renderer.setTemplateName("verify/reset-pwd.ftl");
             result = "verify/reset-pwd.ftl";
 
-            final String userId = verifycode.optString(Verifycode.USER_ID);
-            final JSONObject user = userQueryService.getUser(userId);
+            final String userId = verifycode.getUserId();
+            final UserExt user = userQueryService.getUser(userId);
             dataModel.put(User.USER, user);
             dataModel.put(Common.CODE, code);
         }
@@ -437,8 +439,8 @@ public class LoginProcessor {
         final String password = requestJSONObject.optString(User.USER_PASSWORD); // Hashed
         final String userId = requestJSONObject.optString(Common.USER_ID);
         final String code = requestJSONObject.optString(Common.CODE);
-        final JSONObject verifycode = verifycodeQueryService.getVerifycode(code);
-        if (null == verifycode || !verifycode.optString(Verifycode.USER_ID).equals(userId)) {
+        final Verifycode verifycode = verifycodeQueryService.getVerifycode(code);
+        if (null == verifycode || !verifycode.getUserId().equals(userId)) {
 //            dataModel.put(Keys.MSG ,langPropsService.get("verifycodeExpiredLabel"));
             dataModel.put("msg", langPropsService.get("verifycodeExpiredLabel"));
             return;
@@ -447,19 +449,19 @@ public class LoginProcessor {
         String name = null;
         String email = null;
         try {
-            final JSONObject user = userQueryService.getUser(userId);
+            final UserExt user = userQueryService.getUser(userId);
             if (null == user) {
 //                dataModel.put(Keys.MSG ,langPropsService.get("resetPwdLabel") + " - " + "User Not Found");
                 dataModel.put("msg", langPropsService.get("resetPwdLabel") + " - " + "User Not Found");
                 return;
             }
 
-            user.put(User.USER_PASSWORD, password);
+            user.setUserPassword( password);
             userMgmtService.updatePassword(user);
             verifycodeMgmtService.removeByCode(code);
 //            dataModel.put(Keys.STATUS_CODE,true);
             dataModel.put(Keys.STATUS_CODE,true);
-            LOGGER.info("User [email=" + user.optString(User.USER_EMAIL) + "] reseted password");
+            LOGGER.info("User [email=" + user.getUserEmail() + "] reseted password");
 
             Sessions.login(request, response, user, true);
         } catch (final Exception e) {
@@ -504,15 +506,15 @@ public class LoginProcessor {
 
         String referral = request.getParameter("r");
         if (!UserRegisterValidation.invalidUserName(referral)) {
-            final JSONObject referralUser = userQueryService.getUserByName(referral);
+            final UserExt referralUser = userQueryService.getUserByName(referral);
             if (null != referralUser) {
                 dataModel.put(Common.REFERRAL, referral);
 
-                final Map<String, JSONObject> permissions =
-                        roleQueryService.getUserPermissionsGrantMap(referralUser.optString(Keys.OBJECT_ID));
-                final JSONObject useILPermission =
-                        permissions.get(Permission.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
-                useInvitationLink = useILPermission.optBoolean(Permission.PERMISSION_T_GRANT);
+                final Map<String, Permission> permissions =
+                        roleQueryService.getUserPermissionsGrantMap(referralUser.getOid());
+                final Permission useILPermission =
+                        permissions.get(PermissionUtil.PERMISSION_ID_C_COMMON_USE_INVITATION_LINK);
+                useInvitationLink = useILPermission.isPermissionGrant();
             }
         }
 
@@ -521,7 +523,7 @@ public class LoginProcessor {
 //            renderer.setTemplateName("verify/register.ftl");
             result = "verify/register.ftl";
         } else { // Register Step 2
-            final JSONObject verifycode = verifycodeQueryService.getVerifycode(code);
+            final Verifycode verifycode = verifycodeQueryService.getVerifycode(code);
             if (null == verifycode) {
                 dataModel.put(Keys.MSG, langPropsService.get("verifycodeExpiredLabel"));
 //                renderer.setTemplateName("/error/custom.ftl");
@@ -530,12 +532,12 @@ public class LoginProcessor {
 //                renderer.setTemplateName("verify/register2.ftl");
                 result = "verify/register2.ftl";
 
-                final String userId = verifycode.optString(Verifycode.USER_ID);
-                final JSONObject user = userQueryService.getUser(userId);
+                final String userId = verifycode.getUserId();
+                final UserExt user = userQueryService.getUser(userId);
                 dataModel.put(User.USER, user);
 
-                if (UserExt.USER_STATUS_C_VALID == user.optInt(UserExt.USER_STATUS)
-                        || UserExt.NULL_USER_NAME.equals(user.optString(User.USER_NAME))) {
+                if (UserExtUtil.USER_STATUS_C_VALID == user.getUserStatus()
+                        || UserExtUtil.NULL_USER_NAME.equals(user.getUserName())) {
                     dataModel.put(Keys.MSG, langPropsService.get("userExistLabel"));
 //                    renderer.setTemplateName("/error/custom.ftl");
                     result = "/error/custom.ftl";
@@ -549,9 +551,9 @@ public class LoginProcessor {
         }
 
         final String allowRegister = optionQueryService.getAllowRegister();
-        dataModel.put(Option.ID_C_MISC_ALLOW_REGISTER, allowRegister);
+        dataModel.put(OptionUtil.ID_C_MISC_ALLOW_REGISTER, allowRegister);
         if (useInvitationLink && "2".equals(allowRegister)) {
-            dataModel.put(Option.ID_C_MISC_ALLOW_REGISTER, "1");
+            dataModel.put(OptionUtil.ID_C_MISC_ALLOW_REGISTER, "1");
         }
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
@@ -578,7 +580,7 @@ public class LoginProcessor {
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
         final String name = requestJSONObject.optString(User.USER_NAME);
         final String email = requestJSONObject.optString(User.USER_EMAIL);
-        final String invitecode = requestJSONObject.optString(Invitecode.INVITECODE);
+        final String invitecode = requestJSONObject.optString(InvitecodeUtil.INVITECODE);
         final String referral = requestJSONObject.optString(Common.REFERRAL);
 
         final JSONObject user = new JSONObject();
@@ -586,31 +588,33 @@ public class LoginProcessor {
         user.put(User.USER_EMAIL, email);
         user.put(User.USER_PASSWORD, "");
         final Locale locale = Locales.getLocale();
-        user.put(UserExt.USER_LANGUAGE, locale.getLanguage() + "_" + locale.getCountry());
+        user.put(UserExtUtil.USER_LANGUAGE, locale.getLanguage() + "_" + locale.getCountry());
 
         try {
             final String newUserId = userMgmtService.addUser(user);
 
             final JSONObject verifycode = new JSONObject();
-            verifycode.put(Verifycode.BIZ_TYPE, Verifycode.BIZ_TYPE_C_REGISTER);
+            verifycode.put(VerifycodeUtil.BIZ_TYPE, VerifycodeUtil.BIZ_TYPE_C_REGISTER);
             String code = RandomStringUtils.randomAlphanumeric(6);
             if (!Strings.isEmptyOrNull(referral)) {
                 code += "r=" + referral;
             }
-            verifycode.put(Verifycode.CODE, code);
-            verifycode.put(Verifycode.EXPIRED, DateUtils.addDays(new Date(), 1).getTime());
-            verifycode.put(Verifycode.RECEIVER, email);
-            verifycode.put(Verifycode.STATUS, Verifycode.STATUS_C_UNSENT);
-            verifycode.put(Verifycode.TYPE, Verifycode.TYPE_C_EMAIL);
-            verifycode.put(Verifycode.USER_ID, newUserId);
-            verifycodeMgmtService.addVerifycode(verifycode);
+            verifycode.put(VerifycodeUtil.CODE, code);
+            verifycode.put(VerifycodeUtil.EXPIRED, DateUtils.addDays(new Date(), 1).getTime());
+            verifycode.put(VerifycodeUtil.RECEIVER, email);
+            verifycode.put(VerifycodeUtil.STATUS, VerifycodeUtil.STATUS_C_UNSENT);
+            verifycode.put(VerifycodeUtil.TYPE, VerifycodeUtil.TYPE_C_EMAIL);
+            verifycode.put(VerifycodeUtil.USER_ID, newUserId);
+
+            Verifycode bean = JsonUtil.json2Bean(verifycode.toString(),Verifycode.class);
+            verifycodeMgmtService.addVerifycode(bean);
 
             final String allowRegister = optionQueryService.getAllowRegister();
             if ("2".equals(allowRegister) && StringUtils.isNotBlank(invitecode)) {
-                final JSONObject ic = invitecodeQueryService.getInvitecode(invitecode);
-                ic.put(Invitecode.USER_ID, newUserId);
-                ic.put(Invitecode.USE_TIME, System.currentTimeMillis());
-                final String icId = ic.optString(Keys.OBJECT_ID);
+                final Invitecode ic = invitecodeQueryService.getInvitecode(invitecode);
+                ic.setUserId(newUserId);
+                ic.setUseTime(System.currentTimeMillis());
+                final String icId = ic.getOid();
 
                 invitecodeMgmtService.updateInvitecode(icId, ic);
             }
@@ -648,72 +652,73 @@ public class LoginProcessor {
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
         final String password = requestJSONObject.optString(User.USER_PASSWORD); // Hashed
-        final int appRole = requestJSONObject.optInt(UserExt.USER_APP_ROLE);
+        final int appRole = requestJSONObject.optInt(UserExtUtil.USER_APP_ROLE);
         final String referral = requestJSONObject.optString(Common.REFERRAL);
         final String userId = requestJSONObject.optString(Common.USER_ID);
 
         String name = null;
         String email = null;
         try {
-            final JSONObject user = userQueryService.getUser(userId);
+            final UserExt user = userQueryService.getUser(userId);
             if (null == user) {
 //                dataModel.put(Keys.MSG ,langPropsService.get("registerFailLabel") + " - " + "User Not Found");
                 dataModel.put(Keys.MSG, langPropsService.get("registerFailLabel") + " - " + "User Not Found");
                 return;
             }
 
-            name = user.optString(User.USER_NAME);
-            email = user.optString(User.USER_EMAIL);
+            name = user.getUserName();
+            email = user.getUserEmail();
 
-            user.put(UserExt.USER_APP_ROLE, appRole);
-            user.put(User.USER_PASSWORD, password);
-            user.put(UserExt.USER_STATUS, UserExt.USER_STATUS_C_VALID);
+            user.setUserAppRole(appRole);
+            user.setUserPassword( password);
+            user.setUserStatus(UserExtUtil.USER_STATUS_C_VALID);
 
-            userMgmtService.addUser(user);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            userMgmtService.addUser(jsonObject);
 
             Sessions.login(request, response, user, false);
 
             final String ip = Requests.getRemoteAddr(request);
-            userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
+            userMgmtService.updateOnlineStatus(jsonObject.optString(Keys.OBJECT_ID), ip, true);
 
             if (!Strings.isEmptyOrNull(referral) && !UserRegisterValidation.invalidUserName(referral)) {
-                final JSONObject referralUser = userQueryService.getUserByName(referral);
+                final UserExt referralUser = userQueryService.getUserByName(referral);
                 if (null != referralUser) {
-                    final String referralId = referralUser.optString(Keys.OBJECT_ID);
+                    final String referralId = referralUser.getOid();
                     // Point
-                    pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, userId,
-                            Pointtransfer.TRANSFER_TYPE_C_INVITED_REGISTER,
-                            Pointtransfer.TRANSFER_SUM_C_INVITE_REGISTER, referralId, System.currentTimeMillis());
-                    pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, referralId,
-                            Pointtransfer.TRANSFER_TYPE_C_INVITE_REGISTER,
-                            Pointtransfer.TRANSFER_SUM_C_INVITE_REGISTER, userId, System.currentTimeMillis());
+                    pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, userId,
+                            PointtransferUtil.TRANSFER_TYPE_C_INVITED_REGISTER,
+                            PointtransferUtil.TRANSFER_SUM_C_INVITE_REGISTER, referralId, System.currentTimeMillis());
+                    pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, referralId,
+                            PointtransferUtil.TRANSFER_TYPE_C_INVITE_REGISTER,
+                            PointtransferUtil.TRANSFER_SUM_C_INVITE_REGISTER, userId, System.currentTimeMillis());
 
                     final JSONObject notification = new JSONObject();
-                    notification.put(Notification.NOTIFICATION_USER_ID, referralId);
-                    notification.put(Notification.NOTIFICATION_DATA_ID, userId);
+                    notification.put(NotificationUtil.NOTIFICATION_USER_ID, referralId);
+                    notification.put(NotificationUtil.NOTIFICATION_DATA_ID, userId);
 
                     notificationMgmtService.addInvitationLinkUsedNotification(notification);
                 }
             }
 
-            final JSONObject ic = invitecodeQueryService.getInvitecodeByUserId(userId);
-            if (null != ic && Invitecode.STATUS_C_UNUSED == ic.optInt(Invitecode.STATUS)) {
-                ic.put(Invitecode.STATUS, Invitecode.STATUS_C_USED);
-                ic.put(Invitecode.USER_ID, userId);
-                ic.put(Invitecode.USE_TIME, System.currentTimeMillis());
-                final String icId = ic.optString(Keys.OBJECT_ID);
+            final Invitecode ic = invitecodeQueryService.getInvitecodeByUserId(userId);
+            if (null != ic && InvitecodeUtil.STATUS_C_UNUSED == ic.getStatus()) {
+                ic.setStatus(InvitecodeUtil.STATUS_C_USED);
+                ic.setUserId(userId);
+                ic.setUseTime(System.currentTimeMillis());
+                final String icId = ic.getOid();
 
                 invitecodeMgmtService.updateInvitecode(icId, ic);
 
-                final String icGeneratorId = ic.optString(Invitecode.GENERATOR_ID);
-                if (StringUtils.isNotBlank(icGeneratorId) && !Pointtransfer.ID_C_SYS.equals(icGeneratorId)) {
-                    pointtransferMgmtService.transfer(Pointtransfer.ID_C_SYS, icGeneratorId,
-                            Pointtransfer.TRANSFER_TYPE_C_INVITECODE_USED,
-                            Pointtransfer.TRANSFER_SUM_C_INVITECODE_USED, userId, System.currentTimeMillis());
+                final String icGeneratorId = ic.getGeneratorId();
+                if (StringUtils.isNotBlank(icGeneratorId) && !PointtransferUtil.ID_C_SYS.equals(icGeneratorId)) {
+                    pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, icGeneratorId,
+                            PointtransferUtil.TRANSFER_TYPE_C_INVITECODE_USED,
+                            PointtransferUtil.TRANSFER_SUM_C_INVITECODE_USED, userId, System.currentTimeMillis());
 
                     final JSONObject notification = new JSONObject();
-                    notification.put(Notification.NOTIFICATION_USER_ID, icGeneratorId);
-                    notification.put(Notification.NOTIFICATION_DATA_ID, userId);
+                    notification.put(NotificationUtil.NOTIFICATION_USER_ID, icGeneratorId);
+                    notification.put(NotificationUtil.NOTIFICATION_DATA_ID, userId);
 
                     notificationMgmtService.addInvitecodeUsedNotification(notification);
                 }
@@ -756,7 +761,7 @@ public class LoginProcessor {
         final String nameOrEmail = requestJSONObject.optString("nameOrEmail");
 
         try {
-            JSONObject user = userQueryService.getUserByName(nameOrEmail);
+            UserExt user = userQueryService.getUserByName(nameOrEmail);
             if (null == user) {
                 user = userQueryService.getUserByEmail(nameOrEmail);
             }
@@ -767,30 +772,30 @@ public class LoginProcessor {
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_INVALID == user.optInt(UserExt.USER_STATUS)) {
-                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
+            if (UserExtUtil.USER_STATUS_C_INVALID == user.getUserStatus()) {
+                userMgmtService.updateOnlineStatus(user.getOid(), "", false);
 //                dataModel.put(Keys.MSG ,langPropsService.get("userBlockLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("userBlockLabel"));
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_NOT_VERIFIED == user.optInt(UserExt.USER_STATUS)) {
-                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
+            if (UserExtUtil.USER_STATUS_C_NOT_VERIFIED == user.getUserStatus()) {
+                userMgmtService.updateOnlineStatus(user.getOid(), "", false);
 //                dataModel.put(Keys.MSG ,langPropsService.get("notVerifiedLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("notVerifiedLabel"));
 
                 return;
             }
 
-            if (UserExt.USER_STATUS_C_INVALID_LOGIN == user.optInt(UserExt.USER_STATUS)) {
-                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), "", false);
+            if (UserExtUtil.USER_STATUS_C_INVALID_LOGIN == user.getUserStatus()) {
+                userMgmtService.updateOnlineStatus(user.getOid(), "", false);
 //                dataModel.put(Keys.MSG ,langPropsService.get("invalidLoginLabel"));
                 dataModel.put(Keys.MSG, langPropsService.get("invalidLoginLabel"));
 
                 return;
             }
 
-            final String userId = user.optString(Keys.OBJECT_ID);
+            final String userId = user.getOid();
             JSONObject wrong = WRONG_PWD_TRIES.get(userId);
             if (null == wrong) {
                 wrong = new JSONObject();
@@ -809,12 +814,12 @@ public class LoginProcessor {
                 }
             }
 
-            final String userPassword = user.optString(User.USER_PASSWORD);
+            final String userPassword = user.getUserPassword();
             if (userPassword.equals(requestJSONObject.optString(User.USER_PASSWORD))) {
                 final String token = Sessions.login(request, response, user, requestJSONObject.optBoolean(Common.REMEMBER_LOGIN));
 
                 final String ip = Requests.getRemoteAddr(request);
-                userMgmtService.updateOnlineStatus(user.optString(Keys.OBJECT_ID), ip, true);
+                userMgmtService.updateOnlineStatus(user.getOid(), ip, true);
 
 //                dataModel.put(Keys.MSG ,"").renderTrueResult();
 //                dataModel.put(Keys.TOKEN, token);
