@@ -19,12 +19,21 @@ package cn.he.zhao.bbs.controller;
 
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.entity.*;
+import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entityUtil.CommentUtil;
+import cn.he.zhao.bbs.entityUtil.NotificationUtil;
+import cn.he.zhao.bbs.entityUtil.UserExtUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
+import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
+import cn.he.zhao.bbs.spring.Common;
 import cn.he.zhao.bbs.spring.Paginator;
 import cn.he.zhao.bbs.spring.Requests;
 import cn.he.zhao.bbs.spring.SpringUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import org.json.JSONObject;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,45 +119,45 @@ public class NotificationProcessor {
 
         switch (type) {
             case "commented":
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_COMMENTED);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_COMMENTED);
 
                 break;
             case "reply":
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_REPLY);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_REPLY);
 
                 break;
             case "at":
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_AT);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_WATCHER);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_UP);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_DOWN);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_AT);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_WATCHER);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_UP);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_DOWN);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_UP);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
 
                 break;
             case "following":
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_FOLLOWING_USER);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_FOLLOWING_ARTICLE_UPDATE);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_FOLLOWING_ARTICLE_COMMENT);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_FOLLOWING_USER);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_FOLLOWING_ARTICLE_UPDATE);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_FOLLOWING_ARTICLE_COMMENT);
 
                 break;
             case "point":
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_ARTICLE_REWARD);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_ARTICLE_THANK);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_CHARGE);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_COMMENT_ACCEPT);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_COMMENT_THANK);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_EXCHANGE);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_PERFECT_ARTICLE);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_POINT_TRANSFER);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_ABUSE_POINT_DEDUCT);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_INVITECODE_USED);
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_INVITATION_LINK_USED);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_ARTICLE_REWARD);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_ARTICLE_THANK);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_CHARGE);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_COMMENT_ACCEPT);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_COMMENT_THANK);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_EXCHANGE);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_PERFECT_ARTICLE);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_POINT_TRANSFER);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_ABUSE_POINT_DEDUCT);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_INVITECODE_USED);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_INVITATION_LINK_USED);
 
                 break;
             case "broadcast":
-                notificationMgmtService.removeNotifications(userId, Notification.DATA_TYPE_C_BROADCAST);
+                notificationMgmtService.removeNotifications(userId, NotificationUtil.DATA_TYPE_C_BROADCAST);
 
                 break;
             default:
@@ -185,7 +194,7 @@ public class NotificationProcessor {
             return;
         }
 
-        if (!notification.optString(Notification.NOTIFICATION_USER_ID).equals(userId)) {
+        if (!notification.optString(NotificationUtil.NOTIFICATION_USER_ID).equals(userId)) {
             return;
         }
 
@@ -223,7 +232,7 @@ public class NotificationProcessor {
         final int pageSize = Symphonys.getInt("sysAnnounceNotificationsCnt");
         final int windowSize = Symphonys.getInt("sysAnnounceNotificationsWindowSize");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = notificationQueryService.getSysAnnounceNotifications(
                 avatarViewMode, userId, pageNum, pageSize);
@@ -293,27 +302,27 @@ public class NotificationProcessor {
 
         switch (type) {
             case "commented":
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_COMMENTED);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_COMMENTED);
 
                 break;
             case "reply":
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_REPLY);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_REPLY);
 
                 break;
             case "at":
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_AT);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_WATCHER);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_UP);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_DOWN);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_AT);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_WATCHER);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_UP);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_DOWN);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_UP);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
 
                 break;
             case "following":
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_FOLLOWING_USER);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_FOLLOWING_ARTICLE_UPDATE);
-                notificationMgmtService.makeRead(userId, Notification.DATA_TYPE_C_FOLLOWING_ARTICLE_COMMENT);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_FOLLOWING_USER);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_FOLLOWING_ARTICLE_UPDATE);
+                notificationMgmtService.makeRead(userId, NotificationUtil.DATA_TYPE_C_FOLLOWING_ARTICLE_COMMENT);
 
                 break;
             default:
@@ -346,8 +355,8 @@ public class NotificationProcessor {
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String userId = currentUser.optString(Keys.OBJECT_ID);
-        final String articleId = requestJSONObject.optString(Article.ARTICLE_T_ID);
-        final List<String> commentIds = Arrays.asList(requestJSONObject.optString(Comment.COMMENT_T_IDS).split(","));
+        final String articleId = requestJSONObject.optString(ArticleUtil.ARTICLE_T_ID);
+        final List<String> commentIds = Arrays.asList(requestJSONObject.optString(CommentUtil.COMMENT_T_IDS).split(","));
 
         notificationMgmtService.makeRead(userId, articleId, commentIds);
 
@@ -370,37 +379,37 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String navigateNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                       final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return null;
         }
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
 
         final int unreadCommentedNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENTED);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_COMMENTED);
         if (unreadCommentedNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/commented");
 
         }
 
         final int unreadReplyNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_REPLY);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_REPLY);
         if (unreadReplyNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/reply");
 
         }
 
         final int unreadAtNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_AT)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_WATCHER)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_UP)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_DOWN)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_AT)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_WATCHER)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_UP)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_DOWN)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_UP)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
         if (unreadAtNotificationCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/at");
 
@@ -419,7 +428,7 @@ public class NotificationProcessor {
         }
 
         final int unreadBroadcastCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_BROADCAST);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_BROADCAST);
         if (unreadBroadcastCnt > 0) {
             return "redirect:" +( SpringUtil.getServerPath() + "/notifications/broadcast");
 
@@ -451,7 +460,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String showPointNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -464,7 +473,7 @@ public class NotificationProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url= "/home/notifications/point.ftl";
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = Symphonys.getInt("pointNotificationsCnt");
         final int windowSize = Symphonys.getInt("pointNotificationsWindowSize");
@@ -502,21 +511,21 @@ public class NotificationProcessor {
      */
     private void fillNotificationCount(final String userId, final Map<String, Object> dataModel) {
         final int unreadCommentedNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENTED);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_COMMENTED);
         dataModel.put(Common.UNREAD_COMMENTED_NOTIFICATION_CNT, unreadCommentedNotificationCnt);
 
         final int unreadReplyNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_REPLY);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_REPLY);
         dataModel.put(Common.UNREAD_REPLY_NOTIFICATION_CNT, unreadReplyNotificationCnt);
 
         final int unreadAtNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_AT)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_NEW_WATCHER)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_UP)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_COMMENT_VOTE_DOWN)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP)
-                + notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_AT)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_WATCHER)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_UP)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_DOWN)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_UP)
+                + notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
         dataModel.put(Common.UNREAD_AT_NOTIFICATION_CNT, unreadAtNotificationCnt);
 
         final int unreadFollowingNotificationCnt
@@ -528,14 +537,14 @@ public class NotificationProcessor {
         dataModel.put(Common.UNREAD_POINT_NOTIFICATION_CNT, unreadPointNotificationCnt);
 
         final int unreadBroadcastNotificationCnt
-                = notificationQueryService.getUnreadNotificationCountByType(userId, Notification.DATA_TYPE_C_BROADCAST);
+                = notificationQueryService.getUnreadNotificationCountByType(userId, NotificationUtil.DATA_TYPE_C_BROADCAST);
         dataModel.put(Common.UNREAD_BROADCAST_NOTIFICATION_CNT, unreadBroadcastNotificationCnt);
 
         final int unreadSysAnnounceNotificationCnt = notificationQueryService.getUnreadSysAnnounceNotificationCount(userId);
         dataModel.put(Common.UNREAD_SYS_ANNOUNCE_NOTIFICATION_CNT, unreadSysAnnounceNotificationCnt);
 
         final int unreadNewFollowerNotificationCnt = notificationQueryService.getUnreadNotificationCountByType(
-                userId, Notification.DATA_TYPE_C_NEW_FOLLOWER);
+                userId, NotificationUtil.DATA_TYPE_C_NEW_FOLLOWER);
         dataModel.put(Common.UNREAD_NEW_FOLLOWER_NOTIFICATION_CNT, unreadNewFollowerNotificationCnt);
 
         dataModel.put(Common.UNREAD_NOTIFICATION_CNT, unreadAtNotificationCnt + unreadBroadcastNotificationCnt
@@ -560,7 +569,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String showCommentedNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -574,12 +583,12 @@ public class NotificationProcessor {
 
         String url = "/home/notifications/commented.ftl";
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = Symphonys.getInt("commentedNotificationsCnt");
         final int windowSize = Symphonys.getInt("commentedNotificationsWindowSize");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = notificationQueryService.getCommentedNotifications(
                 avatarViewMode, userId, pageNum, pageSize);
@@ -622,7 +631,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String showReplyNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                        final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -635,12 +644,12 @@ public class NotificationProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "/home/notifications/reply.ftl";
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = Symphonys.getInt("replyNotificationsCnt");
         final int windowSize = Symphonys.getInt("replyNotificationsWindowSize");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = notificationQueryService.getReplyNotifications(
                 avatarViewMode, userId, pageNum, pageSize);
@@ -683,7 +692,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String showAtNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                     final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -696,12 +705,12 @@ public class NotificationProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "/home/notifications/at.ftl";
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = Symphonys.getInt("atNotificationsCnt");
         final int windowSize = Symphonys.getInt("atNotificationsWindowSize");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = notificationQueryService.getAtNotifications(avatarViewMode, userId, pageNum, pageSize);
         final List<JSONObject> atNotifications = (List<JSONObject>) result.get(Keys.RESULTS);
@@ -710,7 +719,7 @@ public class NotificationProcessor {
 
         final List<JSONObject> articleFollowAndWatchNotifications = new ArrayList<>();
         for (final JSONObject notification : atNotifications) {
-            if (Notification.DATA_TYPE_C_AT != notification.optInt(Notification.NOTIFICATION_DATA_TYPE)) {
+            if (NotificationUtil.DATA_TYPE_C_AT != notification.optInt(NotificationUtil.NOTIFICATION_DATA_TYPE)) {
                 articleFollowAndWatchNotifications.add(notification);
             }
         }
@@ -752,7 +761,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String showFollowingNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -765,12 +774,12 @@ public class NotificationProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "/home/notifications/following.ftl";
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = Symphonys.getInt("followingNotificationsCnt");
         final int windowSize = Symphonys.getInt("followingNotificationsWindowSize");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = notificationQueryService.getFollowingNotifications(
                 avatarViewMode, userId, pageNum, pageSize);
@@ -814,7 +823,7 @@ public class NotificationProcessor {
     @StopWatchEndAnno
     public String showBroadcastNotifications(Map<String, Object> dataModel, final HttpServletRequest request,
                                            final HttpServletResponse response) throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -827,12 +836,12 @@ public class NotificationProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "/home/notifications/broadcast.ftl";
 
-        final String userId = currentUser.optString(Keys.OBJECT_ID);
+        final String userId = currentUser.getOid();
         final int pageNum = Paginator.getPage(request);
         final int pageSize = Symphonys.getInt("broadcastNotificationsCnt");
         final int windowSize = Symphonys.getInt("broadcastNotificationsWindowSize");
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
         final JSONObject result = notificationQueryService.getBroadcastNotifications(
                 avatarViewMode, userId, pageNum, pageSize);
@@ -881,6 +890,6 @@ public class NotificationProcessor {
 //        context.renderJSON(new JSONObject(dataModel)).renderTrueResult().
 //                renderJSONValue(UserExt.USER_NOTIFY_STATUS, currentUser.optInt(UserExt.USER_NOTIFY_STATUS));
         dataModel.put(Keys.STATUS_CODE,true);
-        dataModel.put(UserExt.USER_NOTIFY_STATUS, currentUser.optInt(UserExt.USER_NOTIFY_STATUS));
+        dataModel.put(UserExtUtil.USER_NOTIFY_STATUS, currentUser.optInt(UserExtUtil.USER_NOTIFY_STATUS));
     }
 }
