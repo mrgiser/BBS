@@ -21,6 +21,7 @@ import org.json.JSONObject;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -70,6 +71,16 @@ public final class CharacterUtil {
      * @return character, returns {@code null} if not found
      */
     public static JSONObject getCharacter(final String content, final Set<JSONObject> characters) {
+        for (final JSONObject character : characters) {
+            if (character.optString(CHARACTER_CONTENT).equals(content)) {
+                return character;
+            }
+        }
+
+        return null;
+    }
+
+    public static JSONObject getCharacter(final String content, final List<JSONObject> characters) {
         for (final JSONObject character : characters) {
             if (character.optString(CHARACTER_CONTENT).equals(content)) {
                 return character;

@@ -20,15 +20,14 @@ package cn.he.zhao.bbs.controller;
 import cn.he.zhao.bbs.advice.*;
 import cn.he.zhao.bbs.cache.DomainCache;
 import cn.he.zhao.bbs.entity.*;
-import cn.he.zhao.bbs.entityUtil.ArticleUtil;
+import cn.he.zhao.bbs.entity.Character;
+import cn.he.zhao.bbs.entityUtil.*;
 import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.entityUtil.my.Pagination;
 import cn.he.zhao.bbs.entityUtil.my.User;
 import cn.he.zhao.bbs.service.*;
 import cn.he.zhao.bbs.service.interf.LangPropsService;
-import cn.he.zhao.bbs.spring.Paginator;
-import cn.he.zhao.bbs.spring.Requests;
-import cn.he.zhao.bbs.spring.Stopwatchs;
-import cn.he.zhao.bbs.spring.Strings;
+import cn.he.zhao.bbs.spring.*;
 import cn.he.zhao.bbs.util.*;
 import cn.he.zhao.bbs.validate.ArticleAddValidation;
 import cn.he.zhao.bbs.validate.UserRegisterValidation;
@@ -218,14 +217,14 @@ public class ArticleProcessor {
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String currentUserId = currentUser.optString(Keys.OBJECT_ID);
-        final JSONObject article = articleQueryService.getArticle(id);
+        final Article article = articleQueryService.getArticle(id);
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return;
         }
 
-        final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+        final String authorId = article.getArticleAuthorId();
         if (!authorId.equals(currentUserId)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
@@ -237,7 +236,7 @@ public class ArticleProcessor {
             articleMgmtService.removeArticle(id);
 
             dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
-            dataModel.put(Article.ARTICLE_T_ID, id);
+            dataModel.put(ArticleUtil.ARTICLE_T_ID, id);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
 
@@ -262,11 +261,11 @@ public class ArticleProcessor {
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         final String currentUserId = currentUser.optString(Keys.OBJECT_ID);
         final JSONObject requestJSONObject = Requests.parseRequestJSONObject(request, response);
-        String title = requestJSONObject.optString(Article.ARTICLE_TITLE);
+        String title = requestJSONObject.optString(ArticleUtil.ARTICLE_TITLE);
         title = StringUtils.trim(title);
-        String id = requestJSONObject.optString(Article.ARTICLE_T_ID);
+        String id = requestJSONObject.optString(ArticleUtil.ARTICLE_T_ID);
 
-        final JSONObject article = articleQueryService.getArticleByTitle(title);
+        final Article article = articleQueryService.getArticleByTitle(title);
         if (null == article) {
             dataModel.put(Keys.STATUS_CODE,true);
 
@@ -274,20 +273,20 @@ public class ArticleProcessor {
         }
 
         if (StringUtils.isBlank(id)) { // Add
-            final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+            final String authorId = article.getArticleAuthorId();
 
             String msg;
             if (authorId.equals(currentUserId)) {
                 msg = langPropsService.get("duplicatedArticleTitleSelfLabel");
-                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.optString(Keys.OBJECT_ID)
+                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.getOid()
                         + "'>" + title + "</a>");
             } else {
-                final JSONObject author = userQueryService.getUser(authorId);
-                final String userName = author.optString(User.USER_NAME);
+                final UserExt author = userQueryService.getUser(authorId);
+                final String userName = author.getUserName();
 
                 msg = langPropsService.get("duplicatedArticleTitleLabel");
                 msg = msg.replace("{user}", "<a target='_blank' href='/member/" + userName + "'>" + userName + "</a>");
-                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.optString(Keys.OBJECT_ID)
+                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.getOid()
                         + "'>" + title + "</a>");
             }
 
@@ -297,28 +296,28 @@ public class ArticleProcessor {
 
 //            context.renderJSON(ret);
         } else { // Update
-            final JSONObject oldArticle = articleQueryService.getArticle(id);
-            if (oldArticle.optString(Article.ARTICLE_TITLE).equals(title)) {
+            final Article oldArticle = articleQueryService.getArticle(id);
+            if (oldArticle.getArticleTitle().equals(title)) {
 //                dataModel.put(Keys.STATUS_CODE,true);
                 dataModel.put(Keys.STATUS_CODE,true);
 
                 return;
             }
 
-            final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+            final String authorId = article.getArticleAuthorId();
 
             String msg;
             if (authorId.equals(currentUserId)) {
                 msg = langPropsService.get("duplicatedArticleTitleSelfLabel");
-                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.optString(Keys.OBJECT_ID)
+                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.getOid()
                         + "'>" + title + "</a>");
             } else {
-                final JSONObject author = userQueryService.getUser(authorId);
-                final String userName = author.optString(User.USER_NAME);
+                final UserExt author = userQueryService.getUser(authorId);
+                final String userName = author.getUserName();
 
                 msg = langPropsService.get("duplicatedArticleTitleLabel");
                 msg = msg.replace("{user}", "<a target='_blank' href='/member/" + userName + "'>" + userName + "</a>");
-                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.optString(Keys.OBJECT_ID)
+                msg = msg.replace("{article}", "<a target='_blank' href='/article/" + article.getOid()
                         + "'>" + title + "</a>");
             }
 
@@ -343,23 +342,26 @@ public class ArticleProcessor {
     @LoginCheckAnno
     @StopWatchEndAnno
     public void getArticleImage(Map<String, Object> dataModel, final String articleId) throws Exception {
-        final JSONObject article = articleQueryService.getArticle(articleId);
-        final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
+        final Article article = articleQueryService.getArticle(articleId);
+        final String authorId = article.getArticleAuthorId();
 
-        final Set<JSONObject> characters = characterQueryService.getWrittenCharacters();
-        final String articleContent = article.optString(Article.ARTICLE_CONTENT);
+        final List<Character> characters = characterQueryService.getWrittenCharacters();
+
+        List<JSONObject> jsonObjects = JsonUtil.listToJSONList(characters);
+
+        final String articleContent = article.getArticleContent();
 
         final List<BufferedImage> images = new ArrayList<>();
         for (int i = 0; i < articleContent.length(); i++) {
             final String ch = articleContent.substring(i, i + 1);
-            final JSONObject chRecord = cn.he.zhao.bbs.entity.Character.getCharacter(ch, characters);
+            final JSONObject chRecord = CharacterUtil.getCharacter(ch, jsonObjects);
             if (null == chRecord) {
-                images.add(cn.he.zhao.bbs.entity.Character.createImage(ch));
+                images.add(CharacterUtil.createImage(ch));
 
                 continue;
             }
 
-            final String imgData = chRecord.optString(cn.he.zhao.bbs.entity.Character.CHARACTER_IMG);
+            final String imgData = chRecord.optString(CharacterUtil.CHARACTER_IMG);
             final byte[] data = Base64.decode(imgData.getBytes());
             final BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
             final BufferedImage newImage = new BufferedImage(50, 50, img.getType());
@@ -394,7 +396,7 @@ public class ArticleProcessor {
 
 //        final JSONObject ret = new JSONObject();
         dataModel.put(Keys.STATUS_CODE, true);
-        dataModel.put(Common.URL, (Object) url);
+        dataModel.put(CommonUtil.URL, (Object) url);
 
 //        context.renderJSON(ret);
     }
@@ -412,14 +414,14 @@ public class ArticleProcessor {
     @PermissionCheckAnno
     @StopWatchEndAnno
     public void getArticleRevisions(Map<String, Object> dataModel, final String id) {
-        final List<JSONObject> revisions = revisionQueryService.getArticleRevisions(id);
+        final List<Revision> revisions = revisionQueryService.getArticleRevisions(id);
         final JSONObject ret = new JSONObject();
         ret.put(Keys.STATUS_CODE, true);
-        ret.put(Revision.REVISIONS, (Object) revisions);
+        ret.put(RevisionUtil.REVISIONS, (Object) revisions);
 
 //        context.renderJSON(ret);
         dataModel.put(Keys.STATUS_CODE,ret.get(Keys.STATUS_CODE));
-        dataModel.put(Revision.REVISIONS, (Object) revisions);
+        dataModel.put(RevisionUtil.REVISIONS, (Object) revisions);
     }
 
     /**
@@ -447,7 +449,7 @@ public class ArticleProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
 
 
-        dataModel.put(Common.BROADCAST_POINT, Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
+        dataModel.put(Common.BROADCAST_POINT, PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
         return "/home/pre-post.ftl";
@@ -459,12 +461,12 @@ public class ArticleProcessor {
      * @param dataModel the specified data entity
      */
     private void fillDomainsWithTags(final Map<String, Object> dataModel) {
-        final List<JSONObject> domains = domainQueryService.getAllDomains();
+        final List<Domain> domains = domainQueryService.getAllDomains();
         dataModel.put(Common.ADD_ARTICLE_DOMAINS, domains);
-        for (final JSONObject domain : domains) {
-            final List<JSONObject> tags = domainQueryService.getTags(domain.optString(Keys.OBJECT_ID));
+        for (final Domain domain : domains) {
+            final List<Tag> tags = domainQueryService.getTags(domain.getOid());
 
-            domain.put(Domain.DOMAIN_T_TAGS, (Object) tags);
+            domain.setDomainTags((Object) tags);
         }
 
         final JSONObject user = (JSONObject) dataModel.get(Common.CURRENT_USER);
@@ -477,10 +479,10 @@ public class ArticleProcessor {
                     user.optString(Keys.OBJECT_ID), 1, 28);
             final List<JSONObject> followingTags = (List<JSONObject>) followingTagsResult.opt(Keys.RESULTS);
             if (!followingTags.isEmpty()) {
-                final JSONObject userWatched = new JSONObject();
-                userWatched.put(Keys.OBJECT_ID, String.valueOf(System.currentTimeMillis()));
-                userWatched.put(Domain.DOMAIN_TITLE, langPropsService.get("notificationFollowingLabel"));
-                userWatched.put(Domain.DOMAIN_T_TAGS, (Object) followingTags);
+                final Domain userWatched = new Domain();
+                userWatched.setOid(String.valueOf(System.currentTimeMillis()));
+                userWatched.setDomainTitle(langPropsService.get("notificationFollowingLabel"));
+                userWatched.setDomainTags((Object) followingTags);
 
                 domains.add(0, userWatched);
             }
@@ -529,15 +531,15 @@ public class ArticleProcessor {
         final long fileMaxSize = Symphonys.getLong("upload.file.maxSize");
         dataModel.put("fileMaxSize", fileMaxSize);
 
-        String tags = request.getParameter(Tag.TAGS);
+        String tags = request.getParameter(TagUtil.TAGS);
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
 
         if (StringUtils.isBlank(tags)) {
             tags = "";
 
-            dataModel.put(Tag.TAGS, tags);
+            dataModel.put(TagUtil.TAGS, tags);
         } else {
-            tags = Tag.formatTags(tags);
+            tags = TagUtil.formatTags(tags);
             final String[] tagTitles = tags.split(",");
 
             final StringBuilder tagBuilder = new StringBuilder();
@@ -548,21 +550,21 @@ public class ArticleProcessor {
                     continue;
                 }
 
-                if (Tag.containsWhiteListTags(tagTitle)) {
+                if (TagUtil.containsWhiteListTags(tagTitle)) {
                     tagBuilder.append(tagTitle).append(",");
 
                     continue;
                 }
 
-                if (!Tag.TAG_TITLE_PATTERN.matcher(tagTitle).matches()) {
+                if (!TagUtil.TAG_TITLE_PATTERN.matcher(tagTitle).matches()) {
                     continue;
                 }
 
-                if (tagTitle.length() > Tag.MAX_TAG_TITLE_LENGTH) {
+                if (tagTitle.length() > TagUtil.MAX_TAG_TITLE_LENGTH) {
                     continue;
                 }
 
-                if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))
+                if (!RoleUtil.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))
                         && ArrayUtils.contains(Symphonys.RESERVED_TAGS, tagTitle)) {
                     continue;
                 }
@@ -573,14 +575,14 @@ public class ArticleProcessor {
                 tagBuilder.deleteCharAt(tagBuilder.length() - 1);
             }
 
-            dataModel.put(Tag.TAGS, tagBuilder.toString());
+            dataModel.put(TagUtil.TAGS, tagBuilder.toString());
         }
 
         final String type = request.getParameter(Common.TYPE);
         if (StringUtils.isBlank(type)) {
-            dataModel.put(Article.ARTICLE_TYPE, Article.ARTICLE_TYPE_C_NORMAL);
+            dataModel.put(ArticleUtil.ARTICLE_TYPE, ArticleUtil.ARTICLE_TYPE_C_NORMAL);
         } else {
-            int articleType = Article.ARTICLE_TYPE_C_NORMAL;
+            int articleType = ArticleUtil.ARTICLE_TYPE_C_NORMAL;
 
             try {
                 articleType = Integer.valueOf(type);
@@ -588,11 +590,11 @@ public class ArticleProcessor {
                 LOGGER.warn( "Gets article type error [" + type + "]", e);
             }
 
-            if (Article.isInvalidArticleType(articleType)) {
-                articleType = Article.ARTICLE_TYPE_C_NORMAL;
+            if (ArticleUtil.isInvalidArticleType(articleType)) {
+                articleType = ArticleUtil.ARTICLE_TYPE_C_NORMAL;
             }
 
-            dataModel.put(Article.ARTICLE_TYPE, articleType);
+            dataModel.put(ArticleUtil.ARTICLE_TYPE, articleType);
         }
 
         String at = request.getParameter(Common.AT);
@@ -605,18 +607,18 @@ public class ArticleProcessor {
 
         String rewardEditorPlaceholderLabel = langPropsService.get("rewardEditorPlaceholderLabel");
         rewardEditorPlaceholderLabel = rewardEditorPlaceholderLabel.replace("{point}",
-                String.valueOf(Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_REWARD));
+                String.valueOf(PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_REWARD));
         dataModel.put("rewardEditorPlaceholderLabel", rewardEditorPlaceholderLabel);
-        dataModel.put(Common.BROADCAST_POINT, Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
+        dataModel.put(Common.BROADCAST_POINT, PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
 
         String articleContentErrorLabel = langPropsService.get("articleContentErrorLabel");
         articleContentErrorLabel = articleContentErrorLabel.replace("{maxArticleContentLength}",
                 String.valueOf(ArticleAddValidation.MAX_ARTICLE_CONTENT_LENGTH));
         dataModel.put("articleContentErrorLabel", articleContentErrorLabel);
 
-        final String b3Key = currentUser.optString(UserExt.USER_B3_KEY);
-        final String b3ClientAddArticle = currentUser.optString(UserExt.USER_B3_CLIENT_ADD_ARTICLE_URL);
-        final String b3ClientUpdateArticle = currentUser.optString(UserExt.USER_B3_CLIENT_UPDATE_ARTICLE_URL);
+        final String b3Key = currentUser.optString(UserExtUtil.USER_B3_KEY);
+        final String b3ClientAddArticle = currentUser.optString(UserExtUtil.USER_B3_CLIENT_ADD_ARTICLE_URL);
+        final String b3ClientUpdateArticle = currentUser.optString(UserExtUtil.USER_B3_CLIENT_UPDATE_ARTICLE_URL);
         dataModel.put("hasB3Key", StringUtils.isNotBlank(b3Key) && StringUtils.isNotBlank(b3ClientAddArticle) && StringUtils.isNotBlank(b3ClientUpdateArticle));
 
         fillPostArticleRequisite(dataModel, currentUser);
@@ -664,45 +666,47 @@ public class ArticleProcessor {
 
         String url = "/article.ftl";
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
-        final JSONObject article = articleQueryService.getArticleById(avatarViewMode, articleId);
+        final Article article = articleQueryService.getArticleById(avatarViewMode, articleId);
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return null;
         }
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
 
         final HttpSession session = request.getSession(false);
         if (null != session) {
-            session.setAttribute(Article.ARTICLE_T_ID, articleId);
+            session.setAttribute(ArticleUtil.ARTICLE_T_ID, articleId);
         }
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
-        final String authorId = article.optString(Article.ARTICLE_AUTHOR_ID);
-        final JSONObject author = userQueryService.getUser(authorId);
-        Escapes.escapeHTML(author);
+        final String authorId = jsonObject.optString(ArticleUtil.ARTICLE_AUTHOR_ID);
+        final UserExt author = userQueryService.getUser(authorId);
+        JSONObject jsonObjectAuthor = new JSONObject(author);
+        Escapes.escapeHTML(jsonObjectAuthor);
 
-        if (Article.ARTICLE_ANONYMOUS_C_PUBLIC == article.optInt(Article.ARTICLE_ANONYMOUS)) {
-            article.put(Article.ARTICLE_T_AUTHOR_NAME, author.optString(User.USER_NAME));
-            article.put(Article.ARTICLE_T_AUTHOR_URL, author.optString(User.USER_URL));
-            article.put(Article.ARTICLE_T_AUTHOR_INTRO, author.optString(UserExt.USER_INTRO));
+        if (ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC == jsonObject.optInt(ArticleUtil.ARTICLE_ANONYMOUS)) {
+            jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR_NAME, jsonObjectAuthor.optString(User.USER_NAME));
+            jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR_URL, jsonObjectAuthor.optString(User.USER_URL));
+            jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR_INTRO, jsonObjectAuthor.optString(UserExtUtil.USER_INTRO));
         } else {
-            article.put(Article.ARTICLE_T_AUTHOR_NAME, UserExt.ANONYMOUS_USER_NAME);
-            article.put(Article.ARTICLE_T_AUTHOR_URL, "");
-            article.put(Article.ARTICLE_T_AUTHOR_INTRO, "");
+            jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR_NAME, UserExtUtil.ANONYMOUS_USER_NAME);
+            jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR_URL, "");
+            jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR_INTRO, "");
         }
-        dataModel.put(Article.ARTICLE, article);
+        dataModel.put(ArticleUtil.ARTICLE, article);
 
-        article.put(Common.IS_MY_ARTICLE, false);
-        article.put(Article.ARTICLE_T_AUTHOR, author);
-        article.put(Common.REWARDED, false);
-        article.put(Common.OFFERED, false);
-        article.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(articleId, Reward.TYPE_C_ARTICLE));
-        article.put(Article.ARTICLE_REVISION_COUNT, revisionQueryService.count(articleId, Revision.DATA_TYPE_C_ARTICLE));
+        jsonObject.put(Common.IS_MY_ARTICLE, false);
+        jsonObject.put(ArticleUtil.ARTICLE_T_AUTHOR, author);
+        jsonObject.put(Common.REWARDED, false);
+        jsonObject.put(Common.OFFERED, false);
+        jsonObject.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(articleId, RewardUtil.TYPE_C_ARTICLE));
+        jsonObject.put(ArticleUtil.ARTICLE_REVISION_COUNT, revisionQueryService.count(articleId, RevisionUtil.DATA_TYPE_C_ARTICLE));
 
-        articleQueryService.processArticleContent(article, request);
+        articleQueryService.processArticleContent(jsonObject, request);
 
         String cmtViewModeStr = request.getParameter("m");
         JSONObject currentUser;
@@ -711,32 +715,32 @@ public class ArticleProcessor {
         if (isLoggedIn) {
             currentUser = (JSONObject) dataModel.get(Common.CURRENT_USER);
             currentUserId = currentUser.optString(Keys.OBJECT_ID);
-            article.put(Common.IS_MY_ARTICLE, currentUserId.equals(article.optString(Article.ARTICLE_AUTHOR_ID)));
+            jsonObject.put(Common.IS_MY_ARTICLE, currentUserId.equals(jsonObject.optString(ArticleUtil.ARTICLE_AUTHOR_ID)));
 
-            final boolean isFollowing = followQueryService.isFollowing(currentUserId, articleId, Follow.FOLLOWING_TYPE_C_ARTICLE);
+            final boolean isFollowing = followQueryService.isFollowing(currentUserId, articleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE);
             dataModel.put(Common.IS_FOLLOWING, isFollowing);
 
-            final boolean isWatching = followQueryService.isFollowing(currentUserId, articleId, Follow.FOLLOWING_TYPE_C_ARTICLE_WATCH);
+            final boolean isWatching = followQueryService.isFollowing(currentUserId, articleId, FollowUtil.FOLLOWING_TYPE_C_ARTICLE_WATCH);
             dataModel.put(Common.IS_WATCHING, isWatching);
 
             final int articleVote = voteQueryService.isVoted(currentUserId, articleId);
-            article.put(Article.ARTICLE_T_VOTE, articleVote);
+            jsonObject.put(ArticleUtil.ARTICLE_T_VOTE, articleVote);
 
-            if (currentUserId.equals(author.optString(Keys.OBJECT_ID))) {
-                article.put(Common.REWARDED, true);
+            if (currentUserId.equals(jsonObjectAuthor.optString(Keys.OBJECT_ID))) {
+                jsonObject.put(Common.REWARDED, true);
             } else {
-                article.put(Common.REWARDED, rewardQueryService.isRewarded(currentUserId, articleId, Reward.TYPE_C_ARTICLE));
+                jsonObject.put(Common.REWARDED, rewardQueryService.isRewarded(currentUserId, articleId, RewardUtil.TYPE_C_ARTICLE));
             }
 
             if (Strings.isEmptyOrNull(cmtViewModeStr) || !Strings.isNumeric(cmtViewModeStr)) {
-                cmtViewModeStr = currentUser.optString(UserExt.USER_COMMENT_VIEW_MODE);
+                cmtViewModeStr = currentUser.optString(UserExtUtil.USER_COMMENT_VIEW_MODE);
             }
         } else if (Strings.isEmptyOrNull(cmtViewModeStr) || !Strings.isNumeric(cmtViewModeStr)) {
             cmtViewModeStr = "0";
         }
 
         final int cmtViewMode = Integer.valueOf(cmtViewModeStr);
-        dataModel.put(UserExt.USER_COMMENT_VIEW_MODE, cmtViewMode);
+        dataModel.put(UserExtUtil.USER_COMMENT_VIEW_MODE, cmtViewMode);
 
         if (!(Boolean) request.getAttribute(Keys.HttpRequest.IS_SEARCH_ENGINE_BOT)) {
             articleMgmtService.incArticleViewCount(articleId);
@@ -744,10 +748,10 @@ public class ArticleProcessor {
 
         final JSONObject viewer = (JSONObject) request.getAttribute(User.USER);
         if (null != viewer) {
-            livenessMgmtService.incLiveness(viewer.optString(Keys.OBJECT_ID), Liveness.LIVENESS_PV);
+            livenessMgmtService.incLiveness(viewer.optString(Keys.OBJECT_ID), LivenessUtil.LIVENESS_PV);
         }
 
-        dataModelService.fillRelevantArticles(avatarViewMode, dataModel, article);
+        dataModelService.fillRelevantArticles(avatarViewMode, dataModel, jsonObject);
         dataModelService.fillRandomArticles(dataModel);
         dataModelService.fillSideHotArticles(dataModel);
 
@@ -769,17 +773,17 @@ public class ArticleProcessor {
         // Fill article thank
         Stopwatchs.start("Fills article thank");
         try {
-            article.put(Common.THANKED, rewardQueryService.isRewarded(currentUserId, articleId, Reward.TYPE_C_THANK_ARTICLE));
-            article.put(Common.THANKED_COUNT, rewardQueryService.rewardedCount(articleId, Reward.TYPE_C_THANK_ARTICLE));
-            final String articleAuthorId = article.optString(Article.ARTICLE_AUTHOR_ID);
-            if (Article.ARTICLE_TYPE_C_QNA == article.optInt(Article.ARTICLE_TYPE)) {
-                article.put(Common.OFFERED, rewardQueryService.isRewarded(articleAuthorId, articleId, Reward.TYPE_C_ACCEPT_COMMENT));
+            jsonObject.put(Common.THANKED, rewardQueryService.isRewarded(currentUserId, articleId, RewardUtil.TYPE_C_THANK_ARTICLE));
+            jsonObject.put(Common.THANKED_COUNT, rewardQueryService.rewardedCount(articleId, RewardUtil.TYPE_C_THANK_ARTICLE));
+            final String articleAuthorId = jsonObject.optString(ArticleUtil.ARTICLE_AUTHOR_ID);
+            if (ArticleUtil.ARTICLE_TYPE_C_QNA == jsonObject.optInt(ArticleUtil.ARTICLE_TYPE)) {
+                jsonObject.put(Common.OFFERED, rewardQueryService.isRewarded(articleAuthorId, articleId, RewardUtil.TYPE_C_ACCEPT_COMMENT));
                 final JSONObject offeredComment = commentQueryService.getOfferedComment(avatarViewMode, cmtViewMode, articleId);
-                article.put(Article.ARTICLE_T_OFFERED_COMMENT, offeredComment);
+                jsonObject.put(ArticleUtil.ARTICLE_T_OFFERED_COMMENT, offeredComment);
                 if (null != offeredComment) {
                     final String offeredCmtId = offeredComment.optString(Keys.OBJECT_ID);
-                    offeredComment.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(offeredCmtId, Reward.TYPE_C_COMMENT));
-                    offeredComment.put(Common.REWARDED, rewardQueryService.isRewarded(currentUserId, offeredCmtId, Reward.TYPE_C_COMMENT));
+                    offeredComment.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(offeredCmtId, RewardUtil.TYPE_C_COMMENT));
+                    offeredComment.put(Common.REWARDED, rewardQueryService.isRewarded(currentUserId, offeredCmtId, RewardUtil.TYPE_C_COMMENT));
                 }
             }
         } finally {
@@ -789,8 +793,8 @@ public class ArticleProcessor {
         // Fill previous/next article
         final JSONObject previous = articleQueryService.getPreviousPermalink(articleId);
         final JSONObject next = articleQueryService.getNextPermalink(articleId);
-        dataModel.put(Article.ARTICLE_T_PREVIOUS, previous);
-        dataModel.put(Article.ARTICLE_T_NEXT, next);
+        dataModel.put(ArticleUtil.ARTICLE_T_PREVIOUS, previous);
+        dataModel.put(ArticleUtil.ARTICLE_T_NEXT, next);
 
         String stickConfirmLabel = langPropsService.get("stickConfirmLabel");
         stickConfirmLabel = stickConfirmLabel.replace("{point}", Symphonys.get("pointStickArticle"));
@@ -800,7 +804,7 @@ public class ArticleProcessor {
         final int pageSize = Symphonys.getInt("articleCommentsPageSize");
         final int windowSize = Symphonys.getInt("articleCommentsWindowSize");
 
-        final int commentCnt = article.getInt(Article.ARTICLE_COMMENT_CNT);
+        final int commentCnt = jsonObject.getInt(ArticleUtil.ARTICLE_COMMENT_CNT);
         final int pageCount = (int) Math.ceil((double) commentCnt / (double) pageSize);
 
         final List<Integer> pageNums = Paginator.paginate(pageNum, pageSize, pageCount, windowSize);
@@ -814,64 +818,64 @@ public class ArticleProcessor {
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);
         dataModel.put(Common.ARTICLE_COMMENTS_PAGE_SIZE, pageSize);
 
-        dataModel.put(Common.DISCUSSION_VIEWABLE, article.optBoolean(Common.DISCUSSION_VIEWABLE));
-        if (!article.optBoolean(Common.DISCUSSION_VIEWABLE)) {
-            article.put(Article.ARTICLE_T_COMMENTS, (Object) Collections.emptyList());
-            article.put(Article.ARTICLE_T_NICE_COMMENTS, (Object) Collections.emptyList());
+        dataModel.put(Common.DISCUSSION_VIEWABLE, jsonObject.optBoolean(Common.DISCUSSION_VIEWABLE));
+        if (!jsonObject.optBoolean(Common.DISCUSSION_VIEWABLE)) {
+            jsonObject.put(ArticleUtil.ARTICLE_T_COMMENTS, (Object) Collections.emptyList());
+            jsonObject.put(ArticleUtil.ARTICLE_T_NICE_COMMENTS, (Object) Collections.emptyList());
 
             return null;
         }
 
         final List<JSONObject> niceComments
                 = commentQueryService.getNiceComments(avatarViewMode, cmtViewMode, articleId, 3);
-        article.put(Article.ARTICLE_T_NICE_COMMENTS, (Object) niceComments);
+        jsonObject.put(ArticleUtil.ARTICLE_T_NICE_COMMENTS, (Object) niceComments);
 
         double niceCmtScore = Double.MAX_VALUE;
         if (!niceComments.isEmpty()) {
-            niceCmtScore = niceComments.get(niceComments.size() - 1).optDouble(Comment.COMMENT_SCORE, 0D);
+            niceCmtScore = niceComments.get(niceComments.size() - 1).optDouble(CommentUtil.COMMENT_SCORE, 0D);
 
             for (final JSONObject comment : niceComments) {
                 String thankTemplate = langPropsService.get("thankConfirmLabel");
                 thankTemplate = thankTemplate.replace("{point}", String.valueOf(Symphonys.getInt("pointThankComment")))
-                        .replace("{user}", comment.optJSONObject(Comment.COMMENT_T_COMMENTER).optString(User.USER_NAME));
-                comment.put(Comment.COMMENT_T_THANK_LABEL, thankTemplate);
+                        .replace("{user}", comment.optJSONObject(CommentUtil.COMMENT_T_COMMENTER).optString(User.USER_NAME));
+                comment.put(CommentUtil.COMMENT_T_THANK_LABEL, thankTemplate);
 
                 final String commentId = comment.optString(Keys.OBJECT_ID);
                 if (isLoggedIn) {
-                    comment.put(Common.REWARDED, rewardQueryService.isRewarded(currentUserId, commentId, Reward.TYPE_C_COMMENT));
+                    comment.put(Common.REWARDED, rewardQueryService.isRewarded(currentUserId, commentId, RewardUtil.TYPE_C_COMMENT));
                     final int commentVote = voteQueryService.isVoted(currentUserId, commentId);
-                    comment.put(Comment.COMMENT_T_VOTE, commentVote);
+                    comment.put(CommentUtil.COMMENT_T_VOTE, commentVote);
                 }
 
-                comment.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(commentId, Reward.TYPE_C_COMMENT));
+                comment.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(commentId, RewardUtil.TYPE_C_COMMENT));
             }
         }
 
         // Load comments
         final List<JSONObject> articleComments =
                 commentQueryService.getArticleComments(avatarViewMode, articleId, pageNum, pageSize, cmtViewMode);
-        article.put(Article.ARTICLE_T_COMMENTS, (Object) articleComments);
+        jsonObject.put(ArticleUtil.ARTICLE_T_COMMENTS, (Object) articleComments);
 
         // Fill comment thank
         Stopwatchs.start("Fills comment thank");
         try {
             final String thankTemplate = langPropsService.get("thankConfirmLabel");
             for (final JSONObject comment : articleComments) {
-                comment.put(Comment.COMMENT_T_NICE, comment.optDouble(Comment.COMMENT_SCORE, 0D) >= niceCmtScore);
+                comment.put(CommentUtil.COMMENT_T_NICE, comment.optDouble(CommentUtil.COMMENT_SCORE, 0D) >= niceCmtScore);
 
                 final String thankStr = thankTemplate.replace("{point}", String.valueOf(Symphonys.getInt("pointThankComment")))
-                        .replace("{user}", comment.optJSONObject(Comment.COMMENT_T_COMMENTER).optString(User.USER_NAME));
-                comment.put(Comment.COMMENT_T_THANK_LABEL, thankStr);
+                        .replace("{user}", comment.optJSONObject(CommentUtil.COMMENT_T_COMMENTER).optString(User.USER_NAME));
+                comment.put(CommentUtil.COMMENT_T_THANK_LABEL, thankStr);
 
                 final String commentId = comment.optString(Keys.OBJECT_ID);
                 if (isLoggedIn) {
                     comment.put(Common.REWARDED,
-                            rewardQueryService.isRewarded(currentUserId, commentId, Reward.TYPE_C_COMMENT));
+                            rewardQueryService.isRewarded(currentUserId, commentId, RewardUtil.TYPE_C_COMMENT));
                     final int commentVote = voteQueryService.isVoted(currentUserId, commentId);
-                    comment.put(Comment.COMMENT_T_VOTE, commentVote);
+                    comment.put(CommentUtil.COMMENT_T_VOTE, commentVote);
                 }
 
-                comment.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(commentId, Reward.TYPE_C_COMMENT));
+                comment.put(Common.REWARED_COUNT, rewardQueryService.rewardedCount(commentId, RewardUtil.TYPE_C_COMMENT));
             }
         } finally {
             Stopwatchs.end();
@@ -880,7 +884,7 @@ public class ArticleProcessor {
         // ReferralUtil statistic
         final String referralUserName = request.getParameter("r");
         if (!UserRegisterValidation.invalidUserName(referralUserName)) {
-            final JSONObject referralUser = userQueryService.getUserByName(referralUserName);
+            final UserExt referralUser = userQueryService.getUserByName(referralUserName);
             if (null == referralUser) {
                 return url;
             }
@@ -888,23 +892,23 @@ public class ArticleProcessor {
             final String viewerIP = Requests.getRemoteAddr(request);
 
             final JSONObject referral = new JSONObject();
-            referral.put(Referral.REFERRAL_CLICK, 1);
-            referral.put(Referral.REFERRAL_DATA_ID, articleId);
-            referral.put(Referral.REFERRAL_IP, viewerIP);
-            referral.put(Referral.REFERRAL_TYPE, Referral.REFERRAL_TYPE_C_ARTICLE);
-            referral.put(Referral.REFERRAL_USER, referralUserName);
+            referral.put(ReferralUtil.REFERRAL_CLICK, 1);
+            referral.put(ReferralUtil.REFERRAL_DATA_ID, articleId);
+            referral.put(ReferralUtil.REFERRAL_IP, viewerIP);
+            referral.put(ReferralUtil.REFERRAL_TYPE, ReferralUtil.REFERRAL_TYPE_C_ARTICLE);
+            referral.put(ReferralUtil.REFERRAL_USER, referralUserName);
 
             referralMgmtService.updateReferral(referral);
         }
 
-        if (StringUtils.isBlank(article.optString(Article.ARTICLE_AUDIO_URL))) {
+        if (StringUtils.isBlank(jsonObject.optString(ArticleUtil.ARTICLE_AUDIO_URL))) {
             final String uid = StringUtils.isBlank(currentUserId) ? "visitor" : currentUserId;
 
             articleMgmtService.genArticleAudio(article, uid);
         }
 
         if (StringUtils.isNotBlank(Symphonys.get("ipfs.dir"))) {
-            articleMgmtService.saveMarkdown(article);
+            articleMgmtService.saveMarkdown(jsonObject);
         }
         return url;
     }
@@ -943,65 +947,66 @@ public class ArticleProcessor {
     public void addArticle(Map<String, Object> dataModel, final HttpServletRequest request, final JSONObject requestJSONObject) {
         dataModel.put(Keys.STATUS_CODE,false);
 
-        final String articleTitle = requestJSONObject.optString(Article.ARTICLE_TITLE);
-        String articleTags = requestJSONObject.optString(Article.ARTICLE_TAGS);
-        final String articleContent = requestJSONObject.optString(Article.ARTICLE_CONTENT);
-        //final boolean articleCommentable = requestJSONObject.optBoolean(Article.ARTICLE_COMMENTABLE);
+        final String articleTitle = requestJSONObject.optString(ArticleUtil.ARTICLE_TITLE);
+        String articleTags = requestJSONObject.optString(ArticleUtil.ARTICLE_TAGS);
+        final String articleContent = requestJSONObject.optString(ArticleUtil.ARTICLE_CONTENT);
+        //final boolean articleCommentable = requestJSONObject.optBoolean(ArticleUtil.ARTICLE_COMMENTABLE);
         final boolean articleCommentable = true;
-        final int articleType = requestJSONObject.optInt(Article.ARTICLE_TYPE, Article.ARTICLE_TYPE_C_NORMAL);
-        final String articleRewardContent = requestJSONObject.optString(Article.ARTICLE_REWARD_CONTENT);
-        final int articleRewardPoint = requestJSONObject.optInt(Article.ARTICLE_REWARD_POINT);
-        final int articleQnAOfferPoint = requestJSONObject.optInt(Article.ARTICLE_QNA_OFFER_POINT);
+        final int articleType = requestJSONObject.optInt(ArticleUtil.ARTICLE_TYPE, ArticleUtil.ARTICLE_TYPE_C_NORMAL);
+        final String articleRewardContent = requestJSONObject.optString(ArticleUtil.ARTICLE_REWARD_CONTENT);
+        final int articleRewardPoint = requestJSONObject.optInt(ArticleUtil.ARTICLE_REWARD_POINT);
+        final int articleQnAOfferPoint = requestJSONObject.optInt(ArticleUtil.ARTICLE_QNA_OFFER_POINT);
         final String ip = Requests.getRemoteAddr(request);
         final String ua = Headers.getHeader(request, Common.USER_AGENT);
-        final boolean isAnonymous = requestJSONObject.optBoolean(Article.ARTICLE_ANONYMOUS, false);
+        final boolean isAnonymous = requestJSONObject.optBoolean(ArticleUtil.ARTICLE_ANONYMOUS, false);
         final int articleAnonymous = isAnonymous
-                ? Article.ARTICLE_ANONYMOUS_C_ANONYMOUS : Article.ARTICLE_ANONYMOUS_C_PUBLIC;
+                ? ArticleUtil.ARTICLE_ANONYMOUS_C_ANONYMOUS : ArticleUtil.ARTICLE_ANONYMOUS_C_PUBLIC;
         final boolean syncWithSymphonyClient = requestJSONObject.optBoolean(ArticleUtil.ARTICLE_SYNC_TO_CLIENT, false);
 
         final JSONObject article = new JSONObject();
-        article.put(Article.ARTICLE_TITLE, articleTitle);
-        article.put(Article.ARTICLE_CONTENT, articleContent);
-        article.put(Article.ARTICLE_EDITOR_TYPE, 0);
-        article.put(Article.ARTICLE_COMMENTABLE, articleCommentable);
-        article.put(Article.ARTICLE_TYPE, articleType);
-        article.put(Article.ARTICLE_REWARD_CONTENT, articleRewardContent);
-        article.put(Article.ARTICLE_REWARD_POINT, articleRewardPoint);
-        article.put(Article.ARTICLE_QNA_OFFER_POINT, articleQnAOfferPoint);
-        article.put(Article.ARTICLE_IP, "");
+        article.put(ArticleUtil.ARTICLE_TITLE, articleTitle);
+        article.put(ArticleUtil.ARTICLE_CONTENT, articleContent);
+        article.put(ArticleUtil.ARTICLE_EDITOR_TYPE, 0);
+        article.put(ArticleUtil.ARTICLE_COMMENTABLE, articleCommentable);
+        article.put(ArticleUtil.ARTICLE_TYPE, articleType);
+        article.put(ArticleUtil.ARTICLE_REWARD_CONTENT, articleRewardContent);
+        article.put(ArticleUtil.ARTICLE_REWARD_POINT, articleRewardPoint);
+        article.put(ArticleUtil.ARTICLE_QNA_OFFER_POINT, articleQnAOfferPoint);
+        article.put(ArticleUtil.ARTICLE_IP, "");
         if (StringUtils.isNotBlank(ip)) {
-            article.put(Article.ARTICLE_IP, ip);
+            article.put(ArticleUtil.ARTICLE_IP, ip);
         }
-        article.put(Article.ARTICLE_UA, "");
+        article.put(ArticleUtil.ARTICLE_UA, "");
         if (StringUtils.isNotBlank(ua)) {
-            article.put(Article.ARTICLE_UA, ua);
+            article.put(ArticleUtil.ARTICLE_UA, ua);
         }
-        article.put(Article.ARTICLE_ANONYMOUS, articleAnonymous);
-        article.put(Article.ARTICLE_SYNC_TO_CLIENT, syncWithSymphonyClient);
+        article.put(ArticleUtil.ARTICLE_ANONYMOUS, articleAnonymous);
+        article.put(ArticleUtil.ARTICLE_SYNC_TO_CLIENT, syncWithSymphonyClient);
 
         try {
             final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
 
-            article.put(Article.ARTICLE_AUTHOR_ID, currentUser.optString(Keys.OBJECT_ID));
+            article.put(ArticleUtil.ARTICLE_AUTHOR_ID, currentUser.optString(Keys.OBJECT_ID));
 
-            if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
+            if (!RoleUtil.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
                 articleTags = articleMgmtService.filterReservedTags(articleTags);
             }
 
-            if (Article.ARTICLE_TYPE_C_DISCUSSION == articleType && StringUtils.isBlank(articleTags)) {
+            if (ArticleUtil.ARTICLE_TYPE_C_DISCUSSION == articleType && StringUtils.isBlank(articleTags)) {
                 articleTags = "小黑屋";
             }
 
-            if (Article.ARTICLE_TYPE_C_THOUGHT == articleType && StringUtils.isBlank(articleTags)) {
+            if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == articleType && StringUtils.isBlank(articleTags)) {
                 articleTags = "思绪";
             }
 
-            article.put(Article.ARTICLE_TAGS, articleTags);
+            article.put(ArticleUtil.ARTICLE_TAGS, articleTags);
 
-            final String articleId = articleMgmtService.addArticle(article);
+            Article articleTmp = JsonUtil.json2Bean(article.toString(),Article.class);
+            final String articleId = articleMgmtService.addArticle(articleTmp);
 
             dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
-            dataModel.put(Article.ARTICLE_T_ID, articleId);
+            dataModel.put(ArticleUtil.ARTICLE_T_ID, articleId);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
@@ -1036,7 +1041,7 @@ public class ArticleProcessor {
             return null;
         }
 
-        final JSONObject article = articleQueryService.getArticle(articleId);
+        final Article article = articleQueryService.getArticle(articleId);
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -1045,7 +1050,7 @@ public class ArticleProcessor {
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         if (null == currentUser
-                || !currentUser.optString(Keys.OBJECT_ID).equals(article.optString(Article.ARTICLE_AUTHOR_ID))) {
+                || !currentUser.optString(Keys.OBJECT_ID).equals(article.getArticleAuthorId())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return null;
@@ -1058,7 +1063,7 @@ public class ArticleProcessor {
 //        final Map<String, Object> dataModel = renderer.getDataModel();
         String url = "/home/post.ftl";
 
-        dataModel.put(Article.ARTICLE, article);
+        dataModel.put(ArticleUtil.ARTICLE, article);
 
         dataModelService.fillHeaderAndFooter(request, response, dataModel);
 
@@ -1081,11 +1086,11 @@ public class ArticleProcessor {
 
         String rewardEditorPlaceholderLabel = langPropsService.get("rewardEditorPlaceholderLabel");
         rewardEditorPlaceholderLabel = rewardEditorPlaceholderLabel.replace("{point}",
-                String.valueOf(Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_REWARD));
+                String.valueOf(PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_REWARD));
         dataModel.put("rewardEditorPlaceholderLabel", rewardEditorPlaceholderLabel);
-        dataModel.put(Common.BROADCAST_POINT, Pointtransfer.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
+        dataModel.put(Common.BROADCAST_POINT, PointtransferUtil.TRANSFER_SUM_C_ADD_ARTICLE_BROADCAST);
 
-        final String b3logKey = currentUser.optString(UserExt.USER_B3_KEY);
+        final String b3logKey = currentUser.optString(UserExtUtil.USER_B3_KEY);
         dataModel.put("hasB3Key", !Strings.isEmptyOrNull(b3logKey));
 
         fillPostArticleRequisite(dataModel, currentUser);
@@ -1135,9 +1140,9 @@ public class ArticleProcessor {
             return;
         }
 
-        final int avatarViewMode = (int) request.getAttribute(UserExt.USER_AVATAR_VIEW_MODE);
+        final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
-        final JSONObject oldArticle = articleQueryService.getArticleById(avatarViewMode, id);
+        final Article oldArticle = articleQueryService.getArticleById(avatarViewMode, id);
         if (null == oldArticle) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -1147,7 +1152,7 @@ public class ArticleProcessor {
 //        dataModel.put(Keys.STATUS_CODE,false);
         dataModel.put(Keys.STATUS_CODE,false);
 
-        if (Article.ARTICLE_STATUS_C_VALID != oldArticle.optInt(Article.ARTICLE_STATUS)) {
+        if (ArticleUtil.ARTICLE_STATUS_C_VALID != oldArticle.getArticleStatus()) {
             dataModel.put(Keys.MSG , langPropsService.get("articleLockedLabel"));
 //            dataModel.put(Keys.MSG ,langPropsService.get("articleLockedLabel"));
             dataModel.put(Keys.STATUS_CODE, StatusCodes.ERR);
@@ -1157,66 +1162,67 @@ public class ArticleProcessor {
 
         final JSONObject requestJSONObject = (JSONObject) request.getAttribute(Keys.REQUEST);
 
-        final String articleTitle = requestJSONObject.optString(Article.ARTICLE_TITLE);
-        String articleTags = requestJSONObject.optString(Article.ARTICLE_TAGS);
-        final String articleContent = requestJSONObject.optString(Article.ARTICLE_CONTENT);
-        //final boolean articleCommentable = requestJSONObject.optBoolean(Article.ARTICLE_COMMENTABLE);
+        final String articleTitle = requestJSONObject.optString(ArticleUtil.ARTICLE_TITLE);
+        String articleTags = requestJSONObject.optString(ArticleUtil.ARTICLE_TAGS);
+        final String articleContent = requestJSONObject.optString(ArticleUtil.ARTICLE_CONTENT);
+        //final boolean articleCommentable = requestJSONObject.optBoolean(ArticleUtil.ARTICLE_COMMENTABLE);
         final boolean articleCommentable = true;
-        final int articleType = requestJSONObject.optInt(Article.ARTICLE_TYPE, Article.ARTICLE_TYPE_C_NORMAL);
-        final String articleRewardContent = requestJSONObject.optString(Article.ARTICLE_REWARD_CONTENT);
-        final int articleRewardPoint = requestJSONObject.optInt(Article.ARTICLE_REWARD_POINT);
-        final int articleQnAOfferPoint = requestJSONObject.optInt(Article.ARTICLE_QNA_OFFER_POINT);
+        final int articleType = requestJSONObject.optInt(ArticleUtil.ARTICLE_TYPE, ArticleUtil.ARTICLE_TYPE_C_NORMAL);
+        final String articleRewardContent = requestJSONObject.optString(ArticleUtil.ARTICLE_REWARD_CONTENT);
+        final int articleRewardPoint = requestJSONObject.optInt(ArticleUtil.ARTICLE_REWARD_POINT);
+        final int articleQnAOfferPoint = requestJSONObject.optInt(ArticleUtil.ARTICLE_QNA_OFFER_POINT);
         final String ip = Requests.getRemoteAddr(request);
         final String ua = Headers.getHeader(request, Common.USER_AGENT);
 
         final JSONObject article = new JSONObject();
         article.put(Keys.OBJECT_ID, id);
-        article.put(Article.ARTICLE_TITLE, articleTitle);
-        article.put(Article.ARTICLE_CONTENT, articleContent);
-        article.put(Article.ARTICLE_EDITOR_TYPE, 0);
-        article.put(Article.ARTICLE_COMMENTABLE, articleCommentable);
-        article.put(Article.ARTICLE_TYPE, articleType);
-        article.put(Article.ARTICLE_REWARD_CONTENT, articleRewardContent);
-        article.put(Article.ARTICLE_REWARD_POINT, articleRewardPoint);
-        article.put(Article.ARTICLE_QNA_OFFER_POINT, articleQnAOfferPoint);
-        article.put(Article.ARTICLE_IP, "");
+        article.put(ArticleUtil.ARTICLE_TITLE, articleTitle);
+        article.put(ArticleUtil.ARTICLE_CONTENT, articleContent);
+        article.put(ArticleUtil.ARTICLE_EDITOR_TYPE, 0);
+        article.put(ArticleUtil.ARTICLE_COMMENTABLE, articleCommentable);
+        article.put(ArticleUtil.ARTICLE_TYPE, articleType);
+        article.put(ArticleUtil.ARTICLE_REWARD_CONTENT, articleRewardContent);
+        article.put(ArticleUtil.ARTICLE_REWARD_POINT, articleRewardPoint);
+        article.put(ArticleUtil.ARTICLE_QNA_OFFER_POINT, articleQnAOfferPoint);
+        article.put(ArticleUtil.ARTICLE_IP, "");
         if (StringUtils.isNotBlank(ip)) {
-            article.put(Article.ARTICLE_IP, ip);
+            article.put(ArticleUtil.ARTICLE_IP, ip);
         }
-        article.put(Article.ARTICLE_UA, "");
+        article.put(ArticleUtil.ARTICLE_UA, "");
         if (StringUtils.isNotBlank(ua)) {
-            article.put(Article.ARTICLE_UA, ua);
+            article.put(ArticleUtil.ARTICLE_UA, ua);
         }
 
         final JSONObject currentUser = (JSONObject) request.getAttribute(User.USER);
         if (null == currentUser
-                || !currentUser.optString(Keys.OBJECT_ID).equals(oldArticle.optString(Article.ARTICLE_AUTHOR_ID))) {
+                || !currentUser.optString(Keys.OBJECT_ID).equals(oldArticle.getArticleAuthorId())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return;
         }
 
-        article.put(Article.ARTICLE_AUTHOR_ID, currentUser.optString(Keys.OBJECT_ID));
+        article.put(ArticleUtil.ARTICLE_AUTHOR_ID, currentUser.optString(Keys.OBJECT_ID));
 
-        if (!Role.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
+        if (!RoleUtil.ROLE_ID_C_ADMIN.equals(currentUser.optString(User.USER_ROLE))) {
             articleTags = articleMgmtService.filterReservedTags(articleTags);
         }
 
-        if (Article.ARTICLE_TYPE_C_DISCUSSION == articleType && StringUtils.isBlank(articleTags)) {
+        if (ArticleUtil.ARTICLE_TYPE_C_DISCUSSION == articleType && StringUtils.isBlank(articleTags)) {
             articleTags = "小黑屋";
         }
 
-        if (Article.ARTICLE_TYPE_C_THOUGHT == articleType && StringUtils.isBlank(articleTags)) {
+        if (ArticleUtil.ARTICLE_TYPE_C_THOUGHT == articleType && StringUtils.isBlank(articleTags)) {
             articleTags = "思绪";
         }
 
-        article.put(Article.ARTICLE_TAGS, articleTags);
+        article.put(ArticleUtil.ARTICLE_TAGS, articleTags);
 
         try {
-            articleMgmtService.updateArticle(article);
+            Article bean = JsonUtil.json2Bean(article.toString(),Article.class);
+            articleMgmtService.updateArticle(bean);
 
             dataModel.put(Keys.STATUS_CODE, StatusCodes.SUCC);
-            dataModel.put(Article.ARTICLE_T_ID, id);
+            dataModel.put(ArticleUtil.ARTICLE_T_ID, id);
         } catch ( final Exception e) {
             final String msg = e.getMessage();
             LOGGER.error( "Adds article[title=" + articleTitle + "] failed: {0}", e.getMessage());
@@ -1322,14 +1328,14 @@ public class ArticleProcessor {
     @StopWatchEndAnno
     public void reward(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return;
         }
 
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
         if (Strings.isEmptyOrNull(articleId)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 
@@ -1340,20 +1346,21 @@ public class ArticleProcessor {
         dataModel.put(Keys.STATUS_CODE,false);
 
         try {
-            articleMgmtService.reward(articleId, currentUser.optString(Keys.OBJECT_ID));
+            articleMgmtService.reward(articleId, currentUser.getOid());
         } catch ( final Exception e) {
 //            dataModel.put(Keys.MSG ,langPropsService.get("transferFailLabel"));
             dataModel.put(Keys.MSG,langPropsService.get("transferFailLabel"));
             return;
         }
 
-        final JSONObject article = articleQueryService.getArticle(articleId);
-        articleQueryService.processArticleContent(article, request);
+        final Article article = articleQueryService.getArticle(articleId);
+        JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
+        articleQueryService.processArticleContent(jsonObject, request);
 
-        final String rewardContent = article.optString(Article.ARTICLE_REWARD_CONTENT);
-//        context.renderTrueResult().renderJSONValue(Article.ARTICLE_REWARD_CONTENT, rewardContent);
+        final String rewardContent = jsonObject.optString(ArticleUtil.ARTICLE_REWARD_CONTENT);
+//        context.renderTrueResult().renderJSONValue(ArticleUtil.ARTICLE_REWARD_CONTENT, rewardContent);
         dataModel.put(Keys.STATUS_CODE,true);
-        dataModel.put(Article.ARTICLE_REWARD_CONTENT, rewardContent);
+        dataModel.put(ArticleUtil.ARTICLE_REWARD_CONTENT, rewardContent);
     }
 
     /**
@@ -1372,14 +1379,14 @@ public class ArticleProcessor {
     @StopWatchEndAnno
     public void thank(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return;
         }
 
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
         if (Strings.isEmptyOrNull(articleId)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 
@@ -1389,7 +1396,7 @@ public class ArticleProcessor {
 //        dataModel.put(Keys.STATUS_CODE,false);
         dataModel.put(Keys.STATUS_CODE,false);
         try {
-            articleMgmtService.thank(articleId, currentUser.optString(Keys.OBJECT_ID));
+            articleMgmtService.thank(articleId, currentUser.getOid());
         } catch (final Exception e) {
 //            dataModel.put(Keys.MSG ,langPropsService.get("transferFailLabel"));
             dataModel.put(Keys.MSG,langPropsService.get("transferFailLabel"));
@@ -1417,28 +1424,28 @@ public class ArticleProcessor {
     @StopWatchEndAnno
     public void stickArticle(final HttpServletRequest request, final HttpServletResponse response, Map<String, Object> dataModel)
             throws Exception {
-        final JSONObject currentUser = userQueryService.getCurrentUser(request);
+        final UserExt currentUser = userQueryService.getCurrentUser(request);
         if (null == currentUser) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return;
         }
 
-        final String articleId = request.getParameter(Article.ARTICLE_T_ID);
+        final String articleId = request.getParameter(ArticleUtil.ARTICLE_T_ID);
         if (Strings.isEmptyOrNull(articleId)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 
             return;
         }
 
-        final JSONObject article = articleQueryService.getArticle(articleId);
+        final Article article = articleQueryService.getArticle(articleId);
         if (null == article) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return;
         }
 
-        if (!currentUser.optString(Keys.OBJECT_ID).equals(article.optString(Article.ARTICLE_AUTHOR_ID))) {
+        if (!currentUser.getOid().equals(article.getArticleAuthorId())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
 
             return;
