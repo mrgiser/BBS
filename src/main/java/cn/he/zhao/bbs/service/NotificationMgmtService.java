@@ -20,10 +20,13 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.channel.UserChannel;
 import cn.he.zhao.bbs.entityUtil.CommonUtil;
 import cn.he.zhao.bbs.entityUtil.NotificationUtil;
+import cn.he.zhao.bbs.entityUtil.my.Keys;
+import cn.he.zhao.bbs.util.JsonUtil;
 import cn.he.zhao.bbs.util.Symphonys;
 import cn.he.zhao.bbs.mapper.*;
 import cn.he.zhao.bbs.entity.*;
 
+import com.qiniu.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,19 +66,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // report handled point transfer id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addReportHandledNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addReportHandledNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_REPORT_HANDLED);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_REPORT_HANDLED);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=report_handled] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -87,11 +90,11 @@ public class NotificationMgmtService {
      */
     @Transactional
     public void removeNotifications(final String userId, final int type) {
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Notification.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
-                new PropertyFilter(Notification.NOTIFICATION_DATA_TYPE, FilterOperator.EQUAL, type)));
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(NotificationUtil.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
+//                new PropertyFilter(NotificationUtil.NOTIFICATION_DATA_TYPE, FilterOperator.EQUAL, type)));
         try {
-            notificationMapper.remove(query);
+            notificationMapper.removeByUserIdAndDataType(userId, type);
         } catch (final Exception e) {
             LOGGER.error( "Removes user [id=" + userId + "]'s notifications [type=" + type + "] failed", e);
         }
@@ -117,19 +120,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // comment id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addCommentAcceptNotification(final Notification requestJSONObject) throws ServiceException {
+    public void addCommentAcceptNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_COMMENT_ACCEPT);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_COMMENT_ACCEPT);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=comment_accept] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -139,19 +142,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // article id-vote user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addArticleVoteDownNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleVoteDownNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_DOWN);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article_vote_down] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -161,19 +164,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // article id-vote user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addArticleVoteUpNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleVoteUpNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_ARTICLE_VOTE_UP);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_ARTICLE_VOTE_UP);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article_vote_up] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -183,19 +186,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // comment id-vote user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addCommentVoteDownNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addCommentVoteDownNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_COMMENT_VOTE_DOWN);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_DOWN);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=comment_vote_down] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -205,19 +208,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // comment id-vote user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addCommentVoteUpNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addCommentVoteUpNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_COMMENT_VOTE_UP);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_COMMENT_VOTE_UP);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=comment_vote_up] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -227,19 +230,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // article id-follower user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addArticleNewWatcherNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleNewWatcherNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_ARTICLE_NEW_WATCHER);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_WATCHER);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article_new_watcher] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -249,19 +252,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // article id-follower user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addArticleNewFollowerNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleNewFollowerNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_ARTICLE_NEW_FOLLOWER);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article_new_follower] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -274,9 +277,9 @@ public class NotificationMgmtService {
      * @throws Exception service exception
      */
     @Transactional
-    public void addPerfectArticleNotification(final Notification notification) throws Exception {
+    public void addPerfectArticleNotification(final JSONObject notification) throws Exception {
         try {
-            notification.setDataType( NotificationUtil.DATA_TYPE_C_POINT_PERFECT_ARTICLE);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_PERFECT_ARTICLE);
 
             addNotification(notification);
         } catch (final Exception e) {
@@ -293,19 +296,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // comment id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addFollowingArticleCommentNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addFollowingArticleCommentNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_FOLLOWING_ARTICLE_COMMENT);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_FOLLOWING_ARTICLE_COMMENT);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=following_article_comment] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -315,19 +318,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addFollowingArticleUpdateNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addFollowingArticleUpdateNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_FOLLOWING_ARTICLE_UPDATE);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_FOLLOWING_ARTICLE_UPDATE);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=following_article_update] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -337,19 +340,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // oldRoleId-newRoleId
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addSysAnnounceRoleChangedNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addSysAnnounceRoleChangedNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_SYS_ANNOUNCE_ROLE_CHANGED);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_SYS_ANNOUNCE_ROLE_CHANGED);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=sys_announce_role_changed] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -359,19 +362,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // invited user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addInvitationLinkUsedNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addInvitationLinkUsedNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_INVITATION_LINK_USED);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_INVITATION_LINK_USED);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=invitation_link_used] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -381,19 +384,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId": "",
      *                          "dataId": "" // new follower id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addNewFollowerNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addNewFollowerNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_NEW_FOLLOWER);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_NEW_FOLLOWER);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=new_follower] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -403,19 +406,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addSysAnnounceArticleNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addSysAnnounceArticleNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_SYS_ANNOUNCE_ARTICLE);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_SYS_ANNOUNCE_ARTICLE);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=sys_announce_article] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -425,19 +428,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addSysAnnounceNewUserNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addSysAnnounceNewUserNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_SYS_ANNOUNCE_NEW_USER);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_SYS_ANNOUNCE_NEW_USER);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=sys_announce_new_user] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -447,19 +450,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // invited user id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addInvitecodeUsedNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addInvitecodeUsedNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_INVITECODE_USED);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_INVITECODE_USED);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=invitecode_used] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -470,17 +473,17 @@ public class NotificationMgmtService {
      * @param type   the specified notification type
      */
     public void makeRead(final String userId, final int type) {
-        final Query query = new Query().setFilter(
-                CompositeFilterOperator.and(
-                        new PropertyFilter(Notification.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
-                        new PropertyFilter(Notification.NOTIFICATION_HAS_READ, FilterOperator.EQUAL, false),
-                        new PropertyFilter(Notification.NOTIFICATION_DATA_TYPE, FilterOperator.EQUAL, type)));
+//        final Query query = new Query().setFilter(
+//                CompositeFilterOperator.and(
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_HAS_READ, FilterOperator.EQUAL, false),
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_DATA_TYPE, FilterOperator.EQUAL, type)));
 
         try {
-            final Set<JSONObject> notifications = CollectionUtils.jsonArrayToSet(notificationMapper.get(query).
-                    optJSONArray(Keys.RESULTS));
+            final List<Notification> notifications = notificationMapper.getByUserIdHasReadDataType(userId,false,type);
+            final List<JSONObject> jsonObjects = JsonUtil.listToJSONList(notifications);
 
-            makeRead(notifications);
+            makeRead(jsonObjects);
         } catch (final Exception e) {
             LOGGER.error( "Makes read failed", e);
         }
@@ -492,16 +495,18 @@ public class NotificationMgmtService {
      * @param userId the specified user id
      */
     public void makeAllRead(final String userId) {
-        final Query query = new Query().setFilter(
-                CompositeFilterOperator.and(
-                        new PropertyFilter(Notification.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
-                        new PropertyFilter(Notification.NOTIFICATION_HAS_READ, FilterOperator.EQUAL, false)));
+//        final Query query = new Query().setFilter(
+//                CompositeFilterOperator.and(
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_HAS_READ, FilterOperator.EQUAL, false)));
 
         try {
-            final Set<JSONObject> notifications = CollectionUtils.jsonArrayToSet(notificationMapper.get(query).
-                    optJSONArray(Keys.RESULTS));
+            final List<Notification> notifications = notificationMapper.getByUserIdHasRead(userId,false);
 
-            makeRead(notifications);
+            final List<JSONObject> jsonObjects = JsonUtil.listToJSONList(notifications);
+
+            makeRead(jsonObjects);
+//            makeRead(notifications);
         } catch (final Exception e) {
             LOGGER.error( "Makes read failed", e);
         }
@@ -528,17 +533,19 @@ public class NotificationMgmtService {
      * @param commentIds the specified comment ids
      */
     public void makeRead(final String userId, final List<String> commentIds) {
-        final Query query = new Query().setFilter(
-                CompositeFilterOperator.and(
-                        new PropertyFilter(Notification.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
-                        new PropertyFilter(Notification.NOTIFICATION_HAS_READ, FilterOperator.EQUAL, false),
-                        new PropertyFilter(Notification.NOTIFICATION_DATA_ID, FilterOperator.IN, commentIds)));
+//        final Query query = new Query().setFilter(
+//                CompositeFilterOperator.and(
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_USER_ID, FilterOperator.EQUAL, userId),
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_HAS_READ, FilterOperator.EQUAL, false),
+//                        new PropertyFilter(NotificationUtil.NOTIFICATION_DATA_ID, FilterOperator.IN, commentIds)));
 
         try {
-            final Set<JSONObject> notifications = CollectionUtils.jsonArrayToSet(notificationMapper.get(query).
-                    optJSONArray(Keys.RESULTS));
+            final List<Notification> notifications = notificationMapper.getByUserIdHasReadDataId(userId,false,commentIds);
 
-            makeRead(notifications);
+            final List<JSONObject> jsonObjects = JsonUtil.listToJSONList(notifications);
+
+            makeRead(jsonObjects);
+//            makeRead(notifications);
         } catch (final Exception e) {
             LOGGER.error( "Makes read failed", e);
         }
@@ -548,10 +555,10 @@ public class NotificationMgmtService {
      * Makes the specified notifications have been read.
      *
      * @param notifications the specified notifications
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void makeRead(final Collection<JSONObject> notifications) throws ServiceException {
+    public void makeRead(final Collection<JSONObject> notifications) throws Exception {
         for (final JSONObject notification : notifications) {
             makeRead(notification);
         }
@@ -562,30 +569,30 @@ public class NotificationMgmtService {
      *
      * @param notification the specified notification, return directly if this notification has been read
      *                     (notification.hasRead equals to {@code true})
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void makeRead(final JSONObject notification) throws ServiceException {
-        if (notification.optBoolean(Notification.NOTIFICATION_HAS_READ)) {
+    public void makeRead(final JSONObject notification) throws Exception {
+        if (notification.optBoolean(NotificationUtil.NOTIFICATION_HAS_READ)) {
             return;
         }
 
         final String id = notification.optString(Keys.OBJECT_ID);
 
         try {
-            final JSONObject record = notificationMapper.get(id);
+            final Notification record = notificationMapper.getByOId(id);
             if (null == record) {
                 return;
             }
 
-            record.put(Notification.NOTIFICATION_HAS_READ, true);
+            record.setHasRead(String.valueOf( true));
 
             notificationMapper.update(id, record);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Makes notification as read failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -595,19 +602,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addBroadcastNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addBroadcastNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_BROADCAST);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_BROADCAST);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=broadcast] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -617,19 +624,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // transfer record id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addPointChargeNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addPointChargeNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_CHARGE);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_CHARGE);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=point_charge] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -639,19 +646,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // transfer record id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addAbusePointDeductNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addAbusePointDeductNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_ABUSE_POINT_DEDUCT);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_ABUSE_POINT_DEDUCT);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=abuse_point_deduct] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -661,19 +668,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // transfer record id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addPointExchangeNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addPointExchangeNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_EXCHANGE);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_EXCHANGE);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=point_exchange] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -683,19 +690,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // transfer record id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addPointTransferNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addPointTransferNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_TRANSFER);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_TRANSFER);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=point_transfer] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -708,9 +715,9 @@ public class NotificationMgmtService {
      * @throws Exception service exception
      */
     @Transactional
-    public void addArticleRewardNotification(final Notification notification) throws Exception {
+    public void addArticleRewardNotification(final JSONObject notification) throws Exception {
         try {
-            notification.setDataType(NotificationUtil.DATA_TYPE_C_POINT_ARTICLE_REWARD);
+            notification.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_ARTICLE_REWARD);
 
             addNotification(notification);
         } catch (final Exception e) {
@@ -727,19 +734,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // thank id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addArticleThankNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleThankNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_ARTICLE_THANK);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_ARTICLE_THANK);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article_thank] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -749,19 +756,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // reward id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addCommentThankNotification(final Notification requestJSONObject) throws ServiceException {
+    public void addCommentThankNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_POINT_COMMENT_THANK);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_POINT_COMMENT_THANK);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=comment_thank] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -771,20 +778,20 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": ""
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     // XXX: Unused
     @Transactional
-    public void addCommentNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addCommentNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_COMMENT);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_COMMENT);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=comment] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -794,19 +801,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": ""
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addAtNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addAtNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_AT);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_AT);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=at] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -816,20 +823,20 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": ""
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     // XXX: Unused
     @Transactional
-    public void addArticleNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addArticleNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_ARTICLE);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_ARTICLE);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=article] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -839,19 +846,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "" // article id
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addFollowingUserNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addFollowingUserNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_FOLLOWING_USER);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_FOLLOWING_USER);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=following_user] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -861,19 +868,19 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": ""
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addCommentedNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addCommentedNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_COMMENTED);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_COMMENTED);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=commented] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
@@ -883,39 +890,40 @@ public class NotificationMgmtService {
      * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": ""
-     * @throws ServiceException service exception
+     * @throws Exception service exception
      */
     @Transactional
-    public void addReplyNotification(final JSONObject requestJSONObject) throws ServiceException {
+    public void addReplyNotification(final JSONObject requestJSONObject) throws Exception {
         try {
-            requestJSONObject.put(Notification.NOTIFICATION_DATA_TYPE, Notification.DATA_TYPE_C_REPLY);
+            requestJSONObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, NotificationUtil.DATA_TYPE_C_REPLY);
 
             addNotification(requestJSONObject);
-        } catch (final MapperException e) {
+        } catch (final Exception e) {
             final String msg = "Adds a notification [type=reply] failed";
             LOGGER.error( msg, e);
 
-            throw new ServiceException(msg);
+            throw new Exception(msg);
         }
     }
 
     /**
      * Adds a notification with the specified request json object.
      *
-     * @param notification the specified request json object, for example,
+     * @param requestJSONObject the specified request json object, for example,
      *                          "userId"; "",
      *                          "dataId": "",
      *                          "dataType": int
      * @throws Exception Mapper exception
      */
-    private void addNotification(final Notification notification) throws Exception {
-//        final JSONObject notification = new JSONObject();
+    private void addNotification(final JSONObject requestJSONObject) throws Exception {
+        final JSONObject jsonObject = new JSONObject();
 
-        notification.setHasRead( false);
-//        notification.put(Notification.NOTIFICATION_USER_ID, requestJSONObject.optString(Notification.NOTIFICATION_USER_ID));
-//        notification.put(Notification.NOTIFICATION_DATA_ID, requestJSONObject.optString(Notification.NOTIFICATION_DATA_ID));
-//        notification.put(Notification.NOTIFICATION_DATA_TYPE, requestJSONObject.optInt(Notification.NOTIFICATION_DATA_TYPE));
+        jsonObject.put(NotificationUtil.NOTIFICATION_HAS_READ, false);
+        jsonObject.put(NotificationUtil.NOTIFICATION_USER_ID, requestJSONObject.optString(NotificationUtil.NOTIFICATION_USER_ID));
+        jsonObject.put(NotificationUtil.NOTIFICATION_DATA_ID, requestJSONObject.optString(NotificationUtil.NOTIFICATION_DATA_ID));
+        jsonObject.put(NotificationUtil.NOTIFICATION_DATA_TYPE, requestJSONObject.optInt(NotificationUtil.NOTIFICATION_DATA_TYPE));
 
+        Notification notification = JsonUtil.json2Bean(jsonObject.toString(),Notification.class);
         notificationMapper.add(notification);
 
         Symphonys.EXECUTOR_SERVICE.submit(() -> {
