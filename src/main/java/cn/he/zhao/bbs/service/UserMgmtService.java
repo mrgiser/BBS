@@ -334,7 +334,7 @@ public class UserMgmtService {
      *                          "userPassword": "", // Hashed
      * @throws ServiceException service exception
      */
-    public void updatePassword(final UserExt requestJSONObject) throws ServiceException {
+    public void updatePassword(final JSONObject requestJSONObject) throws ServiceException {
         final Transaction transaction = userMapper.beginTransaction();
 
         try {
@@ -697,7 +697,7 @@ public class UserMgmtService {
      * @param user   the specified user, contains the new email
      * @throws ServiceException service exception
      */
-    public void updateUserEmail(final String userId, final UserExt user) throws ServiceException {
+    public void updateUserEmail(final String userId, final JSONObject user) throws ServiceException {
         final String newEmail = user.optString(User.USER_EMAIL);
 
         final Transaction transaction = userMapper.beginTransaction();

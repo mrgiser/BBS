@@ -6,6 +6,7 @@ import cn.he.zhao.bbs.entityUtil.RoleUtil;
 import cn.he.zhao.bbs.entityUtil.UserExtUtil;
 import cn.he.zhao.bbs.spring.MD5;
 import cn.he.zhao.bbs.util.Ids;
+import cn.he.zhao.bbs.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -593,7 +594,8 @@ public class InitMgmtService {
             admin.setUserRole(RoleUtil.ROLE_ID_C_ADMIN);
             admin.setUserStatus( UserExtUtil.USER_STATUS_C_VALID);
             admin.setUserGuideStep(UserExtUtil.USER_GUIDE_STEP_FIN);
-            final String adminId = userMgmtService.addUser(admin);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(admin));
+            final String adminId = userMgmtService.addUser(jsonObject);
             admin.setOid(adminId);
 
             // Init default commenter (for sync comment from client)
@@ -605,7 +607,9 @@ public class InitMgmtService {
             defaultCommenter.setUserGuideStep(UserExtUtil.USER_GUIDE_STEP_FIN);
             defaultCommenter.setUserRole(UserExtUtil.DEFAULT_CMTER_ROLE);
             defaultCommenter.setUserStatus( UserExtUtil.USER_STATUS_C_VALID);
-            userMgmtService.addUser(defaultCommenter);
+
+            JSONObject jsonObject_defaultCommenter = new JSONObject(JsonUtil.objectToJson(defaultCommenter));
+            userMgmtService.addUser(jsonObject_defaultCommenter);
 
             // Add tags
             String tagTitle = Symphonys.get("systemAnnounce");

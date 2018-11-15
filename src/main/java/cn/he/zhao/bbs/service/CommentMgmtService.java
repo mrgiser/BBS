@@ -200,7 +200,8 @@ public class CommentMgmtService {
             final Notification notification = new Notification();
             notification.setUserId(commentAuthorId);
             notification.setDataId(rewardId);
-            notificationMgmtService.addCommentAcceptNotification(notification);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(notification));
+            notificationMgmtService.addCommentAcceptNotification(jsonObject);
 
             livenessMgmtService.incLiveness(articleAuthorId, LivenessUtil.LIVENESS_ACCEPT_ANSWER);
         } catch (final Exception e) {
@@ -341,7 +342,8 @@ public class CommentMgmtService {
             notification.setUserId( receiverId);
             notification.setDataId(rewardId);
 
-            notificationMgmtService.addCommentThankNotification(notification);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(notification));
+            notificationMgmtService.addCommentThankNotification(jsonObject);
 
             livenessMgmtService.incLiveness(senderId, LivenessUtil.LIVENESS_THANK);
         } catch (final Exception e) {

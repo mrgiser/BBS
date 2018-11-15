@@ -1090,7 +1090,8 @@ public class ArticleMgmtService {
             notification.setUserId(receiverId);
             notification.setDataId( rewardId);
 
-            notificationMgmtService.addArticleRewardNotification(notification);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(notification));
+            notificationMgmtService.addArticleRewardNotification(jsonObject);
 
             livenessMgmtService.incLiveness(senderId, LivenessUtil.LIVENESS_REWARD);
         } catch (final Exception e) {
@@ -1330,7 +1331,8 @@ public class ArticleMgmtService {
                 notification.setUserId( authorId);
                 notification.setDataId( articleId);
 
-                notificationMgmtService.addPerfectArticleNotification(notification);
+                JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(notification));
+                notificationMgmtService.addPerfectArticleNotification(jsonObject);
 
                 pointtransferMgmtService.transfer(PointtransferUtil.ID_C_SYS, authorId,
                         PointtransferUtil.TRANSFER_TYPE_C_PERFECT_ARTICLE, PointtransferUtil.TRANSFER_SUM_C_PERFECT_ARTICLE,

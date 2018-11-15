@@ -234,7 +234,7 @@ public class FollowQueryService {
      */
     public JSONObject getFollowingArticles(final int avatarViewMode, final String followerId, final int currentPageNum, final int pageSize) {
         final JSONObject ret = new JSONObject();
-        final List<Article> records = new ArrayList<>();
+        final List<JSONObject> records = new ArrayList<>();
         ret.put(Keys.RESULTS, (Object) records);
         ret.put(Pagination.PAGINATION_RECORD_COUNT, 0);
 
@@ -251,9 +251,10 @@ public class FollowQueryService {
                     continue;
                 }
 
-                articleQueryService.organizeArticle(avatarViewMode, article);
+                JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
+                articleQueryService.organizeArticle(avatarViewMode, jsonObject);
 
-                records.add(article);
+                records.add(jsonObject);
             }
 
             ret.put(Pagination.PAGINATION_RECORD_COUNT, result.optInt(Pagination.PAGINATION_RECORD_COUNT));
@@ -282,7 +283,7 @@ public class FollowQueryService {
      */
     public JSONObject getWatchingArticles(final int avatarViewMode, final String followerId, final int currentPageNum, final int pageSize) {
         final JSONObject ret = new JSONObject();
-        final List<Article> records = new ArrayList<>();
+        final List<JSONObject> records = new ArrayList<>();
         ret.put(Keys.RESULTS, (Object) records);
         ret.put(Pagination.PAGINATION_RECORD_COUNT, 0);
 
@@ -299,9 +300,10 @@ public class FollowQueryService {
                     continue;
                 }
 
-                articleQueryService.organizeArticle(avatarViewMode, article);
+                JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(article));
+                articleQueryService.organizeArticle(avatarViewMode, jsonObject);
 
-                records.add(article);
+                records.add(jsonObject);
             }
 
             ret.put(Pagination.PAGINATION_RECORD_COUNT, result.optInt(Pagination.PAGINATION_RECORD_COUNT));
