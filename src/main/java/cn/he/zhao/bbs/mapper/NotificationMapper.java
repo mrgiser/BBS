@@ -21,11 +21,27 @@ import cn.he.zhao.bbs.entity.Notification;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import java.util.List;
+
 
 public interface NotificationMapper {
 
+    Notification getByOId(final String oId);
 
-    public void removeByDataId(final String dataId) ;
+    List<Notification> getByUserIdHasReadDataType(final String userId,final boolean read, final int type);
+
+    List<Notification> getByUserIdHasReadDataId(final String userId,final boolean read, final List<String> commentIds);
+
+    List<Notification> getByUserIdHasRead(final String userId,final boolean read);
+
+    void removeByDataId(final String dataId) ;
 
     void add(Notification notification);
+
+    void update(final String oId, Notification notification);
+
+    Integer remove(final String oId);
+
+    Integer removeByUserIdAndDataType(final String userId, final int type);
 }
