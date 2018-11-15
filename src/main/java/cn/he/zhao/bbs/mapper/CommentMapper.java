@@ -42,6 +42,11 @@ public interface CommentMapper {
 
     void update(final String id, final Comment comment) ;
 
+    // TODO: 2018/11/16 数据库 string ID 与long对比？
+    @Select("select count(*) from comment where oId >= #{start} " +
+            "AND oId < #{end} " +
+            "AND commentStatus = #{commentStatus}")
+    Integer countByTime(final Long start, final Long end, final int commentStatus);
 
     void removeCommentByArticleId(final String commentOnArticleId);
 
@@ -58,4 +63,12 @@ public interface CommentMapper {
     //Gets the offered (accepted) comment of an article
     @Select("select * from comment WHERE commentOnArticleId = #{articleId} AND commentQnAOffered = 1 AND commentStatus = 0 ORDER BY commentScore DESC")
     List<Comment> getAcceptedCommentsForArticle(final String articleId);
+
+    @Select("select * from comment where commentOriginalCommentId = #{commentOriginalCommentId} AND commentStatus = #{commentStatus}")
+    List<Comment> getRepliesOfComment(final String commentOriginalCommentId,final int commentStatus);
+
+    @Select("select * from comment where commentOnArticleId = #{commentOnArticleId} " +
+            "AND commentScore > #{commentScore} " +
+            "AND commentStatus = #{commentStatus}")
+    List<Comment> getNiceCommentsofArticle(final String commentOnArticleId,final Double commentScore, final int commentStatus);
 }

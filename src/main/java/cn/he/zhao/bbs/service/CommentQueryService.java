@@ -20,10 +20,7 @@ package cn.he.zhao.bbs.service;
 import cn.he.zhao.bbs.entityUtil.CommentUtil;
 import cn.he.zhao.bbs.entityUtil.CommonUtil;
 import cn.he.zhao.bbs.entityUtil.UserExtUtil;
-import cn.he.zhao.bbs.spring.Locales;
-import cn.he.zhao.bbs.spring.Paginator;
-import cn.he.zhao.bbs.spring.SpringUtil;
-import cn.he.zhao.bbs.spring.Stopwatchs;
+import cn.he.zhao.bbs.spring.*;
 import cn.he.zhao.bbs.mapper.ArticleMapper;
 import cn.he.zhao.bbs.mapper.CommentMapper;
 import cn.he.zhao.bbs.mapper.UserMapper;
@@ -277,8 +274,11 @@ public class CommentQueryService {
             ret.put(CommentUtil.COMMENT_T_AUTHOR_THUMBNAIL_URL, comment.getCommentAuthorThumbnailURL());
             ret.put(CommentUtil.TIME_AGO, comment.getTimeAgo());
             ret.put(CommentUtil.COMMENT_CREATE_TIME_STR, comment.getCommentCreateTimeStr());
-            ret.put(CommentUtil.REWARED_COUNT, comment. (Common.REWARED_COUNT));
-            ret.put(CommentUtil.REWARDED, comment.get(Common.REWARDED));
+            // TODO: 2018/11/15 comment 没有一下值，设置为默认值？
+//            ret.put(Common.REWARED_COUNT, comment.getcommo (Common.REWARED_COUNT));
+//            ret.put(Common.REWARDED, comment.get(Common.REWARDED));
+            ret.put(Common.REWARED_COUNT, "");
+            ret.put(Common.REWARDED, false);
             ret.put(Keys.OBJECT_ID, commentId);
             ret.put(CommentUtil.COMMENT_CONTENT, comment.getCommentContent());
             ret.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
@@ -302,40 +302,44 @@ public class CommentQueryService {
      * @return a list of replies, return an empty list if not found
      */
     public List<JSONObject> getReplies(final int avatarViewMode, final int commentViewMode, final String commentId) {
-        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setPageSize(Integer.MAX_VALUE).setCurrentPageNum(1).setPageCount(1)
-                .setFilter(CompositeFilterOperator.and(
-                        new PropertyFilter(Comment.COMMENT_ORIGINAL_COMMENT_ID, FilterOperator.EQUAL, commentId),
-                        new PropertyFilter(Comment.COMMENT_STATUS, FilterOperator.EQUAL, Comment.COMMENT_STATUS_C_VALID)
-                ));
+
+        PageHelper.startPage(1,Integer.MAX_VALUE,"oId DESC");
+//        final Query query = new Query().addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
+//                setPageSize(Integer.MAX_VALUE).setCurrentPageNum(1).setPageCount(1)
+//                .setFilter(CompositeFilterOperator.and(
+//                        new PropertyFilter(CommentUtil.COMMENT_ORIGINAL_COMMENT_ID, FilterOperator.EQUAL, commentId),
+//                        new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
+//                ));
         try {
-            final List<JSONObject> comments = CollectionUtils.jsonArrayToList(
-                    commentMapper.get(query).optJSONArray(Keys.RESULTS));
+            final List<Comment> comments = commentMapper.getRepliesOfComment(commentId,CommentUtil.COMMENT_STATUS_C_VALID);
 
             organizeComments(avatarViewMode, comments);
 
             final int pageSize = Symphonys.getInt("articleCommentsPageSize");
 
             final List<JSONObject> ret = new ArrayList<>();
-            for (final JSONObject comment : comments) {
+            for (final Comment comment : comments) {
                 final JSONObject reply = new JSONObject();
                 ret.add(reply);
 
-                final JSONObject commentAuthor = comment.optJSONObject(Comment.COMMENT_T_COMMENTER);
-                if (UserExt.USER_XXX_STATUS_C_PRIVATE == commentAuthor.optInt(UserExt.USER_UA_STATUS)) {
-                    reply.put(Comment.COMMENT_UA, "");
+                final JSONObject commentAuthor = (JSONObject) comment.getCommenter();
+                if (UserExtUtil.USER_XXX_STATUS_C_PRIVATE == commentAuthor.optInt(UserExtUtil.USER_UA_STATUS)) {
+                    reply.put(CommentUtil.COMMENT_UA, "");
                 }
 
-                reply.put(Comment.COMMENT_T_AUTHOR_NAME, comment.optString(Comment.COMMENT_T_AUTHOR_NAME));
-                reply.put(Comment.COMMENT_T_AUTHOR_THUMBNAIL_URL, comment.optString(Comment.COMMENT_T_AUTHOR_THUMBNAIL_URL));
-                reply.put(Common.TIME_AGO, comment.optString(Common.TIME_AGO));
-                reply.put(Comment.COMMENT_CREATE_TIME_STR, comment.optString(Comment.COMMENT_CREATE_TIME_STR));
-                reply.put(Common.REWARED_COUNT, comment.optString(Common.REWARED_COUNT));
-                reply.put(Common.REWARDED, comment.optBoolean(Common.REWARDED));
-                reply.put(Keys.OBJECT_ID, comment.optString(Keys.OBJECT_ID));
-                reply.put(Comment.COMMENT_CONTENT, comment.optString(Comment.COMMENT_CONTENT));
+                reply.put(CommentUtil.COMMENT_T_AUTHOR_NAME, comment.getCommentAuthorName());
+                reply.put(CommentUtil.COMMENT_T_AUTHOR_THUMBNAIL_URL, comment.getCommentAuthorThumbnailURL());
+                reply.put(Common.TIME_AGO, comment.getTimeAgo());
+                reply.put(CommentUtil.COMMENT_CREATE_TIME_STR, comment.getCommentCreateTimeStr());
+                // TODO: 2018/11/15 comment 没有一下值，设置为默认值？
+//                reply.put(Common.REWARED_COUNT, comment.optString(Common.REWARED_COUNT));
+//                reply.put(Common.REWARDED, comment.optBoolean(Common.REWARDED));
+                reply.put(Common.REWARED_COUNT, "");
+                reply.put(Common.REWARDED, false);
+                reply.put(Keys.OBJECT_ID, comment.getOid());
+                reply.put(CommentUtil.COMMENT_CONTENT, comment.getCommentContent());
                 reply.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
-                        comment.optString(Comment.COMMENT_ON_ARTICLE_ID), reply.optString(Keys.OBJECT_ID),
+                        comment.getCommentOnArticleId(), reply.optString(Keys.OBJECT_ID),
                         commentViewMode, pageSize));
             }
 
@@ -360,28 +364,29 @@ public class CommentQueryService {
                                             final String articleId, final int fetchSize) {
         Stopwatchs.start("Gets nice comments");
         try {
-            final Query query = new Query().addSort(Comment.COMMENT_SCORE, SortDirection.DESCENDING).
-                    setPageSize(fetchSize).setCurrentPageNum(1).setPageCount(1)
-                    .setFilter(CompositeFilterOperator.and(
-                            new PropertyFilter(Comment.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
-                            new PropertyFilter(Comment.COMMENT_SCORE, FilterOperator.GREATER_THAN, 0D),
-                            new PropertyFilter(Comment.COMMENT_STATUS, FilterOperator.EQUAL, Comment.COMMENT_STATUS_C_VALID)
-                    ));
+            PageHelper.startPage(1,fetchSize,"commentScore DESC") ;
+//            final Query query = new Query().addSort(CommentUtil.COMMENT_SCORE, SortDirection.DESCENDING).
+//                    setPageSize(fetchSize).setCurrentPageNum(1).setPageCount(1)
+//                    .setFilter(CompositeFilterOperator.and(
+//                            new PropertyFilter(CommentUtil.COMMENT_ON_ARTICLE_ID, FilterOperator.EQUAL, articleId),
+//                            new PropertyFilter(CommentUtil.COMMENT_SCORE, FilterOperator.GREATER_THAN, 0D),
+//                            new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
+//                    ));
             try {
-                final List<JSONObject> ret = CollectionUtils.jsonArrayToList(
-                        commentMapper.get(query).optJSONArray(Keys.RESULTS));
+                final List<Comment> ret = commentMapper.getNiceCommentsofArticle(articleId,0D,CommentUtil.COMMENT_STATUS_C_VALID);
 
                 organizeComments(avatarViewMode, ret);
+                List<JSONObject> jsonObjects = JsonUtil.listToJSONList(ret);
 
                 final int pageSize = Symphonys.getInt("articleCommentsPageSize");
 
-                for (final JSONObject comment : ret) {
+                for (final JSONObject comment : jsonObjects) {
                     comment.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, getCommentPage(
                             articleId, comment.optString(Keys.OBJECT_ID),
                             commentViewMode, pageSize));
                 }
 
-                return ret;
+                return jsonObjects;
             } catch (final Exception e) {
                 LOGGER.error("Get nice comments failed", e);
 
@@ -403,14 +408,14 @@ public class CommentQueryService {
         final long start = Times.getDayStartTime(time);
         final long end = Times.getDayEndTime(time);
 
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
-                new PropertyFilter(Comment.COMMENT_STATUS, FilterOperator.EQUAL, Comment.COMMENT_STATUS_C_VALID)
-        ));
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
+//                new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
+//        ));
 
         try {
-            return (int) commentMapper.count(query);
+            return (int) commentMapper.countByTime(start,end,CommentUtil.COMMENT_STATUS_C_VALID);
         } catch (final Exception e) {
             LOGGER.error("Count day comment failed", e);
 
@@ -429,14 +434,14 @@ public class CommentQueryService {
         final long start = Times.getMonthStartTime(time);
         final long end = Times.getMonthEndTime(time);
 
-        final Query query = new Query().setFilter(CompositeFilterOperator.and(
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
-                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
-                new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
-        ));
+//        final Query query = new Query().setFilter(CompositeFilterOperator.and(
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.GREATER_THAN_OR_EQUAL, start),
+//                new PropertyFilter(Keys.OBJECT_ID, FilterOperator.LESS_THAN, end),
+//                new PropertyFilter(CommentUtil.COMMENT_STATUS, FilterOperator.EQUAL, CommentUtil.COMMENT_STATUS_C_VALID)
+//        ));
 
         try {
-            return (int) commentMapper.count(query);
+            return (int) commentMapper.countByTime(start,end, CommentUtil.COMMENT_STATUS_C_VALID);
         } catch (final Exception e) {
             LOGGER.error("Count month comment failed", e);
 
