@@ -149,7 +149,7 @@ public class IndexProcessor {
                 break;
             case "/users":
                 if (null != user) {
-                    final List<Article> followingUserArticles = articleQueryService.getFollowingUserArticles(
+                    final List<JSONObject> followingUserArticles = articleQueryService.getFollowingUserArticles(
                             avatarViewMode, user.optString(Keys.OBJECT_ID), 1, pageSize);
                     dataModel.put(Common.WATCHING_ARTICLES, followingUserArticles);
                 }

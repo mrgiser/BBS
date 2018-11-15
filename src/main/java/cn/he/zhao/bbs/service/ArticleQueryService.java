@@ -165,7 +165,7 @@ public class ArticleQueryService {
      * @return following tag articles, returns an empty list if not found
      * @throws Exception service exception
      */
-    public List<Article> getFollowingUserArticles(final int avatarViewMode, final String userId,
+    public List<JSONObject> getFollowingUserArticles(final int avatarViewMode, final String userId,
                                                      final int currentPageNum, final int pageSize) throws Exception {
         final List<JSONObject> users = (List<JSONObject>) followQueryService.getFollowingUsers(
                 avatarViewMode, userId, 1, Integer.MAX_VALUE).opt(Keys.RESULTS);
@@ -226,15 +226,16 @@ public class ArticleQueryService {
 //        final JSONArray data = result.optJSONArray(Keys.RESULTS);
 //        final List<JSONObject> ret = CollectionUtils.jsonArrayToList(data);
 
+        List<JSONObject> jsonObjects = JsonUtil.listToJSONList(result);
         try {
-            organizeArticles(avatarViewMode, result);
+            organizeArticles(avatarViewMode, jsonObjects);
         } catch (final Exception e) {
             LOGGER.error( "Organizes articles failed", e);
 
             throw new Exception(e);
         }
 
-        return result;
+        return jsonObjects;
     }
 
     /**
