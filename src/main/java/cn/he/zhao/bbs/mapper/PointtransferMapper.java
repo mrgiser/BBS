@@ -25,6 +25,8 @@ import java.util.List;
 
 public interface PointtransferMapper {
 
+    Pointtransfer get(final String oId);
+
     Integer getActivityEatingSnakeAvg(final String userId) ;
 
     @Select("select * from pointtransfer WHERE (fromId = #{userId} OR toId = #{userId}) AND  type = #{type}")
