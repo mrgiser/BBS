@@ -111,6 +111,26 @@ public class Comment {
 
     private transient boolean fromClient;
 
+    private transient String commentArticleTitle;
+
+    private transient String commentArticlePermalink;
+
+    public String getCommentArticlePermalink() {
+        return commentArticlePermalink;
+    }
+
+    public void setCommentArticlePermalink(String commentArticlePermalink) {
+        this.commentArticlePermalink = commentArticlePermalink;
+    }
+
+    public String getCommentArticleTitle() {
+        return commentArticleTitle;
+    }
+
+    public void setCommentArticleTitle(String commentArticleTitle) {
+        this.commentArticleTitle = commentArticleTitle;
+    }
+
     public boolean isFromClient() {
         return fromClient;
     }

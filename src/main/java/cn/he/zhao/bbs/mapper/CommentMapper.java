@@ -40,6 +40,8 @@ public interface CommentMapper {
 
     Comment get(final String id) ;
 
+    List<Comment> getAll();
+
     void update(final String id, final Comment comment) ;
 
     // TODO: 2018/11/16 数据库 string ID 与long对比？
@@ -71,4 +73,8 @@ public interface CommentMapper {
             "AND commentScore > #{commentScore} " +
             "AND commentStatus = #{commentStatus}")
     List<Comment> getNiceCommentsofArticle(final String commentOnArticleId,final Double commentScore, final int commentStatus);
+
+    @Select("select * from comment where commentAuthorId = #{userId} " +
+            "AND commentAnonymous = #{anonymous} ")
+    List<Comment> getByCommentAuthorIdAndCommentAnonymous(final String userId, final int anonymous);
 }
