@@ -1823,7 +1823,8 @@ public class AdminProcessor {
         user.setUserEmail(newEmail);
 
         try {
-            userMgmtService.updateUserEmail(userId, user);
+            JSONObject jsonObject = new JSONObject(JsonUtil.objectToJson(user));
+            userMgmtService.updateUserEmail(userId, jsonObject);
         } catch (final Exception e) {
 //            final AbstractFreeMarkerRenderer renderer = new SkinRenderer(request);
 //            context.setRenderer(renderer);
@@ -2321,7 +2322,7 @@ public class AdminProcessor {
 
         final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
-        final JSONObject result = commentQueryService.getComments(avatarViewMode, requestJSONObject, commentFields);
+        final JSONObject result = commentQueryService.getComments(avatarViewMode, requestJSONObject);
         dataModel.put(CommentUtil.COMMENTS, CollectionUtils.jsonArrayToList(result.optJSONArray(CommentUtil.COMMENTS)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
@@ -3107,9 +3108,10 @@ public class AdminProcessor {
                 final int pages = (int) Math.ceil((double) articleCount / 50.0);
 
                 for (int pageNum = 1; pageNum <= pages; pageNum++) {
-                    final List<JSONObject> articles = articleQueryService.getValidArticles(pageNum, 50, ArticleUtil.ARTICLE_TYPE_C_NORMAL, ArticleUtil.ARTICLE_TYPE_C_CITY_BROADCAST);
+                    final List<Article> articles = articleQueryService.getValidArticles(pageNum, 50, ArticleUtil.ARTICLE_TYPE_C_NORMAL, ArticleUtil.ARTICLE_TYPE_C_CITY_BROADCAST);
 
-                    for (final JSONObject article : articles) {
+                    List<JSONObject> jsonObjectList = JsonUtil.listToJSONList(articles);
+                    for (final JSONObject article : jsonObjectList) {
                         if (Symphonys.getBoolean("algolia.enabled")) {
                             searchMgmtService.updateAlgoliaDocument(article);
                         }
