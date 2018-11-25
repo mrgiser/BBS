@@ -1,6 +1,8 @@
 package cn.he.zhao.bbs.mapper;
 
 import cn.he.zhao.bbs.entity.Article;
+import cn.he.zhao.bbs.entityUtil.TagUtil;
+import cn.he.zhao.bbs.util.Symphonys;
 import org.apache.ibatis.annotations.Select;
 import org.json.JSONObject;
 
@@ -12,6 +14,8 @@ public interface ArticleMapper {
 //    @Autowired
 //    ArticleCache articleCache;
     Article get(final String oId);
+
+    List<Article> getAll();
 
     @Select("select * from article WHERE oId >= #{articleId}")
     List<Article> getGreaterThanID(final String articleId);
@@ -67,6 +71,15 @@ public interface ArticleMapper {
             + "</script>")
     List<Article> getByStatusTypeID(int status, int type, List<String> followingUserIds);
 
+    @Select("SELECT * FROM article WHERE articleStatus != #{status} AND articleType != #{type}")
+    List<Article> getByStatusType(int status, int type);
+
+    @Select("SELECT * FROM article WHERE articlePerfect = #{articlePerfect} ORDER BY articleCreateTime DESC")
+    List<Article> getByNewsArticlePerfect(final int articlePerfect);
+
+    @Select("SELECT * FROM article WHERE articlePerfect = #{articlePerfect}")
+    List<Article> getByArticlePerfect(final int articlePerfect);
+
     @Select("<script>"
             + "SELECT * FROM tagarticle WHERE articleStatus != #{articleStatus} AND oId in "
             + "<foreach item='item' index='index' collection='articleIds' open='(' separator=',' close=')'>"
@@ -87,12 +100,17 @@ public interface ArticleMapper {
             + "SELECT * FROM tagarticle WHERE oId in "
             + "<foreach item='item' index='index' collection='articleIds' open='(' separator=',' close=')'>"
             + "#{item}"
-            + "</foreach>"
+            + "</foreach> " +
+            "ORDER BY oId DESC "
             + "</script>")
     List<Article> getByArticleIds2(final List<String> articleIds);
 
     @Select("select * from article WHERE articleCity = #{city} ")
     List<Article> getByCity(final String city);
+
+    @Select("select * from article WHERE (articleType = #{type1} OR  articleType = #{type2}) " +
+            "AND articleStatus != #{articleStatus}")
+    List<Article> getByArticleTypeAndStatus(final int type1, final int type2,final int articleStatus);
 
     @Select("select * from article WHERE clientArticleId = #{clientArticleId} AND articleAuthorId = #{articleAuthorId} ")
     List<Article> getByClientArticleId(final String clientArticleId,final String articleAuthorId);
@@ -101,4 +119,39 @@ public interface ArticleMapper {
             "AND articleAnonymous = #{anonymous} " +
             "AND articleStatus = #{status}")
     List<Article> getByArticleAuthorIdArticleAnonymousStatus(String id,int anonymous, int status);
+
+    @Select("SELECT\n"
+            + "	oId,\n"
+            + "	articleStick,\n"
+            + "	articleCreateTime,\n"
+            + "	articleUpdateTime,\n"
+            + "	articleLatestCmtTime,\n"
+            + "	articleAuthorId,\n"
+            + "	articleTitle,\n"
+            + "	articleStatus,\n"
+            + "	articleViewCount,\n"
+            + "	articleType,\n"
+            + "	articlePermalink,\n"
+            + "	articleTags,\n"
+            + "	articleLatestCmterName,\n"
+            + "	syncWithSymphonyClient,\n"
+            + "	articleCommentCount,\n"
+            + "	articleAnonymous,\n"
+            + "	articlePerfect,\n"
+            + "	articleContent,\n"
+            + " articleQnAOfferPoint,\n"
+            + "	CASE\n"
+            + "WHEN articleLatestCmtTime = 0 THEN\n"
+            + "	oId\n"
+            + "ELSE\n"
+            + "	articleLatestCmtTime\n"
+            + "END AS flag\n"
+            + "FROM\n"
+            + "	`" + "article" + "`\n"
+            + " WHERE `articleType` != 1 AND `articleStatus` = 0 AND `articleTags` != '" + TagUtil.TAG_TITLE_C_SANDBOX + "'\n"
+            + " ORDER BY\n"
+            + "	articleStick DESC,\n"
+            + "	flag DESC\n"
+            + "LIMIT ? #{limit}" )
+    List<Article> getRecentArticles(final int limit);
 }

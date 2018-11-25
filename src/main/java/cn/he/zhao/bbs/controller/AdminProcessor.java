@@ -2154,21 +2154,21 @@ public class AdminProcessor {
             requestJSONObject.put(Keys.OBJECT_ID, articleId);
         }
 
-        final Map<String, Class<?>> articleFields = new HashMap<>();
-        articleFields.put(Keys.OBJECT_ID, String.class);
-        articleFields.put(ArticleUtil.ARTICLE_TITLE, String.class);
-        articleFields.put(ArticleUtil.ARTICLE_PERMALINK, String.class);
-        articleFields.put(ArticleUtil.ARTICLE_CREATE_TIME, Long.class);
-        articleFields.put(ArticleUtil.ARTICLE_VIEW_CNT, Integer.class);
-        articleFields.put(ArticleUtil.ARTICLE_COMMENT_CNT, Integer.class);
-        articleFields.put(ArticleUtil.ARTICLE_AUTHOR_ID, String.class);
-        articleFields.put(ArticleUtil.ARTICLE_TAGS, String.class);
-        articleFields.put(ArticleUtil.ARTICLE_STATUS, Integer.class);
-        articleFields.put(ArticleUtil.ARTICLE_STICK, Long.class);
+//        final Map<String, Class<?>> articleFields = new HashMap<>();
+//        articleFields.put(Keys.OBJECT_ID, String.class);
+//        articleFields.put(ArticleUtil.ARTICLE_TITLE, String.class);
+//        articleFields.put(ArticleUtil.ARTICLE_PERMALINK, String.class);
+//        articleFields.put(ArticleUtil.ARTICLE_CREATE_TIME, Long.class);
+//        articleFields.put(ArticleUtil.ARTICLE_VIEW_CNT, Integer.class);
+//        articleFields.put(ArticleUtil.ARTICLE_COMMENT_CNT, Integer.class);
+//        articleFields.put(ArticleUtil.ARTICLE_AUTHOR_ID, String.class);
+//        articleFields.put(ArticleUtil.ARTICLE_TAGS, String.class);
+//        articleFields.put(ArticleUtil.ARTICLE_STATUS, Integer.class);
+//        articleFields.put(ArticleUtil.ARTICLE_STICK, Long.class);
 
         final int avatarViewMode = (int) request.getAttribute(UserExtUtil.USER_AVATAR_VIEW_MODE);
 
-        final JSONObject result = articleQueryService.getArticles(avatarViewMode, requestJSONObject, articleFields);
+        final JSONObject result = articleQueryService.getArticles(avatarViewMode, requestJSONObject);
         dataModel.put(ArticleUtil.ARTICLES, CollectionUtils.jsonArrayToList(result.optJSONArray(ArticleUtil.ARTICLES)));
 
         final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
